@@ -1,0 +1,19 @@
+{
+    "name": "grey",
+    "version-string": "latest",
+    "dependencies": [
+        {
+            "name": "imgui",
+            "features": [
+                "win32-binding",
+                "dx11-binding",
+                "docking-experimental"
+            ],
+            "platform": "windows"
+        },
+        "implot",
+        "fmt",
+        "nlohmann-json",
+        "simpleini"
+    ]
+}
