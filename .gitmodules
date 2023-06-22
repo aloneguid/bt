@@ -1,6 +1,0 @@
-[submodule "common"]
-	path = common
-	url = https://github.com/aloneguid/common
-[submodule "grey"]
-	path = grey
-	url = https://github.com/aloneguid/grey
