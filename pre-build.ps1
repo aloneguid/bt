@@ -9,7 +9,38 @@ $cppLog = ".\bt\log.h"
 
 $txtLog = ""
 $cppStructs = ""
+$mdRel = ""
 
+# release notes for github
+$md0 = $log[0]
+if($md0.new) {
+    $mdRel += "## New Features`n"
+    foreach($item in $md0.new) {
+        $mdRel += "- $item`n"
+    }
+    $mdResl += "`n"
+}
+
+if($md0.improvements) {
+    $mdRel += "## Improvements`n"
+    foreach($item in $md0.improvements) {
+        $mdRel += "- $item`n"
+    }
+    $mdResl += "`n"
+}
+
+if($md0.bugs) {
+    $mdRel += "## Bugs Fixed`n"
+    foreach($item in $md0.bugs) {
+        $mdRel += "- $item`n"
+    }
+    $mdResl += "`n"
+}
+
+Write-Host $md0
+$md0 | Out-File release-notes.txt
+
+# text release notes and c++ header file
 foreach($lv in $log) {
     $txtLog += "$($lv.version) ($($lv.date))`n"
     $cppStructs += "    change_version {""$($lv.version)"", ""$($lv.date)"",`n";

@@ -22,6 +22,18 @@ jobs:
           workflow: build.yml
           workflow_conclusion: success
 
+      # https://github.com/softprops/action-gh-release
+      #- name: create gh release
+      #  uses: softprops/action-gh-release@v1
+      #  if: github.ref == 'refs/heads/master'
+      #  with:
+      #    tag_name: ${{ env.VERSION }}
+      #    name: ${{ env.VERSION }}
+      #    files: |
+      #      bin/*.msi
+      #      bin/*.zip
+      #    generate_release_notes: true
+
       - name: debug
         run: ls -R
         working-directory: .

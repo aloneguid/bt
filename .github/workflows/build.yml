@@ -12,7 +12,6 @@ on:
   push:
     branches:
       - master
-      - oss-release
 
   pull_request:
     branches:
@@ -58,6 +57,10 @@ jobs:
       run: ls -R
       working-directory: build 
 
+    # creates "atf" subdir and put the following:
+    # 1. msi installer, renamed after version number
+    # 2. zipped .exe
+    # 3. version.txt containing version number
     - name: prep artifacts
       run: |
         mkdir atf
