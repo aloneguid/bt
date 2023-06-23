@@ -21,7 +21,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # builds native codecs binary for all supported OSes
   build-native:
     runs-on: windows-latest 
     name: 'build'
@@ -53,5 +52,15 @@ jobs:
 
     - name: debug
       run: ls -R
-      working-directory: . 
+      working-directory: build 
+
+    - uses: actions/upload-artifact@v2
+      name: collect binaries
+      with:
+        name: bin
+        path: |
+          build/bt.msi
+          build/bt/Release/bt.exe
+
+
 
