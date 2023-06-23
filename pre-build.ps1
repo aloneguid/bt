@@ -12,7 +12,7 @@ $cppStructs = ""
 $mdRel = ""
 
 # release notes for github
-$md0 = $log[0]
+$md0 = $log[0].changes
 if($md0.new) {
     $mdRel += "## New Features`n"
     foreach($item in $md0.new) {
@@ -37,8 +37,8 @@ if($md0.bugs) {
     $mdResl += "`n"
 }
 
-Write-Host $md0
-$md0 | Out-File release-notes.txt
+Write-Host $mdRel
+$mdRel | Out-File release-notes.txt
 
 # text release notes and c++ header file
 foreach($lv in $log) {

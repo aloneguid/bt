@@ -2,17 +2,11 @@
 
 # manual only kick off
 on:
-  
-  push:
-    branches:
-      - master
-      - oss-release
-
   workflow_dispatch:
 
 jobs:
   release:
-    runs-on: windows-latest 
+    runs-on: ubuntu-latest 
 
     steps:
       
@@ -21,6 +15,8 @@ jobs:
         with:
           workflow: build.yml
           workflow_conclusion: success
+
+
 
       # https://github.com/softprops/action-gh-release
       #- name: create gh release
