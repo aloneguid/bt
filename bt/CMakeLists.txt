@@ -3,6 +3,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(APP_NAME bt)
+set(APP_LONG_NAME "Browser Tamer")
 set(APP_URL "https://www.aloneguid.uk/projects/bt/")
 
 find_package(fmt CONFIG REQUIRED)
@@ -17,6 +18,11 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/win32/*.cpp"
     "../common/config/config.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
+
+target_compile_definitions(${APP_NAME} PRIVATE
+    APP_SHORT_NAME="${APP_NAME}"
+    APP_LONG_NAME="${APP_LONG_NAME}"
+    APP_VERSION="${PROJECT_VERSION}")
 
 target_link_libraries(bt
 	libgrey

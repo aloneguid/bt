@@ -107,7 +107,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     }
 
     win32::shell_notify_icon sni{win32app.get_hwnd(), NotifyIconGuid, OWN_WM_NOTIFY_ICON_MESSAGE};
-    sni.set_tooptip(fmt::format("{} {}", AppName, Version));
+    sni.set_tooptip(fmt::format("{} {}", AppName, APP_VERSION));
 
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");

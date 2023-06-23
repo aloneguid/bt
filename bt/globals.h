@@ -12,12 +12,6 @@ const std::string AppName("Browser Tamer");
 
 const std::string SysAppName("bt");
 
-#if _DEBUG
-const std::string Version = "vNext";
-#else
-const std::string Version = "3.1.0";
-#endif
-
 const std::string AppDescription("Redirects open URLs to a browser of your choice.");
 
 const std::string ProtoName = "BrowserTamerHTM";

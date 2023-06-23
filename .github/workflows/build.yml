@@ -1,0 +1,75 @@
+name: 'Build'
+
+env:
+  VERSION: 3.1.1
+  BUILD_TYPE: Release
+  ARCH: x64
+  VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows
+  VCPKG_TRIPLET: x64-windows
+  VCPKG_CONFIG: Release
+
+on:
+  push:
+    branches:
+      - master
+      - oss-release
+
+  pull_request:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest 
+    name: 'build'
+
+    steps:
+      
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: pre-build patch script
+      run: .\pre-build.ps1
+      shell: pwsh
+
+    - uses: friendlyanon/setup-vcpkg@v1
+      # seems like the absense of commit hash expects vcpkg submodule, i don't want that
+      with:
+        committish: 1ba9a2591f15af5900f2ce2b3e2bf31771e3ac48 
+        # set to false to clear any cache in case of build errors
+        cache: true
+
+    - name: configure
+      run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
+      working-directory: . 
+
+    - name: build
+      run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
+      working-directory: . 
+
+    - name: pack
+      run: cpack -C ${{ env.BUILD_TYPE }}
+      working-directory: build
+
+    - name: debug
+      run: ls -R
+      working-directory: build 
+
+    - name: prep artifacts
+      run: |
+        mkdir atf
+        cp build/bt.msi atf/bt-${{ env.VERSION }}.msi
+        Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/bt-${{ env.VERSION }}.zip -CompressionLevel Optimal
+        "${{ env.VERSION }}" | Out-File atf/version.txt
+
+    - uses: actions/upload-artifact@v3
+      name: collect binaries
+      with:
+        name: bin
+        path: atf/*
+
+
+
