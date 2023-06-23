@@ -47,6 +47,10 @@ jobs:
       run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
       working-directory: . 
 
+    - name: pack
+      run: cpack -C ${{ env.BUILD_TYPE }}
+      working-directory: build
+
     - name: debug
       run: ls -R
       working-directory: . 

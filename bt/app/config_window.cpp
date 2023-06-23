@@ -24,7 +24,7 @@ using namespace grey;
 namespace bt
 {
     config_window::config_window(grey::grey_context& gctx)
-        : grey::window{gctx, AppName + " " + Version, 1000, 500}, gctx{gctx} {
+        : grey::window{gctx, AppName + " " + APP_VERSION, 1000, 500}, gctx{gctx} {
         scale = get_system_scale();
 
         // just in case

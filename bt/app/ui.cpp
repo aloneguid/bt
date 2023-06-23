@@ -22,7 +22,7 @@
 
 namespace bt::ui {
 
-    alg::tracker t{SysAppName, Version};
+    alg::tracker t{SysAppName, APP_VERSION};
     unique_ptr<grey::backend> active_backend;
     std::function<void(bool is_open)> on_ui_open_changed;
     bool is_main_instance{false};
@@ -78,7 +78,7 @@ namespace bt::ui {
             on_ui_open_changed(true);
         }
 
-        string title = fmt::format("{} {}", AppName, Version);
+        string title = fmt::format("{} {}", AppName, APP_VERSION);
         active_backend = grey::backend::make_platform_default(title);
 
         string theme_id = config::i.get_theme();

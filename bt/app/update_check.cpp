@@ -12,8 +12,8 @@ namespace bt::app {
         win32::http h;
         string latest_version = h.get("www.aloneguid.uk", "/projects/bt/bin/latest.txt");
         str::trim(latest_version);
-        bool has_update = !latest_version.empty() && latest_version != Version;
-        latest_version_number = has_update ? latest_version : Version;
+        bool has_update = !latest_version.empty() && latest_version != APP_VERSION;
+        latest_version_number = has_update ? latest_version : APP_VERSION;
         return has_update;
     }
 

@@ -27,7 +27,7 @@ It is completely free and closed source (to avoid distractions as it's a persona
         about_txt->text_wrap_pos = 300 * scale;
         spacer();
 
-        make_label("Version:"); same_line(); make_label(Version)->set_emphasis(emphasis::primary);
+        make_label("Version:"); same_line(); make_label(APP_VERSION)->set_emphasis(emphasis::primary);
 
         make_label("ImGui Version:"); same_line();
         make_label(ImGui::GetVersion())->set_emphasis(emphasis::primary); same_line();

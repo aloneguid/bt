@@ -108,20 +108,3 @@ iex "cmake --build build --config $cconfig"
 cd build
 cpack -C $buildType
 cd ..
-
-if($Blog) {
-    # set content in latest.txt
-    $version | Set-Content "$($blogBin)latest.txt"
-
-    # zip executable
-    Compress-Archive -Path .\build\bt\release\bt.exe `
-        -DestinationPath "$($blogBin)bt-$($version).zip" `
-        -CompressionLevel Optimal -Force
-
-    # copy installer
-    cp ".\build\bt.msi" "$($blogBin)bt-$($version).msi"
-
-    # copy links
-    (Get-Content $blogIndexMd) -replace "\[installer\]\(.+?\)", "[installer](bin/bt-$($version).msi)" | Out-File $blogIndexMd
-    (Get-Content $blogIndexMd) -replace "\[portable\]\(.+?\)", "[portable](bin/bt-$($version).zip)" | Out-File $blogIndexMd
-}
