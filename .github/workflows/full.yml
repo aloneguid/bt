@@ -3,6 +3,7 @@ name: 'Full Flow'
 env:
   VERSION: 3.2.0
   BUILD_TYPE: Release
+  ARCH: x64
 
 on:
   push:
@@ -30,8 +31,8 @@ jobs:
 
     - name: Set up vcpkg
       run: |
-        echo "VCPKG_DEFAULT_VCPKG_TRIPLET=${{ matrix.arch }}-windows-static" >> $env:GITHUB_ENV
-        echo "VCPKG_TRIPLET=${{ matrix.arch }}-windows-static" >> $env:GITHUB_ENV
+        echo "VCPKG_DEFAULT_VCPKG_TRIPLET=${{ env.ARCH }}-windows-static" >> $env:GITHUB_ENV
+        echo "VCPKG_TRIPLET=${{ env.ARCH }}-windows-static" >> $env:GITHUB_ENV
         echo "VCPKG_CONFIG=Release" >> $env:GITHUB_ENV
 
     - uses: friendlyanon/setup-vcpkg@v1
@@ -40,10 +41,6 @@ jobs:
         committish: 1ba9a2591f15af5900f2ce2b3e2bf31771e3ac48 
         # set to false to clear any cache in case of build errors
         cache: false
-
-    - name: show cmake config
-      run: cmake -h
-      working-directory: . 
 
     - name: configure
       run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}" ${{ env.CMAKE_OPTIONS }}
