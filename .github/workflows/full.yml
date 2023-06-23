@@ -4,6 +4,9 @@ env:
   VERSION: 3.2.0
   BUILD_TYPE: Release
   ARCH: x64
+  VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows
+  VCPKG_TRIPLET: x64-windows
+  VCPKG_CONFIG: Release
 
 on:
   push:
@@ -29,12 +32,6 @@ jobs:
       with:
         submodules: true
 
-    - name: Set up vcpkg
-      run: |
-        echo "VCPKG_DEFAULT_VCPKG_TRIPLET=${{ env.ARCH }}-windows-static" >> $env:GITHUB_ENV
-        echo "VCPKG_TRIPLET=${{ env.ARCH }}-windows-static" >> $env:GITHUB_ENV
-        echo "VCPKG_CONFIG=Release" >> $env:GITHUB_ENV
-
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
@@ -43,7 +40,7 @@ jobs:
         cache: false
 
     - name: configure
-      run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}" ${{ env.CMAKE_OPTIONS }}
+      run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
       working-directory: . 
 
     - name: build
