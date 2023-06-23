@@ -1,0 +1,21 @@
+﻿name: Release
+
+# manual only kick off
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: windows-latest 
+
+    steps:
+      
+      - name: ⬇️ Download artifacts from latest workflow
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          workflow_conclusion: success
+
+      - name: debug
+        run: ls -R
+        working-directory: .
