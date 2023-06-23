@@ -31,12 +31,16 @@ jobs:
       with:
         submodules: true
 
+    - name: pre-build patch script
+      run: .\pre-build.ps1
+      shell: pwsh
+
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
         committish: 1ba9a2591f15af5900f2ce2b3e2bf31771e3ac48 
         # set to false to clear any cache in case of build errors
-        cache: false
+        cache: true
 
     - name: configure
       run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
@@ -54,13 +58,17 @@ jobs:
       run: ls -R
       working-directory: build 
 
+    - name: prep artifacts
+      run: |
+        mkdir atf
+        cp build/bt.msi atf/bt-${{ env.VERSION }}.msi
+        Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/bt-${{ env.VERSION }}.zip -CompressionLevel Optimal
+
     - uses: actions/upload-artifact@v2
       name: collect binaries
       with:
         name: bin
-        path: |
-          build/bt.msi
-          build/bt/Release/bt.exe
+        path: atf/*
 
 
 
