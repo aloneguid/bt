@@ -2,6 +2,10 @@
 
 # manual only kick off
 on:
+  
+  release:
+    types: [published]
+
   workflow_dispatch:
 
 jobs:
