@@ -3,8 +3,10 @@
 # manual only kick off
 on:
   
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
+      - oss-release
 
   workflow_dispatch:
 
