@@ -1,0 +1,60 @@
+name: 'Full Flow'
+
+env:
+  VERSION: 3.2.0
+  BUILD_TYPE: Release
+
+on:
+  push:
+    branches:
+      - master
+      - oss-release
+
+  pull_request:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  # builds native codecs binary for all supported OSes
+  build-native:
+    runs-on: windows-latest 
+    name: 'build: ${{ matrix.os }} (${{ matrix.arch }})'
+
+    steps:
+      
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Set up vcpkg
+      if: matrix.os == 'windows-latest'
+      run: |
+        echo "VCPKG_DEFAULT_VCPKG_TRIPLET=${{ matrix.arch }}-windows-static" >> $env:GITHUB_ENV
+        echo "VCPKG_TRIPLET=${{ matrix.arch }}-windows-static" >> $env:GITHUB_ENV
+        echo "VCPKG_CONFIG=Release" >> $env:GITHUB_ENV
+
+    - uses: friendlyanon/setup-vcpkg@v1
+      # seems like the absense of commit hash expects vcpkg submodule, i don't want that
+      with:
+        committish: c30de8e1369e03f4a569f8f224eed418dd0949bb
+        # set to false to clear any cache in case of build errors
+        cache: false
+
+    - name: show cmake config
+      run: cmake -h
+      working-directory: native
+
+    - name: configure
+      run: cmake -B build -S . -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}" ${{ env.CMAKE_OPTIONS }}
+      working-directory: native
+
+    - name: build
+      run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
+      working-directory: native
+
+    - name: debug
+      run: ls -R
+      working-directory: native
+
