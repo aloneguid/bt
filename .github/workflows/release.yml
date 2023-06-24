@@ -16,25 +16,22 @@ jobs:
           workflow: build.yml
           workflow_conclusion: success
 
-      - name: set version environment variable
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: 🔢 set version environment variable
         run: |
           echo "VERSION=$(cat bin/version.txt)" >> "$GITHUB_ENV"
 
-      - name: debug
-        run: echo ${{ env.VERSION }}
-
       # https://github.com/softprops/action-gh-release
-      #- name: create gh release
-      #  uses: softprops/action-gh-release@v1
-      #  if: github.ref == 'refs/heads/master'
-      #  with:
-      #    tag_name: ${{ env.VERSION }}
-      #    name: ${{ env.VERSION }}
-      #    files: |
-      #      bin/*.msi
-      #      bin/*.zip
-      #    generate_release_notes: true
-
-      - name: debug
-        run: ls -R
-        working-directory: .
+      - name: 📦 create release
+        uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          files: |
+            bin/*.msi
+            bin/*.zip
+          body_path: bin/release-notes.txt
