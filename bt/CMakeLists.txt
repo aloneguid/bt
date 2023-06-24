@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(APP_NAME bt)
 set(APP_LONG_NAME "Browser Tamer")
 set(APP_URL "https://www.aloneguid.uk/projects/bt/")
+set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
 
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -22,7 +23,8 @@ add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 target_compile_definitions(${APP_NAME} PRIVATE
     APP_SHORT_NAME="${APP_NAME}"
     APP_LONG_NAME="${APP_LONG_NAME}"
-    APP_VERSION="${PROJECT_VERSION}")
+    APP_VERSION="${PROJECT_VERSION}"
+    APP_GITHUB_URL="${APP_GITHUB_URL}")
 
 target_link_libraries(bt
 	libgrey

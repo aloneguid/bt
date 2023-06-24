@@ -12,7 +12,7 @@ using namespace std;
 namespace fs = std::filesystem;
 
 namespace bt {
-    const string settings_root = string("SOFTWARE\\") + AppName;
+    const string settings_root = string("SOFTWARE\\") + APP_LONG_NAME;
     const string IIDKeyName = "iid";
     const string BrowserPrefix = "browser";
 

@@ -16,14 +16,14 @@ namespace bt
         return vector<system_check> {
             system_check{
                 "sys_browser", "Register as proxy browser",
-                fmt::format("{} needs to be registered as a browser in Windows in order to become a proxy.", AppName),
-                []() { return setup::is_installed_as_browser(AppName); },
+                fmt::format("{} needs to be registered as a browser in Windows in order to become a proxy.", APP_LONG_NAME),
+                []() { return setup::is_installed_as_browser(APP_LONG_NAME); },
                 []() { setup::register_as_browser_and_custom_protocol(); return true; }},
 
                 system_check{
                     "proto_http",
                     "Set as HTTP protocol handler",
-                    fmt::format("{} needs to be set as HTTP protocol handler so that Windows starts forwarding HTTP links to it.", AppName),
+                    fmt::format("{} needs to be set as HTTP protocol handler so that Windows starts forwarding HTTP links to it.", APP_LONG_NAME),
                     []() {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
@@ -38,7 +38,7 @@ namespace bt
                 system_check{
                     "proto_https",
                     "Set as HTTPS protocol handler",
-                    fmt::format("{} needs to be set as HTTPS protocol handler so that Windows starts forwarding HTTPS links to it.", AppName),
+                    fmt::format("{} needs to be set as HTTPS protocol handler so that Windows starts forwarding HTTPS links to it.", APP_LONG_NAME),
                     []() {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
@@ -70,7 +70,7 @@ namespace bt
     }
 
     std::string setup::get_browser_registration_reg_path() {
-        return fmt::format("Software\\Clients\\StartMenuInternet\\{}", AppName);
+        return fmt::format("Software\\Clients\\StartMenuInternet\\{}", APP_LONG_NAME);
     }
 
     void setup::register_browser() {
@@ -79,10 +79,10 @@ namespace bt
         string app_root = get_browser_registration_reg_path();
         string cap_root = fmt::format("{}\\Capabilities", app_root);
 
-        set_value(hive::current_user, app_root, AppName);
+        set_value(hive::current_user, app_root, APP_LONG_NAME);
 
         //add capabilities
-        set_value(hive::current_user, cap_root, AppName, "ApplicationName");
+        set_value(hive::current_user, cap_root, APP_LONG_NAME, "ApplicationName");
         set_value(hive::current_user, cap_root, AppDescription, "ApplicationDescription");
         set_value(hive::current_user, cap_root, app_path + ",0", "ApplicationIcon");
 
@@ -112,22 +112,22 @@ namespace bt
            fmt::format("\"{}\"", app_path));
 
         //register caps
-        set_value(hive::current_user, "Software\\RegisteredApplications", cap_root, AppName);
+        set_value(hive::current_user, "Software\\RegisteredApplications", cap_root, APP_LONG_NAME);
 
         //register HTML handler
         string handler_path = string("Software\\Classes\\") + ProtoName;
-        set_value(hive::current_user, handler_path, AppName + " HTML Document");
+        set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " HTML Document");
         set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",0");
-        set_value(hive::current_user, handler_path + "\\Application", AppName, "ApplicationName");
+        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
         set_value(hive::current_user, handler_path + "\\Application", AppDescription, "ApplicationDescription");
         set_value(hive::current_user, handler_path + "\\shell\\open\\command",
            string("\"") + app_path + "\" %1");
 
         //register PDF handler
         handler_path = string("Software\\Classes\\") + PdfProtoName;
-        set_value(hive::current_user, handler_path, AppName + " PDF Document");
+        set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " PDF Document");
         set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",1");
-        set_value(hive::current_user, handler_path + "\\Application", AppName, "ApplicationName");
+        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
         set_value(hive::current_user, handler_path + "\\Application", AppDescription, "ApplicationDescription");
         set_value(hive::current_user, handler_path + "\\shell\\open\\command",
            string("\"") + app_path + "\" %1");

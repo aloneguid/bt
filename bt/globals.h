@@ -8,8 +8,6 @@
 const std::string Win32ClassName("BTWindow");
 const std::string AppGuid("026741D2-FF77-462B-AD70-4140697C8AE1");
 
-const std::string AppName("Browser Tamer");
-
 const std::string SysAppName("bt");
 
 const std::string AppDescription("Redirects open URLs to a browser of your choice.");

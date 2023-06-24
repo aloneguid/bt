@@ -24,7 +24,7 @@ using namespace grey;
 namespace bt
 {
     config_window::config_window(grey::grey_context& gctx)
-        : grey::window{gctx, AppName + " " + APP_VERSION, 1000, 500}, gctx{gctx} {
+        : grey::window{gctx, string{APP_LONG_NAME} + " " + APP_VERSION, 1000, 500}, gctx{gctx} {
         scale = get_system_scale();
 
         // just in case
@@ -163,10 +163,10 @@ namespace bt
     void config_window::refresh_proto_status(std::shared_ptr<grey::label> lbl, bool is) {
         if(is) {
             lbl->set_emphasis(emphasis::primary);
-            lbl->tooltip = fmt::format("{} protocol is handled by {}", lbl->get_value(), AppName);
+            lbl->tooltip = fmt::format("{} protocol is handled by {}", lbl->get_value(), APP_LONG_NAME);
         } else {
             lbl->set_emphasis(emphasis::error);
-            lbl->tooltip = fmt::format("{} protocol is not handled by {},\ninterception will not work!", lbl->get_value(), AppName);
+            lbl->tooltip = fmt::format("{} protocol is not handled by {},\ninterception will not work!", lbl->get_value(), APP_LONG_NAME);
         }
     }
 

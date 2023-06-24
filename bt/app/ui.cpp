@@ -78,7 +78,7 @@ namespace bt::ui {
             on_ui_open_changed(true);
         }
 
-        string title = fmt::format("{} {}", AppName, APP_VERSION);
+        string title = fmt::format("{} {}", APP_LONG_NAME, APP_VERSION);
         active_backend = grey::backend::make_platform_default(title);
 
         string theme_id = config::i.get_theme();

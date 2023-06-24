@@ -234,6 +234,6 @@ namespace bt {
     }
 
     string get_settings_root() {
-        return string("SOFTWARE\\") + AppName;
+        return string("SOFTWARE\\") + APP_LONG_NAME;
     }
 }
