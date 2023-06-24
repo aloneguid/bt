@@ -16,7 +16,11 @@ jobs:
           workflow: build.yml
           workflow_conclusion: success
 
+      - name: set version environment variable
+        run: echo VERSION=$(cat bin/version.txt) >> $env:GITHUB_ENV
 
+      - name: debug
+        run: echo ${{ env.VERSION }}
 
       # https://github.com/softprops/action-gh-release
       #- name: create gh release
