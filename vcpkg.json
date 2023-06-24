@@ -9,7 +9,7 @@
                 "dx11-binding",
                 "docking-experimental"
             ],
-            "platform": "windows & static"
+            "platform": "windows"
         },
         "implot",
         "fmt",
