@@ -17,7 +17,8 @@ jobs:
           workflow_conclusion: success
 
       - name: set version environment variable
-        run: echo VERSION=$(cat bin/version.txt) >> $env:GITHUB_ENV
+        run: |
+          echo "VERSION=$(cat bin/version.txt)" >> "$GITHUB_ENV"
 
       - name: debug
         run: echo ${{ env.VERSION }}
