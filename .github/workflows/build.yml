@@ -44,9 +44,9 @@ jobs:
     - name: configure
       run: |
         cmake -B build -S . \
-          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
-          -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" `
-          -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}" `
+          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+          -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" \
+          -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}" \
           -D CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
       working-directory: . 
 
