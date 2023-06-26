@@ -618,6 +618,19 @@ special keyword - %url% which is replaced by opening url.)";
                 idx->is_enabled = false;
 
                 ctx.container->same_line();
+                auto lst_scope = ctx.container->make_listbox("");
+                lst_scope->mode = listbox_mode::combo;
+                lst_scope->items.push_back(list_item{"any"});
+                lst_scope->items.push_back(list_item{"domain"});
+                lst_scope->items.push_back(list_item{"path"});
+                lst_scope->width = 80 * scale;
+                lst_scope->selected_index = 0;
+                lst_scope->tooltip = "Match scope i.e. where to look in the URL to match the text.\nBy default, matches anywhere, but you can restrict to domain or path.";
+
+                ctx.container->same_line();
+                ctx.container->make_label("-")->is_enabled = false;
+
+                ctx.container->same_line();
                 auto rv = ctx.container->make_input("");
                 rv->set_value(ctx.data->value);
 
@@ -627,6 +640,13 @@ special keyword - %url% which is replaced by opening url.)";
                 rm->tooltip = "delete rule";
 
                 // handlers
+
+                lst_scope->on_selected = [this, ctx](size_t idx, grey::list_item&) {
+                    ctx.data->scope = (match_scope)idx;
+                    browser::persist_cache();
+                    ui::ensure_no_instances();
+                };
+
                 rv->on_value_changed = [this, bi, ctx](string& s) {
                     ctx.data->value = s;
                     browser::persist_cache();

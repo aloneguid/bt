@@ -2,6 +2,9 @@
 #include <windows.h>
 #include <filesystem>
 #include <set>
+#include <algorithm>
+#include <cctype>
+#include <functional>
 #include "win32/shell.h"
 #include "win32/process.h"
 #include "str.h"
@@ -29,12 +32,92 @@ namespace bt {
     }
 
     match_rule::match_rule(const std::string& line) {
-        value = line;
-        str::trim(value);
+        string src = line;
+        str::trim(src);
+
+        for(string p : str::split(src, "|")) {
+            if(p.empty()) continue;
+
+            size_t idx = p.find_first_of(':');
+            if(idx != string::npos) {
+                string key = p.substr(0, idx);
+                if(key == "scope" && (idx + 1 < p.size())) {
+                    scope = (match_scope)str::to_int(p.substr(idx + 1));
+                }
+            } else {
+                value = p;
+            }
+        }
+    }
+
+    std::string match_rule::to_string() const {
+        switch(scope) {
+            case match_scope::any:
+                return value;
+            case match_scope::domain:
+                return fmt::format("{} (in domain)", value);
+            case match_scope::path:
+                return fmt::format("{} (in path)", value);
+        }
+
+        return "?";
+    }
+
+    std::string match_rule::to_line() const {
+        string s = value;
+        str::trim(s);
+        if(!s.empty()) {
+            if(scope != match_scope::any) {
+                s = fmt::format("|scope:{}|{}", (int)scope, s);
+            }
+        }
+        return s;
+    }
+
+    bool match_rule::parse_url(const string& url, string& proto, string& host, string& path) {
+        const string prot_end("://");
+
+        size_t idx = url.find_first_of(prot_end);
+        if(idx == string::npos) {
+            proto = "";
+            host = url;
+        } else {
+            proto = url.substr(0, idx);
+            host = idx+ prot_end.size() < url.size() 
+                ? url.substr(idx + prot_end.size())
+                : "";
+        }
+
+        idx = host.find_first_of('/');
+        if(idx == string::npos) {
+            path = "";
+        } else {
+
+            path = host.substr(idx + 1);
+            host = host.substr(0, idx);
+        }
+
+        return true;
     }
 
     bool match_rule::is_match(const std::string& line) const {
-        return contains_ic(line, value);
+
+        switch(scope) {
+            case match_scope::any:
+                return contains_ic(line, value);
+            case match_scope::domain: {
+                string proto, host, path;
+                if(!parse_url(line, proto, host, path)) return false;
+                return contains_ic(host, value);
+            }
+            case match_scope::path: {
+                string proto, host, path, query;
+                if(!parse_url(line, proto, host, path)) return false;
+                return contains_ic(path, value);
+            }
+        }
+
+        return false;        
     }
 
     browser::browser(
@@ -67,6 +150,10 @@ namespace bt {
             is_firefox = true;
             vdf = "Mozilla\\Firefox\\Profiles";
         }
+    }
+
+    bool match_rule::operator==(const match_rule& other) const {
+        return value == other.value && scope == other.scope;
     }
 
     bool operator==(const browser& b1, const browser& b2) {
@@ -281,12 +368,14 @@ namespace bt {
     }
 
     bool browser_instance::add_rule(const std::string& rule_text) {
+        auto new_rule = make_shared<match_rule>(rule_text);
+
         for (const auto& rule : rules) {
-            if (rule->value == rule_text)
+            if (*rule == *new_rule)
                 return false;
         }
 
-        rules.push_back(make_shared<match_rule>(rule_text));
+        rules.push_back(new_rule);
 
         return true;
     }
@@ -321,13 +410,10 @@ namespace bt {
     vector<string> browser_instance::get_rules_as_text_clean() const {
         vector<string> res;
         for (const auto& r : rules) {
-            string clean_rule = r->value;
-            str::trim(clean_rule);
-            if (!clean_rule.empty()) {
-                res.push_back(clean_rule);
-            }
+            string s = r->to_line();
+            if(!s.empty())
+                res.push_back(s);
         }
-
         return res;
     }
 
@@ -335,8 +421,9 @@ namespace bt {
         for (string& rule : rules_txt) {
             string clean_rule = rule;
             str::trim(clean_rule);
-            if (!clean_rule.empty())
+            if(!clean_rule.empty()) {
                 add_rule(rule);
+            }
         }
     }
 }

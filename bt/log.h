@@ -46,7 +46,7 @@ const std::vector<change_version> ChangeLog {
         {
             "Browser discovery is only triggered by user request, so we don't re-discover on every launch. It makes antivirus software more happy",
             "All the browser metadata is saved inside the .ini file",
-            "Configuration file location is now at LocalAppData\bt\config.ini",
+            "Configuration file location is now at LocalAppData/bt/config.ini",
             "Installers are now .msi based",
             "Show notification when link is intercepted (off by default)",
         },
