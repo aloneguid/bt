@@ -8,7 +8,7 @@
 #include "ui.h"
 #include "../globals.h"
 #include <fmt/core.h>
-#include "../res.h"
+#include "../res.inl"
 #include "win32/clipboard.h"
 
 using namespace grey;

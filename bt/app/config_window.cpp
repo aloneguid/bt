@@ -12,7 +12,7 @@
 #include "../globals.h"
 #include <filesystem>
 #include <fmt/core.h>
-#include "../res.h"
+#include "../res.inl"
 #include "config.h"
 #include "ui.h"
 #include "../log.h"

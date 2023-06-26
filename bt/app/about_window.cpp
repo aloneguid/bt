@@ -1,7 +1,7 @@
 #include "about_window.h"
 #include <fmt/core.h>
 #include "../globals.h"
-#include "../res.h"
+#include "../res.inl"
 #include "ui.h"
 #include <fmt/core.h>
 #include "win32/shell.h"
