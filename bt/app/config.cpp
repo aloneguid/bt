@@ -151,19 +151,6 @@ namespace bt {
         cfg.commit();
     }
 
-    bool config::get_autoshutdown() {
-        return cfg.get_value("autoshutdown") == "y";
-    }
-
-    void config::set_autoshutdown(bool enabled) {
-        if(enabled) {
-            cfg.set_value("autoshutdown", "y");
-        } else {
-            cfg.delete_key("autoshutdown");
-        }
-        cfg.commit();
-    }
-
     bool config::get_notify_on_rule_hit() {
         return cfg.get_value("notify_on_rule_hit") == "y";
     }

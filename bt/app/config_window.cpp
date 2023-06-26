@@ -170,8 +170,6 @@ namespace bt
         for(auto& theme : gctx.list_themes()) {
             mi_themes->add(fmt::format("set_theme_{}", theme.id), theme.name);
         }
-        auto mi_as = mi_settings->add("autoshutdown", "Auto-shutdown");
-        mi_as->is_selected = config::i.get_autoshutdown();
 
         auto mi_on_rule_hit_notify = mi_settings->add("notify_on_rule_hit", "Notify on rule hit");
         mi_on_rule_hit_notify->is_selected = config::i.get_notify_on_rule_hit();
@@ -378,126 +376,6 @@ special keyword - %url% which is replaced by opening url.)";
             browser_free_area->spacer();
             bind_edit_rules(browser_free_area, bi);
         }
-
-        /*for(auto bi : b->instances) {
-            auto tab = profiles_tabs->make(bi->name);
-
-            tab->spacer();
-
-
-            // toolbar for profile
-            auto cmd_test = tab->make_button(ICON_FA_EXTERNAL_LINK " test");
-            cmd_test->tooltip = fmt::format("test by opening a link of profile {} in {} browser", 
-                bi->name, b->display_name);
-            cmd_test->on_click = [this, bi](component&) {
-                bi->launch(url_payload{HomeUrl, "", "ui_test"});
-            };
-
-            if(!bi->home_path.empty()) {
-                tab->same_line();
-                auto cmd_vdf = tab->make_button(ICON_FA_FOLDER_OPEN);
-                cmd_vdf->tooltip = fmt::format("open {}'s local folder in Windows Explorer", bi->name);
-                cmd_vdf->on_pressed = [this, bi](button&) {
-                    win32::shell::exec(bi->home_path, "");
-                };
-            }
-
-            if(!b->is_system) {
-                tab->same_line();
-                auto rm = tab->make_button(ICON_FA_MINUS " delete");
-                rm->set_emphasis(emphasis::error);
-                rm->tooltip = "delete this custom profile";
-                rm->on_pressed = [this, b, bi](button&) {
-                    std::erase_if(b->instances, [bi](auto i) { return i->sys_name == bi->sys_name;  });
-                    browser::persist_cache();
-                    handle_selection(b);
-                };
-
-                auto txt_name = tab->make_input("name");
-                txt_name->set_value(bi->name);
-                txt_name->tooltip = "how this browser is presented in profile list and picker UI";
-
-                auto txt_exe_path = tab->make_input("");
-                txt_exe_path->is_enabled = false;
-                txt_exe_path->set_value(bi->open_cmd);
-                txt_exe_path->tooltip = "full path to browser executable.";
-
-                tab->same_line();
-                auto lbl_exe = tab->make_label("exe");
-
-                auto txt_arg = tab->make_input("arg");
-                txt_arg->set_value(bi->launch_arg);
-                txt_arg->tooltip =
-                    R"(arg can contain special keyword - %url% which will be then
-replaced by URL clicked.)";
-
-                txt_name->is_enabled = txt_arg->is_enabled = false;
-            }
-
-            // basic metadata (disabled for system browsers)
-            auto txt_name = tab->make_input("name");
-            txt_name->set_value(bi->name);
-            txt_name->tooltip = "how this browser is presented in profile list and picker UI";
-
-            auto txt_exe_path = tab->make_input("");
-            txt_exe_path->is_enabled = false;
-            txt_exe_path->set_value(bi->open_cmd);
-            txt_exe_path->tooltip = "full path to browser executable.";
-            if(!b->is_system) {
-                // file selection button
-                tab->same_line();
-                auto cmd_exe = tab->make_button(ICON_FA_FOLDER_OPEN);
-                cmd_exe->tooltip = "pick executable";
-                cmd_exe->on_pressed = [bi, txt_exe_path](button&) {
-                    bi->open_cmd = win32::shell::file_open_dialog("Windows Executable", "*.exe");
-                    txt_exe_path->set_value(bi->open_cmd);
-                    browser::persist_cache();
-                };
-            }
-            tab->same_line();
-            auto lbl_exe = tab->make_label("exe");
-
-            auto txt_arg = tab->make_input("arg");
-            txt_arg->set_value(bi->launch_arg);
-            txt_arg->tooltip =
-                R"(arg can contain special keyword - %url% which will be then
-replaced by URL clicked.)";
-
-            txt_name->is_enabled = txt_arg->is_enabled = !b->is_system;
-
-            if(!b->is_system) {
-                // validation logic
-
-                auto validate_and_save = [this, bi, txt_name, txt_exe_path, txt_arg, lbl_exe]() {
-                    txt_name->is_in_error_state = txt_name->get_value().empty();
-                    txt_exe_path->is_in_error_state = !std::filesystem::exists(txt_exe_path->get_value());
-                    lbl_exe->set_emphasis(txt_exe_path->is_in_error_state
-                        ? emphasis::error : emphasis::none);
-
-                    bool is_valid = !txt_name->is_in_error_state && !txt_exe_path->is_in_error_state;
-
-                    if(is_valid) {
-                        bi->name = txt_name->get_value();
-                        bi->open_cmd = txt_exe_path->get_value();
-                        bi->launch_arg = txt_arg->get_value();
-
-                        browser::persist_cache();
-                        ui::ensure_no_instances();
-                    }
-                };
-
-                txt_name->on_value_changed = [validate_and_save](string&) { validate_and_save(); };
-                txt_exe_path->on_value_changed = [validate_and_save](string&) { validate_and_save(); };
-                txt_arg->on_value_changed = [validate_and_save](string&) { validate_and_save(); };
-
-                validate_and_save();
-            }
-
-            // rules
-            tab->spacer();
-
-            bind_edit_rules(tab, bi);
-        }*/
     }
 
     void config_window::handle_menu_click(grey::menu_item& mi) {
@@ -563,10 +441,6 @@ replaced by URL clicked.)";
                ui::open_method::configured);
         } else if(mi.id == "picker") {
             config::i.set_picker_enabled(!mi.is_selected);
-            mi.is_selected = !mi.is_selected;
-            ui::ensure_no_instances();
-        } else if(mi.id == "autoshutdown") {
-            config::i.set_autoshutdown(!mi.is_selected);
             mi.is_selected = !mi.is_selected;
             ui::ensure_no_instances();
         } else if(mi.id == "notify_on_rule_hit") {

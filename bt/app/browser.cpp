@@ -267,8 +267,6 @@ namespace bt {
         }
 
         win32::shell::exec(open_cmd, arg);
-
-        last_useful_activity = std::chrono::steady_clock::now();
     }
 
     bool browser_instance::is_match(const std::string& url, match_rule& mr) const {

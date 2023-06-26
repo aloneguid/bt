@@ -35,8 +35,6 @@ namespace bt::ui
 
     void flush();
 
-    void autoshutdown(size_t inactive_mins);
-
     void render_ui_frame_if_required();
 
     void url_open(url_payload up, open_method method);

@@ -49,29 +49,6 @@ void execute(const string& data) {
     }
 }
 
-void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
-
-    bt::ui::flush();
-
-    if(bt::config::i.get_autoshutdown()) {
-        auto asdiff = std::chrono::steady_clock::now() - last_useful_activity;
-        auto asdiff_mins = duration_cast<std::chrono::minutes>(asdiff).count();
-        bool shutdown = asdiff_mins >= AutoshudownIntervalMinutes;
-
-        if(shutdown) {
-            bt::ui::autoshutdown(asdiff_mins);
-            ::PostQuitMessage(0);
-        }
-    }
-}
-
-void update_check() {
-    string v;
-    if(bt::app::has_new_version(v)) {
-
-    }
-}
-
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     string arg;
@@ -174,11 +151,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     execute(arg);
 
-    // set 1h
-    ::SetTimer(win32app.get_hwnd(), 1, 
-        1000 * 60 * AutoshudownIntervalMinutes, // ms * sec * min
-        KeepAliveTimerProc);
-
     app_event.connect([&sni](const string& name, const string& arg1, const string& arg2) {
         if(name == "new_version") {
             sni.display_notification("New Version", fmt::format("Version {} is now available!", arg1));
@@ -198,8 +170,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     }
 
     win32app.run();
-
-    bt::ui::flush();
 
     return 0;
 }

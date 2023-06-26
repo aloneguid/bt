@@ -34,25 +34,8 @@ namespace bt::ui {
 
         t.track(map<string, string>
         {
-            { "event", "start" },
-            { "dir", fss::get_current_dir() }
+            { "event", "start" }
         }, true);
-    }
-
-    void flush() {
-        t.track(map<string, string>
-        {
-            { "event", "ping" }
-        }, true);
-    }
-
-    void autoshutdown(size_t inactive_mins) {
-        t.track(map<string, string> {
-            { "event", "autoshutdown" },
-            { "inactive_mins", std::to_string(inactive_mins)}
-        }, false);
-
-        flush();
     }
 
     void render_ui_frame_if_required() {
@@ -206,12 +189,6 @@ namespace bt::ui {
 
     void coffee(const string& from) {
         ui::url_open(url_payload{CoffeePageUrl, "", "ui_coffee"}, ui::open_method::silent);
-
-        t.track(map<string, string>
-        {
-            { "event", "give_coffee" },
-            { "from", from }
-        }, false);
     }
 
     bool is_picker_hotkey_down() {

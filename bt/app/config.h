@@ -36,9 +36,6 @@ namespace bt {
         int get_popularity(const std::string& long_sys_name);
         void set_popularity(const std::string& long_sys_name, int value);
 
-        bool get_autoshutdown();
-        void set_autoshutdown(bool enabled);
-
         bool get_notify_on_rule_hit();
         void set_notify_on_rule_hit(bool notify);
 

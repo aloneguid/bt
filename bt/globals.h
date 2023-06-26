@@ -28,8 +28,4 @@ const std::string CoffeePageUrl = "https://www.buymeacoffee.com/alonecoffee";
 
 const std::string ArgSplitter = "|";
 
-static std::chrono::steady_clock::time_point last_useful_activity = std::chrono::steady_clock::now();
-
-const size_t AutoshudownIntervalMinutes = 30;
-
 extern lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;

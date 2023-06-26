@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.1.2",
+        "date": "2023-06-26",
+        "changes": {
+            "new": [
+                "Autoshutdown feature removed as not an important function of this app"
+            ]
+        }
+    },
+    {
         "version": "3.1.1",
         "date": "2023-06-26",
         "changes": {
