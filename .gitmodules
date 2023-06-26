@@ -4,3 +4,6 @@
 [submodule "grey"]
 	path = grey
 	url = https://github.com/aloneguid/grey
+[submodule "bt/ext/lsignal"]
+	path = bt/ext/lsignal
+	url = https://github.com/cpp11nullptr/lsignal
