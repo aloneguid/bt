@@ -8,6 +8,9 @@
             ],
             "improvements": [
                 "To avoid distractions, CPU/Memory/Framerate debug info moved to about window"
+            ],
+            "bugs": [
+                "update check will only occur every 24 hours"
             ]
         }
     },
