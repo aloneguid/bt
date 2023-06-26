@@ -13,7 +13,8 @@
                 "CMAKE_TOOLCHAIN_FILE": {
                     "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                     "type": "FILEPATH"
-                }
+                },
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static"
             },
             "condition": {
                 "type": "equals",
@@ -30,8 +31,7 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "VCPKG_TARGET_TRIPLET": "x64-windows"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -39,8 +39,7 @@
             "displayName": "x64 Release",
             "inherits": "x64-debug",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "VCPKG_TARGET_TRIPLET": "x64-windows"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         }
     ]

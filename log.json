@@ -1,7 +1,7 @@
 [
     {
         "version": "3.1.1",
-        "date": "2023-06-23",
+        "date": "2023-06-26",
         "changes": {
             "new": [
                 "This is the first fully open-source version, where all the code and releases are published in the open on GitHub."

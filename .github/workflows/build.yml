@@ -4,20 +4,11 @@ env:
   VERSION: 3.1.1
   BUILD_TYPE: Release
   ARCH: x64
-  VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows
-  VCPKG_TRIPLET: x64-windows
+  VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
+  VCPKG_TRIPLET: x64-windows-static
   VCPKG_CONFIG: Release
 
-on:
-  push:
-    branches:
-      - master
-
-  pull_request:
-    branches:
-      - master
-
-  workflow_dispatch:
+on: [push, workflow_dispatch]
 
 jobs:
   build:
