@@ -16,7 +16,7 @@ namespace bt {
     const string IIDKeyName = "iid";
     const string BrowserPrefix = "browser";
 
-    common::config cfg{ (fs::path{win32::shell::get_local_app_data_path()} / SysAppName / "config.ini").string() };
+    common::config cfg{ (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / "config.ini").string() };
 
     config config::i;
 

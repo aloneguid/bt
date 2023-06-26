@@ -3,12 +3,16 @@
 #include "../globals.h"
 #include "../res.h"
 #include "ui.h"
+#include <fmt/core.h>
+#include "win32/shell.h"
+#include "win32/sysinfo.h"
+#include "str.h"
 
 using namespace std;
 using namespace grey;
 
 namespace bt {
-    about_window::about_window(grey::grey_context& ctx) : grey::window{ctx, "About", 310, 290} {
+    about_window::about_window(grey::grey_context& ctx) : grey::window{ctx, "About", 310, 350}, ctx{ctx} {
         can_resize = false;
         float scale = get_system_scale();
 
@@ -33,16 +37,32 @@ It super fast, extremely light on resources, completely free and open source.)")
         same_line(); make_label(ImGui::GetVersion())->set_emphasis(emphasis::primary);
         same_line(); make_label("(docking branch)");
 
+        // sys info
+        spacer();
+
+        st_fps = make_label("");
+
+        auto lbl = make_label(&mem_display);
+        lbl->tooltip = "Process memory usage (when this dialog is closed, usage goes down massively)";
+
+        auto st_cpu = make_label(&cpu_display);
+        st_cpu->tooltip = "Current CPU load of your system in percentages.";
+
         separator();
 
-        auto cmd_homepage = make_button("Homepage");
+        auto cmd_homepage = make_button(ICON_FA_HOUSE " Home");
         cmd_homepage->on_pressed = [this](button&) {
             ui::url_open(url_payload{HomeUrl, "", "ui_about_home"}, ui::open_method::configured);
         };
 
         same_line();
-        make_button("GitHub")->on_pressed = [](button&) {
+        make_button(ICON_FA_GITHUB " GitHub")->on_pressed = [](button&) {
             ui::url_open(url_payload{APP_GITHUB_URL, "", "ui_about_github"}, ui::open_method::configured);
+        };
+
+        same_line();
+        make_button(ICON_FA_MUG_HOT " Coffee")->on_pressed = [](button&) {
+            bt::ui::coffee("about");
         };
 
         same_line();
@@ -50,5 +70,37 @@ It super fast, extremely light on resources, completely free and open source.)")
         cmd_close->on_pressed = [this](button&) {
             is_visible = false;
         };
+
+        on_frame = [this](grey::component& c) {
+            this->tag_float += ImGui::GetIO().DeltaTime;
+
+            if(this->tag_float >= 1) {
+                refresh_system_status();
+
+                this->tag_float = 0;
+            }
+        };
+
+        refresh_system_status();
+    }
+
+    void about_window::refresh_system_status() {
+        st_fps->set_value(fmt::format("{} {:.1f}", ICON_FA_FILM, ImGui::GetIO().Framerate));
+        st_fps->tooltip = fmt::format(
+            "Framerate: {:.1f}\nScale: {:.1f}\nSystem DPI: {}\nWindow DPI: {}",
+            ImGui::GetIO().Framerate,
+            get_system_scale(),
+            win32::shell::get_dpi(),
+            win32::shell::get_dpi((HWND)ctx.get_native_window_handle()));
+
+        // memory usage
+        win32::process p;
+        uint64_t working_set;
+        if(p.get_memory_info(working_set)) {
+            mem_display = fmt::format("{} {}", ICON_FA_MICROCHIP, str::to_human_readable_size(working_set));
+        }
+
+        // total CPU usage
+        cpu_display = fmt::format("{} {:.1f}", ICON_FA_MICROCHIP, win32::system_info::get_cpu_usage_perc());
     }
 }

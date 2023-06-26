@@ -36,16 +36,6 @@ namespace bt
     void config_window::init() {
         has_menu_space = true;
 
-        on_frame = [this](grey::component& c) {
-            this->last_updated_sec += ImGui::GetIO().DeltaTime;
-
-            if(this->last_updated_sec >= 1) {
-                refresh_system_status();
-
-                this->last_updated_sec = 0;
-            }
-        };
-
         build_menu();
 
         panel_no_browsers = make_child_window();
@@ -89,8 +79,6 @@ namespace bt
 
         build_status_bar();
 
-        refresh_system_status();
-
 #if _DEBUG
         dbg_demo = make_demo();
         dbg_demo->is_visible = false;
@@ -114,50 +102,19 @@ namespace bt
 
     void config_window::build_status_bar() {
         auto status = make_status_bar();
-        st_fps = status->make_label("");
-
-        status->same_line(60 * scale);
-        auto lbl = status->make_label(&mem_display);
-        lbl->tooltip = "Process memory usage (when this dialog is closed, usage goes down massively)";
-
-        status->same_line(150 * scale);
-        auto st_cpu = status->make_label(&cpu_display);
-        st_cpu->tooltip = "Current CPU load of your system in percentages.";
-
-        status->same_line(220 * scale);
-        st_health = status->make_label(ICON_FA_HEARTBEAT);
+        st_health = status->make_label(ICON_FA_HEART);
         st_health->on_click = [this](component&) {
             w_dash->is_visible = true;
             check_health();
         };
 
         status->make_label("|")->is_enabled = false;
-        auto coffee = status->make_label(ICON_FA_COFFEE);
+        auto coffee = status->make_label(ICON_FA_MUG_HOT);
         coffee->set_emphasis(emphasis::warning);
         coffee->tooltip = "I need some coffee to work on the next version ;)";
         coffee->on_click = [this](component&) {
             bt::ui::coffee("status_bar");
         };
-    }
-
-    void config_window::refresh_system_status() {
-        st_fps->set_value(fmt::format("{} {:.1f}", ICON_FA_FILM, ImGui::GetIO().Framerate));
-        st_fps->tooltip = fmt::format(
-            "Framerate: {:.1f}\nScale: {:.1f}\nSystem DPI: {}\nWindow DPI: {}",
-            ImGui::GetIO().Framerate,
-            get_system_scale(),
-            win32::shell::get_dpi(),
-            win32::shell::get_dpi((HWND)gctx.get_native_window_handle()));
-
-        // memory usage
-        win32::process p;
-        uint64_t working_set;
-        if(p.get_memory_info(working_set)) {
-            mem_display = fmt::format("{} {}", ICON_FA_MICROCHIP, str::to_human_readable_size(working_set));
-        }
-
-        // total CPU usage
-        cpu_display = fmt::format("{} {:.1f}", ICON_FA_TACHOMETER, win32::system_info::get_cpu_usage_perc());
     }
 
     void config_window::refresh_proto_status(std::shared_ptr<grey::label> lbl, bool is) {
@@ -175,20 +132,20 @@ namespace bt
 
         // FILE
         auto mi_file = menu->items()->add("", "File");
-        mi_file->add("+b", "Add Custom Browser", ICON_FA_PLUS);
-        auto mi_ini = mi_file->add("", "config.ini", ICON_FA_STREET_VIEW);
+        mi_file->add("+b", "Add Custom Browser", ICON_FA_CIRCLE_PLUS);
+        auto mi_ini = mi_file->add("", "config.ini", ICON_FA_GEARS);
         mi_ini->add("ini", "Open");
         mi_ini->add("ini+c", "Copy path to clipboard");
-        mi_file->add("x", "Exit", ICON_FA_SIGN_OUT);
+        mi_file->add("x", "Exit", ICON_FA_ARROW_RIGHT_FROM_BRACKET);
         
 
         // TOOLS
         auto mi_tools = menu->items()->add("", "Tools");
-        mi_tools->add("dash", "Readiness Dashboard", ICON_FA_TH_LIST);
-        mi_tools->add("test", "URL Tester", ICON_FA_RANDOM);
-        mi_tools->add("windows_defaults", "Windows Defaults", ICON_FA_COG);
-        mi_tools->add("refresh", "Rediscover Browsers", ICON_FA_MAGIC);
-        mi_tools->add("open_picker", "Test URL Picker");
+        mi_tools->add("dash", "Readiness Dashboard", ICON_FA_GAUGE);
+        mi_tools->add("test", "URL Tester", ICON_FA_TIMELINE);
+        mi_tools->add("windows_defaults", "Windows Defaults", ICON_FA_WINDOWS);
+        mi_tools->add("refresh", "Rediscover Browsers", ICON_FA_RETWEET);
+        mi_tools->add("open_picker", "Test URL Picker", ICON_FA_CROSSHAIRS);
         auto mi_tbs = mi_tools->add("", "Troubleshooting");
         mi_tbs->add("fix_xbt", "Re-register Custom Protocol");
         mi_tbs->add("fix_browser", "Re-register as Browser");
@@ -204,12 +161,12 @@ namespace bt
         set_open_method("");
         auto mi_phk = mi_open_mode->add("", "Also Open On");
         mi_phk_never = mi_phk->add("mi_phk_never", "Never");
-        mi_phk_ctrlshift = mi_phk->add("mi_phk_cs", "CTRL+SHIFT+ " ICON_FA_MOUSE_POINTER);
-        mi_phk_ctrlalt = mi_phk->add("mi_phk_ca", "CTRL+ALT+ " ICON_FA_MOUSE_POINTER);
-        mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FA_MOUSE_POINTER);
+        mi_phk_ctrlshift = mi_phk->add("mi_phk_cs", "CTRL+SHIFT+ " ICON_FA_ARROW_POINTER);
+        mi_phk_ctrlalt = mi_phk->add("mi_phk_ca", "CTRL+ALT+ " ICON_FA_ARROW_POINTER);
+        mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FA_ARROW_POINTER);
         set_picker_hotkey("");
 
-        auto mi_themes = mi_settings->add("", "Theme");
+        auto mi_themes = mi_settings->add("", "Theme", ICON_FA_PAINT_ROLLER);
         for(auto& theme : gctx.list_themes()) {
             mi_themes->add(fmt::format("set_theme_{}", theme.id), theme.name);
         }
@@ -222,26 +179,22 @@ namespace bt
         // HELP
         auto mi_help = menu->items()->add("", "Help");
 
-        if(has_software_update) {
-            mi_help->add("update", fmt::format("Update to {}", latest_version), ICON_FA_CHEVRON_UP);
-        }
-
         auto mi_links = mi_help->add("", "Extensions", ICON_FA_PUZZLE_PIECE);
         mi_links->add("chrome_ex", "Google Chrome", ICON_FA_CHROME);
         mi_links->add("edge_ex", "Microsoft Edge", ICON_FA_EDGE);
 
-        mi_help->add("contact", "Contact", ICON_FA_EMAIL);
-        mi_help->add("coffee", "Buy Me a Coffee", ICON_FA_COFFEE);
-        mi_help->add("changelog", "Change Log");
-        mi_help->add("check_version", "Check for Updates", ICON_FA_CHEVRON_UP);
+        mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
+        mi_help->add("coffee", "Buy Me a Coffee", ICON_FA_MUG_HOT);
+        mi_help->add("changelog", "Change Log", ICON_FA_LIST);
+        mi_help->add("check_version", "Check for Updates", ICON_FA_CODE_BRANCH);
 
         auto mi_reg = mi_help->add("", "Registry")->add("", "Copy path to clipboard");
         mi_reg->add("reg_xbt", "Custom Protocol");
         mi_reg->add("reg_browser", "Browser Registration");
 
-        mi_help->add("?", "About");
+        mi_help->add("?", "About", ICON_FA_INFO);
 #if _DEBUG
-        mi_help->add("demo", "Demo", ICON_FA_ADJUST);
+        mi_help->add("demo", "Demo", ICON_FA_BOOK);
 #endif
     }
 
@@ -251,7 +204,7 @@ namespace bt
         browser_toolbar->clear();
 
         // universal test button
-        auto cmd_test = browser_toolbar->make_button(ICON_FA_EXTERNAL_LINK " test");
+        auto cmd_test = browser_toolbar->make_button(ICON_FA_LINK " test");
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
@@ -286,14 +239,14 @@ namespace bt
 
                 if(b->is_firefox) {
                     g_static->same_line();
-                    auto pmgr = g_static->make_button(ICON_FA_TH_LARGE);
+                    auto pmgr = g_static->make_button(ICON_FA_LIST);
                     pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
                     pmgr->on_pressed = [b](button&) {
                         win32::shell::exec(b->open_cmd, "-P");
                     };
 
                     g_static->same_line();
-                    pmgr = g_static->make_button(ICON_FA_TH_LIST);
+                    pmgr = g_static->make_button(ICON_FA_LIST);
                     pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
                     pmgr->on_pressed = [b](button&) {
                         win32::shell::exec(b->open_cmd, "about:profiles");
@@ -326,7 +279,7 @@ namespace bt
         } else {
             browser_toolbar->same_line();
             auto cmd_rm = browser_toolbar->make_button(
-                ICON_FA_TIMES " delete", false, grey::emphasis::error);
+                ICON_FA_TRASH " delete", false, grey::emphasis::error);
             cmd_rm->tooltip = "Completely deletes this browser, no questions asked";
             cmd_rm->on_pressed = [this, b](grey::button&) {
 
@@ -683,15 +636,15 @@ replaced by URL clicked.)";
 
         if(b->instances.size() > 0) {
             if(b->is_system) {
-                auto i_where = c->make_label(fmt::format("{} {}", ICON_FA_USER_CIRCLE_2, b->instances.size()));
+                auto i_where = c->make_label(fmt::format("{} {}", ICON_FA_USER, b->instances.size()));
                 i_where->tooltip = str::humanise(b->instances.size(), "profile", "profiles");
                 i_where->is_enabled = false;
             } else {
-                auto lbl_custom = c->make_label(ICON_FA_USER_MD);
+                auto lbl_custom = c->make_label(ICON_FA_USER);
                 lbl_custom->tooltip = "User Defined";
             }
         } else {
-            auto i_where = c->make_label(ICON_FA_USER_CIRCLE_2);
+            auto i_where = c->make_label(ICON_FA_USER);
             i_where->tooltip = "no profiles";
             i_where->is_enabled = false;
         }
@@ -773,12 +726,12 @@ replaced by URL clicked.)";
 
         tab->make_label("Rules");
 
-        auto radd = tab->make_button(ICON_FA_PLUS " add");
+        auto radd = tab->make_button(ICON_FA_CIRCLE_PLUS " add");
         radd->set_emphasis(emphasis::primary);
 
         tab->same_line();
 
-        auto rca = tab->make_button("clear all");
+        auto rca = tab->make_button(ICON_FA_TRASH " clear all");
         rca->set_emphasis(emphasis::warning);
 
         auto rw = tab->make_child_window();
@@ -795,7 +748,7 @@ replaced by URL clicked.)";
                 rv->set_value(ctx.data->value);
 
                 ctx.container->same_line();
-                auto rm = ctx.container->make_button(ICON_FA_TIMES);
+                auto rm = ctx.container->make_button(ICON_FA_DELETE_LEFT);
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
 

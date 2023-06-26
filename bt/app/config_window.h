@@ -19,7 +19,6 @@ namespace bt
         float scale;
         float last_updated_sec{1.0f};
         bool is_editing_profile{false};
-        bool has_software_update{false};
         bool is_http{false};
         bool is_https{false};
         bool is_xbt{false};
@@ -42,13 +41,7 @@ namespace bt
         std::shared_ptr<grey::tabs> profiles_tabs;
         std::shared_ptr<grey::child> browser_free_area;
 
-        std::shared_ptr<grey::label> st_fps;
-        //std::string fps_display;
-        //std::string scale_display;
-
-        std::string mem_display;
         std::shared_ptr<grey::label> st_health;
-        std::string cpu_display;
 
         // used to display hotkeys but AV flags this
         //std::shared_ptr<grey::label> st_hotkeys;
@@ -69,7 +62,6 @@ namespace bt
         void build_menu();
         void build_default_browser_menu();
         void build_status_bar();
-        void refresh_system_status();
         void refresh_proto_status(std::shared_ptr<grey::label> lbl, bool is);
 
         void handle_selection(std::shared_ptr<bt::browser> b);

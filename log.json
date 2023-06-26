@@ -5,6 +5,9 @@
         "changes": {
             "new": [
                 "This is the first fully open-source version, where all the code and releases are published in the open on GitHub."
+            ],
+            "improvements": [
+                "To avoid distractions, CPU/Memory/Framerate debug info moved to about window"
             ]
         }
     },
