@@ -3,17 +3,23 @@
 #include "config.h"
 #include "../globals.h"
 #include <str.h>
+#include "ext/github.h"
 
 using namespace std;
 using namespace std::chrono;
 
 namespace bt::app {
     bool has_new_version(std::string& latest_version_number) {
-        win32::http h;
-        string latest_version = h.get("www.aloneguid.uk", "/projects/bt/bin/latest.txt");
+
+        ext::github gh;
+        ext::github_release ghr = gh.get_latest_release("aloneguid", "bt");
+        if(!ghr.is_valid) return false;
+
+        string latest_version = ghr.tag;
         str::trim(latest_version);
         bool has_update = !latest_version.empty() && latest_version != APP_VERSION;
         latest_version_number = has_update ? latest_version : APP_VERSION;
+        bt::config::i.set_last_update_check_time_to_now();
         return has_update;
     }
 

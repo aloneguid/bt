@@ -11,6 +11,9 @@ project ("btu" VERSION ${GLOBAL_VERSION})
 
 add_compile_definitions(UNICODE) # required for WIN32 API to use correct versions
 
+# statically link MSVC runtime in thrift to being fully self-contained.
+# this increases .exe size but guarantees working on all windows versions
+# see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_RUNTIME_LIBRARY.html
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 add_subdirectory(grey)

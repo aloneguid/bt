@@ -22,7 +22,7 @@
 
 namespace bt::ui {
 
-    alg::tracker t{SysAppName, APP_VERSION};
+    alg::tracker t{APP_SHORT_NAME, APP_VERSION};
     unique_ptr<grey::backend> active_backend;
     std::function<void(bool is_open)> on_ui_open_changed;
     bool is_main_instance{false};

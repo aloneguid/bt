@@ -20,7 +20,7 @@ namespace bt {
             sc.recheck();
 
             auto g = make_group();
-            auto sign = g->make_label(sc.is_ok ? ICON_FA_CHECK : ICON_FA_TIMES);
+            auto sign = g->make_label(sc.is_ok ? ICON_FA_CHECK : ICON_FA_DELETE_LEFT);
             sign->set_emphasis(sc.is_ok ? grey::emphasis::primary : grey::emphasis::error);
 
             g->same_line();
