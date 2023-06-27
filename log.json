@@ -1,5 +1,15 @@
 [
     {
+        "version": "3.1.5",
+        "date": "2023-06-27",
+        "changes": {
+            "improvements": [
+                "BT does not check if browser process is running anymore, to avoid listing system processes which AVs don't like.",
+                "Some UI icons updated"
+            ]
+        }
+    },
+    {
         "version": "3.1.4",
         "date": "2023-06-27",
         "changes": {

@@ -1,7 +1,7 @@
 name: 'Build'
 
 env:
-  VERSION: 3.1.4
+  VERSION: 3.1.5
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static

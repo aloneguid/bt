@@ -6,7 +6,6 @@
 #include <cctype>
 #include <functional>
 #include "win32/shell.h"
-#include "win32/process.h"
 #include "str.h"
 #include "../globals.h"
 #include <fmt/core.h>
@@ -158,21 +157,6 @@ namespace bt {
 
     bool operator==(const browser& b1, const browser& b2) {
         return b1.id == b2.id;
-    }
-
-    std::vector<win32::process> browser::get_system_processes() {
-        vector<win32::process> r;
-        for(auto& p : win32::process::enumerate()) {
-            if(p.get_module_filename() != open_cmd) continue;
-            r.push_back(p);
-        }
-        return r;
-    }
-
-    bool browser::is_running() {
-        auto all_procs = win32::process::enumerate();
-        return std::any_of(all_procs.begin(), all_procs.end(),
-            [this](const win32::process& p) { return p.get_module_filename() == open_cmd; });
     }
 
     std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {

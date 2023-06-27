@@ -107,6 +107,11 @@ namespace bt
             w_dash->is_visible = true;
             check_health();
         };
+        st_health->on_hovered = [this](component&, bool is_hovered) {
+            if(is_hovered) {
+                check_health();
+            }
+        };
 
         status->make_label("|")->is_enabled = false;
         auto coffee = status->make_label(ICON_FA_MUG_HOT);
@@ -223,7 +228,7 @@ namespace bt
                 };
 
                 g_static->same_line();
-                auto pf = g_static->make_button(ICON_FA_FOLDER_OPEN " profile");
+                auto pf = g_static->make_button(ICON_FA_FOLDER_TREE " profile");
                 pf->tooltip = "open profile folder in Explorer.";
                 profiles_tabs->on_tab_changed = [pf, b](size_t idx) {
                     auto profile = b->instances[idx];
@@ -237,43 +242,20 @@ namespace bt
 
                 if(b->is_firefox) {
                     g_static->same_line();
-                    auto pmgr = g_static->make_button(ICON_FA_LIST);
+                    auto pmgr = g_static->make_button(ICON_FA_ADDRESS_CARD);
                     pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
                     pmgr->on_pressed = [b](button&) {
                         win32::shell::exec(b->open_cmd, "-P");
                     };
 
                     g_static->same_line();
-                    pmgr = g_static->make_button(ICON_FA_LIST);
+                    pmgr = g_static->make_button(ICON_FA_ID_CARD);
                     pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
                     pmgr->on_pressed = [b](button&) {
                         win32::shell::exec(b->open_cmd, "about:profiles");
                     };
                 }
             }
-
-            browser_toolbar->same_line();
-            auto g_sys_on = browser_toolbar->make_group();
-            {
-                auto cmd_kill = g_sys_on->make_button(ICON_FA_GAVEL);
-                cmd_kill->tooltip = "kill all browser processes";
-                cmd_kill->on_pressed = [b](button&) {
-                    for(auto& p : b->get_system_processes()) {
-                        p.terminate();
-                    }
-                };
-            }
-
-            g_sys_on->is_visible = false;
-            g_sys_on->on_frame = [b, g_sys_on](component&) {
-                g_sys_on->tag_float += ImGui::GetIO().DeltaTime;
-                if(g_sys_on->tag_float >= 0.5) {
-                    bool is_running = b->is_running();
-                    g_sys_on->is_visible = is_running;
-                    g_sys_on->tag_float = 0;
-                }
-            };
-            g_sys_on->tag_float = 100;
         } else {
             browser_toolbar->same_line();
             auto cmd_rm = browser_toolbar->make_button(
@@ -490,21 +472,6 @@ special keyword - %url% which is replaced by opening url.)";
         c->set_pos(0, -1, false);
         c->set_pos(left_pad, 0, true);
         c->make_label(b->name);
-
-        // running indicator
-        c->same_line();
-        c->set_pos(370 * scale, -1, false);
-        auto lbl_on_off = c->make_label(ICON_FA_CIRCLE);
-        lbl_on_off->on_frame = [b, lbl_on_off](component&) {
-            lbl_on_off->tag_float += ImGui::GetIO().DeltaTime;
-            if(lbl_on_off->tag_float >= 2) {
-                bool is_running = b->is_running();
-                lbl_on_off->set_emphasis(is_running ? emphasis::primary : emphasis::error);
-                lbl_on_off->tooltip = is_running ? "running" : "not running";
-                lbl_on_off->tag_float = 0;
-            }
-        };
-        lbl_on_off->tag_float = 100;
 
         c->set_pos(left_pad, 0, true);
 
@@ -750,7 +717,11 @@ special keyword - %url% which is replaced by opening url.)";
 
         bool healthy = w_dash->recheck();
 
-        if(!healthy) w_dash->is_visible = true;
+        if(!healthy) {
+            w_dash->is_visible = true;
+            w_dash->center();
+            w_dash->bring_to_top();
+        }
         st_health->set_emphasis(healthy ? emphasis::primary : emphasis::error);
         st_health->tooltip = healthy
             ? "good health"

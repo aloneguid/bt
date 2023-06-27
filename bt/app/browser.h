@@ -66,9 +66,6 @@ namespace bt {
         std::string vdf;   // vendor data folder
         //std::vector<chrome_profile> chrome_profiles;
 
-        std::vector<win32::process> get_system_processes();
-        bool is_running();
-
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members
