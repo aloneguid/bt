@@ -624,7 +624,7 @@ special keyword - %url% which is replaced by opening url.)";
                 lst_scope->items.push_back(list_item{"domain"});
                 lst_scope->items.push_back(list_item{"path"});
                 lst_scope->width = 80 * scale;
-                lst_scope->selected_index = 0;
+                lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
                 lst_scope->tooltip = "Match scope i.e. where to look in the URL to match the text.\nBy default, matches anywhere, but you can restrict to domain or path.";
 
                 ctx.container->same_line();

@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.1.4",
+        "date": "2023-06-27",
+        "changes": {
+            "bugs": [
+                "Configuration editor did not properly read scope of matching."
+            ]
+        }
+    },
+    {
         "version": "3.1.3",
         "date": "2023-06-26",
         "changes": {
