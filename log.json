@@ -10,7 +10,7 @@
                 "Added automation test suite based on Google Test. For you it means the app gets more rock-solid."
             ],
             "bugs": [
-                "fixed a but in empty rule matching logic"
+                "Invalid behavior when matching empty URL or empty rule."
             ]
         }
     },
