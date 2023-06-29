@@ -45,8 +45,8 @@ jobs:
       working-directory: . 
 
     - name: 🧪 unit tests
-      run: ctest -C ${{env.BUILD_TYPE}}
-      working-directory: build
+      run: test.exe
+      working-directory: build/test/Release
 
     - name: 📦 pack
       run: cpack -C ${{ env.BUILD_TYPE }}
