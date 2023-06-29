@@ -67,7 +67,8 @@ jobs:
         cp build/bt.msi atf/bt-${{ env.VERSION }}.msi
         Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/bt-${{ env.VERSION }}.zip -CompressionLevel Optimal
         "${{ env.VERSION }}" | Out-File atf/version.txt
-        mv release-notes.txt atf/
+        mv release-notes.md atf/
+        cp docs/release-body.md atf/
 
     - uses: actions/upload-artifact@v3
       name: collect binaries

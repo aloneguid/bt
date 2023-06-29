@@ -24,6 +24,10 @@ jobs:
         run: |
           echo "VERSION=$(cat bin/version.txt)" >> "$GITHUB_ENV"
 
+      - name: 🔢 prep release notes
+        run: |
+          cat bin/release-body.md >> bin/release-notes.md
+
       # https://github.com/softprops/action-gh-release
       - name: 📦 create release
         uses: softprops/action-gh-release@v1
@@ -34,4 +38,4 @@ jobs:
           files: |
             bin/*.msi
             bin/*.zip
-          body_path: bin/release-notes.txt
+          body_path: bin/release-notes.md

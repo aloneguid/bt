@@ -38,7 +38,7 @@ if($md0.bugs) {
 }
 
 Write-Host $mdRel
-$mdRel | Out-File release-notes.txt
+$mdRel | Out-File release-notes.md
 
 # text release notes and c++ header file
 foreach($lv in $log) {
