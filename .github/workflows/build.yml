@@ -1,4 +1,4 @@
-name: 'Build'
+﻿name: 'Build'
 
 env:
   VERSION: 3.1.6
@@ -32,7 +32,7 @@ jobs:
         # set to false to clear any cache in case of build errors
         cache: true
 
-    - name: configure
+    - name: ⚙️ configure
       run: >
         cmake -B build -S .
         -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -40,11 +40,15 @@ jobs:
         -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
       working-directory: . 
 
-    - name: build
+    - name: 🏭 build
       run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
       working-directory: . 
 
-    - name: pack
+    - name: 🧪 unit tests
+      run: ctest
+      working-directory: build
+
+    - name: 📦 pack
       run: cpack -C ${{ env.BUILD_TYPE }}
       working-directory: build
 
