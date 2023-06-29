@@ -3,6 +3,9 @@
         "version": "3.1.6",
         "date": "2023-06-29",
         "changes": {
+            "new": [
+                "Rules can have priorities in case multiple browsers match with similar rules."
+            ],
             "improvements": [
                 "Added automation test suite based on Google Test. For you it means the app gets more rock-solid."
             ],

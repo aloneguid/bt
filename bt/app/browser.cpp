@@ -122,6 +122,14 @@ namespace bt {
             r.emplace_back(get_fallback(browsers), match_rule{ "fallback browser" });
         }
 
+        // sort by priority, descending
+        if(r.size() > 1) {
+            std::sort(r.begin(), r.end(), [](const browser_match_result& a, const browser_match_result& b) {
+                return a.rule.priority > b.rule.priority;
+            });
+
+        }
+
         return r;
     }
 

@@ -14,10 +14,17 @@ namespace bt {
 
             size_t idx = p.find_first_of(':');
             if(idx != string::npos) {
-                string key = p.substr(0, idx);
-                if(key == "scope" && (idx + 1 < p.size())) {
-                    scope = (match_scope)str::to_int(p.substr(idx + 1));
+                string k = p.substr(0, idx);
+                string v = (idx + 1 < p.size())
+                    ? p.substr(idx + 1)
+                    : "";
+
+                if(k == "scope") {
+                    scope = to_match_scope(v);
+                } else if(k == "priority") {
+                    priority = str::to_int(v);
                 }
+
             } else {
                 value = p;
             }
@@ -40,12 +47,36 @@ namespace bt {
     std::string match_rule::to_line() const {
         string s = value;
         str::trim(s);
-        if(!s.empty()) {
-            if(scope != match_scope::any) {
-                s = fmt::format("|scope:{}|{}", (int)scope, s);
-            }
+        if(s.empty()) return "";
+
+        if(scope != match_scope::any) {
+            s = fmt::format("|scope:{}|{}", to_string(scope), s);
         }
+
+        if(priority > 0) {
+            s = fmt::format("|priority:{}|{}", priority, s);
+        }
+
         return s;
+    }
+
+    std::string match_rule::to_string(match_scope s) {
+        switch(s) {
+            case bt::match_scope::any:
+                return "any";
+            case bt::match_scope::domain:
+                return "domain";
+            case bt::match_scope::path:
+                return "path";
+            default:
+                return "unknown";
+        }
+    }
+
+    match_scope match_rule::to_match_scope(const std::string& s) {
+        if(s == "domain") return match_scope::domain;
+        if(s == "path") return match_scope::path;
+        return match_scope::any;
     }
 
     bool match_rule::parse_url(const string& url, string& proto, string& host, string& path) {

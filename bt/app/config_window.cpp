@@ -598,8 +598,17 @@ special keyword - %url% which is replaced by opening url.)";
                 ctx.container->make_label("-")->is_enabled = false;
 
                 ctx.container->same_line();
-                auto rv = ctx.container->make_input("");
-                rv->set_value(ctx.data->value);
+                auto txt_value = ctx.container->make_input("");
+                txt_value->set_value(ctx.data->value);
+                txt_value->width = 250 * scale;
+
+                ctx.container->same_line();
+                ctx.container->make_label("-")->is_enabled = false;
+                ctx.container->same_line();
+                auto txt_priority = ctx.container->make_input_int("");
+                txt_priority->set_value(ctx.data->priority);
+                txt_priority->width = 80 * scale;
+                txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
 
                 ctx.container->same_line();
                 auto rm = ctx.container->make_button(ICON_FA_DELETE_LEFT);
@@ -614,12 +623,16 @@ special keyword - %url% which is replaced by opening url.)";
                     ui::ensure_no_instances();
                 };
 
-                rv->on_value_changed = [this, bi, ctx](string& s) {
+                txt_value->on_value_changed = [this, bi, ctx](string& s) {
                     ctx.data->value = s;
                     browser::persist_cache();
                     ui::ensure_no_instances();
-                    //ctx.rpt.bind(bi->rules);
-                    //handle_rules_change(instance, bi, false);
+                };
+
+                txt_priority->on_value_changed = [this, bi, ctx](int& v) {
+                    ctx.data->priority = v;
+                    browser::persist_cache();
+                    ui::ensure_no_instances();
                 };
 
                 rm->on_pressed = [this, bi, ctx](button&) {
@@ -627,7 +640,6 @@ special keyword - %url% which is replaced by opening url.)";
                     browser::persist_cache();
                     ui::ensure_no_instances();
                     ctx.rpt.bind(bi->rules);
-                    //handle_rules_change(instance, bi, true);
                 };
         });
         rpt_rules->bind(bi->rules);

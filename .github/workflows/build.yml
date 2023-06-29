@@ -45,7 +45,7 @@ jobs:
       working-directory: . 
 
     - name: 🧪 unit tests
-      run: ctest
+      run: ctest -C ${{env.BUILD_TYPE}}
       working-directory: build
 
     - name: 📦 pack

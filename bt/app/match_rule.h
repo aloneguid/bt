@@ -18,11 +18,15 @@ namespace bt {
 
         std::string value;
         match_scope scope{match_scope::any};
+        int priority{0};
 
         bool operator==(const match_rule& other) const;
 
         std::string to_string() const;
         std::string to_line() const;
+
+        static std::string to_string(match_scope s);
+        static match_scope to_match_scope(const std::string& s);
 
         static bool parse_url(const std::string& url, std::string& proto, std::string& host, std::string& path);
     };
