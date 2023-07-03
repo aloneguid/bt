@@ -7,6 +7,7 @@
 #include "config/config.h"
 #include <fmt/core.h>
 #include <filesystem>
+#include "fss.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -16,7 +17,11 @@ namespace bt {
     const string IIDKeyName = "iid";
     const string BrowserPrefix = "browser";
 
-    common::config cfg{ (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / "config.ini").string() };
+    common::config cfg{ 
+        fs::exists(fs::path{fss::get_current_dir()} / ".portable")
+            ? (fs::path{fss::get_current_dir()} / "config.ini").string()
+            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / "config.ini").string()
+    };
 
     config config::i;
 

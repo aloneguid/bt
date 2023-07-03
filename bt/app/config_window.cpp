@@ -52,6 +52,12 @@ namespace bt
             rediscover_browsers();
         };
         panel_left = make_child_window(400 * scale);
+
+        auto cmd_add_custom = panel_left->make_button(ICON_FA_CIRCLE_PLUS " Add");
+        cmd_add_custom->set_emphasis(emphasis::primary);
+        cmd_add_custom->tooltip = "Add custom browser definition";
+        cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
+
         //w_browsers->has_border = true;
         panel_left->padding_bottom = 75 * scale;
         rpt_browsers = panel_left->make_repeater<browser>(

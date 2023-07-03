@@ -71,7 +71,7 @@ namespace bt {
         config::i.save_browsers(cache);
     }
 
-    std::vector<std::shared_ptr<browser_instance>> browser::to_instances(const std::vector<std::shared_ptr<browser>> browsers) {
+    std::vector<std::shared_ptr<browser_instance>> browser::to_instances(const std::vector<std::shared_ptr<browser>>& browsers) {
         vector<shared_ptr<browser_instance>> r;
         for(const auto& b : browsers) {
             for(const auto& bi : b->instances) {
@@ -82,7 +82,7 @@ namespace bt {
 
     }
 
-    std::shared_ptr<browser_instance> browser::find_profile_by_long_id(const vector<shared_ptr<browser>> browsers,
+    std::shared_ptr<browser_instance> browser::find_profile_by_long_id(const vector<shared_ptr<browser>>& browsers,
         const std::string& long_id, bool& found) {
         found = false;
 
@@ -101,7 +101,7 @@ namespace bt {
     }
 
     std::vector<browser_match_result> browser::match(
-        const std::vector<shared_ptr<browser>> browsers,
+        const std::vector<shared_ptr<browser>>& browsers,
         const std::string& raw_url, std::string& url_to_open) {
         vector<browser_match_result> r;
         string url = raw_url;
@@ -118,7 +118,7 @@ namespace bt {
             }
         }
 
-        if (r.empty()) {
+        if (r.empty() && !browsers.empty()) {
             r.emplace_back(get_fallback(browsers), match_rule{ "fallback browser" });
         }
 
@@ -133,7 +133,7 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>> browsers) {
+    shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>>& browsers) {
         string lsn = config::i.get_fallback_long_sys_name();
 
         bool found;
@@ -311,7 +311,7 @@ namespace bt {
     }
 
     void browser_instance::set_rules_from_text(std::vector<std::string> rules_txt) {
-        for (string& rule : rules_txt) {
+        for (const string& rule : rules_txt) {
             string clean_rule = rule;
             str::trim(clean_rule);
             if(!clean_rule.empty()) {

@@ -50,11 +50,11 @@ namespace bt {
         if(s.empty()) return "";
 
         if(scope != match_scope::any) {
-            s = fmt::format("|scope:{}|{}", to_string(scope), s);
+            s = fmt::format("scope:{}|{}", to_string(scope), s);
         }
 
         if(priority > 0) {
-            s = fmt::format("|priority:{}|{}", priority, s);
+            s = fmt::format("priority:{}|{}", priority, s);
         }
 
         return s;

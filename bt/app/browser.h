@@ -50,17 +50,17 @@ namespace bt {
         static std::vector<std::shared_ptr<browser>> get_cache(bool reload = false);
         static void persist_cache();
 
-        static std::vector<std::shared_ptr<browser_instance>> to_instances(const std::vector<std::shared_ptr<browser>> browsers);
+        static std::vector<std::shared_ptr<browser_instance>> to_instances(const std::vector<std::shared_ptr<browser>>& browsers);
 
         static std::shared_ptr<browser_instance> find_profile_by_long_id(
-            const std::vector<std::shared_ptr<browser>> browsers, const std::string& long_sys_name, bool& found);
+            const std::vector<std::shared_ptr<browser>>& browsers, const std::string& long_sys_name, bool& found);
 
         static std::vector<browser_match_result> match(
-            const std::vector<std::shared_ptr<browser>> browsers,
+            const std::vector<std::shared_ptr<browser>>& browsers,
             const std::string& raw_url,
             std::string& url_to_open);
 
-        static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>> browsers);
+        static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>>& browsers);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,

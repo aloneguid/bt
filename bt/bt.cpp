@@ -128,7 +128,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 break;
             case WM_COPYDATA:
                 COPYDATASTRUCT* cds = reinterpret_cast<COPYDATASTRUCT*>(lParam);
-                string command((const char*)cds->lpData);
+                string command(static_cast<const char*>(cds->lpData));
                 execute(command);
                 // https://docs.microsoft.com/en-us/windows/win32/dataxchg/using-data-copy
                 return 1;   // processed!

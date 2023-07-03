@@ -11,8 +11,7 @@ namespace bt {
 
     class match_rule {
     public:
-        match_rule() {}
-        match_rule(const std::string& line);
+        explicit match_rule(const std::string& line);
 
         bool is_match(const std::string& line) const;
 

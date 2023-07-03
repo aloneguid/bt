@@ -5,7 +5,7 @@
 namespace bt {
     class about_window : public grey::window {
     public:
-        about_window(grey::grey_context& ctx);
+        explicit about_window(grey::grey_context& ctx);
 
     private:
         grey::grey_context& ctx;

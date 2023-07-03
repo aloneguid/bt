@@ -1,5 +1,21 @@
 [
     {
+        "version": "3.1.7",
+        "date": "2023-07-03",
+        "changes": {
+            "new": [
+                "You can run in truly portable mode (where config.ini is stored alongside bt.exe) by creating an empty '.portable' file in the same directory. Thanks to @maluht in #6."
+            ],
+            "improvements": [
+                "Various code stability improvements",
+                "Added 'Add' button to the main UI, to emplasise you can add your custom browser. Previously it was available only from the File menu."
+            ],
+            "bugs": [
+                "BT would crash on start of configuration window for new installations due to expecting at least one browser to be registered."
+            ]
+        }
+    },
+    {
         "version": "3.1.6",
         "date": "2023-06-29",
         "changes": {
