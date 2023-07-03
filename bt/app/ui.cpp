@@ -188,7 +188,7 @@ namespace bt::ui {
     }
 
     void coffee(const string& from) {
-        ui::url_open(url_payload{CoffeePageUrl, "", "ui_coffee"}, ui::open_method::silent);
+        ui::url_open(url_payload{CoffeePageUrl, "ui_coffee"}, ui::open_method::silent);
     }
 
     bool is_picker_hotkey_down() {

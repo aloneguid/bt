@@ -36,11 +36,7 @@ void execute(const string& data) {
         auto parts = str::split(data, ArgSplitter, true);
         // 0 - url
         // 1 - parent process
-        bt::url_payload up{
-            parts[0],
-            parts.size() > 1 ? parts[1] : "",
-            ""
-        };
+        bt::url_payload up{parts[0], ""};
         bool picker_down = bt::ui::is_picker_hotkey_down();
         bt::ui::open_method om = picker_down ? bt::ui::open_method::pick : bt::ui::open_method::configured;
         bt::ui::url_open(up, om);
@@ -122,7 +118,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 } else if(id == "contact") {
                     bt::ui::contact();
                 } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{HomeUrl, "", "shell_icon"}, bt::ui::open_method::configured);
+                    bt::ui::url_open(bt::url_payload{HomeUrl, "shell_icon"}, bt::ui::open_method::configured);
                 }
             }
                 break;

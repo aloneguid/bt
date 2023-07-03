@@ -9,7 +9,6 @@ namespace bt {
 
     struct url_payload {
         std::string url;
-        std::string ppn;    // parent process name
         std::string method;
     };
 

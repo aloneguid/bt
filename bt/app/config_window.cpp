@@ -23,8 +23,8 @@ using namespace grey;
 
 namespace bt
 {
-    config_window::config_window(grey::grey_context& gctx)
-        : grey::window{gctx, string{APP_LONG_NAME} + " " + APP_VERSION, 1000, 500}, gctx{gctx} {
+    config_window::config_window(grey::grey_context& ctx)
+        : grey::window{ctx, string{APP_LONG_NAME} + " " + APP_VERSION, 1000, 500}, gctx{ctx} {
         scale = get_system_scale();
 
         // just in case
@@ -217,7 +217,7 @@ namespace bt
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-            instance->launch(url_payload{HomeUrl, "", "ui_test"});
+            instance->launch(url_payload{HomeUrl, "ui_test"});
         };
 
         if(b->is_system) {
@@ -417,15 +417,15 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "update") {
             // todo: open direct url
             ui::url_open(
-               url_payload{HomeUrl + "#installing", "", "ui_newver"},
+               url_payload{HomeUrl + "#installing", "ui_newver"},
                ui::open_method::configured);
         } else if(mi.id == "chrome_ex") {
             ui::url_open(
-               url_payload{ChromeExtensionUrl, "", "ui_chrome_ex"},
+               url_payload{ChromeExtensionUrl, "ui_chrome_ex"},
                ui::open_method::configured);
         } else if(mi.id == "edge_ex") {
             ui::url_open(
-               url_payload{EdgeExtensionUrl, "", "ui_edge_ex"},
+               url_payload{EdgeExtensionUrl, "ui_edge_ex"},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
             config::i.set_picker_enabled(!mi.is_selected);
