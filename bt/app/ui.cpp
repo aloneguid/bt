@@ -98,11 +98,11 @@ namespace bt::ui {
 
         if(method == open_method::pick) {
             up.method = "pick";
-            picker(up, browser::to_instances(config::i.load_browsers()));
+            picker(up, browser::to_instances(browser::get_cache()));
         } else {
             // silent or decide
             string real_url;
-            auto matches = browser::match(config::i.load_browsers(), up.url, real_url);
+            auto matches = browser::match(browser::get_cache(), up.url, real_url);
             up.url = real_url;
             browser_match_result& first_match = matches[0];
 

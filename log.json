@@ -12,7 +12,8 @@
                 "Added shortcut button to open URL tester next to rule definitions"
             ],
             "bugs": [
-                "URL matching by domain only would sometimes detect wrong protocol."
+                "URL matching by domain only would sometimes detect wrong protocol.",
+                "Adding rule from URL picker was ignored."
             ]
         }
     },

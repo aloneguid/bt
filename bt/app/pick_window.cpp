@@ -136,7 +136,8 @@ namespace bt {
                 str::trim(rule_value);
 
                 bi->add_rule(rule_value);
-                //bi->save_rules();
+                browser::persist_cache();
+                ui::ensure_no_instances();
             }
 
             close();
