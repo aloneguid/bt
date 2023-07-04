@@ -23,7 +23,6 @@ namespace bt {
 
         url_payload up;
         std::vector<std::shared_ptr<browser_instance>> choices;
-        std::shared_ptr<grey::input> txt_persist;
-        bool persist_rule{false};
+        bool persist_domain{false};
     };
 }

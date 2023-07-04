@@ -37,8 +37,23 @@ namespace bt {
 
     void pick_window::init() {
 
+        same_line();
+        auto cmd_cac = make_button(ICON_FA_COPY);
+        cmd_cac->tooltip = fmt::format("Copy URL to clipboard and cancel picker without opening any browser\nurl: {}", up.url);
+
+        same_line();
+        auto chk_app_mode = make_checkbox(ICON_FA_CROP, &up.app_mode);
+        chk_app_mode->render_as_icon = true;
+        chk_app_mode->tooltip = "Try to open in frameless window.";
+
+        same_line();
+        auto chk_persist_domain = make_checkbox(ICON_FA_CIRCLE_PLUS, &persist_domain);
+        chk_persist_domain->render_as_icon = true;
+        chk_persist_domain->tooltip = fmt::format(
+            "Add domain of this url ({}) as a rule to a browser you click.", str::get_domain_from_url(up.url));
+
         auto wo = make_child_window(0, 0);
-        wo->padding_bottom = 70 * scale;
+        //wo->padding_bottom = 89 * scale;
 
         auto rpt = wo->make_repeater<browser_instance>([this](repeater_bind_context<browser_instance> ctx) {
 
@@ -78,9 +93,8 @@ namespace bt {
 
             // elements
             auto lbl_name = c->make_label(ctx.data->get_best_display_name());
-            lbl_name->padding_left = icon_size + style.FramePadding.x * 2;
-            lbl_name->padding_top = icon_size / 2 - 7 * scale;
-
+            lbl_name->padding_left = icon_size + style.FramePadding.x * 3;
+            lbl_name->padding_top = icon_size / 2 - 6 * scale;
 
             if(ctx.data->popularity > 0) {
                 c->same_line(this->width - style.FrameBorderSize * 4 - style.ItemSpacing.x * 8);
@@ -101,10 +115,8 @@ namespace bt {
             bi->popularity += 1;
             config::i.set_popularity(bi->long_id(), bi->popularity);
 
-            if(persist_rule) {
-                string rule_value = txt_persist->get_value();
-                str::trim(rule_value);
-
+            if(persist_domain) {
+                string rule_value = str::get_domain_from_url(up.url);
                 bi->add_rule(rule_value);
                 browser::persist_cache();
                 ui::ensure_no_instances();
@@ -113,37 +125,6 @@ namespace bt {
             close();
         };
 
-
-        // two buttons horizontally
-        separator();
-        auto g1 = make_group();
-        auto cmd_cac = g1->make_button(ICON_FA_COPY " copy & cancel");
-        cmd_cac->tooltip = fmt::format("copy URL to clipboard instead and cancel this dialog\nurl: {}", up.url);
-
-        g1->same_line();
-        auto cmd_persist = g1->make_button(ICON_FA_FILTER " add rule");
-        cmd_persist->tooltip = "check to add this rule to configuration";
-
-        // rule switch
-        auto g2 = make_group();
-        txt_persist = g2->make_input("sub");
-        txt_persist->tooltip = "rule text to add";
-        g2->same_line();
-        auto cmd_cancel_rule = g2->make_button("cancel");
-        g2->is_visible = false;
-
-        // handlers
-        cmd_persist->on_pressed = [this, g1, g2](button&) {
-            persist_rule = true;
-            txt_persist->set_value(str::get_domain_from_url(up.url));
-            g1->is_visible = false;
-            g2->is_visible = true;
-        };
-        cmd_cancel_rule->on_pressed = [this, g1, g2](button&) {
-            persist_rule = false;
-            g1->is_visible = true;
-            g2->is_visible = false;
-        };
         cmd_cac->on_pressed = [this](button&) {
             win32::clipboard::set_ascii_text(up.url);
             close();

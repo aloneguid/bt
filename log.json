@@ -9,6 +9,7 @@
             "improvements": [
                 "Visual improvement of the rule editor, making it look less busy.",
                 "URL Tester visual improvement",
+                "URL Picker visual improvement - buttons moved to the top, and added option to open in frameless mode",
                 "Added shortcut button to open URL tester next to rule definitions"
             ],
             "bugs": [
