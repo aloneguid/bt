@@ -110,6 +110,7 @@ namespace bt::ui {
             auto matches = browser::match(browser::get_cache(), up.url, real_url);
             up.url = real_url;
             browser_match_result& first_match = matches[0];
+            up.app_mode = first_match.rule.app_mode;
 
             if(method == open_method::silent) {
                 up.method = "silent";
@@ -187,9 +188,6 @@ namespace bt::ui {
         url_open(
             url_payload{HomeUrl + "#contact"},
             ui::open_method::configured);
-
-        //string body = fmt::format("Hi there!%0A insert your question here%0A%0A System Information%0AVersion: {}%0A", Version);
-        //win32::shell::exec(fmt::format("mailto:rznel9ynn@mozmail.com?subject=Browser Tamer&body={}", body), "");
     }
 
     void coffee(const string& from) {

@@ -43,9 +43,7 @@ namespace bt {
         auto rpt = wo->make_repeater<browser_instance>([this](repeater_bind_context<browser_instance> ctx) {
 
             auto& style = ImGui::GetStyle();
-            //float padding = 10 * scale;
             float icon_size = 30 * scale;
-            //float left_pad = icon_size + padding * 2;
             auto c = ctx.container;
 
             // browser logo
@@ -55,15 +53,6 @@ namespace bt {
             logo->bg_draw = true;
             logo->padding_left = logo->padding_top = style.FramePadding.x;
             if(ctx.data->is_incognito) logo->alpha = 0.2;
-
-            // browser logo
-            /*c->set_pos(padding, padding, true);
-            auto mimg = c->make_image_from_file(
-                ctx.data->get_best_browser_icon_path(),
-                icon_size, icon_size);
-            if(ctx.data->is_incognito) mimg->alpha = 0.2;
-            c->set_pos(0, -1);
-            c->set_pos(0, -(icon_size + padding), true);*/
 
             // profile logo (if required)
             if(ctx.data->get_best_icon_path() != ctx.data->get_best_browser_icon_path() || ctx.data->is_incognito) {
@@ -88,22 +77,14 @@ namespace bt {
 
 
             // elements
-            //c->set_pos(0, -1, false);
-            //c->set_pos(left_pad, padding, true);
             auto lbl_name = c->make_label(ctx.data->get_best_display_name());
             lbl_name->padding_left = icon_size + style.FramePadding.x * 2;
             lbl_name->padding_top = icon_size / 2 - 7 * scale;
 
 
             if(ctx.data->popularity > 0) {
-                //c->same_line(this->width / 3 * 2);
-                //c->same_line(this->width - style.FramePadding.x * 2 - style.ItemSpacing.x * 3);
-                //auto wsz = ImGui::GetWindowSize();
-                //ImGuiViewport* vp = ImGui::GetWindowViewport();
-                //c->same_line(vp->Size.x - style.FramePadding.x * 3);
                 c->same_line(this->width - style.FrameBorderSize * 4 - style.ItemSpacing.x * 8);
                 auto cmd = c->make_button(fmt::format("{}", ctx.data->popularity), true, emphasis::warning);
-                //cmd->is_enabled = false;
                 cmd->tooltip = fmt::format("picked {}", str::humanise(ctx.data->popularity, "time", "times", "once", "twice"));
                 cmd->bg_draw = true;
             }
@@ -112,17 +93,6 @@ namespace bt {
             auto lbl_spacer = c->make_label(" ");
             lbl_spacer->padding_top = icon_size / 2;
             lbl_spacer->padding_left = -10 * scale;
-
-            //c->set_pos(left_pad, 0, true);
-            //c->make_label("#");
-
-            /*string txt_tip = ctx.data->display_name;
-            if(ctx.data->popularity > 0)
-                txt_tip += fmt::format(
-                    "\npicked {}",
-                    str::humanise(ctx.data->popularity, "time", "times", "once", "twice"));
-            ctx.container->tooltip = txt_tip;*/
-
         }, true);
         rpt->bind(choices);
         rpt->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser_instance> bi) {
