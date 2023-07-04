@@ -1,7 +1,7 @@
 [
     {
         "version": "3.2.0",
-        "date": "2023-?-?",
+        "date": "2023-07-04",
         "changes": {
             "new": [
                 "Rules can trigger opening browser in 'app mode' - borderless, frameless window. Only available for Chromium browsers."
