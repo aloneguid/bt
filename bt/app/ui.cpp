@@ -84,6 +84,11 @@ namespace bt::ui {
 
     void url_open(url_payload up, open_method method) {
 
+        t.track(map<string, string>
+        {
+            { "event", "url_open" }
+        }, false);
+
         // read in method if required
         if(method == open_method::configured) {
             auto sm = config::i.get_open_method();
