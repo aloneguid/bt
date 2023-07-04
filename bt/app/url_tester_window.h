@@ -15,5 +15,6 @@ namespace bt {
         std::string path;
 
         void match(const std::string& s);
+        std::string to_icon(match_scope scope);
     };
 }

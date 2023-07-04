@@ -18,6 +18,7 @@ namespace bt {
         std::string value;
         match_scope scope{match_scope::any};
         int priority{0};
+        bool app_mode{false};
 
         bool operator==(const match_rule& other) const;
 

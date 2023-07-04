@@ -226,10 +226,10 @@ namespace bt {
     browser_instance::~browser_instance() {}
 
     void browser_instance::launch(url_payload up) const {
-        string final_url = up.url;
+        string url = up.url;
         bool is_xbt;
-        if (final_url.starts_with(CustomProtoName) && final_url.size() > CustomProtoName.size() + 3) {
-            final_url = final_url.substr(CustomProtoName.size() + 3);
+        if (url.starts_with(CustomProtoName) && url.size() > CustomProtoName.size() + 3) {
+            url = url.substr(CustomProtoName.size() + 3);
             is_xbt = true;
         } else {
             is_xbt = false;
@@ -238,12 +238,17 @@ namespace bt {
         string arg = launch_arg;
 
         if(arg.empty()) {
-            arg = final_url;
+            arg = url;
         } else {
             size_t pos = arg.find(URL_ARG_NAME);
             if(pos != string::npos) {
-                arg.replace(pos, URL_ARG_NAME.size(), final_url);
+                arg.replace(pos, URL_ARG_NAME.size(), url);
             }
+        }
+
+        // works in Chrome only
+        if(up.app_mode) {
+            arg = fmt::format("--app={}", arg);
         }
 
         win32::shell::exec(open_cmd, arg);

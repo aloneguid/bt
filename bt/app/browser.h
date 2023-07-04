@@ -10,6 +10,7 @@ namespace bt {
     struct url_payload {
         std::string url;
         std::string method;
+        bool app_mode{false};
     };
 
 

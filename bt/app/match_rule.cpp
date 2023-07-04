@@ -23,6 +23,8 @@ namespace bt {
                     scope = to_match_scope(v);
                 } else if(k == "priority") {
                     priority = str::to_int(v);
+                } else if(k == "mode") {
+                    if(v == "app") app_mode = true;
                 }
 
             } else {
@@ -49,15 +51,23 @@ namespace bt {
         str::trim(s);
         if(s.empty()) return "";
 
+        vector<string> parts;
+
         if(scope != match_scope::any) {
-            s = fmt::format("scope:{}|{}", to_string(scope), s);
+            parts.push_back(fmt::format("scope:{}", to_string(scope)));
         }
 
         if(priority > 0) {
-            s = fmt::format("priority:{}|{}", priority, s);
+            parts.push_back(fmt::format("priority:{}", priority));
         }
 
-        return s;
+        if(app_mode) {
+            parts.push_back("mode:app");
+        }
+
+        parts.push_back(s);
+
+        return str::join(parts.begin(), parts.end(), "|");
     }
 
     std::string match_rule::to_string(match_scope s) {
@@ -81,8 +91,9 @@ namespace bt {
 
     bool match_rule::parse_url(const string& url, string& proto, string& host, string& path) {
         const string prot_end("://");
+        proto = host = path = "";
 
-        size_t idx = url.find_first_of(prot_end);
+        size_t idx = url.find(prot_end);
         if(idx == string::npos) {
             proto = "";
             host = url;

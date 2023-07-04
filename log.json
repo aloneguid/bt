@@ -1,5 +1,22 @@
 [
     {
+        "version": "3.2.0",
+        "date": "2023-?-?",
+        "changes": {
+            "new": [
+                "Rules can trigger opening browser in 'app mode' - borderless, frameless window. Only available for Chromium browsers."
+            ],
+            "improvements": [
+                "Visual improvement of the rule editor, making it look less busy.",
+                "URL Tester visual improvement",
+                "Added shortcut button to open URL tester next to rule definitions"
+            ],
+            "bugs": [
+                "URL matching by domain only would sometimes detect wrong protocol."
+            ]
+        }
+    },
+    {
         "version": "3.1.7",
         "date": "2023-07-03",
         "changes": {

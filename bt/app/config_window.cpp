@@ -213,12 +213,25 @@ namespace bt
         browser_toolbar->clear();
 
         // universal test button
-        auto cmd_test = browser_toolbar->make_button(ICON_FA_LINK " test");
+        auto cmd_test = browser_toolbar->make_button(ICON_FA_SQUARE_UP_RIGHT);
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-            instance->launch(url_payload{HomeUrl, "ui_test"});
+            url_payload pl{HomeUrl, "ui_test"};
+            instance->launch(pl);
         };
+
+        if(b->is_chromium) {
+            browser_toolbar->same_line();
+            auto cmd_test_app = browser_toolbar->make_button(ICON_FA_SQUARE_ARROW_UP_RIGHT);
+            cmd_test_app->tooltip = "test by opening a link as an app";
+            cmd_test_app->on_click = [this, b](component&) {
+                auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
+                url_payload pl{HomeUrl, "ui_test"};
+                pl.app_mode = true;
+                instance->launch(pl);
+            };
+        }
 
         if(b->is_system) {
 
@@ -261,6 +274,8 @@ namespace bt
                         win32::shell::exec(b->open_cmd, "about:profiles");
                     };
                 }
+
+
             }
         } else {
             browser_toolbar->same_line();
@@ -302,7 +317,7 @@ namespace bt
             browser_free_area->is_visible = false;
 
             for(auto bi : b->instances) {
-                auto tab = profiles_tabs->make(bi->name);
+                auto tab = profiles_tabs->make(fmt::format(" {} ", bi->name));
 
                 tab->spacer();
 
@@ -486,9 +501,22 @@ special keyword - %url% which is replaced by opening url.)";
                 auto i_where = c->make_label(fmt::format("{} {}", ICON_FA_USER, b->instances.size()));
                 i_where->tooltip = str::humanise(b->instances.size(), "profile", "profiles");
                 i_where->is_enabled = false;
+
+                if(b->is_chromium) {
+                    c->same_line();
+                    auto sign_cb = c->make_label(ICON_FA_CHROME);
+                    sign_cb->is_enabled = false;
+                    sign_cb->tooltip = "Chromium-based";
+                } else if(b->is_firefox) {
+                    c->same_line();
+                    auto sign_fb = c->make_label(ICON_FA_FIREFOX);
+                    sign_fb->is_enabled = false;
+                    sign_fb->tooltip = "Firefox-based";
+                }
             } else {
-                auto lbl_custom = c->make_label(ICON_FA_USER);
-                lbl_custom->tooltip = "User Defined";
+                auto lbl_custom = c->make_label(ICON_FA_PERSON_MILITARY_POINTING);
+                lbl_custom->is_enabled = false;
+                lbl_custom->tooltip = "User-defined";
             }
         } else {
             auto i_where = c->make_label(ICON_FA_USER);
@@ -572,14 +600,16 @@ special keyword - %url% which is replaced by opening url.)";
     void config_window::bind_edit_rules(std::shared_ptr<grey::container> tab, shared_ptr<browser_instance> bi) {
 
         tab->make_label("Rules");
-
         auto radd = tab->make_button(ICON_FA_CIRCLE_PLUS " add");
         radd->set_emphasis(emphasis::primary);
 
         tab->same_line();
-
         auto rca = tab->make_button(ICON_FA_TRASH " clear all");
         rca->set_emphasis(emphasis::warning);
+
+        tab->same_line();
+        auto rt = tab->make_button(ICON_FA_TIMELINE " test");
+        rt->tooltip = "Open URL Tester";
 
         auto rw = tab->make_child_window();
         rw->has_border = true;  // for debug only
@@ -587,37 +617,61 @@ special keyword - %url% which is replaced by opening url.)";
         auto rpt_rules = rw->make_repeater<bt::match_rule>(
             [this, bi](repeater_bind_context<bt::match_rule> ctx) {
 
-                auto idx = ctx.container->make_label(fmt::format("{}. ", ctx.idx + 1));
+                shared_ptr<grey::container> ctr = ctx.container;
+
+                auto idx = ctr->make_label(fmt::format("{}. ", ctx.idx + 1));
                 idx->is_enabled = false;
 
-                ctx.container->same_line();
-                auto lst_scope = ctx.container->make_listbox("");
-                lst_scope->mode = listbox_mode::combo;
-                lst_scope->items.push_back(list_item{"any"});
-                lst_scope->items.push_back(list_item{"domain"});
-                lst_scope->items.push_back(list_item{"path"});
-                lst_scope->width = 80 * scale;
-                lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
-                lst_scope->tooltip = "Match scope i.e. where to look in the URL to match the text.\nBy default, matches anywhere, but you can restrict to domain or path.";
+                ctr->same_line(25*scale);
 
-                ctx.container->same_line();
-                ctx.container->make_label("-")->is_enabled = false;
-
-                ctx.container->same_line();
-                auto txt_value = ctx.container->make_input("");
+                // value
+                ctr->same_line();
+                auto txt_value = ctr->make_input("");
                 txt_value->set_value(ctx.data->value);
                 txt_value->width = 250 * scale;
 
-                ctx.container->same_line();
-                ctx.container->make_label("-")->is_enabled = false;
-                ctx.container->same_line();
-                auto txt_priority = ctx.container->make_input_int("");
-                txt_priority->set_value(ctx.data->priority);
-                txt_priority->width = 80 * scale;
-                txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
+                // priority
+                ctr->same_line();
+                auto chk_priority = ctr->make_checkbox(ICON_FA_ARROW_UP_9_1);
+                chk_priority->render_as_icon = true;
+                chk_priority->tooltip = "If multiple rules will match an URL, you can override default priority";
+                chk_priority->set_checked(ctx.data->priority != 0);
 
-                ctx.container->same_line();
-                auto rm = ctx.container->make_button(ICON_FA_DELETE_LEFT);
+                ctr->same_line();
+                auto txt_priority = ctr->make_input_int("");
+                txt_priority->set_value(ctx.data->priority);
+                txt_priority->width = 20 * scale;
+                txt_priority->set_step_button_step(0);
+                txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
+                txt_priority->is_visible = ctx.data->priority != 0;
+
+                // app mode
+                if(bi->b->is_chromium) {
+                    ctr->same_line();
+                    auto chk_app_mode = ctr->make_checkbox(ICON_FA_CROP_SIMPLE);
+                    chk_app_mode->render_as_icon = true;
+                    chk_app_mode->set_checked(ctx.data->app_mode);
+                    chk_app_mode->tooltip = "open in chromeless window";
+
+                    chk_app_mode->on_value_changed = [this, ctx](bool set) {
+                        ctx.data->app_mode = set;
+                        persist_ui();
+                    };
+                }
+
+                // scope
+                ctr->same_line();
+                ctr->make_label("|")->is_enabled = false;
+                ctr->same_line();
+                auto lst_scope = ctr->make_listbox("");
+                lst_scope->mode = listbox_mode::icons;
+                lst_scope->items.push_back(list_item{ICON_FA_GLOBE, "match anywhere"});
+                lst_scope->items.push_back(list_item{ICON_FA_LANDMARK_DOME, "match only in host name"});
+                lst_scope->items.push_back(list_item{ICON_FA_LINES_LEANING, "match only in path"});
+                lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
+
+                ctr->same_line();
+                auto rm = ctr->make_button(ICON_FA_DELETE_LEFT);
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
 
@@ -625,26 +679,33 @@ special keyword - %url% which is replaced by opening url.)";
 
                 lst_scope->on_selected = [this, ctx](size_t idx, grey::list_item&) {
                     ctx.data->scope = (match_scope)idx;
-                    browser::persist_cache();
-                    ui::ensure_no_instances();
+                    persist_ui();
                 };
 
                 txt_value->on_value_changed = [this, bi, ctx](string& s) {
                     ctx.data->value = s;
-                    browser::persist_cache();
-                    ui::ensure_no_instances();
+                    persist_ui();
                 };
 
+
+                chk_priority->on_value_changed = [this, txt_priority, ctx](bool set) {
+                    txt_priority->is_visible = set;
+                    if(set) {
+                        //
+                    } else {
+                        txt_priority->set_value(0);
+                        ctx.data->priority = 0;
+                    }
+                    persist_ui();
+                };
                 txt_priority->on_value_changed = [this, bi, ctx](int& v) {
                     ctx.data->priority = v;
-                    browser::persist_cache();
-                    ui::ensure_no_instances();
+                    persist_ui();
                 };
 
                 rm->on_pressed = [this, bi, ctx](button&) {
                     bi->delete_rule(ctx.data->value);
-                    browser::persist_cache();
-                    ui::ensure_no_instances();
+                    persist_ui();
                     ctx.rpt.bind(bi->rules);
                 };
         });
@@ -666,6 +727,9 @@ special keyword - %url% which is replaced by opening url.)";
             rpt_rules->bind(bi->rules);
         };
 
+        rt->on_pressed = [this](button&) {
+            w_url_tester->is_visible = true;
+        };
     }
 
     void config_window::set_fallback(std::shared_ptr<browser_instance> bi) {
@@ -744,6 +808,11 @@ special keyword - %url% which is replaced by opening url.)";
         st_health->tooltip = healthy
             ? "good health"
             : "health issues detected";
+    }
+
+    void config_window::persist_ui() {
+        browser::persist_cache();
+        ui::ensure_no_instances();
     }
 
     size_t config_window::index_of(std::shared_ptr<bt::browser> b) {

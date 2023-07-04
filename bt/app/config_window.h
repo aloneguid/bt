@@ -79,6 +79,7 @@ namespace bt
         void set_picker_hotkey(const std::string& update_to);
 
         void check_health();
+        void persist_ui();
 
         size_t index_of(std::shared_ptr<bt::browser> b);
     };

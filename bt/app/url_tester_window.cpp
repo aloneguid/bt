@@ -21,7 +21,7 @@ namespace bt {
         spacer();
         make_label("Matches:");
         auto w_matches = make_child_window(600 * scale, 100 * scale);
-        tbl = w_matches->make_complex_table<browser_match_result>({"rule", "scope", "priority", "browser", "profile"});
+        tbl = w_matches->make_complex_table<browser_match_result>({"rule", "browser", "profile"});
         tbl->stretchy = true;
 
         txt_url->on_value_changed = [this](string& s) { match(s); };
@@ -47,11 +47,34 @@ namespace bt {
 
         for(auto& match : matches) {
             auto row = tbl->make_row(match);
-            row.cells[0]->make_label(match->rule.to_string());
-            row.cells[1]->make_label(match_rule::to_string(match->rule.scope));
-            row.cells[2]->make_label(std::to_string(match->rule.priority))->set_emphasis(emphasis::warning);
-            row.cells[3]->make_label(match->bi->b->name);
-            row.cells[4]->make_label(match->bi->name);
+
+            auto rc = row.cells[0];
+            auto scope = rc->make_label(to_icon(match->rule.scope));
+            scope->tooltip = "match scope";
+            if(match->rule.priority != 0) {
+                rc->same_line();
+                auto p = rc->make_label(std::to_string(match->rule.priority));
+                p->set_emphasis(emphasis::warning);
+                p->tooltip = "priority";
+            }
+            rc->same_line();
+            rc->make_label(match->rule.to_string());
+
+            row.cells[1]->make_label(match->bi->b->name);
+            row.cells[2]->make_label(match->bi->name);
+        }
+    }
+
+    std::string url_tester_window::to_icon(match_scope scope) {
+        switch(scope) {
+            case bt::match_scope::any:
+                return ICON_FA_GLOBE;
+            case bt::match_scope::domain:
+                return ICON_FA_LANDMARK_DOME;
+            case bt::match_scope::path:
+                return ICON_FA_LINES_LEANING;
+            default:
+                return "?";
         }
     }
 }
