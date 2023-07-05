@@ -27,7 +27,10 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_VERSION="${PROJECT_VERSION}"
     APP_URL="${APP_URL}"
     APP_GITHUB_URL="${APP_GITHUB_URL}"
-    APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}")
+    APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
+    APP_BROWSER_EXTENSION_CHROME_URL="https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd"
+    APP_BROWSER_EXTENSION_EDGE_URL="https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin"
+    APP_BROWSER_EXTENSION_FIREFOX_URL="todo")
 
 target_link_libraries(bt
 	libgrey

@@ -182,6 +182,7 @@ namespace bt
 
         auto mi_links = mi_help->add("", "Extensions", ICON_FA_PUZZLE_PIECE);
         mi_links->add("chrome_ex", "Google Chrome", ICON_FA_CHROME);
+        mi_links->add("firefox_ex", "Mozilla Firefox", ICON_FA_FIREFOX);
         mi_links->add("edge_ex", "Microsoft Edge", ICON_FA_EDGE);
 
         mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
@@ -430,11 +431,15 @@ special keyword - %url% which is replaced by opening url.)";
                ui::open_method::configured);
         } else if(mi.id == "chrome_ex") {
             ui::url_open(
-               url_payload{ChromeExtensionUrl, "ui_chrome_ex"},
+               url_payload{APP_BROWSER_EXTENSION_CHROME_URL, "ui_chrome_ex"},
+               ui::open_method::configured);
+        } else if(mi.id == "firefox_ex") {
+            ui::url_open(
+               url_payload{APP_BROWSER_EXTENSION_FIREFOX_URL, "ui_firefox_ex"},
                ui::open_method::configured);
         } else if(mi.id == "edge_ex") {
             ui::url_open(
-               url_payload{EdgeExtensionUrl, "ui_edge_ex"},
+               url_payload{APP_BROWSER_EXTENSION_EDGE_URL, "ui_edge_ex"},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
             config::i.set_picker_enabled(!mi.is_selected);

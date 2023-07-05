@@ -2,7 +2,7 @@
     "name": "Browser Tamer",
     "version": "1.1",
     "manifest_version": 2,
-    "description": "Redirects links to Browser Tamer (Windows only).",
+    "description": "Integrates Browser Tamer with Firefox. Windows only.",
     "icons": {
         "192": "icons/icon192x192.png",
         "256": "icons/icon256x256.png"
