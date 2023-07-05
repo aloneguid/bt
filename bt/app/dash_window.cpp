@@ -50,6 +50,10 @@ namespace bt {
             make_label(fmt::format("{} checks failed out of {}", failed, succeeded + failed));
         }
 
+        if(on_health_changed) {
+            on_health_changed(failed == 0);
+        }
+
         separator();
         auto cmd_recheck = make_button("recheck", false, grey::emphasis::primary);
         cmd_recheck->on_pressed = [this](button&) { recheck(); };

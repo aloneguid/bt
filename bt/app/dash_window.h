@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "grey.h"
 #include "setup.h"
 
@@ -8,6 +9,8 @@ namespace bt {
         dash_window(grey::grey_context& ctx);
 
         bool recheck();
+
+        std::function<void(bool)> on_health_changed;
 
     private:
         std::vector<system_check> checks;

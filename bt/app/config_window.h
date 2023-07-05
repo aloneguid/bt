@@ -78,7 +78,7 @@ namespace bt
         void set_open_method(const std::string& update_to);
         void set_picker_hotkey(const std::string& update_to);
 
-        void check_health();
+        void update_health_icon(bool healthy);
         void persist_ui();
 
         size_t index_of(std::shared_ptr<bt::browser> b);

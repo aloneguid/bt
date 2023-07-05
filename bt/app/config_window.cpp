@@ -93,7 +93,10 @@ namespace bt
         w_dash = make_shared<dash_window>(gctx);
         assign_child(w_dash);
         w_dash->is_visible = false;
-        check_health();
+        w_dash->on_health_changed = [this](bool healthy) {
+            update_health_icon(healthy);
+        };
+        update_health_icon(w_dash->recheck());
 
         w_change_log = make_shared<change_log_window>(gctx);
         assign_child(w_change_log);
@@ -110,13 +113,8 @@ namespace bt
         auto status = make_status_bar();
         st_health = status->make_label(ICON_FA_HEART);
         st_health->on_click = [this](component&) {
-            w_dash->is_visible = true;
-            check_health();
-        };
-        st_health->on_hovered = [this](component&, bool is_hovered) {
-            if(is_hovered) {
-                check_health();
-            }
+            bool healthy = w_dash->recheck();
+            if(!healthy && !w_dash->is_visible) w_dash->is_visible = true;
         };
 
         status->make_label("|")->is_enabled = false;
@@ -795,10 +793,7 @@ special keyword - %url% which is replaced by opening url.)";
         }
     }
 
-    void config_window::check_health() {
-
-        bool healthy = w_dash->recheck();
-
+    void config_window::update_health_icon(bool healthy) {
         if(!healthy) {
             w_dash->is_visible = true;
             w_dash->center();

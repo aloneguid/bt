@@ -28,4 +28,9 @@ const std::string CoffeePageUrl = "https://www.buymeacoffee.com/alonecoffee";
 
 const std::string ArgSplitter = "|";
 
+/**
+ * @brief Global app event. Args:
+ * 0 - event name
+ * 1, 2 - extras depending on event
+*/
 extern lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
