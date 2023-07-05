@@ -15,7 +15,6 @@
 #include "../res.inl"
 #include "config.h"
 #include "ui.h"
-#include "../log.h"
 #include "update_check.h"
 
 using namespace std;
@@ -97,11 +96,6 @@ namespace bt
             update_health_icon(healthy);
         };
         update_health_icon(w_dash->recheck());
-
-        w_change_log = make_shared<change_log_window>(gctx);
-        assign_child(w_change_log);
-        w_change_log->is_visible = false;
-        w_change_log->center();
 
         w_url_tester = make_shared<url_tester_window>(gctx);
         assign_child(w_url_tester);
@@ -192,7 +186,7 @@ namespace bt
 
         mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
         mi_help->add("coffee", "Buy Me a Coffee", ICON_FA_MUG_HOT);
-        mi_help->add("changelog", "Change Log", ICON_FA_LIST);
+        mi_help->add("releases", "All Releases", ICON_FA_CLOCK_ROTATE_LEFT);
         mi_help->add("check_version", "Check for Updates", ICON_FA_CODE_BRANCH);
 
         auto mi_reg = mi_help->add("", "Registry")->add("", "Copy path to clipboard");
@@ -215,7 +209,7 @@ namespace bt
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-            url_payload pl{HomeUrl, "ui_test"};
+            url_payload pl{APP_URL, "ui_test"};
             instance->launch(pl);
         };
 
@@ -225,7 +219,7 @@ namespace bt
             cmd_test_app->tooltip = "test by opening a link as an app";
             cmd_test_app->on_click = [this, b](component&) {
                 auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-                url_payload pl{HomeUrl, "ui_test"};
+                url_payload pl{APP_URL, "ui_test"};
                 pl.app_mode = true;
                 instance->launch(pl);
             };
@@ -397,8 +391,10 @@ special keyword - %url% which is replaced by opening url.)";
             if(bt::app::has_new_version(vn)) {
                 app_event("new_version", vn, "");
             }
-        } else if(mi.id == "changelog") {
-            w_change_log->is_visible = true;
+        } else if(mi.id == "releases") {
+            ui::url_open(
+               url_payload{APP_GITHUB_RELEASES_URL},
+               ui::open_method::configured);
         } else if(mi.id == "?") {
             auto w = gctx.make_window<about_window>();
             w->detach_on_close = true;
@@ -430,7 +426,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "update") {
             // todo: open direct url
             ui::url_open(
-               url_payload{HomeUrl + "#installing", "ui_newver"},
+               url_payload{string(APP_URL) + "#installing", "ui_newver"},
                ui::open_method::configured);
         } else if(mi.id == "chrome_ex") {
             ui::url_open(

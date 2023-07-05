@@ -16,8 +16,6 @@ const std::string PdfProtoName = "BrowserTamerPDF";
 
 const std::string CustomProtoName = "x-bt";
 
-const std::string HomeUrl = "https://www.aloneguid.uk/projects/bt/";
-
 const std::string ChromeExtensionUrl = "https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd";
 
 const std::string EdgeExtensionUrl = "https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin";

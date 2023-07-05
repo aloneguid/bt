@@ -6,6 +6,7 @@ set(APP_NAME bt)
 set(APP_LONG_NAME "Browser Tamer")
 set(APP_URL "https://www.aloneguid.uk/projects/bt/")
 set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
+set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -24,7 +25,9 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_SHORT_NAME="${APP_NAME}"
     APP_LONG_NAME="${APP_LONG_NAME}"
     APP_VERSION="${PROJECT_VERSION}"
-    APP_GITHUB_URL="${APP_GITHUB_URL}")
+    APP_URL="${APP_URL}"
+    APP_GITHUB_URL="${APP_GITHUB_URL}"
+    APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}")
 
 target_link_libraries(bt
 	libgrey

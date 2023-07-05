@@ -105,7 +105,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                         m.show();
                         break;
                     case NIN_BALLOONUSERCLICK:
-                        bt::ui::url_open(bt::url_payload{HomeUrl + "#installing", "baloon_click"}, bt::ui::open_method::configured);
+                        bt::ui::url_open(bt::url_payload{string(APP_URL) + "#installing", "baloon_click"}, bt::ui::open_method::configured);
                         break;
                 }
                 break;
@@ -121,7 +121,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 } else if(id == "contact") {
                     bt::ui::contact();
                 } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{HomeUrl, "shell_icon"}, bt::ui::open_method::configured);
+                    bt::ui::url_open(bt::url_payload{string(APP_URL), "shell_icon"}, bt::ui::open_method::configured);
                 }
             }
                 break;

@@ -186,7 +186,7 @@ namespace bt::ui {
 
     void contact() {
         url_open(
-            url_payload{HomeUrl + "#contact"},
+            url_payload{string(APP_URL) + "#contact"},
             ui::open_method::configured);
     }
 

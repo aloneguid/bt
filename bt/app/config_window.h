@@ -3,7 +3,6 @@
 #include "browser.h"
 #include "dash_window.h"
 #include "url_tester_window.h"
-#include "change_log_window.h"
 #include "about_window.h"
 
 namespace bt
@@ -31,7 +30,6 @@ namespace bt
         //std::shared_ptr<about_window> w_about;
         std::shared_ptr<dash_window> w_dash;
         std::shared_ptr<url_tester_window> w_url_tester;
-        std::shared_ptr<change_log_window> w_change_log;
 
         std::shared_ptr<grey::child> panel_no_browsers;
         std::shared_ptr<grey::child> panel_left;
