@@ -27,7 +27,7 @@ jobs:
       - name: 🔢 prep release notes
         run: |
           grep -m 2 -B 1000 '^## ' bin/release-history.md | tail -n +3 | head -n -2 > final_notes.md
-          cat instructions.md >> final_notes.md
+          cat bin/instructions.md >> final_notes.md
           cat final_notes.md
           
 
