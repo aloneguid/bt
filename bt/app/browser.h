@@ -11,6 +11,7 @@ namespace bt {
         std::string url;
         std::string method;
         bool app_mode{false};
+        HWND source_window_handle;  // handle of the system window where the click came from
     };
 
 

@@ -34,13 +34,15 @@ void execute(const string& data) {
         bt::setup::unregister_all();
         ::PostQuitMessage(0);
     } else if(!data.empty() && !data.starts_with(ArgSplitter)) {
+        // if data starts with argsplitter that means command line is empty
 
         auto parts = str::split(data, ArgSplitter, true);
         // 0 - url
-        // 1 - parent process
+        // 1 - HWND
         bt::url_payload up{parts[0], ""};
         bool picker_down = bt::ui::is_picker_hotkey_down();
         bt::ui::open_method om = picker_down ? bt::ui::open_method::pick : bt::ui::open_method::configured;
+        up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
         bt::ui::url_open(up, om);
     } else {
         bt::ui::config();
@@ -59,13 +61,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
         arg += pt;
     }
 
-    // append caller process
-    arg += ArgSplitter;
-    {
-        win32::process p;
-        win32::process pp = p.get_parent();
-        arg += pp.get_module_filename();
-    }
+    arg = fmt::format("{}{}{:x}",
+        arg,
+        ArgSplitter,
+        (DWORD)(win32::window::get_foreground().get_handle()));
 
     if(bt::ui::try_invoke_running_instance(arg)) {
         return 0;

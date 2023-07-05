@@ -164,7 +164,10 @@ namespace bt
     bool setup::is_installed_as_browser(const std::string& name) {
         string root = "Software\\Clients\\StartMenuInternet";
         string app_root = root + "\\" + name;
-        string any_value = get_value(hive::current_user, app_root);
-        return !any_value.empty();
+        string soc = app_root + "\\shell\\open\\command";
+
+        string app_path = fmt::format("\"{}\"", fss::get_current_exec_path());
+        string reg_app_path = get_value(hive::current_user, soc);
+        return app_path == reg_app_path;
     }
 }
