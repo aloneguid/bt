@@ -10,7 +10,7 @@
                 ""
             ],
             "bugs": [
-                ""
+                "health check: if BT is installed as browser but to a different directory than you are launching from, validation was still succeeding."
             ]
         }
     },

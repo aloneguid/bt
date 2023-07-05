@@ -15,6 +15,8 @@
 #include "app/setup.h"
 #include "app/update_check.h"
 
+#include "win32/window.h"
+
 #define OWN_WM_NOTIFY_ICON_MESSAGE WM_APP + 1
 
 // {365F3F68-6330-4D4F-BEF2-999EF15F1BE4}
@@ -46,6 +48,8 @@ void execute(const string& data) {
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
+
+    win32::window::get_foreground();
 
     string arg;
 
