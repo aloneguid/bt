@@ -11,6 +11,10 @@ using namespace std::chrono;
 namespace bt::app {
     bool has_new_version(std::string& latest_version_number) {
 
+        win32::http h;
+        map<string, string> headers;
+        int code = h.get_get_headers("https://bit.ly/3NMBvFA", headers);
+
         ext::github gh;
         ext::github_release ghr = gh.get_latest_release("aloneguid", "bt");
         if(!ghr.is_valid) return false;
