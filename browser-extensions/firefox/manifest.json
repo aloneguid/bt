@@ -1,0 +1,22 @@
+{
+    "name": "Browser Tamer",
+    "version": "1.1",
+    "manifest_version": 2,
+    "description": "Redirects links to Browser Tamer (Windows only).",
+    "icons": {
+        "192": "icons/icon192x192.png",
+        "256": "icons/icon256x256.png"
+    },
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "contextMenus"
+    ],
+    "browser_action": {
+        "default_icon": "icons/icon192x192.png",
+        "default_title": "Open this page with Browser Tamer"
+    },
+    "background": {
+        "scripts": [ "background.js" ]
+    }
+}
