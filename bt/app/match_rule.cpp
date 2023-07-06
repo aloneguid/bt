@@ -1,6 +1,7 @@
 #include "match_rule.h"
 #include <str.h>
 #include <fmt/core.h>
+#include <regex>
 
 using namespace std;
 
@@ -25,6 +26,10 @@ namespace bt {
                     priority = str::to_int(v);
                 } else if(k == "mode") {
                     if(v == "app") app_mode = true;
+                } else if(k == "firefox_container") {
+                    firefox_container = v;
+                } else if(k == "type") {
+                    if(v == "regex") is_regex = true;
                 }
 
             } else {
@@ -63,6 +68,14 @@ namespace bt {
 
         if(app_mode) {
             parts.push_back("mode:app");
+        }
+
+        if(is_regex) {
+            parts.push_back("type:regex");
+        }
+
+        if(!firefox_container.empty()) {
+            parts.push_back(fmt::format("firefox_container:{}", firefox_container));
         }
 
         parts.push_back(s);
@@ -116,6 +129,15 @@ namespace bt {
         return true;
     }
 
+    bool match_rule::contains(const string& input, const string& value) const {
+        if(is_regex) {
+            regex r{value, regex_constants::icase};
+            return regex_match(input, r);
+        } else {
+            return str::contains_ic(input, value);
+        }
+    }
+
     bool match_rule::is_match(const std::string& line) const {
 
         if(value.empty()) return false;
@@ -126,17 +148,18 @@ namespace bt {
         if(line.empty()) return false;
 
         switch(scope) {
-            case match_scope::any:
-                return str::contains_ic(src, value);
+            case match_scope::any: {
+                return contains(src, value);
+            }
             case match_scope::domain: {
                 string proto, host, path;
                 if(!parse_url(src, proto, host, path)) return false;
-                return str::contains_ic(host, value);
+                return contains(host, value);
             }
             case match_scope::path: {
                 string proto, host, path, query;
                 if(!parse_url(src, proto, host, path)) return false;
-                return str::contains_ic(path, value);
+                return contains(path, value);
             }
         }
 

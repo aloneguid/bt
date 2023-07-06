@@ -2,6 +2,7 @@
 
 ### New
 
+- Match rules support regular expressions syntax.
 - Added Firefox integration extension (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
 
 ### Improvements

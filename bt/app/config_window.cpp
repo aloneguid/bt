@@ -637,6 +637,13 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_value->set_value(ctx.data->value);
                 txt_value->width = 250 * scale;
 
+                // is regex checkbox
+                ctr->same_line();
+                auto chk_regex = ctr->make_checkbox(ICON_FA_TRUCK_FAST);
+                chk_regex->render_as_icon = true;
+                chk_regex->tooltip = "rule is a Regular Expression (advanced)";
+                chk_regex->set_checked(ctx.data->is_regex);
+
                 // priority
                 ctr->same_line();
                 auto chk_priority = ctr->make_checkbox(ICON_FA_ARROW_UP_9_1);
@@ -666,6 +673,14 @@ special keyword - %url% which is replaced by opening url.)";
                     };
                 }
 
+                // firefox container
+                if(bi->b->is_firefox) {
+                    ctr->same_line();
+                    auto chk_ct = ctr->make_checkbox(ICON_FA_BOX);
+                    chk_ct->render_as_icon = true;
+                    chk_ct->tooltip = "open in Firefox container";
+                }
+
                 // scope
                 ctr->same_line();
                 ctr->make_label("|")->is_enabled = false;
@@ -682,10 +697,19 @@ special keyword - %url% which is replaced by opening url.)";
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
 
+                //ctr->make_label("");
+                //ctr->same_line(25 * scale);
+                //ctr->make_input(ICON_FA_BOX);
+
                 // handlers
 
                 lst_scope->on_selected = [this, ctx](size_t idx, grey::list_item&) {
                     ctx.data->scope = (match_scope)idx;
+                    persist_ui();
+                };
+
+                chk_regex->on_value_changed = [this, ctx](bool is_regex) {
+                    ctx.data->is_regex = is_regex;
                     persist_ui();
                 };
 

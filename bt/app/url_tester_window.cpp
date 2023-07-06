@@ -58,7 +58,7 @@ namespace bt {
                 p->tooltip = "priority";
             }
             rc->same_line();
-            rc->make_label(match->rule.to_string());
+            rc->make_label(match->rule.value);
 
             row.cells[1]->make_label(match->bi->b->name);
             row.cells[2]->make_label(match->bi->name);
