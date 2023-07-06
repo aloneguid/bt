@@ -19,6 +19,7 @@ namespace bt {
         match_scope scope{match_scope::any};
         int priority{0};
         bool app_mode{false};
+        std::string firefox_container;
 
         bool operator==(const match_rule& other) const;
 

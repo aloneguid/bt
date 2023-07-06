@@ -1,6 +1,6 @@
 {
     "name": "Browser Tamer",
-    "version": "1.1",
+    "version": "1.2.1",
     "manifest_version": 2,
     "description": "Integrates Browser Tamer with Firefox. Windows only.",
     "icons": {

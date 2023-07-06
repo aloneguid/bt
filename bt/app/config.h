@@ -39,6 +39,9 @@ namespace bt {
         bool get_notify_on_rule_hit();
         void set_notify_on_rule_hit(bool notify);
 
+        std::string get_firefox_container_mode();
+        void set_firefox_container_mode(const std::string& name);
+
         // --- browser/instance
         
         void save_browsers(std::vector<std::shared_ptr<browser>> browsers);

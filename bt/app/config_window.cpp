@@ -169,6 +169,11 @@ namespace bt
         mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FA_ARROW_POINTER);
         set_picker_hotkey("");
 
+        auto mi_ff_mode = mi_settings->add("", "Firefox Container Extension", ICON_FA_FIREFOX);
+        mi_ff_mode_bt = mi_ff_mode->add("mi_ff_mode_bt", APP_LONG_NAME, ICON_FA_PUZZLE_PIECE);
+        mi_ff_mode_ouic = mi_ff_mode->add("mi_ff_mode_ouic", "open-url-in-container", ICON_FA_PUZZLE_PIECE);
+        set_ff_mode("");
+
         auto mi_themes = mi_settings->add("", "Theme", ICON_FA_PAINT_ROLLER);
         for(auto& theme : gctx.list_themes()) {
             mi_themes->add(fmt::format("set_theme_{}", theme.id), theme.name);
@@ -466,6 +471,9 @@ special keyword - %url% which is replaced by opening url.)";
             string id = mi.id.substr(10);
             gctx.set_theme(id);
             config::i.set_theme(id);
+        } else if(mi.id.starts_with("mi_ff_mode_")) {
+            string name = mi.id.substr(11);
+            set_ff_mode(name);
         }
     }
 
@@ -791,6 +799,21 @@ special keyword - %url% which is replaced by opening url.)";
             mi_phk_ctrlalt->is_selected = true;
         } else if(to == "as") {
             mi_phk_altshift->is_selected = true;
+        }
+    }
+
+    void config_window::set_ff_mode(const std::string& name) {
+        mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
+
+        if(!name.empty()) {
+            config::i.set_firefox_container_mode(name);
+        }
+
+        string mode = config::i.get_firefox_container_mode();
+        if(mode == "bt") {
+            mi_ff_mode_bt->is_selected = true;
+        } else if(mode == "ouic") {
+            mi_ff_mode_ouic->is_selected = true;
         }
     }
 

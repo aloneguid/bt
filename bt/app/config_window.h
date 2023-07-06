@@ -52,6 +52,8 @@ namespace bt
         std::shared_ptr<grey::menu_item> mi_phk_ctrlshift;
         std::shared_ptr<grey::menu_item> mi_phk_ctrlalt;
         std::shared_ptr<grey::menu_item> mi_phk_altshift;
+        std::shared_ptr<grey::menu_item> mi_ff_mode_bt;
+        std::shared_ptr<grey::menu_item> mi_ff_mode_ouic;
 
 #if _DEBUG
         std::shared_ptr<grey::demo> dbg_demo;
@@ -75,6 +77,7 @@ namespace bt
 
         void set_open_method(const std::string& update_to);
         void set_picker_hotkey(const std::string& update_to);
+        void set_ff_mode(const std::string& name);
 
         void update_health_icon(bool healthy);
         void persist_ui();

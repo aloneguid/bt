@@ -165,6 +165,16 @@ namespace bt {
         cfg.commit();
     }
 
+    std::string config::get_firefox_container_mode() {
+        string name = cfg.get_value("firefox_container_extension");
+        return name.empty() ? "bt" : name;
+    }
+
+    void config::set_firefox_container_mode(const std::string& name) {
+        cfg.set_value("firefox_container_extension", name);
+        cfg.commit();
+    }
+
     void config::save_browsers(std::vector<std::shared_ptr<browser>> browsers) {
 
         // delete all browser sections
