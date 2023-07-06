@@ -1,0 +1,92 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+  -- License, v. 2.0. If a copy of the MPL was not distributed with this
+  -- file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <title>Open Browser Tamer links in a container. Or not.</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="chrome://browser/skin/error-pages.css">
+    <style>
+        #internalErrorContainer .title {
+            color: red;
+        }
+
+        #securityConfirmationContainer .title {
+            color: red;
+        }
+
+        .hidden {
+            /* opacity: 0.3; */
+            display: none;
+        }
+
+        #securityConfirmationContainerName,
+        #internalErrorBody,
+        #securityConfirmationUrl {
+            font-weight: bold;
+        }
+
+        #internalErrorBody,
+        #securityConfirmationUrl {
+            display: block;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div xmlns="http://www.w3.org/1999/xhtml" id="errorPageContainer" class="container">
+        <div id="text-container">
+            <!-- Internal error -->
+            <div id="internalErrorContainer" class="hidden">
+                <div class="title">
+                    <h1 class="title-text">Error</h1>
+                </div>
+
+                <div class="description">
+                    <div>
+                        <p>We are unable to open the URL you requested.</p>
+                        <p>This could be due to an internal problem or some mistakes in your link.</p>
+
+                        <p>Below you can see some error details:</p>
+                        <p id="internalErrorBody"></p>
+                    </div>
+                </div>
+            </div>
+            <!-- / Internal error -->
+            <!-- Security confirmation -->
+            <div id="securityConfirmationContainer" class="hidden">
+                <div class="title">
+                    <h1 class="title-text">Warning</h1>
+                </div>
+
+                <div class="description">
+                    <div>
+                        <p>
+                            Someone, maybe you, has tried to open the following URL in your
+                            <span id="securityConfirmationContainerName"></span> container:
+                        </p>
+                        <p>
+                            <span id="securityConfirmationUrl"></span>
+                        </p>
+                        <p>If you do not recognize this action, maybe someone is trying to track you across your containers. In that case we recommend to go back.</p>
+                        <p>Otherwise, if you recongnize this action and/or it was your intention, you can proceed with the redirect.</p>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button id="securityConfirmationGoBack" class="primary" autofocus="true">Go Back (Recommended)</button>
+                    <button id="securityConfirmationConfirm">Continue</button>
+                </div>
+            </div>
+            <!-- / Security confirmation -->
+        </div>
+
+        <script src="./container.js" type="module"></script>
+</body>
+
+</html>

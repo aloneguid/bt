@@ -1,5 +1,9 @@
 ## 3.3.0
 
+### New
+
+- Added Firefox integration extension (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
+
 ### Improvements
 
 - release notes are removed from application code and replaced by a [link to GitHub](https://github.com/aloneguid/bt/releases) to avoid duplication and gradually increasing application size as they grow.

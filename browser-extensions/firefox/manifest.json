@@ -10,7 +10,9 @@
     "permissions": [
         "activeTab",
         "tabs",
-        "contextMenus"
+        "contextMenus",
+        "contextualIdentities",
+        "cookies"
     ],
     "browser_action": {
         "default_icon": "icons/icon192x192.png",
@@ -18,5 +20,12 @@
     },
     "background": {
         "scripts": [ "background.js" ]
-    }
+    },
+    "protocol_handlers": [
+        {
+            "protocol": "ext+bt",
+            "name": "Browser Tamer",
+            "uriTemplate": "/container.html#%s"
+        }
+    ]
 }
