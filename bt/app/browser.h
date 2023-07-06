@@ -121,6 +121,11 @@ namespace bt {
         */
         std::string home_path;
 
+        /**
+         * @brief Firefox Only. If "Containers" extension is installed, contains full path to containers.json
+        */
+        std::string firefox_containers_config_path;
+
         int popularity{ 0 };
 
         bool is_incognito{false};

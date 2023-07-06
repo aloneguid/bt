@@ -213,6 +213,7 @@ namespace bt {
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("cmd", bi->open_cmd, section);
                     cfg.set_value("home", bi->home_path, section);
+                    cfg.set_value("firefox_containers_config_path", bi->firefox_containers_config_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
                 }
@@ -264,6 +265,7 @@ namespace bt {
                         cfg.get_value("icon", ssn),
                         cfg.get_value("cmd", ssn));
                     bi->home_path = cfg.get_value("home", ssn);
+                    bi->firefox_containers_config_path = cfg.get_value("firefox_containers_config_path", ssn);
                     bi->is_incognito = p_subtype == "incognito";
 
                     // rules, if any

@@ -173,6 +173,13 @@ namespace bt {
                     bi->home_path = is_relative
                         ? (fs::path{lad} / "Mozilla" / "Firefox" / c_path).string()
                         : c_path;
+
+                    // detect if "containers" are installed
+                    fs::path containers_path = fs::path{ad} / "Mozilla" / "Firefox" / c_path / "containers.json";
+                    if(fs::exists(containers_path)) {
+                        bi->firefox_containers_config_path = containers_path.string();
+                    }
+
                     b->instances.push_back(bi);
                 }
             }
