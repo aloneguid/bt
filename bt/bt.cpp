@@ -58,6 +58,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
         for(int i = 0; i < argc; i++) {
             msg << i + 1 << ": [" << argv[i] << "]" << endl;
         }
+        auto fg = win32::window::get_foreground();
+        win32::process p{fg.get_pid()};
+        msg << "by: [" << str::to_wstr(p.get_name()) << "]";
+
         ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
     }
 
