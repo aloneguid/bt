@@ -191,7 +191,7 @@ namespace bt {
 
                         // rename primary release profile to something more human-readable
                         string profile_display_name = name == "default-release"
-                            ? name = "Primary"
+                            ? "Primary"
                             : name;
 
                         string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
