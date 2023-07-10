@@ -169,7 +169,8 @@ namespace bt
         mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FA_ARROW_POINTER);
         set_picker_hotkey("");
 
-        auto mi_ff_mode = mi_settings->add("", "Firefox Container Extension", ICON_FA_FIREFOX);
+        auto mi_ff_mode = mi_settings->add("", "Firefox Container Mode", ICON_FA_FIREFOX);
+        mi_ff_mode_off = mi_ff_mode->add("mi_ff_mode_off", "off (use profiles)", ICON_FA_POWER_OFF);
         mi_ff_mode_bt = mi_ff_mode->add("mi_ff_mode_bt", APP_LONG_NAME, ICON_FA_PUZZLE_PIECE);
         mi_ff_mode_ouic = mi_ff_mode->add("mi_ff_mode_ouic", "open-url-in-container", ICON_FA_PUZZLE_PIECE);
         set_ff_mode("");
@@ -236,25 +237,12 @@ namespace bt
             browser_toolbar->same_line();
             auto g_static = browser_toolbar->make_group();
             if(!b->open_cmd.empty()) {
-                auto bf = g_static->make_button(ICON_FA_FOLDER_OPEN " browser");
+                auto bf = g_static->make_button(ICON_FA_FOLDER_OPEN);
                 bf->tooltip = fmt::format("open {}'s folder in Explorer.", b->name);
                 bf->on_pressed = [b](button&) {
                     std::filesystem::path p{b->open_cmd};
                     string path = p.parent_path().string();
                     win32::shell::exec(path, "");
-                };
-
-                g_static->same_line();
-                auto pf = g_static->make_button(ICON_FA_FOLDER_TREE " profile");
-                pf->tooltip = "open profile folder in Explorer.";
-                profiles_tabs->on_tab_changed = [pf, b](size_t idx) {
-                    auto profile = b->instances[idx];
-                    pf->is_visible = !profile->home_path.empty();
-                    if(!profile->home_path.empty()) {
-                        pf->on_pressed = [profile](button&) {
-                            win32::shell::exec(profile->home_path, "");
-                        };
-                    }
                 };
 
                 if(b->is_firefox) {
@@ -315,19 +303,23 @@ namespace bt
             browser_free_area->is_visible = false;
 
             for(auto bi : b->instances) {
-                auto tab = profiles_tabs->make(fmt::format(" {} ", bi->name));
+                string tab_icon;
+                if(bi->is_incognito) {
+                    tab_icon = fmt::format("{} ", ICON_FA_GLASSES);
+                }
+                auto tab = profiles_tabs->make(fmt::format(" {}{} ", tab_icon, bi->name));
 
                 tab->spacer();
 
-                auto acc_params = tab->make_accordion("Info");
+                auto acc_params = tab->make_accordion("Parameters");
                 {
                     // basic metadata
 
-                    auto txt_exe_path = acc_params->make_input("exe");
-                    txt_exe_path->set_value(bi->open_cmd);
-                    txt_exe_path->set_select_all_on_focus();
-                    txt_exe_path->set_is_readonly();
-                    txt_exe_path->tooltip = "full path to browser executable.";
+                    //auto txt_exe_path = acc_params->make_input("exe");
+                    //txt_exe_path->set_value(b->open_cmd);
+                    //txt_exe_path->set_select_all_on_focus();
+                    //txt_exe_path->set_is_readonly();
+                    //txt_exe_path->tooltip = "full path to browser executable.";
 
                     auto txt_arg = acc_params->make_input("arg");
                     txt_arg->set_value(bi->launch_arg);
@@ -347,7 +339,7 @@ namespace bt
             browser_free_area->make_label("Parameters");
 
             auto txt_exe_path = browser_free_area->make_input("exe");
-            txt_exe_path->set_value(bi->open_cmd);
+            txt_exe_path->set_value(b->open_cmd);
             txt_exe_path->set_select_all_on_focus();
             txt_exe_path->set_is_readonly();
             txt_exe_path->tooltip = "Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)";
@@ -827,7 +819,7 @@ special keyword - %url% which is replaced by opening url.)";
     }
 
     void config_window::set_ff_mode(const std::string& name) {
-        mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
+        mi_ff_mode_off->is_selected = mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
 
         if(!name.empty()) {
             config::i.set_firefox_container_mode(name);
@@ -838,6 +830,8 @@ special keyword - %url% which is replaced by opening url.)";
             mi_ff_mode_bt->is_selected = true;
         } else if(mode == "ouic") {
             mi_ff_mode_ouic->is_selected = true;
+        } else if(mode == "off" || mode.empty()) {
+            mi_ff_mode_off->is_selected = true;
         }
     }
 

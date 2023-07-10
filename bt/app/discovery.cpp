@@ -19,6 +19,13 @@ using hive = win32::reg::hive;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+map<string, string> chromium_id_to_vdf {
+    { "msedge", "Microsoft\\Edge\\User Data" },
+    { "chrome", "Google\\Chrome\\User Data" },
+    { "vivaldi", "Vivaldi\\User Data" },
+    { "brave", "BraveSoftware\\Brave-Browser\\User Data" }
+};
+
 namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
     const string ad = win32::shell::get_app_data_folder();
@@ -81,11 +88,12 @@ namespace bt {
     void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
         if (!(b->is_system && b->is_chromium)) return;
 
-        fs::path root(lad);
-        root.append(b->vdf);
+        if(!chromium_id_to_vdf.contains(b->id)) return;
+
+        fs::path root = fs::path{lad} / chromium_id_to_vdf[b->id];
+        fs::path lsjf = root / "Local State";
 
         // faster method to discover
-        fs::path lsjf = fs::path{lad} / b->vdf / "Local State";
         if(fs::exists(lsjf)) {
             string jt = fss::read_file_as_string(str::to_str(lsjf));
             auto j = json::parse(jt);
@@ -109,9 +117,9 @@ namespace bt {
                         arg,
                         ""
                     );
-                    bi->home_path = str::to_str(fs::path{lad} / b->vdf / sys_name);
+                    bi->order = b->instances.size();
                     if(profile_pic_j.is_string()) {
-                        bi->icon_path = str::to_str(fs::path{lad} / b->vdf / sys_name / profile_pic_j.get<string>());
+                        bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                     }
                     b->instances.push_back(bi);
                 }
@@ -125,6 +133,7 @@ namespace bt {
                 ""
             );
             inprivate->is_incognito = true;
+            inprivate->order = b->instances.size();
             b->instances.push_back(inprivate);
         }
 
@@ -136,6 +145,7 @@ namespace bt {
                 ""
             );
             tor->is_incognito = true;
+            tor->order = b->instances.size();
             b->instances.push_back(tor);
         }
     }
@@ -147,6 +157,8 @@ namespace bt {
             // see http://kb.mozillazine.org/Profiles.ini_file
             fs::path ini_path = fs::path{ad} / "Mozilla" / "Firefox" / "profiles.ini";
             if(fs::exists(ini_path)) {
+                string container_mode = config::i.get_firefox_container_mode();
+
                 CSimpleIniA ini;
                 ini.LoadFile(ini_path.c_str());
                 list<CSimpleIniA::Entry> ir;
@@ -163,24 +175,56 @@ namespace bt {
                     const char* c_path = ini.GetValue(e.pItem, "Path");
                     if(!c_path) continue;
 
-                    const char* c_default = ini.GetValue(e.pItem, "Default");
-                    bool is_default = c_default != nullptr && string{c_default} == "1";
+                    // we don't want "default" profile - in Firefox it's some kind of pre-release oddness
+                    if(name == "default") continue;
 
-                    string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
-                    auto bi = make_shared<browser_instance>(
-                        b, e.pItem, name, arg, b->open_cmd
-                    );
-                    bi->home_path = is_relative
+                    string local_home = is_relative
                         ? (fs::path{lad} / "Mozilla" / "Firefox" / c_path).string()
                         : c_path;
 
-                    // detect if "containers" are installed
-                    fs::path containers_path = fs::path{ad} / "Mozilla" / "Firefox" / c_path / "containers.json";
-                    if(fs::exists(containers_path)) {
-                        bi->firefox_containers_config_path = containers_path.string();
+                    string roaming_home = is_relative
+                        ? (fs::path{ad} / "Mozilla" / "Firefox" / c_path).string()
+                        : c_path;
+
+
+                    if(container_mode.empty()) {
+
+                        // rename primary release profile to something more human-readable
+                        string profile_display_name = name == "default-release"
+                            ? name = "Primary"
+                            : name;
+
+                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
+                        auto bi = make_shared<browser_instance>(b, e.pItem, profile_display_name, arg, "");
+                        bi->order = b->instances.size();
+
+                        {
+                            const char* c_default = ini.GetValue(e.pItem, "Default");
+                            bi->is_default = c_default != nullptr && string{c_default} == "1";
+                        }
+
+                        b->instances.push_back(bi);
+                    } else {
+
+                        /*vector<string> addons = get_firefox_addons_installed(roaming_home);
+                        if(std::find(addons.begin(), addons.end(), "{f069aec0-43c5-4bbf-b6b4-df95c4326b98}") != addons.end()) {
+                            bi->has_firefox_ouic_addon = true;
+                        }*/
+
+                        vector<firefox_container> containers = discover_firefox_containers(roaming_home);
+                        for(const auto& container : containers) {
+                            string arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
+                                container.name,
+                                browser_instance::URL_ARG_NAME,
+                                name);
+
+                            string id = fmt::format("{}+c_{}", e.pItem, container.id);
+                            auto bi = make_shared<browser_instance>(b, id, container.name, arg, "");
+                            bi->order = b->instances.size();
+                            b->instances.push_back(bi);
+                        }
                     }
 
-                    b->instances.push_back(bi);
                 }
             }
         }
@@ -190,16 +234,89 @@ namespace bt {
         //   arg + " -safe-mode",
         //   b.open_cmd);
 
-        //result.push_back(safe_bi);
-
         // in-private
-
         auto private_bi = make_shared<browser_instance>(b, "private", "Private",
             fmt::format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
             b->open_cmd);
         private_bi->is_incognito = true;
+        private_bi->order = b->instances.size();
 
         b->instances.push_back(private_bi);
+    }
+
+    vector<firefox_container> discovery::discover_firefox_containers(const string& roaming_home) {
+
+        vector<firefox_container> r;
+
+        // detect if "containers" are installed
+        fs::path containers_path = fs::path{roaming_home} / "containers.json";
+        if(fs::exists(containers_path)) {
+            string jt = fss::read_file_as_string(containers_path.string());
+            auto j = json::parse(jt);
+            auto identities = j["identities"];
+            if(identities.is_array()) {
+                for(json::iterator it = identities.begin(); it != identities.end(); ++it) {
+                    auto identity = *it;
+                    auto j_is_public = identity["public"];
+                    if(!j_is_public.is_boolean() || !j_is_public.get<bool>()) continue;
+
+                    auto j_id = identity["userContextId"];
+                    if(!j_id.is_number()) continue;
+
+                    auto j_name = identity["name"];
+                    auto j_l10nID = identity["l10nID"];
+                    if(!(j_name.is_string() || j_l10nID.is_string())) continue;
+
+                    int id = j_id.get<int>();
+                    string name;
+                    if(j_name.is_string()) {
+                        name = j_name.get<string>();
+                    } else {
+                        // there are 4 default containers - Personal, Work, Banking, Shopping.
+                        // They can be deleted, or renamed (in which case they will get "name" property set)
+
+                        string lid = j_l10nID.get<string>();
+                        if(lid == "userContextPersonal.label") {
+                            name = "Personal";
+                        } else if(lid == "userContextWork.label") {
+                            name = "Work";
+                        } else if(lid == "userContextBanking.label") {
+                            name = "Banking";
+                        } else if(lid == "userContextShopping.label") {
+                            name = "Shopping";
+                        } else {
+                            name = lid;
+                        }
+                    }
+
+                    r.emplace_back(to_string(id), name);
+                }
+            }
+        }
+
+        return r;
+    }
+
+    std::vector<std::string> discovery::get_firefox_addons_installed(const std::string& roaming_home) {
+        vector<string> r;
+
+        fs::path path = fs::path{roaming_home} / "addons.json";
+        if(fs::exists(path)) {
+            string jt = fss::read_file_as_string(path.string());
+            auto j = json::parse(jt);
+            auto j_addons = j["addons"];
+            if(j_addons.is_array()) {
+                for(json::iterator it = j_addons.begin(); it != j_addons.end(); ++it) {
+                    auto j_addon = *it;
+                    auto j_id = j_addon["id"];
+                    if(!j_id.is_string()) continue;
+                    r.push_back(j_id.get<string>());
+                }
+            }
+        }
+
+
+        return r;
     }
 
     void discovery::discover_other_profiles(shared_ptr<browser> b) {

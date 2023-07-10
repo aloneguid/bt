@@ -63,14 +63,14 @@ namespace bt {
 
             // browser logo
             auto logo = c->make_image_from_file(
-                ctx.data->get_best_browser_icon_path(),
+                ctx.data->b->open_cmd,
                 icon_size, icon_size);
             logo->bg_draw = true;
             logo->padding_left = logo->padding_top = style.FramePadding.x;
             if(ctx.data->is_incognito) logo->alpha = 0.2;
 
             // profile logo (if required)
-            if(ctx.data->get_best_icon_path() != ctx.data->get_best_browser_icon_path() || ctx.data->is_incognito) {
+            if(!ctx.data->icon_path.empty() || ctx.data->is_incognito) {
 
                 //c->set_pos(padding, padding + icon_size / 2, true);
                 shared_ptr<image> pfi;
@@ -81,7 +81,7 @@ namespace bt {
                         icon_size / 2, icon_size / 2);
                 } else {
                     pfi = c->make_image_from_file(
-                        ctx.data->get_best_icon_path(),
+                        ctx.data->icon_path,
                         icon_size / 2, icon_size / 2);
                 }
                 pfi->bg_draw = true;

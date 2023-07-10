@@ -35,7 +35,7 @@ namespace bt {
     }
 
     void config::set_theme(const std::string& id) {
-        cfg.set_value("theme", id);
+        cfg.set_value("theme", id == "follow_os" ? "" : id);
         cfg.commit();
     }
 
@@ -166,12 +166,11 @@ namespace bt {
     }
 
     std::string config::get_firefox_container_mode() {
-        string name = cfg.get_value("firefox_container_extension");
-        return name.empty() ? "bt" : name;
+        return cfg.get_value("firefox_container_mode");
     }
 
     void config::set_firefox_container_mode(const std::string& name) {
-        cfg.set_value("firefox_container_extension", name);
+        cfg.set_value("firefox_container_mode", name == "off" ? "" : name);
         cfg.commit();
     }
 
@@ -188,7 +187,6 @@ namespace bt {
             string section = fmt::format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
-            cfg.set_value("vdf", b->vdf, section);
 
             string subtype;
             if(b->is_system) {
@@ -211,11 +209,9 @@ namespace bt {
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
-                    cfg.set_value("cmd", bi->open_cmd, section);
-                    cfg.set_value("home", bi->home_path, section);
-                    cfg.set_value("firefox_containers_config_path", bi->firefox_containers_config_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
+                    if(bi->order != 0) cfg.set_value("order", to_string(bi->order), section);
                 }
             }
         }
@@ -241,7 +237,6 @@ namespace bt {
                 subtype != "user"
             );
 
-            b->vdf = cfg.get_value("vdf", bsn);
             b->is_firefox = subtype == "firefox";
             b->is_chromium = subtype == "chromium";
 
@@ -262,11 +257,10 @@ namespace bt {
                         p_sys_name,
                         cfg.get_value("name", ssn),
                         cfg.get_value("arg", ssn),
-                        cfg.get_value("icon", ssn),
-                        cfg.get_value("cmd", ssn));
-                    bi->home_path = cfg.get_value("home", ssn);
-                    bi->firefox_containers_config_path = cfg.get_value("firefox_containers_config_path", ssn);
+                        cfg.get_value("icon", ssn));
                     bi->is_incognito = p_subtype == "incognito";
+                    string s_order = cfg.get_value("order", ssn);
+                    if(!s_order.empty()) bi->order = str::to_int(s_order);
 
                     // rules, if any
                     bi->set_rules_from_text(cfg.get_all_values("rule", ssn));
@@ -297,17 +291,12 @@ namespace bt {
             return sa < sb;
         });
 
-        // sort instances alphabetically, leaving incognito at the end
+        // sort instances by order field
         for(auto& b : r) {
             std::sort(b->instances.begin(), b->instances.end(),
                 [](const shared_ptr<browser_instance>& a, const shared_ptr<browser_instance>& b) {
-                string sa = a->name;
-                string sb = b->name;
-                if(a->is_incognito) sa = "z" + sa;
-                if(b->is_incognito) sb = "z" + sb;
-                str::lower(sa);
-                str::lower(sb);
-                return sa < sb;
+
+                return a->order < b->order;
             });
         }
 

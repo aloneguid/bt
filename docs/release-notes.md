@@ -3,11 +3,16 @@
 ### New
 
 - Match rules support regular expressions syntax.
+- Support for Firefox Containers added!
 - Added Firefox integration extension (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
 
 ### Improvements
 
-- release notes are removed from application code and replaced by a [link to GitHub](https://github.com/aloneguid/bt/releases) to avoid duplication and gradually increasing application size as they grow.
+- `config.ini` is slightly simpler - removed `open_cmd` and `vdf` keys as they are not required anymore.
+- Browser profiles are sorted by the order they appear in the browser itself instead of alphabetically.
+- Visual: "incognito" modes are marked with a visual icon.
+- Firefox: profile discovery skips `default` profile which is intended for some kind of alpha testing and has no meaning to a normal user. `default-release` profiles is now displayed as `Primary` as this is exactly what it is.
+- Infrastructure: release notes are removed from application code and replaced by a [link to GitHub](https://github.com/aloneguid/bt/releases) to avoid duplication and gradually increasing application size as they grow.
 
 ### Bugs Fixed
 

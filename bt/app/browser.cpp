@@ -26,30 +26,11 @@ namespace bt {
         const std::string& open_cmd,
         bool is_system)
         : id{id}, name{ name }, open_cmd{ open_cmd },
-        is_chromium{ false }, is_firefox{ false },
+        is_chromium{ is_chromium_browser(id) }, is_firefox{ is_firefox_browser(id) },
         is_system{ is_system }
-        //pc_cpu{win32::perf_counter::make_process_processor_time(get_image_name(open_cmd))}
     {
         str::trim(this->name);
-
         str::trim(this->open_cmd, "\"");
-
-        if (this->id == "msedge") {
-            is_chromium = true;
-            vdf = "Microsoft\\Edge\\User Data";
-        } else if (this->id == "chrome") {
-            is_chromium = true;
-            vdf = "Google\\Chrome\\User Data";
-        } else if(this->id == "vivaldi") {
-            is_chromium = true;
-            vdf = "Vivaldi\\User Data";
-        } else if(this->id == "brave") {
-            is_chromium = true;
-            vdf = "BraveSoftware\\Brave-Browser\\User Data";
-        } else if (this->id == "firefox") {
-            is_firefox = true;
-            vdf = "Mozilla\\Firefox\\Profiles";
-        }
     }
 
     bool match_rule::operator==(const match_rule& other) const {
@@ -205,13 +186,24 @@ namespace bt {
         return fs::path{open_cmd}.filename().replace_extension().string();
     }
 
+    bool browser::is_chromium_browser(const std::string& system_id) {
+        return
+            system_id == "msedge"  ||
+            system_id == "chrome"  ||
+            system_id == "vivaldi" ||
+            system_id == "brave";
+    }
+
+    bool browser::is_firefox_browser(const std::string& system_id) {
+        return system_id == "firefox";
+    }
+
     browser_instance::browser_instance(
         shared_ptr<browser> b,
         const std::string& id,
         const std::string& name,
         const std::string& launch_arg,
-        const std::string& icon_path,
-        const std::string& open_cmd)
+        const std::string& icon_path)
         : b{ b },
 
         id{ id },
@@ -219,8 +211,6 @@ namespace bt {
 
         launch_arg{ launch_arg },
         icon_path{ icon_path } {
-
-        this->open_cmd = open_cmd.empty() ? b->open_cmd : open_cmd;
     }
 
     browser_instance::~browser_instance() {}
@@ -251,7 +241,7 @@ namespace bt {
             arg = fmt::format("--app={}", arg);
         }
 
-        win32::shell::exec(open_cmd, arg);
+        win32::shell::exec(b->open_cmd, arg);
     }
 
     bool browser_instance::is_match(const std::string& url, match_rule& mr) const {
@@ -280,17 +270,6 @@ namespace bt {
 
     void browser_instance::delete_rule(const std::string& rule_text) {
         std::erase_if(rules, [rule_text](auto r) { return r->value == rule_text; });
-    }
-
-    std::string browser_instance::get_best_icon_path() const {
-        string r = icon_path;
-        if (r.empty()) r = open_cmd;
-        if (r.empty()) r = b->open_cmd;
-        return r;
-    }
-
-    std::string browser_instance::get_best_browser_icon_path() const {
-        return open_cmd.empty() ? icon_path : open_cmd;
     }
 
     bool browser_instance::is_singular() const {

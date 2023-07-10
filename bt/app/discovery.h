@@ -4,6 +4,11 @@
 
 namespace bt
 {
+    struct firefox_container {
+        std::string id;
+        std::string name;
+    };
+
     class discovery {
     public:
         static bool is_default_browser(bool& http, bool& https, bool& xbt);
@@ -19,6 +24,10 @@ namespace bt
         static void discover_chrome_profiles(std::shared_ptr<browser> b);
 
         static void discover_firefox_profiles(std::shared_ptr<browser> b);
+
+        static std::vector<firefox_container> discover_firefox_containers(const std::string& roaming_home);
+
+        static std::vector<std::string> get_firefox_addons_installed(const std::string& roaming_home);
 
         static void discover_other_profiles(std::shared_ptr<browser> b);
 

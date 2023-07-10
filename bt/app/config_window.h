@@ -52,6 +52,7 @@ namespace bt
         std::shared_ptr<grey::menu_item> mi_phk_ctrlshift;
         std::shared_ptr<grey::menu_item> mi_phk_ctrlalt;
         std::shared_ptr<grey::menu_item> mi_phk_altshift;
+        std::shared_ptr<grey::menu_item> mi_ff_mode_off;
         std::shared_ptr<grey::menu_item> mi_ff_mode_bt;
         std::shared_ptr<grey::menu_item> mi_ff_mode_ouic;
 

@@ -40,10 +40,6 @@ namespace bt {
 
         std::vector<std::shared_ptr<browser_instance>> instances;
 
-        // chrome-based only
-        std::string vdf;   // vendor data folder
-        //std::vector<chrome_profile> chrome_profiles;
-
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members
@@ -68,10 +64,14 @@ namespace bt {
             std::vector<std::shared_ptr<browser>> old_set);
 
     private:
+
+        static std::vector<std::shared_ptr<browser>> cache;
+
         static void preprocess_url(std::string& url);
         static std::string get_image_name(const std::string& open_cmd);
 
-        static std::vector<std::shared_ptr<browser>> cache;
+        static bool is_chromium_browser(const std::string& system_id);
+        static bool is_firefox_browser(const std::string& system_id);
     };
 
     class browser_instance {
@@ -88,8 +88,7 @@ namespace bt {
             const std::string& id,
             const std::string& name,
             const std::string& launch_arg,
-            const std::string& icon_path,
-            const std::string& open_cmd = "");
+            const std::string& icon_path);
 
         ~browser_instance();
 
@@ -113,28 +112,32 @@ namespace bt {
 
         std::string launch_arg;
         std::vector<std::shared_ptr<match_rule>> rules;
+
+        /**
+         * @brief Optionally sets a custom profile icon if known.
+        */
         std::string icon_path;
-        std::string open_cmd;
-
-        /**
-         * @brief For Chromium/Firefox it's a full path to profile's directory. Only set by discovery algorithm so you should persist this.
-        */
-        std::string home_path;
-
-        /**
-         * @brief Firefox Only. If "Containers" extension is installed, contains full path to containers.json
-        */
-        std::string firefox_containers_config_path;
 
         int popularity{ 0 };
 
+        /**
+         * @brief Optional sort order
+        */
+        int order{0};
+
         bool is_incognito{false};
 
+        /**
+         * @brief If this is the default browser profile in this browser. Doesn't have to do anything with user's default choice in BT.
+        */
+        bool is_default{false};
+
+        /**
+         * @brief Whether this profile has https://github.com/honsiorovskyi/open-url-in-container installed.
+        */
+        bool has_firefox_ouic_addon{false};
+
         std::string long_id() const { return b->id + ":" + id; }
-
-        std::string get_best_icon_path() const;
-
-        std::string get_best_browser_icon_path() const;
 
         bool is_singular() const; // whether this is a singular instance browser (private mode is not taken into account)
 
