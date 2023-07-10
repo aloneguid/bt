@@ -52,7 +52,14 @@ void execute(const string& data) {
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
-    win32::window::get_foreground();
+    if(bt::config::i.get_flag("debug_args") == "y") {
+        wostringstream msg;
+        msg << "count: " << argc << endl;
+        for(int i = 0; i < argc; i++) {
+            msg << i + 1 << ": [" << argv[i] << "]" << endl;
+        }
+        ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
+    }
 
     string arg;
 

@@ -319,4 +319,8 @@ namespace bt {
     string config::get_absolute_path() {
         return cfg.get_absolute_path();
     }
+
+    string config::get_flag(const std::string& name) {
+        return cfg.get_value(fmt::format("flag_{}", name));
+    }
 }

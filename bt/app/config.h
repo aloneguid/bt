@@ -70,6 +70,9 @@ namespace bt {
 
         std::string get_absolute_path();
 
+        // experimental flags
+        std::string get_flag(const std::string& name);
+
         static config i;
 
     private:
