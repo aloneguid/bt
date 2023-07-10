@@ -4,6 +4,7 @@
 #include <chrono>
 #include "app/config.h"
 #include "ext/lsignal/lsignal.h"
+#include "ext/alg_tracker.h"
 
 const std::string Win32ClassName("BTWindow");
 const std::string AppGuid("026741D2-FF77-462B-AD70-4140697C8AE1");
@@ -19,6 +20,8 @@ const std::string CustomProtoName = "x-bt";
 const std::string CoffeePageUrl = "https://www.buymeacoffee.com/alonecoffee";
 
 const std::string ArgSplitter = "|";
+
+extern alg::tracker t;
 
 /**
  * @brief Global app event. Args:

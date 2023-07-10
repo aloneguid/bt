@@ -23,6 +23,7 @@
 static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x99, 0x9e, 0xf1, 0x5f, 0x1b, 0xe4 }};
 
 // globals.h
+alg::tracker t{APP_SHORT_NAME, APP_VERSION};
 lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
 
 using namespace std;

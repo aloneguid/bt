@@ -10,9 +10,7 @@
 #include "config.h"
 #include "../globals.h"
 #include "win32/npipe.h"
-#include "ext/alg_tracker.h"
 #include <fmt/core.h>
-#include "ext/alg_tracker.h"
 #include "str.h"
 #include "fss.h"
 #include "win32/shell.h"
@@ -22,7 +20,6 @@
 
 namespace bt::ui {
 
-    alg::tracker t{APP_SHORT_NAME, APP_VERSION};
     unique_ptr<grey::backend> active_backend;
     std::function<void(bool is_open)> on_ui_open_changed;
     bool is_main_instance{false};
@@ -83,12 +80,6 @@ namespace bt::ui {
     }
 
     void url_open(url_payload up, open_method method) {
-
-        t.track(map<string, string>
-        {
-            { "event", "url_open" }
-        }, false);
-
         // read in method if required
         if(method == open_method::configured) {
             auto sm = config::i.get_open_method();
@@ -180,7 +171,7 @@ namespace bt::ui {
         cds.cbData = data.size() + 1;
         cds.lpData = (LPVOID)data.c_str();
 
-        // SendMessaeg shoudl return true if app processes the message, false otherwise
+        // SendMessaeg should return true if app processes the message, false otherwise
         return ::SendMessage(hwnd, WM_COPYDATA, (WPARAM)hwnd, (LPARAM)(LPVOID)&cds);
     }
 

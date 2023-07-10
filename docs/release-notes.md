@@ -3,7 +3,7 @@
 ### New
 
 - Match rules support regular expressions syntax.
-- Support for Firefox Containers added!
+- Support for Firefox Containers added! Firefox containers link redirection works with [Open external links in a container by Denys H](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search) extension.
 - Added Firefox integration extension (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
 
 ### Improvements
