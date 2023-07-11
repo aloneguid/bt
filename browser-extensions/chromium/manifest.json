@@ -8,8 +8,10 @@
         "256": "icons/icon256x256.png"
     },
     "permissions": [
+        "tabs",
         "activeTab",
-        "contextMenus"
+        "contextMenus",
+        "webNavigation"
     ],
     "background": {
         "service_worker": "background.js"

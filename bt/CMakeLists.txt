@@ -30,7 +30,8 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
     APP_BROWSER_EXTENSION_CHROME_URL="https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd"
     APP_BROWSER_EXTENSION_EDGE_URL="https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin"
-    APP_BROWSER_EXTENSION_FIREFOX_URL="todo")
+    APP_BROWSER_EXTENSION_FIREFOX_URL="https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/"
+    APP_BROWSER_EXTENSION_FIREFOX_OUIC_URL="https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/")
 
 target_link_libraries(bt
 	libgrey

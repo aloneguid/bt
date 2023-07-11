@@ -1,4 +1,5 @@
 
+
 browser.browserAction.onClicked.addListener((tab) => {
     var url = tab.url;
 

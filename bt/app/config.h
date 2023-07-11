@@ -14,6 +14,12 @@ namespace bt {
         std::string arg;
     };
 
+    enum class firefox_container_mode {
+        off = 0,
+        bt = 1,
+        ouic = 2
+    };
+
     class config {
     public:
         config();
@@ -39,8 +45,8 @@ namespace bt {
         bool get_notify_on_rule_hit();
         void set_notify_on_rule_hit(bool notify);
 
-        std::string get_firefox_container_mode();
-        void set_firefox_container_mode(const std::string& name);
+        firefox_container_mode get_firefox_container_mode();
+        void set_firefox_container_mode(firefox_container_mode mode);
 
         // --- browser/instance
         
@@ -73,6 +79,12 @@ namespace bt {
         // experimental flags
         std::string get_flag(const std::string& name);
 
+        // conversion functions
+        static std::string firefox_container_mode_to_string(firefox_container_mode mode);
+        static firefox_container_mode to_firefox_container_mode(const std::string& name);
+
+
+        // global instance
         static config i;
 
     private:

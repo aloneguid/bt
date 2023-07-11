@@ -157,7 +157,7 @@ namespace bt {
             // see http://kb.mozillazine.org/Profiles.ini_file
             fs::path ini_path = fs::path{ad} / "Mozilla" / "Firefox" / "profiles.ini";
             if(fs::exists(ini_path)) {
-                string container_mode = config::i.get_firefox_container_mode();
+                firefox_container_mode container_mode = config::i.get_firefox_container_mode();
 
                 CSimpleIniA ini;
                 ini.LoadFile(ini_path.c_str());
@@ -187,7 +187,7 @@ namespace bt {
                         : c_path;
 
 
-                    if(container_mode.empty()) {
+                    if(container_mode == firefox_container_mode::off) {
 
                         // rename primary release profile to something more human-readable
                         string profile_display_name = name == "default-release"
@@ -213,10 +213,22 @@ namespace bt {
 
                         vector<firefox_container> containers = discover_firefox_containers(roaming_home);
                         for(const auto& container : containers) {
-                            string arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
-                                container.name,
-                                browser_instance::URL_ARG_NAME,
-                                name);
+
+                            string arg;
+
+                            if(container_mode == firefox_container_mode::ouic) {
+                                arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
+                                    container.name,
+                                    browser_instance::URL_ARG_NAME,
+                                    name);
+                            } else if(container_mode == firefox_container_mode::bt) {
+                                arg = fmt::format("\"ext+bt:container={}&url={}\" -P \"{}\"",
+                                    container.name,
+                                    browser_instance::URL_ARG_NAME,
+                                    name);
+                            } else {
+                                arg = fmt::format("unknown mode", config::firefox_container_mode_to_string(container_mode));
+                            }
 
                             string id = fmt::format("{}+c_{}", e.pItem, container.id);
                             auto bi = make_shared<browser_instance>(b, id, container.name, arg, "");

@@ -16,6 +16,7 @@ namespace bt {
     const string settings_root = string("SOFTWARE\\") + APP_LONG_NAME;
     const string IIDKeyName = "iid";
     const string BrowserPrefix = "browser";
+    const string FirefoxContainerModeKey = "firefox_container_mode";
 
     common::config cfg{ 
         fs::exists(fs::path{fss::get_current_dir()} / ".portable")
@@ -165,12 +166,13 @@ namespace bt {
         cfg.commit();
     }
 
-    std::string config::get_firefox_container_mode() {
-        return cfg.get_value("firefox_container_mode");
+    firefox_container_mode config::get_firefox_container_mode() {
+        string mode = cfg.get_value(FirefoxContainerModeKey);
+        return to_firefox_container_mode(mode);
     }
 
-    void config::set_firefox_container_mode(const std::string& name) {
-        cfg.set_value("firefox_container_mode", name == "off" ? "" : name);
+    void config::set_firefox_container_mode(firefox_container_mode mode) {
+        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(mode));
         cfg.commit();
     }
 
@@ -322,5 +324,19 @@ namespace bt {
 
     string config::get_flag(const std::string& name) {
         return cfg.get_value(fmt::format("flag_{}", name));
+    }
+
+    std::string config::firefox_container_mode_to_string(firefox_container_mode mode) {
+        switch(mode) {
+            case bt::firefox_container_mode::bt:    return "bt";
+            case bt::firefox_container_mode::ouic:  return "ouic";
+            default:                                return "";
+        }
+    }
+    firefox_container_mode config::to_firefox_container_mode(const std::string& name) {
+        if(name == "bt")    return firefox_container_mode::bt;
+        if(name == "ouic")  return firefox_container_mode::ouic;
+
+        return firefox_container_mode::off;
     }
 }

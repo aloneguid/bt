@@ -173,7 +173,7 @@ namespace bt
         mi_ff_mode_off = mi_ff_mode->add("mi_ff_mode_off", "off (use profiles)", ICON_FA_POWER_OFF);
         mi_ff_mode_bt = mi_ff_mode->add("mi_ff_mode_bt", APP_LONG_NAME, ICON_FA_PUZZLE_PIECE);
         mi_ff_mode_ouic = mi_ff_mode->add("mi_ff_mode_ouic", "open-url-in-container", ICON_FA_PUZZLE_PIECE);
-        set_ff_mode("");
+        update_firefox_mode(false, firefox_container_mode::off);
 
         auto mi_themes = mi_settings->add("", "Theme", ICON_FA_PAINT_ROLLER);
         for(auto& theme : gctx.list_themes()) {
@@ -246,21 +246,53 @@ namespace bt
                 };
 
                 if(b->is_firefox) {
-                    g_static->same_line();
-                    auto pmgr = g_static->make_button(ICON_FA_ADDRESS_CARD);
-                    pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
-                    pmgr->on_pressed = [b](button&) {
-                        win32::shell::exec(b->open_cmd, "-P");
-                    };
 
-                    g_static->same_line();
-                    pmgr = g_static->make_button(ICON_FA_ID_CARD);
-                    pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
-                    pmgr->on_pressed = [b](button&) {
-                        win32::shell::exec(b->open_cmd, "about:profiles");
-                    };
+                    auto cm = config::i.get_firefox_container_mode();
+
+                    if(cm == firefox_container_mode::off) {
+                        g_static->same_line();
+                        auto pmgr = g_static->make_button(ICON_FA_ADDRESS_CARD);
+                        pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
+                        pmgr->on_pressed = [b](button&) {
+                            win32::shell::exec(b->open_cmd, "-P");
+                        };
+
+                        g_static->same_line();
+                        pmgr = g_static->make_button(ICON_FA_ID_CARD);
+                        pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
+                        pmgr->on_pressed = [b](button&) {
+                            win32::shell::exec(b->open_cmd, "about:profiles");
+                        };
+                    } else {
+
+                        g_static->same_line();
+                        auto cmd_x = g_static->make_button(ICON_FA_PUZZLE_PIECE);
+                        cmd_x->tooltip = "download required extension";
+                        cmd_x->set_emphasis(emphasis::warning);
+                        cmd_x->on_pressed = [this, b](button&) {
+                            // extenstion page needs to be opened in Firefox bypassing container mode
+                            auto mode = config::i.get_firefox_container_mode();
+                            string url = mode == firefox_container_mode::bt
+                                ? APP_BROWSER_EXTENSION_FIREFOX_URL
+                                : APP_BROWSER_EXTENSION_FIREFOX_OUIC_URL;
+                            win32::shell::exec(b->open_cmd, url);
+                        };
+                    }
                 }
+                else if(b->is_chromium) {
+                    g_static->same_line();
+                    auto cmd_x = g_static->make_button(ICON_FA_PUZZLE_PIECE);
+                    cmd_x->tooltip = "download optional integration extension";
+                    cmd_x->on_pressed = [this, b](button&) {
+                        // extenstion page needs to be opened in the correct profile
+                        auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
+                        string url = b->id == "msedge"
+                            ? APP_BROWSER_EXTENSION_EDGE_URL
+                            : APP_BROWSER_EXTENSION_CHROME_URL;
+                        instance->launch(url_payload{url});
+                    };
 
+                }
 
             }
         } else {
@@ -465,7 +497,7 @@ special keyword - %url% which is replaced by opening url.)";
             config::i.set_theme(id);
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
-            set_ff_mode(name);
+            update_firefox_mode(true, config::to_firefox_container_mode(name));
         }
     }
 
@@ -818,20 +850,26 @@ special keyword - %url% which is replaced by opening url.)";
         }
     }
 
-    void config_window::set_ff_mode(const std::string& name) {
+    void config_window::update_firefox_mode(bool update, firefox_container_mode mode) {
         mi_ff_mode_off->is_selected = mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
 
-        if(!name.empty()) {
-            config::i.set_firefox_container_mode(name);
+        if(update) {
+            config::i.set_firefox_container_mode(mode);
         }
 
-        string mode = config::i.get_firefox_container_mode();
-        if(mode == "bt") {
-            mi_ff_mode_bt->is_selected = true;
-        } else if(mode == "ouic") {
-            mi_ff_mode_ouic->is_selected = true;
-        } else if(mode == "off" || mode.empty()) {
-            mi_ff_mode_off->is_selected = true;
+        mode = config::i.get_firefox_container_mode();
+        switch(mode) {
+            case bt::firefox_container_mode::off:
+                mi_ff_mode_off->is_selected = true;
+                break;
+            case bt::firefox_container_mode::bt:
+                mi_ff_mode_bt->is_selected = true;
+                break;
+            case bt::firefox_container_mode::ouic:
+                mi_ff_mode_ouic->is_selected = true;
+                break;
+            default:
+                break;
         }
     }
 

@@ -4,6 +4,7 @@
 #include "dash_window.h"
 #include "url_tester_window.h"
 #include "about_window.h"
+#include "config.h"
 
 namespace bt
 {
@@ -78,7 +79,7 @@ namespace bt
 
         void set_open_method(const std::string& update_to);
         void set_picker_hotkey(const std::string& update_to);
-        void set_ff_mode(const std::string& name);
+        void update_firefox_mode(bool update, firefox_container_mode mode);
 
         void update_health_icon(bool healthy);
         void persist_ui();

@@ -3,13 +3,14 @@
 ### New
 
 - Match rules support regular expressions syntax.
-- Support for Firefox Containers added! Firefox containers link redirection works with [Open external links in a container by Denys H](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search) extension.
-- Added Firefox integration extension (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
+- Support for Firefox Containers added! Firefox containers link redirection works with [Open external links in a container by Denys H](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search) extension or my own [Browser Tamer extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/).
+- Added [Firefox integration extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/) (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
 
 ### Improvements
 
 - `config.ini` is slightly simpler - removed `open_cmd` and `vdf` keys as they are not required anymore.
 - Browser profiles are sorted by the order they appear in the browser itself instead of alphabetically.
+- Chromium browsers have a convenience toolbar button that links to browser store to download optional integration extension.
 - Visual: "incognito" modes are marked with a visual icon.
 - Firefox: profile discovery skips `default` profile which is intended for some kind of alpha testing and has no meaning to a normal user. `default-release` profiles is now displayed as `Primary` as this is exactly what it is.
 - Infrastructure: release notes are removed from application code and replaced by a [link to GitHub](https://github.com/aloneguid/bt/releases) to avoid duplication and gradually increasing application size as they grow.
