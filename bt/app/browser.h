@@ -40,6 +40,8 @@ namespace bt {
 
         std::vector<std::shared_ptr<browser_instance>> instances;
 
+        size_t get_total_rule_count() const;
+
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members

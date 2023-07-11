@@ -147,6 +147,9 @@ namespace bt::ui {
         w->detach_on_close = true;
         w->on_open_changed = [w](bool& is_open) {
             is_config_running = is_open;
+            if(!is_open) {
+                send_anonymous_config();
+            }
         };
         is_config_running = true;
     }
@@ -193,5 +196,23 @@ namespace bt::ui {
         if(hk == "as") return win32::user::is_kbd_alt_down() && win32::user::is_kbd_shift_down();
 
         return false;
+    }
+
+    void send_anonymous_config() {
+        auto browsers = browser::get_cache();
+        for(shared_ptr<browser> b : browsers) {
+            t.track(map<string, string> {
+                { "event", "stat_browser" },
+                { "id", b->id },
+                { "name", b->name },
+                { "is_system", b->is_system ? "y" : "n" },
+                { "profile_count", to_string(b->instances.size()) },
+                { "rule_count", to_string(b->get_total_rule_count()) }
+            }, false);
+        }
+        t.track(map<string, string> {
+            { "event", "stat_ff_containers" },
+            { "mode", config::firefox_container_mode_to_string(config::i.get_firefox_container_mode()) }
+        }, true);
     }
 }

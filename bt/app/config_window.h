@@ -11,7 +11,6 @@ namespace bt
     class config_window : public grey::window {
     public:
         config_window(grey::grey_context& gctx);
-
         void init();
 
     private:

@@ -41,6 +41,14 @@ namespace bt {
         return b1.id == b2.id;
     }
 
+    size_t browser::get_total_rule_count() const {
+        size_t r{0};
+        for(auto i : instances) {
+            r += i->rules.size();
+        }
+        return r;
+    }
+
     std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {
         if(reload || cache.empty())
             cache = config::i.load_browsers();

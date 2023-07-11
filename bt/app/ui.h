@@ -33,8 +33,6 @@ namespace bt::ui
 
     void set_main_instance();
 
-    void flush();
-
     void render_ui_frame_if_required();
 
     void url_open(url_payload up, open_method method);
@@ -50,4 +48,6 @@ namespace bt::ui
     void coffee(const std::string& from);
 
     bool is_picker_hotkey_down();
+
+    void send_anonymous_config();
 }
