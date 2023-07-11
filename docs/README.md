@@ -14,7 +14,7 @@ Please see [official page](https://www.aloneguid.uk/projects/bt/) for more detai
 - Add your own browser or application.
 - Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
 - Assign rule priorities.
-- Extensions to integrate with [Chrome](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd), [Edge](https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin), [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/), or any Chromium-based browser (Opera, Vivaldi, Brave etc.).
+- Extensions to integrate with [Chrome](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd), [Edge](https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin), [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/), [Waterfox](https://www.waterfox.net/), or any Chromium-based browser (Opera, Vivaldi, Brave etc.).
 - Open links in "chromeless (frameless)" window.
 - Beautiful UI based on [ImGui](https://github.com/ocornut/imgui) (GPU-accelerated UI engine used in games).
 

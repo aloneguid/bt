@@ -195,7 +195,7 @@ namespace bt {
     }
 
     bool browser::is_firefox_browser(const std::string& system_id) {
-        return system_id == "firefox";
+        return system_id == "firefox" || system_id == "waterfox";
     }
 
     browser_instance::browser_instance(

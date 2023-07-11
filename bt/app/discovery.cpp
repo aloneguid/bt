@@ -19,11 +19,18 @@ using hive = win32::reg::hive;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+// mapping of vendors to vendor data folder
+
 map<string, string> chromium_id_to_vdf {
     { "msedge", "Microsoft\\Edge\\User Data" },
     { "chrome", "Google\\Chrome\\User Data" },
     { "vivaldi", "Vivaldi\\User Data" },
     { "brave", "BraveSoftware\\Brave-Browser\\User Data" }
+};
+
+map<string, string> firefox_id_to_vdf {
+    { "firefox", "Mozilla\\Firefox" },
+    { "waterfox", "Waterfox" }
 };
 
 namespace bt {
@@ -155,7 +162,11 @@ namespace bt {
 
         {
             // see http://kb.mozillazine.org/Profiles.ini_file
-            fs::path ini_path = fs::path{ad} / "Mozilla" / "Firefox" / "profiles.ini";
+
+            if(!firefox_id_to_vdf.contains(b->id)) return;
+            string vdf = firefox_id_to_vdf[b->id];
+
+            fs::path ini_path = fs::path{ad} / vdf / "profiles.ini";
             if(fs::exists(ini_path)) {
                 firefox_container_mode container_mode = config::i.get_firefox_container_mode();
 
@@ -175,15 +186,16 @@ namespace bt {
                     const char* c_path = ini.GetValue(e.pItem, "Path");
                     if(!c_path) continue;
 
-                    // we don't want "default" profile - in Firefox it's some kind of pre-release oddness
-                    if(name == "default") continue;
+                    // We don't want "default" profile - in Firefox it's some kind of pre-release oddness.
+                    // In Waterfox it's called something like "68-edition-default"
+                    if(name == "default" || name.ends_with("-edition-default")) continue;
 
                     string local_home = is_relative
-                        ? (fs::path{lad} / "Mozilla" / "Firefox" / c_path).string()
+                        ? (fs::path{lad} / vdf / c_path).string()
                         : c_path;
 
                     string roaming_home = is_relative
-                        ? (fs::path{ad} / "Mozilla" / "Firefox" / c_path).string()
+                        ? (fs::path{ad} / vdf / c_path).string()
                         : c_path;
 
 

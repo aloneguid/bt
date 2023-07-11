@@ -5,6 +5,7 @@
 - Match rules support regular expressions syntax.
 - Support for Firefox Containers added! Firefox containers link redirection works with [Open external links in a container by Denys H](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search) extension or my own [Browser Tamer extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/).
 - Added [Firefox integration extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/) (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
+- Added native support for [Waterfox](https://www.waterfox.net/). This means BT will treat Waterfox just like Firefox, including support for profiles, private mode, containers and the rest.
 
 ### Improvements
 
