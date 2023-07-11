@@ -32,13 +32,13 @@ jobs:
           
 
       # https://github.com/softprops/action-gh-release
-      #- name: 📦 create release
-      #  uses: softprops/action-gh-release@v1
-      #  if: github.ref == 'refs/heads/master'
-      #  with:
-      #    tag_name: ${{ env.VERSION }}
-      #    name: ${{ env.VERSION }}
-      #    files: |
-      #      bin/*.msi
-      #      bin/*.zip
-      #    body_path: final_notes.md
+      - name: 📦 create release
+        uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/master'
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          files: |
+            bin/*.msi
+            bin/*.zip
+          body_path: final_notes.md
