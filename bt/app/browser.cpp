@@ -250,19 +250,6 @@ namespace bt {
         }
 
         win32::shell::exec(b->open_cmd, arg);
-
-        // record basic stats
-        {
-            t.track(map<string, string>
-            {
-                { "event", "open" },
-                { "browser", b->id },
-                { "profile_count", to_string(b->instances.size()) },
-                { "rule_count", to_string(rules.size()) },
-                { "arg", launch_arg },  // only record arg template here!
-            }, false);
-        }
-
     }
 
     bool browser_instance::is_match(const std::string& url, match_rule& mr) const {

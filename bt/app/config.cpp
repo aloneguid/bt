@@ -13,15 +13,17 @@ using namespace std;
 namespace fs = std::filesystem;
 
 namespace bt {
+    const string FileName = "config.ini";
     const string settings_root = string("SOFTWARE\\") + APP_LONG_NAME;
     const string IIDKeyName = "iid";
     const string BrowserPrefix = "browser";
     const string FirefoxContainerModeKey = "firefox_container_mode";
+    const string LogRuleHitsKey = "log_rule_hits";
 
     common::config cfg{ 
-        fs::exists(fs::path{fss::get_current_dir()} / ".portable")
-            ? (fs::path{fss::get_current_dir()} / "config.ini").string()
-            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / "config.ini").string()
+        fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
+            ? (fs::path{fss::get_current_dir()} / FileName).string()
+            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / FileName).string()
     };
 
     config config::i;
@@ -157,12 +159,12 @@ namespace bt {
         cfg.commit();
     }
 
-    bool config::get_notify_on_rule_hit() {
-        return cfg.get_value("notify_on_rule_hit") == "y";
+    bool config::get_log_rule_hits() {
+        return cfg.get_bool_value(LogRuleHitsKey);
     }
 
-    void config::set_notify_on_rule_hit(bool notify) {
-        cfg.set_value("notify_on_rule_hit", notify ? "y" : "");
+    void config::set_log_rule_hits(bool on) {
+        cfg.set_bool_value(LogRuleHitsKey, on);
         cfg.commit();
     }
 

@@ -21,6 +21,7 @@ namespace bt
         bool is_http{false};
         bool is_https{false};
         bool is_xbt{false};
+        bool log_rule_hits{false};
         std::vector<std::shared_ptr<bt::browser>> browsers;
         std::shared_ptr<browser_instance> fb;
         std::string latest_version;

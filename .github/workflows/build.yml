@@ -28,7 +28,7 @@ jobs:
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
-        committish: 1ba9a2591f15af5900f2ce2b3e2bf31771e3ac48 
+        committish: 5269f4f4f6b3970ad21f6956f6bb2322c024910c 
         # set to false to clear any cache in case of build errors
         cache: true
 

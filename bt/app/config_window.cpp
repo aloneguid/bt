@@ -14,6 +14,7 @@
 #include <fmt/core.h>
 #include "../res.inl"
 #include "config.h"
+#include "rule_hit_log.h"
 #include "ui.h"
 #include "update_check.h"
 
@@ -101,6 +102,10 @@ namespace bt
         assign_child(w_url_tester);
         w_url_tester->is_visible = false;
         w_url_tester->center();
+
+        // restore from config
+        // todo: move more here
+        log_rule_hits = config::i.get_log_rule_hits();
     }
 
     void config_window::build_status_bar() {
@@ -139,6 +144,9 @@ namespace bt
         auto mi_ini = mi_file->add("", "config.ini", ICON_FA_GEARS);
         mi_ini->add("ini", "Open");
         mi_ini->add("ini+c", "Copy path to clipboard");
+        auto mi_csv = mi_file->add("", "hit_log.csv", ICON_FA_BOOK);
+        mi_csv->add("csv", "Open");
+        mi_csv->add("csv+c", "Copy path to clipboard");
         mi_file->add("x", "Exit", ICON_FA_ARROW_RIGHT_FROM_BRACKET);
         
 
@@ -146,6 +154,7 @@ namespace bt
         auto mi_tools = menu->items()->add("", "Tools");
         mi_tools->add("dash", "Readiness Dashboard", ICON_FA_GAUGE);
         mi_tools->add("test", "URL Tester", ICON_FA_TIMELINE);
+        mi_tools->add("url_logger", "URL Logger", ICON_FA_BOOK);
         mi_tools->add("windows_defaults", "Windows Defaults", ICON_FA_WINDOWS);
         mi_tools->add("refresh", "Rediscover Browsers", ICON_FA_RETWEET);
         mi_tools->add("open_picker", "Test URL Picker", ICON_FA_CROSSHAIRS);
@@ -180,8 +189,8 @@ namespace bt
             mi_themes->add(fmt::format("set_theme_{}", theme.id), theme.name);
         }
 
-        auto mi_on_rule_hit_notify = mi_settings->add("notify_on_rule_hit", "Notify on rule hit");
-        mi_on_rule_hit_notify->is_selected = config::i.get_notify_on_rule_hit();
+        auto mi_log_rule_hits = mi_settings->add("log_rule_hits", "Log Rule Hits to File");
+        mi_log_rule_hits->is_selected = log_rule_hits;
 
         // HELP
         auto mi_help = menu->items()->add("", "Help");
@@ -412,6 +421,10 @@ special keyword - %url% which is replaced by opening url.)";
             win32::shell::exec(config::i.get_absolute_path(), "");
         } else if(mi.id == "ini+c") {
             win32::clipboard::set_ascii_text(config::i.get_absolute_path());
+        } else if(mi.id == "csv") {
+            win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
+        } else if(mi.id == "csv+c") {
+            win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
         } else if(mi.id == "contact") {
             bt::ui::contact();
         } else if(mi.id == "coffee") {
@@ -445,8 +458,10 @@ special keyword - %url% which is replaced by opening url.)";
             bt::setup::register_browser();
         } else if(mi.id == "dash") {
             w_dash->is_visible = true;
-        }  else if(mi.id == "test") {
+        } else if(mi.id == "test") {
             w_url_tester->is_visible = true;
+        } else if(mi.id == "url_logger") {
+            ui::url_logger();
         } else if(mi.id == "windows_defaults") {
             win32::shell::open_default_apps();
         } else if(mi.id == "refresh") {
@@ -474,9 +489,9 @@ special keyword - %url% which is replaced by opening url.)";
             config::i.set_picker_enabled(!mi.is_selected);
             mi.is_selected = !mi.is_selected;
             ui::ensure_no_instances();
-        } else if(mi.id == "notify_on_rule_hit") {
-            config::i.set_notify_on_rule_hit(!mi.is_selected);
+        } else if(mi.id == "log_rule_hits") {
             mi.is_selected = !mi.is_selected;
+            config::i.set_log_rule_hits(mi.is_selected);
             ui::ensure_no_instances();
         } else if(mi.id.starts_with("set_fallback_")) {
             string lsn = mi.id.substr(13);

@@ -42,8 +42,8 @@ namespace bt {
         int get_popularity(const std::string& long_sys_name);
         void set_popularity(const std::string& long_sys_name, int value);
 
-        bool get_notify_on_rule_hit();
-        void set_notify_on_rule_hit(bool notify);
+        bool get_log_rule_hits();
+        void set_log_rule_hits(bool on);
 
         firefox_container_mode get_firefox_container_mode();
         void set_firefox_container_mode(firefox_container_mode mode);

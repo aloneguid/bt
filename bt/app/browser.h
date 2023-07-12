@@ -11,7 +11,12 @@ namespace bt {
         std::string url;
         std::string method;
         bool app_mode{false};
+
         HWND source_window_handle;  // handle of the system window where the click came from
+
+        // everything below is populated from HWND
+        std::string window_title;
+        std::string process_name;
     };
 
 

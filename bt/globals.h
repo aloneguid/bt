@@ -5,6 +5,7 @@
 #include "app/config.h"
 #include "ext/lsignal/lsignal.h"
 #include "ext/alg_tracker.h"
+#include "app/browser.h"
 
 const std::string Win32ClassName("BTWindow");
 const std::string AppGuid("026741D2-FF77-462B-AD70-4140697C8AE1");
@@ -21,11 +22,20 @@ const std::string CoffeePageUrl = "https://www.buymeacoffee.com/alonecoffee";
 
 const std::string ArgSplitter = "|";
 
+const std::string PortableMarkerName = ".portable";
+
 extern alg::tracker t;
 
 /**
- * @brief Global app event. Args:
+ * @brief Simple global app event. Args:
  * 0 - event name
  * 1, 2 - extras depending on event
 */
 extern lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
+
+/**
+ * @brief Even on URL being opened after a rule match or explicit pick.
+ * Args:
+ * 0 - url being opened
+*/
+extern lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> open_on_match_event;

@@ -39,6 +39,8 @@ namespace bt::ui
 
     void config();
 
+    void url_logger();
+
     void ensure_no_instances();
 
     bool try_invoke_running_instance(const std::string& data);

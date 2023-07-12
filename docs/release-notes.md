@@ -1,3 +1,13 @@
+## 3.x
+
+### New
+
+- "URL Logger" window allows to view the history of links opened. Only recorded when the window is open.
+
+### Bugs Fixed
+
+- Config window was not deleted from memory after closing it.
+
 ## 3.3.0
 
 ### New

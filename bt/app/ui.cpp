@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "pick_window.h"
 #include "config_window.h"
+#include "url_logger_window.h"
 #include "browser.h"
 #include "discovery.h"
 #include "grey.h"
@@ -24,6 +25,7 @@ namespace bt::ui {
     std::function<void(bool is_open)> on_ui_open_changed;
     bool is_main_instance{false};
     bool is_config_running{false};
+    bool is_url_logger_running{false};
 
     void set_main_instance() {
         is_main_instance = true;
@@ -106,27 +108,11 @@ namespace bt::ui {
             if(method == open_method::silent) {
                 up.method = "silent";
                 first_match.bi->launch(up);
-
-                app_event(
-                    "rule_open", 
-                    up.url, 
-                    fmt::format("{} ({}), rule: {}",
-                        first_match.bi->b->name,
-                        first_match.bi->name,
-                        first_match.rule.value));
-
+                open_on_match_event(up, first_match);
             } else if(matches.size() == 1) {
                 up.method = "decide_single_match";
                 first_match.bi->launch(up);
-
-                app_event(
-                    "rule_open", 
-                    up.url, 
-                    fmt::format("{} ({}), rule: {}",
-                        first_match.bi->b->name,
-                        first_match.bi->name,
-                        first_match.rule.value));
-
+                open_on_match_event(up, first_match);
             } else {
                 // force pick for the remaining instances
                 vector<shared_ptr<browser_instance>> choices;
@@ -142,16 +128,28 @@ namespace bt::ui {
 
         prepare_ui_backend();
 
-        float scale = active_backend->get_system_scale();
         auto w = active_backend->make_window<config_window>();
         w->detach_on_close = true;
-        w->on_open_changed = [w](bool& is_open) {
+        w->on_open_changed = [](bool& is_open) {
             is_config_running = is_open;
             if(!is_open) {
                 send_anonymous_config();
             }
         };
         is_config_running = true;
+    }
+
+    void url_logger() {
+
+        if(is_url_logger_running) return;
+
+        prepare_ui_backend();
+        auto w = active_backend->make_window<url_logger_window>();
+        w->detach_on_close = true;
+        w->on_open_changed = [](bool& is_open) {
+            is_url_logger_running = is_open;
+        };
+        is_url_logger_running = true;
     }
 
     void ensure_no_instances() {
