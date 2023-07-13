@@ -187,18 +187,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
         }
     });
 
-    // record basic stats
-    //{
-    //    t.track(map<string, string>
-    //    {
-    //        { "event", "open" },
-    //        {"browser", b->id},
-    //        {"profile_count", to_string(b->instances.size())},
-    //        {"rule_count", to_string(rules.size())},
-    //        {"arg", launch_arg},  // only record arg template here!
-    //    }, true);
-    //}
-
     // check for new versions
     string vn;
     if(bt::app::has_new_version(vn)) {

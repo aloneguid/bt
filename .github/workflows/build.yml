@@ -1,7 +1,7 @@
 ﻿name: 'Build'
 
 env:
-  VERSION: 3.3.0
+  VERSION: 3.4.0
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
@@ -30,7 +30,7 @@ jobs:
       with:
         committish: 5269f4f4f6b3970ad21f6956f6bb2322c024910c 
         # set to false to clear any cache in case of build errors
-        cache: true
+        cache: false
 
     - name: ⚙️ configure
       run: >

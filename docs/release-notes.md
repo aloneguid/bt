@@ -1,8 +1,9 @@
-## 3.x
+## 3.4.0
 
 ### New
 
 - "URL Logger" window allows to view the history of links opened. Only recorded when the window is open.
+- Rule hits can can be optionally recorded to a CSV file (off by default). To enable, check `Settings`->`Log Rule Hits to File`. This creates `lhit_log.csv` which you can open from the `File` menu. Feature is useful for recording your activity for further analysis to exporting to some analytical engine.
 
 ### Bugs Fixed
 

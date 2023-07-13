@@ -21,6 +21,7 @@ namespace bt {
                 "browser_name",
                 "profile_name",
                 "url",
+                "rule",
                 "calling_process_name",
                 "calling_process_window_title"
             });
@@ -34,6 +35,7 @@ namespace bt {
             bmr.bi->b->name,
             bmr.bi->name,
             url.url,
+            bmr.rule.to_line(),
             url.process_name,
             url.window_title
         });
