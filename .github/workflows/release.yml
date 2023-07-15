@@ -28,6 +28,9 @@ jobs:
         run: |
           grep -m 2 -B 1000 '^## ' bin/release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat bin/instructions.md >> final_notes.md
+          echo -e "\n\nSHA-256 checksums:\n```" >> final_notes.md
+          sha256sum bt-* >> final_notes.md
+          echo -e "```"
           cat final_notes.md
           
 
