@@ -107,7 +107,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
-    m.add("url_logger", "Open URL Log");
     m.add("$", "Buy me a Coffee!");
     m.add("contact", "Contact");
     m.add("?", "Help");
@@ -135,8 +134,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 string id = m.id_from_loword_wparam(loword_wparam);
                 if(id == "cfg") {
                     bt::ui::config();
-                } else if(id == "url_logger") {
-                    bt::ui::url_logger();
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
                 } else if(id == "$") {

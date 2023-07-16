@@ -154,7 +154,6 @@ namespace bt
         auto mi_tools = menu->items()->add("", "Tools");
         mi_tools->add("dash", "Readiness Dashboard", ICON_FA_GAUGE);
         mi_tools->add("test", "URL Tester", ICON_FA_TIMELINE);
-        mi_tools->add("url_logger", "URL Logger", ICON_FA_BOOK);
         mi_tools->add("windows_defaults", "Windows Defaults", ICON_FA_WINDOWS);
         mi_tools->add("refresh", "Rediscover Browsers", ICON_FA_RETWEET);
         mi_tools->add("open_picker", "Test URL Picker", ICON_FA_CROSSHAIRS);
@@ -460,8 +459,6 @@ special keyword - %url% which is replaced by opening url.)";
             w_dash->is_visible = true;
         } else if(mi.id == "test") {
             w_url_tester->is_visible = true;
-        } else if(mi.id == "url_logger") {
-            ui::url_logger();
         } else if(mi.id == "windows_defaults") {
             win32::shell::open_default_apps();
         } else if(mi.id == "refresh") {

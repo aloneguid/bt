@@ -1,13 +1,8 @@
-## 3.4.0
+## 3.3.1
 
-### New
+- Rule hits can can be optionally recorded to a CSV file (off by default). To enable, check `Settings`->`Log Rule Hits to File`. This creates `hit_log.csv` which you can open from the `File` menu. Feature is useful for recording your activity for further analysis to exporting to some analytical engine.
 
-- "URL Logger" window allows to view the history of links opened. Only recorded when the window is open.
-- Rule hits can can be optionally recorded to a CSV file (off by default). To enable, check `Settings`->`Log Rule Hits to File`. This creates `lhit_log.csv` which you can open from the `File` menu. Feature is useful for recording your activity for further analysis to exporting to some analytical engine.
-
-### Bugs Fixed
-
-- Config window was not deleted from memory after closing it.
+- Bug fixed - config window was not deleted from memory after closing it.
 
 ## 3.3.0
 
