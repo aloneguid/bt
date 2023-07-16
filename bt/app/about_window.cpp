@@ -52,12 +52,12 @@ It super fast, extremely light on resources, completely free and open source.)")
 
         auto cmd_homepage = make_button(ICON_FA_HOUSE " Home");
         cmd_homepage->on_pressed = [this](button&) {
-            ui::url_open(url_payload{APP_URL, "ui_about_home"}, ui::open_method::configured);
+            ui::url_open(url_payload{APP_URL}, ui::open_method::configured);
         };
 
         same_line();
         make_button(ICON_FA_GITHUB " GitHub")->on_pressed = [](button&) {
-            ui::url_open(url_payload{APP_GITHUB_URL, "ui_about_github"}, ui::open_method::configured);
+            ui::url_open(url_payload{APP_GITHUB_URL}, ui::open_method::configured);
         };
 
         same_line();

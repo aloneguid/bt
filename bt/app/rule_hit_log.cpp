@@ -17,6 +17,7 @@ namespace bt {
     rule_hit_log::rule_hit_log() : path{get_file_path()}, stream(path, ofstream::out | ofstream::app | ofstream::ate), writer(stream) {
         if(stream.tellp() == 0) {
             writer.write_row(vector<string> {
+                "timestamp",
                 "browser_id",
                 "browser_name",
                 "profile_name",
@@ -31,6 +32,7 @@ namespace bt {
 
     void rule_hit_log::write(const bt::url_payload& url, const bt::browser_match_result& bmr) {
         writer.write_row(vector<string>{
+            datetime::to_iso_8601(),
             bmr.bi->b->id,
             bmr.bi->b->name,
             bmr.bi->name,

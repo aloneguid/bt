@@ -29,8 +29,7 @@ namespace bt::ui {
         is_main_instance = true;
         t.add_constant("iid", config::i.get_iid());
 
-        t.track(map<string, string>
-        {
+        t.track(map<string, string> {
             { "event", "start" }
         }, true);
     }
@@ -93,7 +92,6 @@ namespace bt::ui {
         }
 
         if(method == open_method::pick) {
-            up.method = "pick";
             picker(up, browser::to_instances(browser::get_cache()));
         } else {
             // silent or decide
@@ -104,11 +102,9 @@ namespace bt::ui {
             up.app_mode = first_match.rule.app_mode;
 
             if(method == open_method::silent) {
-                up.method = "silent";
                 first_match.bi->launch(up);
                 open_on_match_event(up, first_match);
             } else if(matches.size() == 1) {
-                up.method = "decide_single_match";
                 first_match.bi->launch(up);
                 open_on_match_event(up, first_match);
             } else {
@@ -130,9 +126,6 @@ namespace bt::ui {
         w->detach_on_close = true;
         w->on_open_changed = [](bool& is_open) {
             is_config_running = is_open;
-            if(!is_open) {
-                send_anonymous_config();
-            }
         };
         is_config_running = true;
     }
@@ -168,7 +161,7 @@ namespace bt::ui {
     }
 
     void coffee(const string& from) {
-        ui::url_open(url_payload{CoffeePageUrl, "ui_coffee"}, ui::open_method::silent);
+        ui::url_open(url_payload{CoffeePageUrl}, ui::open_method::silent);
     }
 
     bool is_picker_hotkey_down() {
@@ -179,23 +172,5 @@ namespace bt::ui {
         if(hk == "as") return win32::user::is_kbd_alt_down() && win32::user::is_kbd_shift_down();
 
         return false;
-    }
-
-    void send_anonymous_config() {
-        auto browsers = browser::get_cache();
-        for(shared_ptr<browser> b : browsers) {
-            t.track(map<string, string> {
-                { "event", "stat_browser" },
-                { "id", b->id },
-                { "name", b->name },
-                { "is_system", b->is_system ? "y" : "n" },
-                { "profile_count", to_string(b->instances.size()) },
-                { "rule_count", to_string(b->get_total_rule_count()) }
-            }, false);
-        }
-        t.track(map<string, string> {
-            { "event", "stat_ff_containers" },
-            { "mode", config::firefox_container_mode_to_string(config::i.get_firefox_container_mode()) }
-        }, true);
     }
 }

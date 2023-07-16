@@ -110,7 +110,6 @@ namespace bt {
         }, true);
         rpt->bind(choices);
         rpt->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser_instance> bi) {
-            up.method = "picker";
             bi->launch(up);
             bi->popularity += 1;
             config::i.set_popularity(bi->long_id(), bi->popularity);

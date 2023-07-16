@@ -58,6 +58,12 @@ void execute(const string& data) {
     }
 }
 
+void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
+    t.track(map<string, string> {
+        { "event", "ping" }
+    }, true);
+}
+
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     if(bt::config::i.get_flag("debug_args") == "y") {
@@ -125,7 +131,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                         m.show();
                         break;
                     case NIN_BALLOONUSERCLICK:
-                        bt::ui::url_open(bt::url_payload{string(APP_URL) + "#installing", "baloon_click"}, bt::ui::open_method::configured);
+                        bt::ui::url_open(bt::url_payload{string(APP_URL) + "#installing"}, bt::ui::open_method::configured);
                         break;
                 }
                 break;
@@ -141,7 +147,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 } else if(id == "contact") {
                     bt::ui::contact();
                 } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{string(APP_URL), "shell_icon"}, bt::ui::open_method::configured);
+                    bt::ui::url_open(bt::url_payload{string(APP_URL)}, bt::ui::open_method::configured);
                 }
             }
                 break;
@@ -170,6 +176,11 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     execute(arg);
 
+    // set 1h
+    ::SetTimer(win32app.get_hwnd(), 1,
+        1000 * 60 * 60, // ms * sec * min
+        KeepAliveTimerProc);
+
     app_event.connect([&sni](const string& name, const string& arg1, const string& arg2) {
         if(name == "new_version") {
             sni.display_notification("New Version", fmt::format("Version {} is now available!", arg1));
@@ -186,7 +197,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     // check for new versions
     string vn;
-    if(bt::app::has_new_version(vn)) {
+    if(bt::app::should_check_new_version() && bt::app::has_new_version(vn)) {
         app_event("new_version", vn, "");
     }
 

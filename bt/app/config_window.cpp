@@ -36,6 +36,12 @@ namespace bt
     void config_window::init() {
         has_menu_space = true;
 
+        // restore from config
+        // todo: move more here
+        log_rule_hits = config::i.get_log_rule_hits();
+
+        // build UI
+
         build_menu();
 
         panel_no_browsers = make_child_window();
@@ -102,10 +108,6 @@ namespace bt
         assign_child(w_url_tester);
         w_url_tester->is_visible = false;
         w_url_tester->center();
-
-        // restore from config
-        // todo: move more here
-        log_rule_hits = config::i.get_log_rule_hits();
     }
 
     void config_window::build_status_bar() {
@@ -468,19 +470,19 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "update") {
             // todo: open direct url
             ui::url_open(
-               url_payload{string(APP_URL) + "#installing", "ui_newver"},
+               url_payload{string(APP_URL) + "#installing"},
                ui::open_method::configured);
         } else if(mi.id == "chrome_ex") {
             ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_CHROME_URL, "ui_chrome_ex"},
+               url_payload{APP_BROWSER_EXTENSION_CHROME_URL},
                ui::open_method::configured);
         } else if(mi.id == "firefox_ex") {
             ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_FIREFOX_URL, "ui_firefox_ex"},
+               url_payload{APP_BROWSER_EXTENSION_FIREFOX_URL},
                ui::open_method::configured);
         } else if(mi.id == "edge_ex") {
             ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_EDGE_URL, "ui_edge_ex"},
+               url_payload{APP_BROWSER_EXTENSION_EDGE_URL},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
             config::i.set_picker_enabled(!mi.is_selected);

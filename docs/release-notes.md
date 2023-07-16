@@ -2,7 +2,10 @@
 
 - Rule hits can can be optionally recorded to a CSV file (off by default). To enable, check `Settings`->`Log Rule Hits to File`. This creates `hit_log.csv` which you can open from the `File` menu. Feature is useful for recording your activity for further analysis to exporting to some analytical engine.
 
-- Bug fixed - config window was not deleted from memory after closing it.
+### Bugs Fixed
+
+- Config window was not deleted from memory after closing it.
+- Update check was happening on every start instead of every 24 hours.
 
 ## 3.3.0
 
