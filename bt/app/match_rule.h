@@ -20,7 +20,6 @@ namespace bt {
         int priority{0};
         bool is_regex{false};
         bool app_mode{false};
-        std::string firefox_container;
 
         bool operator==(const match_rule& other) const;
 

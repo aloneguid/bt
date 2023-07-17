@@ -11,6 +11,19 @@
             ],
             "platform": "windows"
         },
+        {
+            "name": "imgui",
+            "features": [
+                "opengl3-binding",
+                "sdl2-binding",
+                "docking-experimental"
+            ],
+            "platform": "linux"
+        },
+        {
+            "name": "opengl",
+            "platform": "linux"
+        },
         "implot",
         "fmt",
         "nlohmann-json",

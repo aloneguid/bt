@@ -26,8 +26,6 @@ namespace bt {
                     priority = str::to_int(v);
                 } else if(k == "mode") {
                     if(v == "app") app_mode = true;
-                } else if(k == "firefox_container") {
-                    firefox_container = v;
                 } else if(k == "type") {
                     if(v == "regex") is_regex = true;
                 }
@@ -72,10 +70,6 @@ namespace bt {
 
         if(is_regex) {
             parts.push_back("type:regex");
-        }
-
-        if(!firefox_container.empty()) {
-            parts.push_back(fmt::format("firefox_container:{}", firefox_container));
         }
 
         parts.push_back(s);

@@ -4,16 +4,17 @@ env:
   VERSION: 3.3.1
   BUILD_TYPE: Release
   ARCH: x64
-  VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
-  VCPKG_TRIPLET: x64-windows-static
   VCPKG_CONFIG: Release
 
 on: [push, workflow_dispatch]
 
 jobs:
-  build:
+  build-win:
     runs-on: windows-latest 
-    name: 'build'
+    name: 'Windows Build'
+    env:
+      VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
+      VCPKG_TRIPLET: x64-windows-static
 
     steps:
       
@@ -75,5 +76,30 @@ jobs:
         name: bin
         path: atf/*
 
+  build-linux:
+    runs-on: ubuntu-latest
+    name: 'Linux Build'
+    env:
+      VCPKG_DEFAULT_VCPKG_TRIPLET: x64-linux
+      VCPKG_TRIPLET: x64-linux
 
+    steps:
+      
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
 
+    - uses: friendlyanon/setup-vcpkg@v1
+      # seems like the absense of commit hash expects vcpkg submodule, i don't want that
+      with:
+        committish: 5269f4f4f6b3970ad21f6956f6bb2322c024910c 
+        # set to false to clear any cache in case of build errors
+        cache: false
+
+    - name: ⚙️ configure
+      run: >
+        cmake -B build -S .
+        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+        -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
+      working-directory: . 
