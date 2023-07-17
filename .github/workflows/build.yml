@@ -5,6 +5,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
+  VCPKG_HASH: 5269f4f4f6b3970ad21f6956f6bb2322c024910c
 
 on: [push, workflow_dispatch]
 
@@ -29,9 +30,9 @@ jobs:
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
-        committish: 5269f4f4f6b3970ad21f6956f6bb2322c024910c 
+        committish: ${{ env.VCPKG_HASH }} 
         # set to false to clear any cache in case of build errors
-        cache: false
+        cache: true
 
     - name: ⚙️ configure
       run: >
@@ -90,11 +91,9 @@ jobs:
         submodules: true
 
     - uses: friendlyanon/setup-vcpkg@v1
-      # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
-        committish: 5269f4f4f6b3970ad21f6956f6bb2322c024910c 
-        # set to false to clear any cache in case of build errors
-        cache: false
+        committish: ${{ env.VCPKG_HASH }} 
+        cache: true
 
     - name: ⚙️ configure
       run: >
@@ -103,3 +102,16 @@ jobs:
         -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
         -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
       working-directory: . 
+
+
+    - name: 🏭 build
+      run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
+      working-directory: . 
+
+    - name: debug
+      run: ls -R
+      working-directory: build 
+
+    #- name: 🧪 unit tests
+    #  run: test.exe
+    #  working-directory: build/test/Release
