@@ -15,8 +15,6 @@ namespace fs = std::filesystem;
 using namespace std;
 
 namespace bt {
-    //const string browser_instance::URL_ARG_NAME{ L"%url%" };
-
     const string lad = win32::shell::get_local_app_data_path();
     vector<shared_ptr<browser>> browser::cache;
 
@@ -116,7 +114,6 @@ namespace bt {
             std::sort(r.begin(), r.end(), [](const browser_match_result& a, const browser_match_result& b) {
                 return a.rule.priority > b.rule.priority;
             });
-
         }
 
         return r;
@@ -156,6 +153,9 @@ namespace bt {
 
                     if (bi_old_it == b_old->instances.end()) continue;
                     shared_ptr<browser_instance> bi_old = *bi_old_it;
+
+                    // merge user-defined customisations
+                    bi_new->user_arg = bi_old->user_arg;
 
                     // merge rules
                     for (auto& rule : bi_old->rules) {
@@ -247,6 +247,12 @@ namespace bt {
         // works in Chrome only
         if(up.app_mode) {
             arg = fmt::format("--app={}", arg);
+        }
+
+        // add user-defined attributes
+        if(!user_arg.empty()) {
+            arg += " ";
+            arg += user_arg;
         }
 
         win32::shell::exec(b->open_cmd, arg);

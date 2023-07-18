@@ -114,9 +114,15 @@ namespace bt {
         std::shared_ptr<browser> b;
 
         const std::string id;
-        std::string name;                // how it's called by the user
+        std::string name;               // how it's called by the user
 
         std::string launch_arg;
+
+        /**
+         * @brief user-defined argument, added after launch_arg. Only separate from launch_arg to be able to store independently in the config file.
+        */
+        std::string user_arg;
+
         std::vector<std::shared_ptr<match_rule>> rules;
 
         /**

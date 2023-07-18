@@ -54,22 +54,6 @@ namespace bt {
 
         std::vector<std::shared_ptr<browser>> load_browsers();
 
-        // -- to remove:
-
-        /*std::vector<std::string> load_rules(const std::string& long_sys_name);
-        void save_rules(const std::string& long_sys_name, const std::vector<std::string>& rules);
-
-        void save_custom(const std::string& long_sys_name,
-            const std::string& name,
-            const std::string& cmd,
-            const std::string& arg);
-
-        std::vector<custom_browser_config> load_all_custom();
-
-        void delete_custom(const std::string& long_sys_name);*/
-
-        // ---
-
         std::chrono::system_clock::time_point get_last_update_check_time();
         void set_last_update_check_time_to_now();
 

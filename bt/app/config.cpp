@@ -212,6 +212,7 @@ namespace bt {
                     string section = fmt::format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
+                    cfg.set_value("user_arg", bi->user_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
@@ -262,6 +263,7 @@ namespace bt {
                         cfg.get_value("name", ssn),
                         cfg.get_value("arg", ssn),
                         cfg.get_value("icon", ssn));
+                    bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
                     string s_order = cfg.get_value("order", ssn);
                     if(!s_order.empty()) bi->order = str::to_int(s_order);

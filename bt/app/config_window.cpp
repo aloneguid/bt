@@ -226,7 +226,7 @@ namespace bt
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-            url_payload pl{APP_URL, "ui_test"};
+            url_payload pl{APP_URL};
             instance->launch(pl);
         };
 
@@ -236,7 +236,7 @@ namespace bt
             cmd_test_app->tooltip = "test by opening a link as an app";
             cmd_test_app->on_click = [this, b](component&) {
                 auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-                url_payload pl{APP_URL, "ui_test"};
+                url_payload pl{APP_URL};
                 pl.app_mode = true;
                 instance->launch(pl);
             };
@@ -364,9 +364,20 @@ namespace bt
                     //txt_exe_path->tooltip = "full path to browser executable.";
 
                     auto txt_arg = acc_params->make_input("arg");
+                    txt_arg->tooltip = "Discovered arguments (read-only)";
                     txt_arg->set_value(bi->launch_arg);
                     txt_arg->set_select_all_on_focus();
                     txt_arg->set_is_readonly();
+
+                    auto txt_user_arg = acc_params->make_input("extra arg");
+                    txt_user_arg->tooltip = "Any extra arguments to pass.\nIf you break it, you fix it ;)";
+                    txt_user_arg->set_value(bi->user_arg);
+                    txt_user_arg->on_value_changed = [this, bi](string& v) {
+                        string uv = v;
+                        str::trim(uv);
+                        bi->user_arg = uv;
+                        persist_ui();
+                    };
                 }
 
                 // rules
@@ -388,17 +399,17 @@ namespace bt
 
             auto txt_name = browser_free_area->make_input("name");
             txt_name->set_value(bi->name);
-            txt_name->on_value_changed = [b, bi](string& new_name) {
+            txt_name->on_value_changed = [this, b, bi](string& new_name) {
                 bi->name = new_name;
                 b->name = new_name;
-                browser::persist_cache();
+                persist_ui();
             };
 
             auto txt_arg = browser_free_area->make_input("arg");
             txt_arg->set_value(bi->launch_arg);
-            txt_arg->on_value_changed = [bi](string& new_arg) {
+            txt_arg->on_value_changed = [this, bi](string& new_arg) {
                 bi->launch_arg = new_arg;
-                browser::persist_cache();
+                persist_ui();
             };
             txt_arg->tooltip =
                 R"(Argument(s) to pass to the browser.

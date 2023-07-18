@@ -28,7 +28,6 @@ namespace bt
         std::shared_ptr<grey::menu_bar> menu;
 
         std::shared_ptr<grey::tree> url_tester_results;
-        //std::shared_ptr<about_window> w_about;
         std::shared_ptr<dash_window> w_dash;
         std::shared_ptr<url_tester_window> w_url_tester;
 
@@ -41,9 +40,6 @@ namespace bt
         std::shared_ptr<grey::child> browser_free_area;
 
         std::shared_ptr<grey::label> st_health;
-
-        // used to display hotkeys but AV flags this
-        //std::shared_ptr<grey::label> st_hotkeys;
 
         std::shared_ptr<grey::menu_item> mi_fallback;
         std::shared_ptr<grey::menu_item> mi_om_silent;
