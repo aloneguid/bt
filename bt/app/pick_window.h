@@ -24,5 +24,6 @@ namespace bt {
         url_payload up;
         std::vector<std::shared_ptr<browser_instance>> choices;
         bool persist_domain{false};
+        bool persist_popularity{false};
     };
 }

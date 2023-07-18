@@ -19,6 +19,7 @@ namespace bt {
     const string BrowserPrefix = "browser";
     const string FirefoxContainerModeKey = "firefox_container_mode";
     const string LogRuleHitsKey = "log_rule_hits";
+    const string PersistPopularityKey = "persist_popularity";
 
     common::config cfg{ 
         fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
@@ -147,6 +148,15 @@ namespace bt {
 
     string config::get_fallback_long_sys_name() {
         return cfg.get_value("fallback");
+    }
+
+    void config::set_persist_popularity(bool v) {
+        cfg.set_bool_value(PersistPopularityKey, v);
+        cfg.commit();
+    }
+
+    bool config::get_persist_popularity() {
+        return cfg.get_bool_value(PersistPopularityKey, true);
     }
 
     int config::get_popularity(const std::string& long_sys_name) {

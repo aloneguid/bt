@@ -22,6 +22,8 @@ namespace bt {
         std::vector<shared_ptr<browser_instance>> choices)
         : window{mgr, "Pick a Browser", width, height}, up{up}, scale{mgr.get_system_scale()} {
 
+        persist_popularity = config::i.get_persist_popularity();
+
         for (auto bi : choices) {
             bi->popularity = config::i.get_popularity(bi->long_id());
             this->choices.push_back(bi);
@@ -51,6 +53,15 @@ namespace bt {
         chk_persist_domain->render_as_icon = true;
         chk_persist_domain->tooltip = fmt::format(
             "Add domain of this url ({}) as a rule to a browser you click.", str::get_domain_from_url(up.url));
+
+        same_line();
+        make_label("|")->is_enabled = false;
+
+        same_line();
+        auto chk_persist_popularity = make_checkbox(ICON_FA_ARROW_DOWN_9_1, &persist_popularity);
+        chk_persist_popularity->render_as_icon = true;
+        chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
+        chk_persist_popularity->on_value_changed = [](bool v) { config::i.set_persist_popularity(v); };
 
         auto wo = make_child_window(0, 0);
         //wo->padding_bottom = 89 * scale;
@@ -96,7 +107,7 @@ namespace bt {
             lbl_name->padding_left = icon_size + style.FramePadding.x * 3;
             lbl_name->padding_top = icon_size / 2 - 6 * scale;
 
-            if(ctx.data->popularity > 0) {
+            if(persist_popularity && ctx.data->popularity > 0) {
                 c->same_line(this->width - style.FrameBorderSize * 4 - style.ItemSpacing.x * 8);
                 auto cmd = c->make_button(fmt::format("{}", ctx.data->popularity), true, emphasis::warning);
                 cmd->tooltip = fmt::format("picked {}", str::humanise(ctx.data->popularity, "time", "times", "once", "twice"));

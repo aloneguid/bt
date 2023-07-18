@@ -2,7 +2,10 @@
 
 ### New
 
-- When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
+- [ ] When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
+- [ ] URL Picker has an option to turn off recording of "popularity".
+- [ ] hide browsers
+- [ ] reorder rules
 
 ## 3.3.1
 

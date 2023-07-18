@@ -39,6 +39,8 @@ namespace bt {
         void set_fallback(const std::string& long_sys_name);
         std::string get_fallback_long_sys_name();
 
+        void set_persist_popularity(bool v);
+        bool get_persist_popularity();
         int get_popularity(const std::string& long_sys_name);
         void set_popularity(const std::string& long_sys_name, int value);
 
