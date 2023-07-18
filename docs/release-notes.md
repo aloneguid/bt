@@ -2,7 +2,7 @@
 
 ### New
 
-- [ ] source apps
+- When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
 
 ## 3.3.1
 

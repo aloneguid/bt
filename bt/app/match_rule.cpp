@@ -6,6 +6,15 @@
 using namespace std;
 
 namespace bt {
+
+    const string ScopeKey = "scope";
+    const string PriorityKey = "priority";
+    const string ModeKey = "mode";
+    const string AppKey = "app";
+    const string TypeKey = "type";
+    const string ProcessNameKey = "process_name";
+    const string WindowTitleKey = "window_title";
+
     match_rule::match_rule(const std::string& line) {
         string src = line;
         str::trim(src);
@@ -20,14 +29,18 @@ namespace bt {
                     ? p.substr(idx + 1)
                     : "";
 
-                if(k == "scope") {
+                if(k == ScopeKey) {
                     scope = to_match_scope(v);
-                } else if(k == "priority") {
+                } else if(k == PriorityKey) {
                     priority = str::to_int(v);
-                } else if(k == "mode") {
-                    if(v == "app") app_mode = true;
-                } else if(k == "type") {
+                } else if(k == ModeKey) {
+                    if(v == AppKey) app_mode = true;
+                } else if(k == TypeKey) {
                     if(v == "regex") is_regex = true;
+                } else if(k == ProcessNameKey) {
+                    process_name_eq = v;
+                } else if(k == WindowTitleKey) {
+                    window_title_contains = v;
                 }
 
             } else {
@@ -57,20 +70,29 @@ namespace bt {
         vector<string> parts;
 
         if(scope != match_scope::any) {
-            parts.push_back(fmt::format("scope:{}", to_string(scope)));
+            parts.push_back(fmt::format("{}:{}", ScopeKey, to_string(scope)));
         }
 
         if(priority > 0) {
-            parts.push_back(fmt::format("priority:{}", priority));
+            parts.push_back(fmt::format("{}:{}", PriorityKey, priority));
         }
 
         if(app_mode) {
-            parts.push_back("mode:app");
+            parts.push_back(fmt::format("{}:app", ModeKey));
         }
 
         if(is_regex) {
-            parts.push_back("type:regex");
+            parts.push_back(fmt::format("{}:regex", TypeKey));
         }
+
+        if(!process_name_eq.empty()) {
+            parts.push_back(fmt::format("{}:{}", ProcessNameKey, process_name_eq));
+        }
+
+        if(!window_title_contains.empty()) {
+            parts.push_back(fmt::format("{}:{}", WindowTitleKey, window_title_contains));
+        }
+
 
         parts.push_back(s);
 

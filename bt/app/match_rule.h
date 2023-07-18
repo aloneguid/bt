@@ -21,6 +21,16 @@ namespace bt {
         bool is_regex{false};
         bool app_mode{false};
 
+        /**
+         * @brief When set, process name must be equal to this value. Case-insensitive.
+        */
+        std::string process_name_eq;
+
+        /**
+         * @brief When set, window title must be equal to this value. Case-insensitive.
+        */
+        std::string window_title_contains;
+
         bool operator==(const match_rule& other) const;
 
         std::string to_string() const;
