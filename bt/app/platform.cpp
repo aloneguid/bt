@@ -50,6 +50,7 @@ namespace bt {
 
 
     bool wintoast_initialised{false};
+    CustomHandler ch;
 
     void init_wintoast() {
         if(!WinToast::isCompatible()) {
@@ -75,7 +76,8 @@ namespace bt {
         WinToastTemplate::AudioOption audioOption = WinToastTemplate::AudioOption::Default;
         //std::wstring attribute = L"default";
 
-        WinToastTemplate templ(!imagePath.empty() ? WinToastTemplate::ImageAndText02 : WinToastTemplate::Text02);
+        //WinToastTemplate templ(!imagePath.empty() ? WinToastTemplate::ImageAndText02 : WinToastTemplate::Text03);
+        WinToastTemplate templ{WinToastTemplate::Text04};
         templ.setTextField(L"Rule Hit!", WinToastTemplate::FirstLine);
         templ.setTextField(L"http://dsfdslfjdlj.com/dfadfadfadadf", WinToastTemplate::SecondLine);
         templ.setTextField(L"teams.microsoft.com", WinToastTemplate::ThirdLine);
@@ -85,10 +87,12 @@ namespace bt {
 
         // optional
         // actions may conflict with ImGui
-        templ.addAction(L"Copy URL");
+        //templ.addAction(L"Copy URL");
 
-        if(WinToast::instance()->showToast(templ, new CustomHandler()) < 0) {
+        WinToast::instance()->showToast(templ, &ch);
+
+        /*if(WinToast::instance()->showToast(templ, new CustomHandler()) < 0) {
             std::wcerr << L"Could not launch your toast notification!";
-        }
+        }*/
     }
 }
