@@ -10,12 +10,14 @@ set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+#find_package(WinToast CONFIG REQUIRED)
 #find_package(cpr CONFIG REQUIRED)
 #find_package(CURL CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 
 file(GLOB core_src CONFIGURE_DEPENDS
     "app/*.cpp"
+    "ext/WinToast/src/wintoastlib.cpp"
     "../common/*.cpp"
     "../common/ext/*.cpp"
     "../common/win32/*.cpp"
@@ -39,7 +41,11 @@ target_link_libraries(bt
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
 )
-target_include_directories(${APP_NAME} PRIVATE "../common" "../grey" ${P_RANAV_CSV2_INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PRIVATE
+    "../common"
+    "../grey"
+    "ext/WinToast/include"
+    ${P_RANAV_CSV2_INCLUDE_DIRS})
 
 target_sources(bt PRIVATE dpi-aware.manifest)
 

@@ -2,7 +2,10 @@
 
 ### New
 
-- When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
+- [ ] When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
+- [ ] hide browsers
+- [ ] reorder rules
+- [ ] option to turn pick count off
 
 ## 3.3.1
 

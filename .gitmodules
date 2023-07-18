@@ -7,3 +7,6 @@
 [submodule "bt/ext/lsignal"]
 	path = bt/ext/lsignal
 	url = https://github.com/cpp11nullptr/lsignal
+[submodule "bt/ext/WinToast"]
+	path = bt/ext/WinToast
+	url = https://github.com/mohabouje/WinToast

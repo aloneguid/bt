@@ -16,6 +16,7 @@
 #include "app/update_check.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
+#include "app/platform.h"
 
 #define OWN_WM_NOTIFY_ICON_MESSAGE WM_APP + 1
 
@@ -200,6 +201,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     if(bt::app::should_check_new_version() && bt::app::has_new_version(vn)) {
         app_event("new_version", vn, "");
     }
+
+    bt::platform::test();
 
     win32app.run();
 
