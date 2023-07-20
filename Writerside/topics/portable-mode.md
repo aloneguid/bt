@@ -31,6 +31,6 @@ Rule Hit Log will be placed alongside `bt.exe` if turned on.
 
 You can create `.portable` file either manually in any editor, or using the following PowerShell snippet:
 
-```powershell
+```bash
 New-Item .portable -Type File
 ```

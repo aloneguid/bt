@@ -11,5 +11,11 @@
         <toc-element topic="install-msi.md"/>
         <toc-element topic="install-zip.md"/>
         <toc-element topic="portable-mode.md"/>
+        <toc-element topic="install-apt.md"/>
     </toc-element>
+    <toc-element topic="prereq.md"/>
+    <toc-element topic="config-basic.md"/>
+    <toc-element topic="rules.md"/>
+    <toc-element topic="picker.md"/>
+    <toc-element topic="Browser-Extensions.md"/>
 </instance-profile>
