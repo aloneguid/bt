@@ -2,7 +2,9 @@
 <buildprofiles xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/build-profiles.xsd"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <variables></variables>
+    <variables>
+        <header-logo>icon.svg</header-logo>
+    </variables>
     <build-profile instance="hi">
         <variables>
             <noindex-content>false</noindex-content>
@@ -10,8 +12,13 @@
     </build-profile>
     <build-profile instance="bt">
         <variables>
-            <noindex-content>true</noindex-content>
+            <noindex-content>false</noindex-content>
         </variables>
     </build-profile>
+
+    <footer>
+        <social type="blog" href="https://www.aloneguid.uk/projects/bt/"></social>
+        <link href="https://github.com/aloneguid/bt">GitHub</link>
+    </footer>
 
 </buildprofiles>

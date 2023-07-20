@@ -8,6 +8,8 @@
 
     <toc-element topic="home.md"/>
     <toc-element topic="Installing.md">
+        <toc-element topic="install-msi.md"/>
+        <toc-element topic="install-zip.md"/>
         <toc-element topic="portable-mode.md"/>
     </toc-element>
 </instance-profile>

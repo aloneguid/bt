@@ -11,25 +11,26 @@ Browser Tamer fully supports "portable mode". However, you have to manually enab
 ## Before you start
 
 Make sure that:
-- You have downloaded `.zip` from GitHub Releases.
+- You have downloaded `.zip` from [GitHub Releases](https://github.com/aloneguid/bt/releases).
 - You have extracted `bt.exe` into a dedicate folder on removeable media.
 
-## How to make Browser Tamer run in portable mode
+## Making it portable
 
-Browser Tamer checks 
+Browser Tamer will check if `.portable` file exists in the same folder as `bt.exe` is located. And if it does,
 
-1. Step with a code block
+<procedure title="Portable mode">
+<step>
+<code>config.ini</code> will be placed alongside `bt.exe`.
+</step>
+<step>
+Rule Hit Log will be placed alongside `bt.exe` if turned on.
+</step>
+</procedure>
 
-   ```bash
-    run this --that
-   ```
+## Creating portable marker
 
-2. Step with an image
-   ![](image.png)
+You can create `.portable` file either manually in any editor, or using the following PowerShell snippet:
 
-<!-- The 'src' attribute should contain the name of an image from the '/images' folder in your project -->
-
-3. Step with a list.
-   - List item
-   - List item
-   - List item
+```powershell
+New-Item .portable -Type File
+```
