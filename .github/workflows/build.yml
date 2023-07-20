@@ -6,7 +6,7 @@ env:
   ARCH: x64
   VCPKG_CONFIG: Release
   VCPKG_HASH: 5269f4f4f6b3970ad21f6956f6bb2322c024910c
-
+  DOC_ARTIFACT: webHelpBT2-all.zip
 
 on: [push, workflow_dispatch]
 
@@ -117,11 +117,10 @@ jobs:
       run: ./test
       working-directory: build/test
 
-  writerside:
+  writerside-build:
     runs-on: ubuntu-latest
     name: 'Writerside Docs'
     env:
-      DOC_ARTIFACT: docs.zip
       PRODUCT: Writerside/bt
     steps:
       - name: Checkout repository
@@ -132,5 +131,31 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: docs
-          path: artifacts/*
+          path: artifacts/*.zip
           retention-days: 7
+
+  writerside-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: writerside-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docs
+      - name: Unzip artifact
+        uses: montudor/action-zip@v1
+        with:
+          args: unzip -qq ${{ env.DOC_ARTIFACT }} -d dir
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: dir
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
