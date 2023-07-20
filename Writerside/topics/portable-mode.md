@@ -4,7 +4,7 @@ Browser Tamer fully supports "portable mode". However, you have to manually enab
 
 > **Portable mode**
 >
-> Assumes that application will be ran from a portable medium, such as USB stick, mapped drive, or anything removeable. In this mode, all the application files and configuration will be stored in the same place, so they can be moved between computers without loss of configuration.
+> Assumes that application will be run from a portable medium, such as USB stick, mapped drive, or anything removeable. In this mode, all the application files and configuration will be stored in the same place, so they can be moved between computers without loss of configuration.
 >
 {style="note"}
 
@@ -12,7 +12,7 @@ Browser Tamer fully supports "portable mode". However, you have to manually enab
 
 Make sure that:
 - You have downloaded `.zip` from [GitHub Releases](https://github.com/aloneguid/bt/releases).
-- You have extracted `bt.exe` into a dedicate folder on removeable media.
+- You have extracted `bt.exe` into a dedicate folder on removable media.
 
 ## Making it portable
 
