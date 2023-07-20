@@ -131,6 +131,6 @@ jobs:
       - name: Upload documentation
         uses: actions/upload-artifact@v3
         with:
-          name: help
-          path: artifacts/${{ env.DOC_ARTIFACT }}
+          name: docs
+          path: artifacts/*
           retention-days: 7
