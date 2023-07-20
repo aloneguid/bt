@@ -10,6 +10,11 @@ env:
 
 on: [push, workflow_dispatch]
 
+# Gives the workflow permissions to clone the repo and create a page deployment
+permissions:
+    id-token: write
+    pages: write
+
 jobs:
   build-win:
     runs-on: windows-latest 
@@ -119,7 +124,7 @@ jobs:
 
   writerside-build:
     runs-on: ubuntu-latest
-    name: 'Writerside Docs'
+    name: 'Build Docs'
     env:
       PRODUCT: Writerside/bt
     steps:
@@ -140,6 +145,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     needs: writerside-build
     runs-on: ubuntu-latest
+    name: 'Deploy Docs to GitHub Pages'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v3
