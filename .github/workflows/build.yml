@@ -119,6 +119,7 @@ jobs:
 
   writerside:
     runs-on: ubuntu-latest
+    name: 'Writerside Docs'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
