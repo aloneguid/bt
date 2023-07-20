@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="bt"
+                 name="Browser Tamer"
+                 start-page="home.md">
+
+    <toc-element topic="home.md"/>
+    <toc-element topic="Installing.md">
+        <toc-element topic="portable-mode.md"/>
+    </toc-element>
+</instance-profile>

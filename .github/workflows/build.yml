@@ -6,6 +6,7 @@ env:
   ARCH: x64
   VCPKG_CONFIG: Release
   VCPKG_HASH: 5269f4f4f6b3970ad21f6956f6bb2322c024910c
+  DOC_ARTIFACT: docs.zip
 
 on: [push, workflow_dispatch]
 
@@ -115,3 +116,17 @@ jobs:
     - name: 🧪 unit tests
       run: ./test
       working-directory: build/test
+
+  writerside:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build Writerside docs using Docker
+        uses: JetBrains/writerside-github-action@v3
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: help
+          path: artifacts/${{ env.DOC_ARTIFACT }}
+          retention-days: 7
