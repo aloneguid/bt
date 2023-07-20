@@ -6,7 +6,7 @@ env:
   ARCH: x64
   VCPKG_CONFIG: Release
   VCPKG_HASH: 5269f4f4f6b3970ad21f6956f6bb2322c024910c
-  DOC_ARTIFACT: docs.zip
+
 
 on: [push, workflow_dispatch]
 
@@ -120,6 +120,9 @@ jobs:
   writerside:
     runs-on: ubuntu-latest
     name: 'Writerside Docs'
+    env:
+      DOC_ARTIFACT: docs.zip
+      PRODUCT: Writerside/bt
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
