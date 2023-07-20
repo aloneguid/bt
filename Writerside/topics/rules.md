@@ -14,7 +14,7 @@ You can keep adding as many rules as you want, they are always **case-insensitiv
 
 There are three matching scopes you can select from.
 
-<deflist type="compact">
+<deflist type="full">
 
 <def title="Anywhere">
 As implied, matches anywhere in the url, regardless it's a domain, path, query or anything else at all.
