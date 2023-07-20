@@ -1,6 +1,6 @@
 # Portable Mode
 
-Browser Tamer fully supports "portable mode". However, you have to manually enable it as it is uncommon.
+%product% fully supports "portable mode". However, you have to manually enable it as it is uncommon.
 
 > **Portable mode**
 >
@@ -16,7 +16,7 @@ Make sure that:
 
 ## Making it portable
 
-Browser Tamer will check if `.portable` file exists in the same folder as `bt.exe` is located. And if it does,
+%product% will check if `.portable` file exists in the same folder as `bt.exe` is located. And if it does,
 
 <procedure title="Portable mode">
 <step>

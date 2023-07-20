@@ -10,7 +10,7 @@ You can change this from `Settings->Default Browser` menu which lists all the de
 
 ## Auditing
 
-Browser Tamer can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**, and the file path can be found in `File` menu:
+%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**, and the file path can be found in `File` menu:
 
 ![](audit-menus.png)
 

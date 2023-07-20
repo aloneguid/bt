@@ -3,8 +3,8 @@
 ## Why 
 Browser extensions do two things:
 
-1. Add a toolbar button to open current page via Browser Tamer.
-2. Add a context menu to open a link on a page via Browser Tamer.
+1. Add a toolbar button to open current page via %product%.
+2. Add a context menu to open a link on a page via %product%.
 
 ![](ext-chrome.png)
 

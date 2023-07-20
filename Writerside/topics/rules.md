@@ -16,7 +16,7 @@ You can keep adding as many rules as you want, they are always **case-insensitiv
 
 ## Testing rules
 
-Browser Tamer has a "URL Tester" utility which can be invoked either from "Rules" toolbar's `Test` button, or by going to `Tools`->`URL Tester` menu. URL Tester checks all the configured rules as you type, splits them in separate parts and calculates a match on where a particular URL will open.
+%product% has a "URL Tester" utility which can be invoked either from "Rules" toolbar's `Test` button, or by going to `Tools`->`URL Tester` menu. URL Tester checks all the configured rules as you type, splits them in separate parts and calculates a match on where a particular URL will open.
 
 ![](rules-tester.png)
 
@@ -55,7 +55,7 @@ To turn on regular expression, click "express delivery" icon next to the rule te
 <img height="50" src="rule-regex-check.png" alt="turn on"/>
 
 <tip>
-Internally Browser Tamer uses <a href="https://en.cppreference.com/w/cpp/regex"><code>std::regex</code></a> to validate URL against expressions.
+Internally %product% uses <a href="https://en.cppreference.com/w/cpp/regex"><code>std::regex</code></a> to validate URL against expressions.
 </tip>
 
 When typing in an expression, it has to match an **entire input** and not just a substring inside it. Here is an example.

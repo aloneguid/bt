@@ -13,7 +13,7 @@ Assign correct permissions to program binary, making sure it can't be changed by
 Create a start menu shortcut.
 </step>
 <step>
-Uninstall correctly if you decide Browser Tamer is not for you.
+Uninstall correctly if you decide %product% is not for you.
 </step>
 </procedure>
 

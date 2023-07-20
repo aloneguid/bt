@@ -1,6 +1,6 @@
 # Mozilla Firefox
 
-Mozilla Firefox is fully supported by Browser Tamer in the sense that:
+Mozilla Firefox is fully supported by %product% in the sense that:
 
 - Firefox is automatically discovered.
 - Firefox [profiles](https://support.mozilla.org/en-US/kb/profiles-where-firefox-stores-user-data) are discovered and fully supported.

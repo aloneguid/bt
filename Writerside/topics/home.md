@@ -1,9 +1,9 @@
-# Welcome to Browser Tamer!
+# Welcome to %product%!
 
 ## Pitch
 Do you have multiple browsers or browser profiles on your machine? Do you want to open different links with different browsers or profiles without switching manually?
 
-If yes, then you need Browser Tamer! Browser Tamer is a smart and powerful tool that acts as a browser proxy on your machine. It catches the links you click and redirects them to a browser or browser profile of your choice. You can set up rules based on the link’s domain, protocol, file extension and more.
+If yes, then you need %product%! It's a smart and powerful tool that acts as a browser proxy on your machine. It catches the links you click and redirects them to a browser or browser profile of your choice. You can set up rules based on the link’s domain, protocol, file extension and more.
 
 ![](one.png){border-effect=line}
 

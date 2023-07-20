@@ -11,7 +11,7 @@ To enable containers, go to `Settings->Firefox Container Mode` and choose either
 
 The choice is yours. The second extension is more versatile when it comes to handling containers, and the first one is native to BT, so it not only handles containers but can forward links to BT as explained later on this page.
 
-In terms of container support, there is no difference for Browser Tamer which extension to use in terms of functionality.
+In terms of container support, there is no difference for %product% which extension to use in terms of functionality.
 
 Once you switch the mode, go to `Tools->Rediscover Browsers` in order to detect configured containers.
 
