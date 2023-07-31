@@ -50,6 +50,9 @@ namespace bt {
         firefox_container_mode get_firefox_container_mode();
         void set_firefox_container_mode(firefox_container_mode mode);
 
+        bool get_show_hidden_browsers();
+        void set_show_hidden_browsers(bool show);
+
         // --- browser/instance
         
         void save_browsers(std::vector<std::shared_ptr<browser>> browsers);

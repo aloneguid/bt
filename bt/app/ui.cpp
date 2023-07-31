@@ -124,7 +124,7 @@ namespace bt::ui {
 
         auto w = active_backend->make_window<config_window>();
         w->detach_on_close = true;
-        w->on_open_changed = [](bool& is_open) {
+        w->on_open_changed = [](bool is_open) {
             is_config_running = is_open;
         };
         is_config_running = true;

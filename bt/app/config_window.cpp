@@ -39,12 +39,14 @@ namespace bt
         // restore from config
         // todo: move more here
         log_rule_hits = config::i.get_log_rule_hits();
+        show_hidden_browsers = config::i.get_show_hidden_browsers();
 
         // build UI
 
         build_menu();
 
-        panel_no_browsers = make_child_window();
+        auto panel_no_browsers = make_child_window();
+        panel_no_browsers->is_visible = &panel_no_browsers_visible;
         for(int i = 0; i < 5; i++) panel_no_browsers->make_label("");
         panel_no_browsers->make_label(string(100, ' ')); panel_no_browsers->same_line();
         panel_no_browsers->make_label("Currently there are no browsers registered.")->set_emphasis(emphasis::primary);
@@ -57,12 +59,19 @@ namespace bt
         cmd_discover->on_pressed = [this](button&) {
             rediscover_browsers();
         };
-        panel_left = make_child_window(400 * scale);
+        auto panel_left = make_child_window(400 * scale);
+        panel_left->is_visible = &panel_left_visible;
 
+        // before browser list starts
         auto cmd_add_custom = panel_left->make_button(ICON_FA_CIRCLE_PLUS " Add");
         cmd_add_custom->set_emphasis(emphasis::primary);
         cmd_add_custom->tooltip = "Add custom browser definition";
         cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
+
+        panel_left->same_line();
+        auto chk_show_hidden = panel_left->make_checkbox(ICON_FA_HAND_DOTS, &show_hidden_browsers);
+        chk_show_hidden->render_as_icon = true;
+        chk_show_hidden->tooltip = "show hidden browsers";
 
         //w_browsers->has_border = true;
         panel_left->padding_bottom = 75 * scale;
@@ -75,13 +84,16 @@ namespace bt
         };
 
         same_line();
-        panel_right = make_child_window();
+        auto panel_right = make_child_window();
+        panel_right->is_visible = &panel_right_visible;
         panel_right->has_border = true;
         panel_right->padding_bottom = 80 * scale;
         browser_toolbar = panel_right->make_child_window(0, 38 * scale);
         //browser_toolbar->has_border = true;
         profiles_tabs = panel_right->make_tabs(true);
+        profiles_tabs->is_visible = &profiles_tabs_visible;
         browser_free_area = panel_right->make_child_window();
+        browser_free_area->is_visible = &browser_free_area_visible;
 
         build_profiles();
 
@@ -92,22 +104,18 @@ namespace bt
         build_status_bar();
 
 #if _DEBUG
-        dbg_demo = make_demo();
-        dbg_demo->is_visible = false;
+        auto w_demo = make_demo();
+        w_demo->is_visible = &demo_visible;
 #endif
 
         w_dash = make_shared<dash_window>(gctx);
+        w_dash->is_visible = &dash_visible;
         assign_child(w_dash);
-        w_dash->is_visible = false;
+        dash_visible = false;
         w_dash->on_health_changed = [this](bool healthy) {
             update_health_icon(healthy);
         };
         update_health_icon(w_dash->recheck());
-
-        w_url_tester = make_shared<url_tester_window>(gctx);
-        assign_child(w_url_tester);
-        w_url_tester->is_visible = false;
-        w_url_tester->center();
     }
 
     void config_window::build_status_bar() {
@@ -115,7 +123,7 @@ namespace bt
         st_health = status->make_label(ICON_FA_HEART);
         st_health->on_click = [this](component&) {
             bool healthy = w_dash->recheck();
-            if(!healthy && !w_dash->is_visible) w_dash->is_visible = true;
+            if(!healthy && !dash_visible) dash_visible = true;
         };
 
         status->make_label("|")->is_enabled = false;
@@ -137,6 +145,12 @@ namespace bt
         }
     }
 
+    void config_window::open_url_tester() {
+        auto w = gctx.make_window<url_tester_window>();
+        w->detach_on_close = true;
+        w->center();
+    }
+
     void config_window::build_menu() {
         menu = make_menu_bar();
 
@@ -149,6 +163,7 @@ namespace bt
         auto mi_csv = mi_file->add("", "hit_log.csv", ICON_FA_BOOK);
         mi_csv->add("csv", "Open");
         mi_csv->add("csv+c", "Copy path to clipboard");
+        mi_file->add("", "-");
         mi_file->add("x", "Exit", ICON_FA_ARROW_RIGHT_FROM_BRACKET);
         
 
@@ -210,8 +225,11 @@ namespace bt
         mi_reg->add("reg_xbt", "Custom Protocol");
         mi_reg->add("reg_browser", "Browser Registration");
 
+        mi_help->add("", "-");
+        mi_help->add("doc", "Documentation", ICON_FA_BOOK);
         mi_help->add("?", "About", ICON_FA_INFO);
 #if _DEBUG
+        mi_help->add("", "-");
         mi_help->add("demo", "Demo", ICON_FA_BOOK);
 #endif
     }
@@ -221,7 +239,11 @@ namespace bt
         // --- toolbar begin
         browser_toolbar->clear();
 
+        // hide/show button
+        auto cmd_hide_show = browser_toolbar->make_button(ICON_FA_HAND_DOTS);
+
         // universal test button
+        browser_toolbar->same_line();
         auto cmd_test = browser_toolbar->make_button(ICON_FA_SQUARE_UP_RIGHT);
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
@@ -341,8 +363,8 @@ namespace bt
         browser_free_area->clear();
 
         if(b->is_system) {
-            profiles_tabs->is_visible = true;
-            browser_free_area->is_visible = false;
+            profiles_tabs_visible = true;
+            browser_free_area_visible = false;
 
             for(auto bi : b->instances) {
                 string tab_icon;
@@ -385,8 +407,8 @@ namespace bt
                 bind_edit_rules(tab, bi);
             }
         } else {
-            profiles_tabs->is_visible = false;
-            browser_free_area->is_visible = true;
+            profiles_tabs_visible = false;
+            browser_free_area_visible = true;
             auto bi = b->instances[0];
 
             browser_free_area->make_label("Parameters");
@@ -450,13 +472,17 @@ special keyword - %url% which is replaced by opening url.)";
             ui::url_open(
                url_payload{APP_GITHUB_RELEASES_URL},
                ui::open_method::configured);
+        } else if(mi.id == "doc") {
+            ui::url_open(
+                url_payload{APP_DOCS_URL},
+                ui::open_method::configured);
         } else if(mi.id == "?") {
             auto w = gctx.make_window<about_window>();
             w->detach_on_close = true;
             w->center();
         } else if(mi.id == "demo") {
 #if _DEBUG
-            dbg_demo->is_visible = true;
+            demo_visible = true;
 #endif
         } else if(mi.id == "reg_xbt") {
             win32::clipboard::set_ascii_text(
@@ -469,9 +495,9 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "fix_browser") {
             bt::setup::register_browser();
         } else if(mi.id == "dash") {
-            w_dash->is_visible = true;
+            dash_visible = true;
         } else if(mi.id == "test") {
-            w_url_tester->is_visible = true;
+            open_url_tester();
         } else if(mi.id == "windows_defaults") {
             win32::shell::open_default_apps();
         } else if(mi.id == "refresh") {
@@ -588,13 +614,11 @@ special keyword - %url% which is replaced by opening url.)";
         browsers = browser::get_cache();
 
         if(browsers.empty()) {
-            panel_no_browsers->is_visible = true;
-            panel_left->is_visible = false;
-            panel_right->is_visible = false;
+            panel_no_browsers_visible = true;
+            panel_left_visible = panel_right_visible = false;
         } else {
-            panel_no_browsers->is_visible = false;
-            panel_left->is_visible = true;
-            panel_right->is_visible = true;
+            panel_no_browsers_visible = false;
+            panel_left_visible = panel_right_visible = true;
 
             rpt_browsers->clear();
             rpt_browsers->bind(browsers);
@@ -706,7 +730,7 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_priority->width = 20 * scale;
                 txt_priority->set_step_button_step(0);
                 txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
-                txt_priority->is_visible = ctx.data->priority != 0;
+                //txt_priority->is_visible = ctx.data->priority != 0;
 
                 // app mode
                 if(bi->b->is_chromium) {
@@ -769,7 +793,7 @@ special keyword - %url% which is replaced by opening url.)";
 
 
                 chk_priority->on_value_changed = [this, txt_priority, ctx](bool set) {
-                    txt_priority->is_visible = set;
+                    //txt_priority->is_visible = set;
                     if(set) {
                         //
                     } else {
@@ -808,7 +832,7 @@ special keyword - %url% which is replaced by opening url.)";
         };
 
         rt->on_pressed = [this](button&) {
-            w_url_tester->is_visible = true;
+            open_url_tester();
         };
     }
 
@@ -900,7 +924,7 @@ special keyword - %url% which is replaced by opening url.)";
 
     void config_window::update_health_icon(bool healthy) {
         if(!healthy) {
-            w_dash->is_visible = true;
+            dash_visible = true;
             w_dash->center();
             w_dash->bring_to_top();
         }

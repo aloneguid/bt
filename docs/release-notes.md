@@ -4,6 +4,11 @@
 
 - When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
 - URL Picker has an option to turn off recording of "popularity".
+- [Documentation website](https://aloneguid.github.io/bt/home.html) is now live. It's small and simple, but allows to add more structured content, unlike blog pages.
+
+### Bugs Fixed
+
+- Tray icon tooltip was not displaying. It should have shown application name and version number.
 
 todo:
 - hide browsers

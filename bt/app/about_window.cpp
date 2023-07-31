@@ -68,7 +68,7 @@ It super fast, extremely light on resources, completely free and open source.)")
         same_line();
         auto cmd_close = make_button("Close");
         cmd_close->on_pressed = [this](button&) {
-            is_visible = false;
+            close();
         };
 
         on_frame = [this](grey::component& c) {

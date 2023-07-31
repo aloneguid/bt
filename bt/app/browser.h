@@ -37,10 +37,15 @@ namespace bt {
         bool is_chromium;
         bool is_firefox;
 
-        /// <summary>
-        /// when true, this browser is part of the system i.e not a user defined one.
-        /// </summary>
+        /**
+         * @brief when true, this browser is part of the system i.e not a user defined one.
+        */
         bool is_system;
+
+        /**
+         * @brief Whether to hide this browser from UI.
+        */
+        bool is_hidden{false};
 
         std::vector<std::shared_ptr<browser_instance>> instances;
 

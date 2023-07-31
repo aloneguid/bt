@@ -22,22 +22,24 @@ namespace bt
         bool is_https{false};
         bool is_xbt{false};
         bool log_rule_hits{false};
+        bool show_hidden_browsers{true};
         std::vector<std::shared_ptr<bt::browser>> browsers;
         std::shared_ptr<browser_instance> fb;
         std::string latest_version;
         std::shared_ptr<grey::menu_bar> menu;
 
-        std::shared_ptr<grey::tree> url_tester_results;
         std::shared_ptr<dash_window> w_dash;
-        std::shared_ptr<url_tester_window> w_url_tester;
+        bool dash_visible{false};
 
-        std::shared_ptr<grey::child> panel_no_browsers;
-        std::shared_ptr<grey::child> panel_left;
-        std::shared_ptr<grey::child> panel_right;
+        bool panel_no_browsers_visible{false};
+        bool panel_left_visible{false};
+        bool panel_right_visible{false};
         std::shared_ptr<grey::repeater<browser>> rpt_browsers;
         std::shared_ptr<grey::child> browser_toolbar;
         std::shared_ptr<grey::tabs> profiles_tabs;
+        bool profiles_tabs_visible{true};
         std::shared_ptr<grey::child> browser_free_area;
+        bool browser_free_area_visible{true};
 
         std::shared_ptr<grey::label> st_health;
 
@@ -53,14 +55,13 @@ namespace bt
         std::shared_ptr<grey::menu_item> mi_ff_mode_bt;
         std::shared_ptr<grey::menu_item> mi_ff_mode_ouic;
 
-#if _DEBUG
-        std::shared_ptr<grey::demo> dbg_demo;
-#endif
-
+        bool demo_visible{false};
+        
         void build_menu();
         void build_default_browser_menu();
         void build_status_bar();
         void refresh_proto_status(std::shared_ptr<grey::label> lbl, bool is);
+        void open_url_tester();
 
         void handle_selection(std::shared_ptr<bt::browser> b);
         void handle_menu_click(grey::menu_item& mi);

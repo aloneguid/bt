@@ -108,14 +108,18 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
         p.enable_efficiency_mode();
     }
 
-    win32::shell_notify_icon sni{win32app.get_hwnd(), NotifyIconGuid, OWN_WM_NOTIFY_ICON_MESSAGE};
-    sni.set_tooptip(fmt::format("{} {}", APP_LONG_NAME, APP_VERSION));
+    win32::shell_notify_icon sni{
+        win32app.get_hwnd(),
+            NotifyIconGuid,
+            OWN_WM_NOTIFY_ICON_MESSAGE,
+            fmt::format("{} {}", APP_LONG_NAME, APP_VERSION)};
 
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
-    m.add("$", "Buy me a Coffee!");
+    m.add("$", "Buy me a coffee!");
     m.add("contact", "Contact");
-    m.add("?", "Help");
+    m.add("?", "Project website");
+    m.add("doc", "Documentation");
     m.separator();
     m.add("x", "&Exit");
 
@@ -147,9 +151,11 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 } else if(id == "contact") {
                     bt::ui::contact();
                 } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{string(APP_URL)}, bt::ui::open_method::configured);
+                    bt::ui::url_open(bt::url_payload{APP_URL}, bt::ui::open_method::configured);
+                } else if(id == "doc") {
+                    bt::ui::url_open(bt::url_payload{APP_DOCS_URL}, bt::ui::open_method::configured);
                 }
-            }
+                }
                 break;
             case WM_COPYDATA:
                 COPYDATASTRUCT* cds = reinterpret_cast<COPYDATASTRUCT*>(lParam);

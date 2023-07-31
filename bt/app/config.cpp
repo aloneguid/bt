@@ -20,6 +20,7 @@ namespace bt {
     const string FirefoxContainerModeKey = "firefox_container_mode";
     const string LogRuleHitsKey = "log_rule_hits";
     const string PersistPopularityKey = "persist_popularity";
+    const string ShowHiddenBrowsersKey = "browsers_show_hidden";
 
     common::config cfg{ 
         fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
@@ -188,6 +189,15 @@ namespace bt {
         cfg.commit();
     }
 
+    bool config::get_show_hidden_browsers() {
+        return cfg.get_bool_value(ShowHiddenBrowsersKey, true);
+    }
+
+    void config::set_show_hidden_browsers(bool show) {
+        cfg.set_bool_value(ShowHiddenBrowsersKey, show);
+        cfg.commit();
+    }
+
     void config::save_browsers(std::vector<std::shared_ptr<browser>> browsers) {
 
         // delete all browser sections
@@ -201,6 +211,7 @@ namespace bt {
             string section = fmt::format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
+            cfg.set_bool_value("hidden", b->is_hidden, section);
 
             string subtype;
             if(b->is_system) {
@@ -254,7 +265,7 @@ namespace bt {
 
             b->is_firefox = subtype == "firefox";
             b->is_chromium = subtype == "chromium";
-
+            b->is_hidden = cfg.get_bool_value("hidden", false, bsn);
 
             if(b->is_system) {
 

@@ -61,7 +61,7 @@ namespace bt {
         same_line();
         auto cmd_close = make_button("close");
         cmd_close->on_pressed = [this](button&) {
-            this->close();
+            *is_visible = false;
         };
 
         return failed == 0;
