@@ -22,8 +22,6 @@ jobs:
     env:
       VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
       VCPKG_TRIPLET: x64-windows-static
-      ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
-      MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
 
     steps:
       
@@ -80,7 +78,9 @@ jobs:
         (Get-FileHash -Algorithm SHA256 -Path atf/${{ env.MSI_FILE_NAME }}).Hash | Out-File atf/${{ env.MSI_FILE_NAME }}.sha256.txt
         cp docs/release-notes.md atf/
         cp docs/instructions.md atf/
-
+      env:
+        ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
+        MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
 
     - uses: actions/upload-artifact@v3
       name: collect binaries
