@@ -7,6 +7,7 @@
 - [Documentation website](https://aloneguid.github.io/bt/home.html) is now live. It's small and simple, but allows to add more structured content, unlike blog pages.
 - Ability to hide browsers from configuration window was added. This affects both configuration and picker, so you won't see browsers you are not interested in.
 - **todo:** Rules can be reordered. Thanks to @maluht for the idea in #13.
+- Status bar shows number of browsers, profiles, and configured rules.
 - **todo:** GitHub releases publishes SHA-256 checksums.
 
 ### Improvements

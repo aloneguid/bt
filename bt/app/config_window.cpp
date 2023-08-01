@@ -128,11 +128,40 @@ namespace bt
         };
 
         status->make_label("|")->is_enabled = false;
+        auto bc = status->make_label("");
+        bc->tooltip = "Browser count";
+
+        auto pc = status->make_label("");
+        pc->tooltip = "Profile count";
+
+        auto rc = status->make_label("");
+        rc->tooltip = "Configured rule count";
+
+        bc->is_enabled = pc->is_enabled = rc->is_enabled = false;
+
+
+        status->make_label("|")->is_enabled = false;
         auto coffee = status->make_label(ICON_FA_MUG_HOT);
         coffee->set_emphasis(emphasis::warning);
         coffee->tooltip = "I need some coffee to work on the next version ;)";
         coffee->on_click = [this](component&) {
             bt::ui::coffee("status_bar");
+        };
+
+        status->on_frame = [this, bc, pc, rc](component&) {
+            bc->set_value(fmt::format("{} {}", ICON_FA_WINDOW_RESTORE, browsers.size()));
+
+            size_t ipc{0};
+            size_t irc{0};
+            for(const auto& b : browsers) {
+                ipc += b->instances.size();
+                for(const auto& i : b->instances) {
+                    irc += i->rules.size();
+                }
+            }
+
+            pc->set_value(fmt::format("{} {}", ICON_FA_USER, ipc));
+            rc->set_value(fmt::format("{} {}", ICON_FA_RULER, irc));
         };
     }
 
