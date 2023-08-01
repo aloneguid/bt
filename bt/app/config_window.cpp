@@ -69,9 +69,10 @@ namespace bt
         cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
 
         panel_left->same_line();
-        auto chk_show_hidden = panel_left->make_checkbox(ICON_FA_HAND_DOTS, &show_hidden_browsers);
+        auto chk_show_hidden = panel_left->make_checkbox(ICON_FA_EYE, &show_hidden_browsers);
         chk_show_hidden->render_as_icon = true;
         chk_show_hidden->tooltip = "show hidden browsers";
+        chk_show_hidden->on_value_changed = [this](bool) { build_browsers(); };
 
         //w_browsers->has_border = true;
         panel_left->padding_bottom = 75 * scale;
@@ -355,7 +356,7 @@ namespace bt
 
         // hide/show button
         browser_toolbar->same_line();
-        auto chk_show = browser_toolbar->make_checkbox(ICON_FA_HAND_DOTS);
+        auto chk_show = browser_toolbar->make_checkbox(ICON_FA_EYE);
         chk_show->tooltip = "Show or hide this browser from the browser list";
         chk_show->render_as_icon = true;
         chk_show->set_checked(!b->is_hidden);
@@ -609,6 +610,13 @@ special keyword - %url% which is replaced by opening url.)";
                 lbl_custom->is_enabled = false;
                 lbl_custom->tooltip = "User-defined";
             }
+
+            auto chk_hidden = c->make_label(ICON_FA_EYE_SLASH);
+            chk_hidden->same_line = true;
+            chk_hidden->is_enabled = false;
+            chk_hidden->tooltip = "Hidden";
+            chk_hidden->is_visible = &(b->is_hidden);
+
         } else {
             auto i_where = c->make_label(ICON_FA_USER);
             i_where->tooltip = "no profiles";
@@ -636,12 +644,24 @@ special keyword - %url% which is replaced by opening url.)";
             panel_no_browsers_visible = false;
             panel_left_visible = panel_right_visible = true;
 
-            rpt_browsers->clear();
-            rpt_browsers->bind(browsers);
+            vector<shared_ptr<browser>> filtered;
+            if(show_hidden_browsers) {
+                filtered = browsers;
+            } else {
+                std::copy_if(browsers.begin(), browsers.end(),
+                    back_inserter(filtered),
+                    [](shared_ptr<browser> i) { return !i->is_hidden; });
+            }
 
-            build_default_browser_menu();
-            handle_selection(*browsers.begin());
-            rpt_browsers->set_selected_index(0);
+            rpt_browsers->clear();
+
+            if(!filtered.empty()) {
+                rpt_browsers->bind(filtered);
+
+                build_default_browser_menu();
+                handle_selection(*filtered.begin());
+                rpt_browsers->set_selected_index(0);
+            }
         }
     }
 

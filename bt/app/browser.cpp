@@ -143,6 +143,9 @@ namespace bt {
             if (b_old_it != old_set.end()) {
                 shared_ptr<browser> b_old = *b_old_it;
 
+                // merge user data
+                b_new->is_hidden = b_old->is_hidden;
+
                 // profiles
 
                 // merge old data into new profiles
