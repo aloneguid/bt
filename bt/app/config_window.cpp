@@ -95,7 +95,7 @@ namespace bt
         browser_free_area = panel_right->make_child_window();
         browser_free_area->is_visible = &browser_free_area_visible;
 
-        build_profiles();
+        build_browsers();
 
         menu->clicked = [this](menu_item& mi) {
             handle_menu_click(mi);
@@ -239,9 +239,6 @@ namespace bt
         // --- toolbar begin
         browser_toolbar->clear();
 
-        // hide/show button
-        auto cmd_hide_show = browser_toolbar->make_button(ICON_FA_HAND_DOTS);
-
         // universal test button
         browser_toolbar->same_line();
         auto cmd_test = browser_toolbar->make_button(ICON_FA_SQUARE_UP_RIGHT);
@@ -343,7 +340,7 @@ namespace bt
                 browser::get_cache(true); // invalidate
 
                 // rebuild profiles
-                build_profiles();
+                build_browsers();
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
@@ -355,6 +352,18 @@ namespace bt
                 }
             };
         }
+
+        // hide/show button
+        browser_toolbar->same_line();
+        auto chk_show = browser_toolbar->make_checkbox(ICON_FA_HAND_DOTS);
+        chk_show->tooltip = "Show or hide this browser from the browser list";
+        chk_show->render_as_icon = true;
+        chk_show->set_checked(!b->is_hidden);
+        chk_show->on_value_changed = [this, b](bool is_visible) {
+            b->is_hidden = !is_visible;
+            persist_ui();
+        };
+
 
         // --- toolbar end
 
@@ -574,7 +583,7 @@ special keyword - %url% which is replaced by opening url.)";
         // elements
         c->set_pos(0, -1, false);
         c->set_pos(left_pad, 0, true);
-        c->make_label(b->name);
+        auto txt_name = c->make_label(b->name);
 
         c->set_pos(left_pad, 0, true);
 
@@ -608,9 +617,16 @@ special keyword - %url% which is replaced by opening url.)";
 
         c->spacer();
         c->set_pos(0, -1);
+
+        // a hack for dynamic updates
+        c->on_frame = [b, txt_name](component&) {
+            if(!b->is_system) {
+                txt_name->set_value(b->name);
+            }
+        };
     }
 
-    void config_window::build_profiles() {
+    void config_window::build_browsers() {
         browsers = browser::get_cache();
 
         if(browsers.empty()) {
@@ -636,7 +652,7 @@ special keyword - %url% which is replaced by opening url.)";
 
         browser::get_cache(true);   // invalidate cache
 
-        build_profiles();
+        build_browsers();
     }
 
     void config_window::add_custom_browser_by_asking() {
@@ -654,7 +670,7 @@ special keyword - %url% which is replaced by opening url.)";
         config::i.save_browsers(all);
         browser::get_cache(true); // invalidate
 
-        build_profiles();
+        build_browsers();
 
         // find this new browser and select it
         size_t idx = index_of(b);
@@ -718,7 +734,7 @@ special keyword - %url% which is replaced by opening url.)";
                 chk_regex->set_checked(ctx.data->is_regex);
 
                 // priority
-                ctr->same_line();
+                /*ctr->same_line();
                 auto chk_priority = ctr->make_checkbox(ICON_FA_ARROW_UP_9_1);
                 chk_priority->render_as_icon = true;
                 chk_priority->tooltip = "If multiple rules will match an URL, you can override default priority";
@@ -730,7 +746,7 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_priority->width = 20 * scale;
                 txt_priority->set_step_button_step(0);
                 txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
-                //txt_priority->is_visible = ctx.data->priority != 0;
+                txt_priority->is_visible = ctx.data->priority != 0;*/
 
                 // app mode
                 if(bi->b->is_chromium) {
@@ -792,7 +808,7 @@ special keyword - %url% which is replaced by opening url.)";
                 };
 
 
-                chk_priority->on_value_changed = [this, txt_priority, ctx](bool set) {
+                /*chk_priority->on_value_changed = [this, txt_priority, ctx](bool set) {
                     //txt_priority->is_visible = set;
                     if(set) {
                         //
@@ -805,7 +821,7 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_priority->on_value_changed = [this, bi, ctx](int& v) {
                     ctx.data->priority = v;
                     persist_ui();
-                };
+                };*/
 
                 rm->on_pressed = [this, bi, ctx](button&) {
                     bi->delete_rule(ctx.data->value);
@@ -838,7 +854,7 @@ special keyword - %url% which is replaced by opening url.)";
 
     void config_window::set_fallback(std::shared_ptr<browser_instance> bi) {
         config::i.set_fallback(bi->long_id());
-        build_profiles();
+        build_browsers();
         ui::ensure_no_instances();
     }
 

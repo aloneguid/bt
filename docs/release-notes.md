@@ -5,14 +5,20 @@
 - When editing browser profiles, you can optionally add your own custom arguments to pass to the browser (see `extra args`). Thanks to @AJolly for the idea.
 - URL Picker has an option to turn off recording of "popularity".
 - [Documentation website](https://aloneguid.github.io/bt/home.html) is now live. It's small and simple, but allows to add more structured content, unlike blog pages.
+- **todo:** Ability to hide browsers from configuration window was added. This affects both configuration and picker, so you won't see browsers you are not interested in.
+- **todo:** Rules can be reordered. Thanks to @maluht for the idea in #13.
+- **todo:** GitHub releases publishes SHA-256 checksums.
+
+### Improvements
+
+- **todo:** Do not show "frameless window" button when picker has no browsers that support this feature. Thanks to @D3XX3R in #20.
+- Updating custom browser name will also update it in browser list as you type.
+- Other cosmetic pedantic improvements.
 
 ### Bugs Fixed
 
 - Tray icon tooltip was not displaying. It should have shown application name and version number.
-
-todo:
-- hide browsers
-- reorder rules
+- **todo:** When GitHub API was down, checking for new releases was showing an ugly notification. Thanks to long-term user Ivan for reporting this.
 
 ## 3.3.1
 

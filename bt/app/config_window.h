@@ -65,7 +65,7 @@ namespace bt
 
         void handle_selection(std::shared_ptr<bt::browser> b);
         void handle_menu_click(grey::menu_item& mi);
-        void build_profiles();
+        void build_browsers();
         void rediscover_browsers();
         void add_custom_browser_by_asking();
         void bind_edit_rules(std::shared_ptr<grey::container> parent, std::shared_ptr<browser_instance> bi);
