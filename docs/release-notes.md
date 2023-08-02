@@ -12,12 +12,12 @@
 
 ### Improvements
 
-- **todo:** Do not show "frameless window" button when picker has no browsers that support this feature. Thanks to @D3XX3R in #20.
 - Updating custom browser name will also update it in browser list as you type.
 - Other cosmetic pedantic improvements.
 
 ### Bugs Fixed
 
+- Picker would not work if you enable "frameless window" but pick a browser that does not support this feature. Browser list now also indicates if browser supports frameless feature. Thanks to @D3XX3R in #20.
 - Tray icon tooltip was not displaying. It should have shown application name and version number.
 - **todo:** When GitHub API was down, checking for new releases was showing an ugly notification. Thanks to long-term user Ivan for reporting this.
 

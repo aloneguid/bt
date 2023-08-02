@@ -25,7 +25,8 @@ namespace bt {
         bool is_system)
         : id{id}, name{ name }, open_cmd{ open_cmd },
         is_chromium{ is_chromium_browser(id) }, is_firefox{ is_firefox_browser(id) },
-        is_system{ is_system }
+        is_system{ is_system },
+        supports_frameless_windows{is_chromium}
     {
         str::trim(this->name);
         str::trim(this->open_cmd, "\"");
@@ -248,7 +249,7 @@ namespace bt {
         }
 
         // works in Chrome only
-        if(up.app_mode) {
+        if(b->get_supports_frameless_windows() && up.app_mode) {
             arg = fmt::format("--app={}", arg);
         }
 

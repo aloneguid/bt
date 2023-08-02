@@ -51,6 +51,8 @@ namespace bt {
 
         size_t get_total_rule_count() const;
 
+        bool get_supports_frameless_windows() const { return supports_frameless_windows; }
+
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members
@@ -77,6 +79,7 @@ namespace bt {
     private:
 
         static std::vector<std::shared_ptr<browser>> cache;
+        const bool supports_frameless_windows;
 
         static void preprocess_url(std::string& url);
         static std::string get_image_name(const std::string& open_cmd);

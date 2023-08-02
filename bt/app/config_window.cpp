@@ -640,6 +640,11 @@ special keyword - %url% which is replaced by opening url.)";
                 lbl_custom->tooltip = "User-defined";
             }
 
+            if(b->get_supports_frameless_windows()) {
+                auto i = c->make_label(ICON_FA_CROP,
+                    "Supports frameless windows", false, true);
+            }
+
             auto chk_hidden = c->make_label(ICON_FA_EYE_SLASH);
             chk_hidden->same_line = true;
             chk_hidden->is_enabled = false;
