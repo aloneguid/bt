@@ -19,7 +19,6 @@
 
 - Picker would not work if you enable "frameless window" but pick a browser that does not support this feature. Browser list now also indicates if browser supports frameless feature. Thanks to @D3XX3R in #20.
 - Tray icon tooltip was not displaying. It should have shown application name and version number.
-- **todo:** When GitHub API was down, checking for new releases was showing an ugly notification. Thanks to long-term user Ivan for reporting this.
 
 ## 3.3.1
 
