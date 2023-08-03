@@ -6,9 +6,10 @@
 - URL Picker has an option to turn off recording of "popularity".
 - [Documentation website](https://aloneguid.github.io/bt/home.html) is now live. It's small and simple, but allows to add more structured content, unlike blog pages.
 - Ability to hide browsers from configuration window was added. This affects both configuration and picker, so you won't see browsers you are not interested in.
-- **todo:** Rules can be reordered. Thanks to @maluht for the idea in #13.
+- Rules can be reordered by simply pressing ⬆️ or ⬇️ keys on the keyboard. Thanks to @maluht for the idea in #13.
+- When editing rule, you can jump to next edit box with `tab` or previous with `shift`+`tab`.
 - Status bar shows number of browsers, profiles, and configured rules.
-- **todo:** GitHub releases publishes SHA-256 checksums.
+- GitHub releases publishes SHA-256 checksums.
 
 ### Improvements
 

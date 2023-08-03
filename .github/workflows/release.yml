@@ -41,4 +41,5 @@ jobs:
           files: |
             bin/*.msi
             bin/*.zip
+            bin/*.sha256.txt
           body_path: final_notes.md
