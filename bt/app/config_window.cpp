@@ -768,24 +768,19 @@ special keyword - %url% which is replaced by opening url.)";
             [this, bi](repeater_bind_context<bt::match_rule> ctx) {
 
                 shared_ptr<grey::container> ctr = ctx.container;
-
-                auto idx = ctr->make_label(fmt::format("{}. ", ctx.idx + 1));
-                idx->is_enabled = false;
-
-                ctr->same_line(25*scale);
+                shared_ptr<match_rule> rule = ctx.data;
 
                 // value
-                ctr->same_line();
                 auto txt_value = ctr->make_input("");
-                txt_value->set_value(ctx.data->value);
+                txt_value->set_value(rule->value);
                 txt_value->width = 250 * scale;
 
                 // is regex checkbox
                 ctr->same_line();
                 auto chk_regex = ctr->make_checkbox(ICON_FA_TRUCK_FAST);
                 chk_regex->render_as_icon = true;
-                chk_regex->tooltip = "rule is a Regular Expression (advanced)";
-                chk_regex->set_checked(ctx.data->is_regex);
+                chk_regex->tooltip = "Rule is a Regular Expression (advanced)";
+                chk_regex->set_checked(rule->is_regex);
 
                 // priority
                 /*ctr->same_line();
@@ -846,19 +841,43 @@ special keyword - %url% which is replaced by opening url.)";
 
                 // handlers
 
-                lst_scope->on_selected = [this, ctx](size_t idx, grey::list_item&) {
-                    ctx.data->scope = (match_scope)idx;
+                lst_scope->on_selected = [this, rule](size_t idx, grey::list_item&) {
+                    rule->scope = (match_scope)idx;
                     persist_ui();
                 };
 
-                chk_regex->on_value_changed = [this, ctx](bool is_regex) {
-                    ctx.data->is_regex = is_regex;
+                chk_regex->on_value_changed = [this, rule](bool is_regex) {
+                    rule->is_regex = is_regex;
                     persist_ui();
                 };
 
-                txt_value->on_value_changed = [this, bi, ctx](string& s) {
-                    ctx.data->value = s;
+                txt_value->on_value_changed = [this, rule](string& s) {
+                    rule->value = s;
                     persist_ui();
+                };
+
+                auto move_rule = [this, bi, rule, ctx](int pos) {
+                    // find rule index
+                    int idx = -1;
+                    for(int i = 0; i < bi->rules.size(); i++) {
+                        if(bi->rules[i] == rule) {
+                            idx = i;
+                            break;
+                        }
+                    }
+                    if(idx == -1) return;
+
+                    ctx.rpt.move(idx, pos, true);
+                    stl::move(bi->rules, idx, pos, true);
+                    persist_ui();
+                };
+
+                txt_value->on_arrow_up = [this, bi, rule, ctx, move_rule]() {
+                    move_rule(-1);
+                };
+
+                txt_value->on_arrow_down = [this, bi, rule, ctx, move_rule]() {
+                    move_rule(1);
                 };
 
 
