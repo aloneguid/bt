@@ -81,3 +81,13 @@ Part of rule definition is attempt to open an URL as "frameless window". Framele
 ![](rule-frameless.png)
 
 You can also open a link in a frameless window with [Picker](picker.md).
+
+## Reordering
+
+Rules can be reordered using <shortcut>Up</shortcut> and <shortcut>Down</shortcut> keyboard arrow keys. Focus on rule text and press the keys to move the field up or down the list. 
+
+<video src="reorder.mp4" preview-src="reorder.png"/>
+
+## Navigation
+
+When inside rule text, you can press <shortcut>Tab</shortcut> to move to the next rule's text, or <shortcut>Shift+Tab</shortcut> to move the the previous rule's text. 

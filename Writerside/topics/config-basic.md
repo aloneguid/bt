@@ -8,6 +8,16 @@ You can change this from `Settings->Default Browser` menu which lists all the de
 
 ![](default.png)
 
+## Custom arguments
+
+Both user-defined and system (autodetected) browsers have an additional argument added. For system browsers, expand "Parameters" to add this "extra arg". %product% does **not** allow modifying `arg` to avoid breaking basic functionality.
+
+<warning>
+Most browsers will not apply settings like <a href="https://peter.sh/experiments/chromium-command-line-switches/">chromium flags</a> until you restart the browser completely.
+</warning>
+
+![](extra-params.png)
+
 ## Auditing
 
 %product% can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**, and the file path can be found in `File` menu:

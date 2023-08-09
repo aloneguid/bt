@@ -13,6 +13,7 @@
     <build-profile instance="bt">
         <variables>
             <noindex-content>false</noindex-content>
+            <analytics-head-script-file>pa.js</analytics-head-script-file>
         </variables>
     </build-profile>
 
