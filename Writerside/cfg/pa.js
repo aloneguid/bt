@@ -1,3 +1,4 @@
+<script>
 (function () {
 
     const document = window.document;
@@ -96,3 +97,4 @@
 
     report("load");
 })();
+</script>
