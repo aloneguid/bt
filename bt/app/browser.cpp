@@ -1,10 +1,6 @@
 #include "browser.h"
-#include <windows.h>
 #include <filesystem>
-#include <set>
 #include <algorithm>
-#include <cctype>
-#include <functional>
 #include "win32/shell.h"
 #include "str.h"
 #include "../globals.h"

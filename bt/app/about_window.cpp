@@ -6,6 +6,7 @@
 #include <fmt/core.h>
 #include "win32/shell.h"
 #include "win32/sysinfo.h"
+#include "win32/process.h"
 #include "str.h"
 
 using namespace std;

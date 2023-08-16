@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <win32/process.h>
 #include "match_rule.h"
+#include <Windows.h>
 
 namespace bt {
 
