@@ -1,3 +1,9 @@
+/*
+ * Permissions:
+ * - contextMenus: add context menu item "open with bt"
+ * - tabs: read current tab URL to send to BT.
+ */
+
 const BtProtoPrefix = "x-bt://";
 
 async function openInBT(tabId, url) {
