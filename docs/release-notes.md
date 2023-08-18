@@ -1,6 +1,6 @@
-## 3.5.0
+## 3.4.2
 
-Planning
+Bug fixed - picker was always defaulting to "chomeless window". Thanks to @danarnold in #20.
 
 ## 3.4.1
 
