@@ -130,6 +130,14 @@ namespace bt::ui {
         is_config_running = true;
     }
 
+    void url_tester() {
+        prepare_ui_backend();
+
+        auto w = active_backend->make_window<url_tester_window>();
+        w->detach_on_close = true;
+        w->center();
+    }
+
     void ensure_no_instances() {
         //normal shutdown
         try_invoke_running_instance("shutdown");

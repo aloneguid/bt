@@ -1,11 +1,6 @@
-﻿#include "bt.h"
-#include <fmt/core.h>
+﻿#include <fmt/core.h>
 #include "globals.h"
 #include "app/ui.h"
-#include "../common/win32/npipe.h"
-#include "../common/win32/user.h"
-#include "../common/win32/kernel.h"
-#include "../common/fss.h"
 #include "../common/str.h"
 #include "win32/app.h"
 #include "win32/process.h"
@@ -16,6 +11,7 @@
 #include "app/update_check.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
+#include "app/security/clearurls.h"
 
 #define OWN_WM_NOTIFY_ICON_MESSAGE WM_APP + 1
 
@@ -65,6 +61,9 @@ void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWOR
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
+
+    bt::security::clearurls cu;
+    cu.clear("https://www.amazon.com/dp/exampleProduct/ref=sxin_0_pb?__mk_de_DE=ÅMÅŽÕÑ&keywords=tea&pd_rd_i=exampleProduct&pd_rd_r=8d39e4cd-1e4f-43db-b6e7-72e969a84aa5&pd_rd_w=1pcKM&pd_rd_wg=hYrNl&pf_rd_p=50bbfd25-5ef7-41a2-68d6-74d854b30e30&pf_rd_r=0GMWD0YYKA7XFGX55ADP&qid=1517757263&rnid=2914120011");
 
     if(bt::config::i.get_flag("debug_args") == "y") {
         wostringstream msg;
@@ -116,10 +115,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
-    m.add("$", "Buy me a coffee!");
-    m.add("contact", "Contact");
-    m.add("?", "Project website");
-    m.add("doc", "Documentation");
+    m.add("url", "URL Tester");
     m.separator();
     m.add("x", "&Exit");
 
@@ -144,16 +140,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 string id = m.id_from_loword_wparam(loword_wparam);
                 if(id == "cfg") {
                     bt::ui::config();
+                } else if(id == "url") {
+                    bt::ui::url_tester();
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
-                } else if(id == "$") {
-                    bt::ui::coffee("shell_icon");
-                } else if(id == "contact") {
-                    bt::ui::contact();
-                } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{APP_URL}, bt::ui::open_method::configured);
-                } else if(id == "doc") {
-                    bt::ui::url_open(bt::url_payload{APP_DOCS_URL}, bt::ui::open_method::configured);
                 }
                 }
                 break;

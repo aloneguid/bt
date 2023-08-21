@@ -76,6 +76,8 @@ namespace bt {
         // global instance
         static config i;
 
+        static std::string get_data_file_path(const std::string& name);
+
     private:
         void ensure_instance_id();
         void migrate();

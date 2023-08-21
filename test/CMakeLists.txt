@@ -17,7 +17,7 @@ file(GLOB cpps CONFIGURE_DEPENDS
     "../common/*.cpp"
     "../bt/app/match_rule.cpp")
 
-add_executable(test "rules.cpp" ${cpps})
+add_executable(test "rules.cpp" "url.cpp" ${cpps})
 
 include(GoogleTest)
 gtest_discover_tests(test)

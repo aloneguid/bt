@@ -11,32 +11,23 @@ namespace bt {
         float scale = ctx.get_system_scale();
         make_label("Input URL");
         auto txt_url = make_input("Input URL");
-        txt_url->lines = 3;
 
         spacer();
-        make_input("protocol", &proto)->is_enabled = false;
-        make_input("domain", &host)->is_enabled = false;
-        make_input("path", &path)->is_enabled = false;
+        make_input("host", &u.host)->is_enabled = false;
+        make_input("query", &u.query)->is_enabled = false;
 
         spacer();
         make_label("Matches:");
-        auto w_matches = make_child_window(600 * scale, 100 * scale);
-        tbl = w_matches->make_complex_table<browser_match_result>({"rule", "browser", "profile"});
+        tbl = make_complex_table<browser_match_result>({"rule", "browser", "profile"});
         tbl->stretchy = true;
 
         txt_url->on_value_changed = [this](string& s) { match(s); };
-
-        separator();
-        auto cmd_close = make_button("Close");
-        cmd_close->on_pressed = [this](button&) {
-            close();
-        };
 
         match("");
     }
 
     void url_tester_window::match(const string& s) {
-        match_rule::parse_url(s, proto, host, path);
+        u = url{s};
 
         string cu;
         matches.clear();

@@ -1,3 +1,12 @@
+## 3.5.0
+
+- todo: ClearURLs
+- todo: bug: "check for updates" was opening home page instead of GitHub releases.
+
+### New
+
+- "buy me a coffee" link removed from the tray icon and status bar, because no one is donating, you cheap bastards!
+
 ## 3.4.2
 
 Bug fixed - picker was always defaulting to "chomeless window". Thanks to @danarnold in #20.

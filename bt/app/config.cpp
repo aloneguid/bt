@@ -22,11 +22,7 @@ namespace bt {
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
 
-    common::config cfg{ 
-        fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
-            ? (fs::path{fss::get_current_dir()} / FileName).string()
-            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / FileName).string()
-    };
+    common::config cfg{config::get_data_file_path(FileName)};
 
     config config::i;
 
@@ -46,6 +42,12 @@ namespace bt {
 
     std::string config::get_theme() {
         return cfg.get_value("theme");
+    }
+
+    std::string config::get_data_file_path(const std::string& name) {
+        return fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
+            ? (fs::path{fss::get_current_dir()} / name).string()
+            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / name).string();
     }
 
     void config::ensure_instance_id() {

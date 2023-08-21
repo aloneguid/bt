@@ -15,7 +15,6 @@ namespace bt::app {
         if(!ghr.is_valid) return false;
 
         string latest_version = ghr.tag;
-        str::trim(latest_version);
         bool has_update = !latest_version.empty() && latest_version != APP_VERSION;
         latest_version_number = has_update ? latest_version : APP_VERSION;
         bt::config::i.set_last_update_check_time_to_now();
