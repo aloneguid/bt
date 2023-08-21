@@ -11,7 +11,6 @@
 #include "app/update_check.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
-#include "app/security/clearurls.h"
 
 #define OWN_WM_NOTIFY_ICON_MESSAGE WM_APP + 1
 
@@ -61,9 +60,6 @@ void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWOR
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
-
-    bt::security::clearurls cu;
-    cu.clear("https://www.amazon.com/dp/exampleProduct/ref=sxin_0_pb?__mk_de_DE=ÅMÅŽÕÑ&keywords=tea&pd_rd_i=exampleProduct&pd_rd_r=8d39e4cd-1e4f-43db-b6e7-72e969a84aa5&pd_rd_w=1pcKM&pd_rd_wg=hYrNl&pf_rd_p=50bbfd25-5ef7-41a2-68d6-74d854b30e30&pf_rd_r=0GMWD0YYKA7XFGX55ADP&qid=1517757263&rnid=2914120011");
 
     if(bt::config::i.get_flag("debug_args") == "y") {
         wostringstream msg;

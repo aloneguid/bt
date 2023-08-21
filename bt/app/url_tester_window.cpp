@@ -6,28 +6,51 @@ using namespace std;
 using namespace grey;
 
 namespace bt {
-    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 500, 350} {
+    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 700, 350} {
         can_resize = false;
         float scale = ctx.get_system_scale();
-        make_label("Input URL");
-        auto txt_url = make_input("Input URL");
+        make_label("Input:");
+        auto txt_url = make_input(ICON_FA_GLOBE);
 
         spacer();
-        make_input("host", &u.host)->is_enabled = false;
-        make_input("query", &u.query)->is_enabled = false;
+        make_label("Results:");
+        auto txt_clear_url = make_input(ICON_FA_GLOBE, &cur.clear_url);
+
+        auto txt_host = make_input(ICON_FA_LANDMARK_DOME, &u.host);
+        txt_host->set_is_readonly();
+        txt_host->width = 300;
+
+        same_line();
+        auto txt_query = make_input(ICON_FA_LINES_LEANING, &u.query);
+        txt_query->set_is_readonly();
 
         spacer();
+        auto w_parameters = make_child_window(300 * scale, 100 * scale);
+        tbl_parameters = w_parameters->make_complex_table< browser_match_result>({"name", "value"});
+
+        spacer();
+
         make_label("Matches:");
-        tbl = make_complex_table<browser_match_result>({"rule", "browser", "profile"});
+
+        auto w_matches = make_child_window(600 * scale, 100 * scale);
+        tbl = w_matches->make_complex_table<browser_match_result>({"rule", "browser", "profile"});
         tbl->stretchy = true;
 
+        separator();
+        auto cmd_close = make_button("Close");
+        cmd_close->on_pressed = [this](button&) {
+            close();
+        };
+
         txt_url->on_value_changed = [this](string& s) { match(s); };
+
 
         match("");
     }
 
     void url_tester_window::match(const string& s) {
         u = url{s};
+        cur = cleaner.clear(s);
 
         string cu;
         matches.clear();

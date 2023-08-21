@@ -5,6 +5,7 @@
 #include "win32/http.h"
 #include "fss.h"
 #include <nlohmann/json.hpp>
+#include "url.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -15,35 +16,83 @@ namespace bt::security {
     const string DataFileName = "clearurls_db.json";
 
     clearurl_provider::clearurl_provider(const std::string& name, const std::string& regex,
-        std::vector<std::string> qps,
+        std::vector<std::string> rules,
         std::vector<std::string> exceptions,
-        std::vector<std::string> redirections) : name{name}, regex{regex}, qps{qps}, exceptions{exceptions}, redirections{redirections} {
+        std::vector<std::string> redirections,
+        std::vector<std::string> raw_rules)
+        : name{name}, regex{regex}, rules{rules}, exceptions{exceptions}, redirections{redirections}, raw_rules{raw_rules} {
     }
 
     clearurls::clearurls() {
         load_db();
     }
 
-    bool clearurls::clear(const std::string& url) {
+    clearurl_result clearurls::clear(const std::string& abs_url) {
+
+        bool is_dirty{false};
+        vector<string> dirty_parameters;
+        string clean_url = abs_url;
+
         // find a match
         for(const clearurl_provider& p : providers) {
             regex p_rgx{p.regex, regex_constants::icase};
-            if(regex_search(url, p_rgx)) {
+            if(regex_search(abs_url, p_rgx)) {
                 // check for exceptions
                 for(const string& x : p.exceptions) {
                     regex x_rgx{x, regex_constants::icase};
-                    if(regex_search(url, x_rgx)) {
+                    if(regex_search(abs_url, x_rgx)) {
                         continue;
                     }
                 }
 
                 // match found!
 
+                // we are going to try "rawRules" (bold replacement)
+                for(const string& rr : p.raw_rules) {
+                    regex rr_rgx{rr, regex_constants::icase};
+                    smatch sm;
+
+                    if(regex_search(clean_url, sm, rr_rgx)) {
+                        clean_url.replace(sm.position(), sm.length(), "");
+                        is_dirty = true;
+                    }
+                }
+
+                url u{clean_url};
+                for(const auto& kv : u.parameters) {
+                    string pn = kv.first;
+
+                    // match parameter name across all the rules
+                    for(const string& rule : p.rules) {
+                        regex r_rgx{rule, regex_constants::icase};
+                        if(regex_match(pn, r_rgx)) {
+                            dirty_parameters.push_back(pn);
+                        }
+                    }
+                }
+                if(!dirty_parameters.empty()) {
+                    for(const string& pn : dirty_parameters) {
+                        for(int i = u.parameters.size() - 1; i >= 0; i--) {
+                            if(u.parameters[i].first == pn) {
+                                u.parameters.erase(u.parameters.begin() + i);
+                                break;
+                            }
+                        }
+                    }
+                    clean_url = u.to_string();
+                    is_dirty = true;
+                }
+
+                break;
             }
 
-            return false;
-
         }
+
+        return clearurl_result{
+            abs_url,
+            clean_url,
+            is_dirty,
+            dirty_parameters};
     }
 
     vector<string> j_strarr(json& j, string prop_name) {
@@ -86,7 +135,8 @@ namespace bt::security {
                     providers.emplace_back(provider_name, regex,
                         j_strarr(j_p, "rules"),
                         j_strarr(j_p, "exceptions"),
-                        j_strarr(j_p, "redirections"));
+                        j_strarr(j_p, "redirections"),
+                        j_strarr(j_p, "rawRules"));
                 }
             }
 
