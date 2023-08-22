@@ -6,7 +6,15 @@
 ### New
 
 - Tray menu has "URL Tester" shortcut.
-- "buy me a coffee" link removed from the tray icon and status bar, because no one is donating.
+- "buy me a coffee" link removed from the tray icon and status bar, because no one is donating. Everything irrelevant removed too, trying to be more ergonomic.
+
+### Improvements
+
+- Slightly redesigned "URL Tester" window for better user workflow.
+
+### Bugs Fixed
+
+- Clicking on update notification was opening home page, but it should just go to [GitHub Releases page](https://github.com/aloneguid/bt/releases).
 
 ## 3.4.2
 

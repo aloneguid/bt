@@ -128,7 +128,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                         m.show();
                         break;
                     case NIN_BALLOONUSERCLICK:
-                        bt::ui::url_open(bt::url_payload{string(APP_URL) + "#installing"}, bt::ui::open_method::configured);
+                        bt::ui::url_open(bt::url_payload{APP_GITHUB_RELEASES_URL}, bt::ui::open_method::configured);
                         break;
                 }
                 break;
