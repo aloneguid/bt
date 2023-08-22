@@ -2,7 +2,7 @@
 
 ### New
 
-- Added support for URL un-shortening.
+- Added support for [URL un-shortening](https://aloneguid.github.io/bt/url-processing.html#un-shortening).
 - Tray menu has "URL Tester" shortcut.
 - "buy me a coffee" link removed from the tray icon and status bar, because no one is donating. Everything irrelevant removed too, trying to be more ergonomic.
 

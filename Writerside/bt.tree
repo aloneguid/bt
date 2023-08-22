@@ -7,7 +7,6 @@
                  start-page="home.md">
 
     <toc-element topic="home.md"/>
-    <toc-element topic="url-processing.md"/>
     <toc-element topic="Installing.md">
         <toc-element topic="install-msi.md"/>
         <toc-element topic="install-zip.md"/>
@@ -18,6 +17,7 @@
     <toc-element topic="config-basic.md"/>
     <toc-element topic="rules.md"/>
     <toc-element topic="picker.md"/>
+    <toc-element topic="url-processing.md"/>
     <toc-element topic="Browser-Extensions.md"/>
     <toc-element topic="mozilla-firefox.md">
         <toc-element topic="firefox-containers.md"/>

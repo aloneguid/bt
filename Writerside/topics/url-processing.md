@@ -10,10 +10,10 @@ For instance pressing [https://bit.ly/47EZHSl](https://bit.ly/47EZHSl) will actu
 
 %product% supports the most popular URL shorteners, the list of which you can find [here](https://github.com/aloneguid/bt/blob/master/bt/app/pipeline/unshortener.cpp). If it's not in the list, fire up an issue or a PR.
 
-If for some reason you don't like to un-shorten URLs, the tool can be disabled from "Tools->Enable URL Un-Shortener" menu.
+If for some reason you don't like to un-shorten URLs, the tool can be disabled from `Tools`->`Enable URL Un-Shortener` menu.
 
 ### Testing
 
-You can test the un-shortener by using the "URL Tester" tool, which can be called from "Tools->URL Tester" menu:
+You can test the un-shortener by using the "URL Tester" tool, which can be called from `Tools`->`URL Tester` menu:
 
-![](unshorten.png)
+<img src="unshorten.png" width="500"/>

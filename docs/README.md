@@ -20,6 +20,7 @@
 - Add your own, custom browser or application customised with any parameters you want.
 - Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
 - Assign rule priorities.
+- Support for [shortened URLs](https://aloneguid.github.io/bt/url-processing.html#un-shortening).
 - **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox etc.).
 - Open links in ["chromeless (frameless)" window](https://aloneguid.github.io/bt/rules.html#frameless-windows).
 - Optional [audit](https://aloneguid.github.io/bt/config-basic.html#audit) of rule hits to a csv file.
