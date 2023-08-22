@@ -1,11 +1,6 @@
-﻿#include "bt.h"
-#include <fmt/core.h>
+﻿#include <fmt/core.h>
 #include "globals.h"
 #include "app/ui.h"
-#include "../common/win32/npipe.h"
-#include "../common/win32/user.h"
-#include "../common/win32/kernel.h"
-#include "../common/fss.h"
 #include "../common/str.h"
 #include "win32/app.h"
 #include "win32/process.h"
@@ -24,6 +19,7 @@ static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x
 
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION};
+bt::url_pipeline pipeline;
 lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
 lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> open_on_match_event;
 
@@ -116,10 +112,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
-    m.add("$", "Buy me a coffee!");
-    m.add("contact", "Contact");
-    m.add("?", "Project website");
-    m.add("doc", "Documentation");
+    m.add("url", "URL Tester");
     m.separator();
     m.add("x", "&Exit");
 
@@ -144,16 +137,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                 string id = m.id_from_loword_wparam(loword_wparam);
                 if(id == "cfg") {
                     bt::ui::config();
+                } else if(id == "url") {
+                    bt::ui::url_tester();
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
-                } else if(id == "$") {
-                    bt::ui::coffee("shell_icon");
-                } else if(id == "contact") {
-                    bt::ui::contact();
-                } else if(id == "?") {
-                    bt::ui::url_open(bt::url_payload{APP_URL}, bt::ui::open_method::configured);
-                } else if(id == "doc") {
-                    bt::ui::url_open(bt::url_payload{APP_DOCS_URL}, bt::ui::open_method::configured);
                 }
                 }
                 break;

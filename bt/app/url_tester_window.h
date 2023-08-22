@@ -1,6 +1,7 @@
 #pragma once
 #include "grey.h"
 #include "browser.h"
+#include "url.h"
 
 namespace bt {
     class url_tester_window : public grey::window {
@@ -10,11 +11,11 @@ namespace bt {
     private:
         std::shared_ptr<grey::complex_table<browser_match_result>> tbl;
         std::vector<std::shared_ptr<browser_match_result>> matches;
-        std::string proto;
-        std::string host;
-        std::string path;
+        std::string raw_url;
+        std::string clear_url;
+        url u{""};
 
-        void match(const std::string& s);
+        void match();
         std::string to_icon(match_scope scope);
     };
 }

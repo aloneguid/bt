@@ -61,7 +61,6 @@ namespace bt
         void build_default_browser_menu();
         void build_status_bar();
         void refresh_proto_status(std::shared_ptr<grey::label> lbl, bool is);
-        void open_url_tester();
 
         void handle_selection(std::shared_ptr<bt::browser> b);
         void handle_menu_click(grey::menu_item& mi);

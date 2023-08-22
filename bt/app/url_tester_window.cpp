@@ -1,46 +1,58 @@
 #include "url_tester_window.h"
-#include "discovery.h"
-#include "config.h"
+#include "../globals.h"
 
 using namespace std;
 using namespace grey;
 
 namespace bt {
-    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 500, 350} {
+    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 600, 300} {
         can_resize = false;
         float scale = ctx.get_system_scale();
-        make_label("Input URL");
-        auto txt_url = make_input("Input URL");
-        txt_url->lines = 3;
+        make_label("Input:");
+        auto txt_url = make_input(ICON_FA_GLOBE, &raw_url);
+        txt_url->tooltip = "Type your URL here to test";
 
         spacer();
-        make_input("protocol", &proto)->is_enabled = false;
-        make_input("domain", &host)->is_enabled = false;
-        make_input("path", &path)->is_enabled = false;
+        make_label("Results:");
+        auto txt_clear_url = make_input(ICON_FA_GLOBE, &clear_url);
+        txt_clear_url->tooltip = "Clear URL";
+
+        auto txt_host = make_input(ICON_FA_LANDMARK_DOME, &u.host);
+        txt_host->set_is_readonly();
+        txt_host->width = 300;
+        txt_host->tooltip = "Host name";
+
+        same_line();
+        auto txt_query = make_input(ICON_FA_LINES_LEANING, &u.query);
+        txt_query->set_is_readonly();
+        txt_query->tooltip = "Query string";
 
         spacer();
         make_label("Matches:");
-        auto w_matches = make_child_window(600 * scale, 100 * scale);
+
+        auto w_matches = make_child_window(0, 80 * scale);
         tbl = w_matches->make_complex_table<browser_match_result>({"rule", "browser", "profile"});
         tbl->stretchy = true;
 
-        txt_url->on_value_changed = [this](string& s) { match(s); };
-
+        spacer();
         separator();
         auto cmd_close = make_button("Close");
         cmd_close->on_pressed = [this](button&) {
             close();
         };
 
-        match("");
+        txt_url->on_value_changed = [this](string&) { match(); };
+
+        match();
     }
 
-    void url_tester_window::match(const string& s) {
-        match_rule::parse_url(s, proto, host, path);
+    void url_tester_window::match() {
+        clear_url = pipeline.process(raw_url);
+        u = url{clear_url};
 
         string cu;
         matches.clear();
-        for(auto& m : browser::match(browser::get_cache(), s, cu)) {
+        for(auto& m : browser::match(browser::get_cache(), clear_url, cu)) {
             matches.push_back(make_shared<browser_match_result>(m));
         }
         tbl->clear();

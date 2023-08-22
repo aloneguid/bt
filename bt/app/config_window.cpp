@@ -139,15 +139,6 @@ namespace bt
 
         bc->is_enabled = pc->is_enabled = rc->is_enabled = false;
 
-
-        status->make_label("|")->is_enabled = false;
-        auto coffee = status->make_label(ICON_FA_MUG_HOT);
-        coffee->set_emphasis(emphasis::warning);
-        coffee->tooltip = "I need some coffee to work on the next version ;)";
-        coffee->on_click = [this](component&) {
-            bt::ui::coffee("status_bar");
-        };
-
         status->on_frame = [this, bc, pc, rc](component&) {
             bc->set_value(fmt::format("{} {}", ICON_FA_WINDOW_RESTORE, browsers.size()));
 
@@ -173,12 +164,6 @@ namespace bt
             lbl->set_emphasis(emphasis::error);
             lbl->tooltip = fmt::format("{} protocol is not handled by {},\ninterception will not work!", lbl->get_value(), APP_LONG_NAME);
         }
-    }
-
-    void config_window::open_url_tester() {
-        auto w = gctx.make_window<url_tester_window>();
-        w->detach_on_close = true;
-        w->center();
     }
 
     void config_window::build_menu() {
@@ -238,6 +223,10 @@ namespace bt
         auto mi_log_rule_hits = mi_settings->add("log_rule_hits", "Log Rule Hits to File");
         mi_log_rule_hits->is_selected = log_rule_hits;
 
+        mi_settings->add("", "-");
+        auto mi_cu = mi_settings->add("clearurls", "Enable ClearURLs", ICON_FA_TRASH_CAN);   // icon closely matches official
+        mi_cu->is_selected = config::i.get_clearurls_enabled();
+
         // HELP
         auto mi_help = menu->items()->add("", "Help");
 
@@ -247,7 +236,7 @@ namespace bt
         mi_links->add("edge_ex", "Microsoft Edge", ICON_FA_EDGE);
 
         mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
-        mi_help->add("coffee", "Buy Me a Coffee", ICON_FA_MUG_HOT);
+        mi_help->add("coffee", "Donate", ICON_FA_MUG_HOT);
         mi_help->add("releases", "All Releases", ICON_FA_CLOCK_ROTATE_LEFT);
         mi_help->add("check_version", "Check for Updates", ICON_FA_CODE_BRANCH);
 
@@ -536,7 +525,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "dash") {
             dash_visible = true;
         } else if(mi.id == "test") {
-            open_url_tester();
+            ui::url_tester();
         } else if(mi.id == "windows_defaults") {
             win32::shell::open_default_apps();
         } else if(mi.id == "refresh") {
@@ -588,6 +577,10 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
             update_firefox_mode(true, config::to_firefox_container_mode(name));
+        } else if(mi.id == "clearurls") {
+            mi.is_selected = !mi.is_selected;
+            config::i.set_clearurls_enabled(mi.is_selected);
+            pipeline.reconfigure();
         }
     }
 
@@ -921,7 +914,7 @@ special keyword - %url% which is replaced by opening url.)";
         };
 
         rt->on_pressed = [this](button&) {
-            open_url_tester();
+            ui::url_tester();
         };
     }
 

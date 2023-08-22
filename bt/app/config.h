@@ -53,6 +53,9 @@ namespace bt {
         bool get_show_hidden_browsers();
         void set_show_hidden_browsers(bool show);
 
+        bool get_clearurls_enabled();
+        void set_clearurls_enabled(bool enabled);
+
         // --- browser/instance
         
         void save_browsers(std::vector<std::shared_ptr<browser>> browsers);
@@ -75,6 +78,8 @@ namespace bt {
 
         // global instance
         static config i;
+
+        static std::string get_data_file_path(const std::string& name);
 
     private:
         void ensure_instance_id();

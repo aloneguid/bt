@@ -1,4 +1,5 @@
 #include "rule_hit_log.h"
+#include "config.h"
 #include <filesystem>
 #include "fss.h"
 #include "win32/shell.h"
@@ -14,7 +15,10 @@ namespace bt {
     const string FileName = "hit_log.csv";
     rule_hit_log rule_hit_log::i;
 
-    rule_hit_log::rule_hit_log() : path{get_file_path()}, stream(path, ofstream::out | ofstream::app | ofstream::ate), writer(stream) {
+    rule_hit_log::rule_hit_log() : 
+        path{config::get_data_file_path(FileName)},
+        stream(path, ofstream::out | ofstream::app | ofstream::ate),
+        writer(stream) {
         if(stream.tellp() == 0) {
             writer.write_row(vector<string> {
                 "timestamp",
@@ -42,11 +46,5 @@ namespace bt {
             url.window_title
         });
         stream.flush();
-    }
-
-    std::string rule_hit_log::get_file_path() {
-        return fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
-            ? (fs::path{fss::get_current_dir()} / FileName).string()
-            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / FileName).string();
     }
 }

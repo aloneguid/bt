@@ -15,9 +15,10 @@ enable_testing()
 file(GLOB cpps CONFIGURE_DEPENDS
     "*.cpp"
     "../common/*.cpp"
-    "../bt/app/match_rule.cpp")
+    "../bt/app/match_rule.cpp"
+    "../bt/app/security/*.cpp")
 
-add_executable(test "rules.cpp" ${cpps})
+add_executable(test ${cpps})
 
 include(GoogleTest)
 gtest_discover_tests(test)

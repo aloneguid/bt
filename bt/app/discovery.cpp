@@ -1,5 +1,6 @@
 #include "discovery.h"
 #include "fss.h"
+#include "config.h"
 #include "glob.hpp"
 #include "str.h"
 #include "win32/shell.h"
