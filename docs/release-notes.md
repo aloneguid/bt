@@ -6,7 +6,7 @@
 ### New
 
 - Tray menu has "URL Tester" shortcut.
-- "buy me a coffee" link removed from the tray icon and status bar, because no one is donating, you cheap bastards!
+- "buy me a coffee" link removed from the tray icon and status bar, because no one is donating.
 
 ## 3.4.2
 
