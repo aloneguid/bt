@@ -38,7 +38,7 @@ jobs:
       with:
         committish: ${{ env.VCPKG_HASH }} 
         # set to false to clear any cache in case of build errors
-        cache: true
+        cache: false
 
     - name: ⚙️ configure
       run: >
