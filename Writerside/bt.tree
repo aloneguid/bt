@@ -7,6 +7,7 @@
                  start-page="home.md">
 
     <toc-element topic="home.md"/>
+    <toc-element topic="url-processing.md"/>
     <toc-element topic="Installing.md">
         <toc-element topic="install-msi.md"/>
         <toc-element topic="install-zip.md"/>

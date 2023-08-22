@@ -21,7 +21,7 @@ namespace bt {
     const string LogRuleHitsKey = "log_rule_hits";
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
-    const string ClearURLsEnabledKey = "clearurls_enabled";
+    const string UnshortEnabledKey = "unshort_enabled";
 
     common::config cfg{config::get_data_file_path(FileName)};
 
@@ -201,12 +201,12 @@ namespace bt {
         cfg.commit();
     }
 
-    bool config::get_clearurls_enabled() {
-        return cfg.get_bool_value(ClearURLsEnabledKey, false);
+    bool config::get_unshort_enabled() {
+        return cfg.get_bool_value(UnshortEnabledKey, true);
     }
 
-    void config::set_clearurls_enabled(bool enabled) {
-        cfg.set_bool_value(ClearURLsEnabledKey, enabled);
+    void config::set_unshort_enabled(bool enabled) {
+        cfg.set_bool_value(UnshortEnabledKey, enabled);
         cfg.commit();
     }
 

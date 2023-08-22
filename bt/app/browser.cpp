@@ -89,6 +89,7 @@ namespace bt {
         const std::string& raw_url, std::string& url_to_open) {
         vector<browser_match_result> r;
         string url = raw_url;
+        url = pipeline.process(url);
         preprocess_url(url);
         url_to_open = url;
 

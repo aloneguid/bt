@@ -1,10 +1,8 @@
 ## 3.5.0
 
-- todo: ClearURLs
-- todo: bug: "check for updates" was opening home page instead of GitHub releases.
-
 ### New
 
+- Added support for URL un-shortening.
 - Tray menu has "URL Tester" shortcut.
 - "buy me a coffee" link removed from the tray icon and status bar, because no one is donating. Everything irrelevant removed too, trying to be more ergonomic.
 

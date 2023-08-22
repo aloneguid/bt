@@ -3,7 +3,7 @@
 #include <vector>
 #include "../url_pipeline_step.h"
 
-namespace bt::security {
+namespace bt::pipeline {
     class clearurl_provider {
     public:
         clearurl_provider(const std::string& name, const std::string& regex,

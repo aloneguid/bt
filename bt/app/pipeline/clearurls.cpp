@@ -11,7 +11,7 @@ using namespace std;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-namespace bt::security {
+namespace bt::pipeline {
 
     const string DataFileName = "clearurls_db.json";
 
