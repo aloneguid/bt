@@ -5,7 +5,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: 77ed341f9fa24185a1540b2bd4f32e45c9f7c4cb
+  VCPKG_HASH: d5b03c125afee1d9cef38f4cfa77e229400fb48a
   DOC_ARTIFACT: webHelpBT2-all.zip
 
 on: [push, workflow_dispatch]
