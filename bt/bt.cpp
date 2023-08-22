@@ -56,11 +56,7 @@ void execute(const string& data) {
 
 void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
     t.track(map<string, string> {
-        { "event", "ping" },
-        { "log_rule_hits", bt::config::i.get_log_rule_hits() ? "y" : "n" },
-        { "theme", bt::config::i.get_theme() },
-        { "unshort", bt::config::i.get_unshort_enabled() ? "y" : "n" },
-        { "browsers_total", std::to_string(bt::browser::get_cache().size()) }
+        { "event", "ping" }
     }, true);
 }
 
