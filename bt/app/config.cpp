@@ -4,7 +4,6 @@
 #include "win32/ole32.h"
 #include "win32/shell.h"
 #include "str.h"
-#include "config/config.h"
 #include <fmt/core.h>
 #include <filesystem>
 #include "fss.h"
@@ -23,11 +22,7 @@ namespace bt {
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
 
-    common::config cfg{config::get_data_file_path(FileName)};
-
-    config config::i;
-
-    config::config() {
+    config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
         ensure_instance_id();
     }

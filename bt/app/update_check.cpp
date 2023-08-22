@@ -17,12 +17,12 @@ namespace bt::app {
         string latest_version = ghr.tag;
         bool has_update = !latest_version.empty() && latest_version != APP_VERSION;
         latest_version_number = has_update ? latest_version : APP_VERSION;
-        bt::config::i.set_last_update_check_time_to_now();
+        g_config.set_last_update_check_time_to_now();
         return has_update;
     }
 
     bool should_check_new_version() {
-        auto last_checked = bt::config::i.get_last_update_check_time();
+        auto last_checked = g_config.get_last_update_check_time();
         auto diff = system_clock::now() - last_checked;
         auto hours = duration_cast<std::chrono::hours>(diff).count();
         return hours >= 24;

@@ -27,7 +27,7 @@ namespace bt::ui {
 
     void set_main_instance() {
         is_main_instance = true;
-        t.add_constant("iid", config::i.get_iid());
+        t.add_constant("iid", g_config.get_iid());
 
         t.track(map<string, string> {
             { "event", "start" }
@@ -60,7 +60,7 @@ namespace bt::ui {
         string title = fmt::format("{} {}", APP_LONG_NAME, APP_VERSION);
         active_backend = grey::backend::make_platform_default(title);
 
-        string theme_id = config::i.get_theme();
+        string theme_id = g_config.get_theme();
         if(!theme_id.empty()) {
             active_backend->set_theme(theme_id);
         }
@@ -81,7 +81,7 @@ namespace bt::ui {
     void url_open(url_payload up, open_method method) {
         // read in method if required
         if(method == open_method::configured) {
-            auto sm = config::i.get_open_method();
+            auto sm = g_config.get_open_method();
             if(sm == "silent") {
                 method = open_method::silent;
             } else if(sm == "pick") {
@@ -173,7 +173,7 @@ namespace bt::ui {
     }
 
     bool is_picker_hotkey_down() {
-        string hk = config::i.get_picker_hotkey();
+        string hk = g_config.get_picker_hotkey();
 
         if(hk == "cs") return win32::user::is_kbd_ctrl_down() && win32::user::is_kbd_shift_down();
         if(hk == "ca") return win32::user::is_kbd_ctrl_down() && win32::user::is_kbd_alt_down();

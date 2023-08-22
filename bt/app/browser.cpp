@@ -46,13 +46,13 @@ namespace bt {
 
     std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {
         if(reload || cache.empty())
-            cache = config::i.load_browsers();
+            cache = g_config.load_browsers();
 
         return cache;
     }
 
     void browser::persist_cache() {
-        config::i.save_browsers(cache);
+        g_config.save_browsers(cache);
     }
 
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(const std::vector<std::shared_ptr<browser>>& browsers) {
@@ -89,7 +89,7 @@ namespace bt {
         const std::string& raw_url, std::string& url_to_open) {
         vector<browser_match_result> r;
         string url = raw_url;
-        url = pipeline.process(url);
+        url = g_pipeline.process(url);
         preprocess_url(url);
         url_to_open = url;
 
@@ -118,7 +118,7 @@ namespace bt {
     }
 
     shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>>& browsers) {
-        string lsn = config::i.get_fallback_long_sys_name();
+        string lsn = g_config.get_fallback_long_sys_name();
 
         bool found;
         auto bi = find_profile_by_long_id(browsers, lsn, found);

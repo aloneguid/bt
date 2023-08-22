@@ -4,6 +4,7 @@
 #include <vector>
 #include <chrono>
 #include "browser.h"
+#include "config/config.h"
 
 namespace bt {
 
@@ -75,13 +76,11 @@ namespace bt {
         static std::string firefox_container_mode_to_string(firefox_container_mode mode);
         static firefox_container_mode to_firefox_container_mode(const std::string& name);
 
-
-        // global instance
-        static config i;
-
         static std::string get_data_file_path(const std::string& name);
 
     private:
+        common::config cfg;
+
         void ensure_instance_id();
         void migrate();
     };

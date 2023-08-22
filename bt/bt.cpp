@@ -7,6 +7,7 @@
 #include "win32/shell_notify_icon.h"
 #include "win32/popup_menu.h"
 #include "app/config.h"
+#include "app/url_pipeline.h"
 #include "app/setup.h"
 #include "app/update_check.h"
 #include "win32/window.h"
@@ -19,7 +20,8 @@ static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x
 
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION};
-bt::url_pipeline pipeline;
+bt::config g_config;
+bt::url_pipeline g_pipeline{g_config};
 lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
 lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> open_on_match_event;
 
@@ -56,13 +58,17 @@ void execute(const string& data) {
 
 void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
     t.track(map<string, string> {
-        { "event", "ping" }
+        {"event", "ping"},
+        {"log_rule_hits", g_config.get_log_rule_hits() ? "y" : "n"},
+        {"theme", g_config.get_theme()},
+        {"unshort", g_config.get_unshort_enabled() ? "y" : "n"},
+        {"browsers_total", std::to_string(bt::browser::get_cache().size())}
     }, true);
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
-    if(bt::config::i.get_flag("debug_args") == "y") {
+    if(g_config.get_flag("debug_args") == "y") {
         wostringstream msg;
         msg << "count: " << argc << endl;
         for(int i = 0; i < argc; i++) {
@@ -183,7 +189,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     });
 
     open_on_match_event.connect([&sni](const bt::url_payload& url, const bt::browser_match_result& bmr) {
-        if(bt::config::i.get_log_rule_hits()) {
+        if(g_config.get_log_rule_hits()) {
             bt::rule_hit_log::i.write(url, bmr);
         }
     });

@@ -169,7 +169,7 @@ namespace bt {
 
             fs::path ini_path = fs::path{ad} / vdf / "profiles.ini";
             if(fs::exists(ini_path)) {
-                firefox_container_mode container_mode = config::i.get_firefox_container_mode();
+                firefox_container_mode container_mode = g_config.get_firefox_container_mode();
 
                 CSimpleIniA ini;
                 ini.LoadFile(ini_path.c_str());

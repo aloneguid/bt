@@ -17,6 +17,7 @@
 #include "rule_hit_log.h"
 #include "ui.h"
 #include "update_check.h"
+#include "url_pipeline.h"
 
 using namespace std;
 using namespace grey;
@@ -38,8 +39,8 @@ namespace bt
 
         // restore from config
         // todo: move more here
-        log_rule_hits = config::i.get_log_rule_hits();
-        show_hidden_browsers = config::i.get_show_hidden_browsers();
+        log_rule_hits = g_config.get_log_rule_hits();
+        show_hidden_browsers = g_config.get_show_hidden_browsers();
 
         // build UI
 
@@ -225,7 +226,7 @@ namespace bt
 
         mi_settings->add("", "-");
         auto mi_cu = mi_settings->add("unshort", "Enable URL Un-Shortener", ICON_FA_SHIRT); 
-        mi_cu->is_selected = config::i.get_unshort_enabled();
+        mi_cu->is_selected = g_config.get_unshort_enabled();
 
         // HELP
         auto mi_help = menu->items()->add("", "Help");
@@ -295,7 +296,7 @@ namespace bt
 
                 if(b->is_firefox) {
 
-                    auto cm = config::i.get_firefox_container_mode();
+                    auto cm = g_config.get_firefox_container_mode();
 
                     if(cm == firefox_container_mode::off) {
                         g_static->same_line();
@@ -319,7 +320,7 @@ namespace bt
                         cmd_x->set_emphasis(emphasis::warning);
                         cmd_x->on_pressed = [this, b](button&) {
                             // extenstion page needs to be opened in Firefox bypassing container mode
-                            auto mode = config::i.get_firefox_container_mode();
+                            auto mode = g_config.get_firefox_container_mode();
                             string url = mode == firefox_container_mode::bt
                                 ? APP_BROWSER_EXTENSION_FIREFOX_URL
                                 : APP_BROWSER_EXTENSION_FIREFOX_OUIC_URL;
@@ -355,7 +356,7 @@ namespace bt
                 // erase and save
                 vector<shared_ptr<browser>> all = browser::get_cache();
                 std::erase_if(all, [b](auto i) { return i->id == b->id; });
-                config::i.save_browsers(all);
+                g_config.save_browsers(all);
                 browser::get_cache(true); // invalidate
 
                 // rebuild profiles
@@ -480,9 +481,9 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "x") {
             ::PostQuitMessage(0);
         } else if(mi.id == "ini") {
-            win32::shell::exec(config::i.get_absolute_path(), "");
+            win32::shell::exec(g_config.get_absolute_path(), "");
         } else if(mi.id == "ini+c") {
-            win32::clipboard::set_ascii_text(config::i.get_absolute_path());
+            win32::clipboard::set_ascii_text(g_config.get_absolute_path());
         } else if(mi.id == "csv") {
             win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
         } else if(mi.id == "csv+c") {
@@ -550,12 +551,12 @@ special keyword - %url% which is replaced by opening url.)";
                url_payload{APP_BROWSER_EXTENSION_EDGE_URL},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
-            config::i.set_picker_enabled(!mi.is_selected);
+            g_config.set_picker_enabled(!mi.is_selected);
             mi.is_selected = !mi.is_selected;
             ui::ensure_no_instances();
         } else if(mi.id == "log_rule_hits") {
             mi.is_selected = !mi.is_selected;
-            config::i.set_log_rule_hits(mi.is_selected);
+            g_config.set_log_rule_hits(mi.is_selected);
             ui::ensure_no_instances();
         } else if(mi.id.starts_with("set_fallback_")) {
             string lsn = mi.id.substr(13);
@@ -573,14 +574,14 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id.starts_with("set_theme_")) {
             string id = mi.id.substr(10);
             gctx.set_theme(id);
-            config::i.set_theme(id);
+            g_config.set_theme(id);
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
             update_firefox_mode(true, config::to_firefox_container_mode(name));
         } else if(mi.id == "unshort") {
             mi.is_selected = !mi.is_selected;
-            config::i.set_unshort_enabled(mi.is_selected);
-            pipeline.reconfigure();
+            g_config.set_unshort_enabled(mi.is_selected);
+            g_pipeline.reconfigure();
         }
     }
 
@@ -695,7 +696,7 @@ special keyword - %url% which is replaced by opening url.)";
     void config_window::rediscover_browsers() {
         vector<shared_ptr<browser>> fresh_browsers = discovery::discover_all_browsers();
         fresh_browsers = browser::merge(fresh_browsers, browser::get_cache());
-        config::i.save_browsers(fresh_browsers);
+        g_config.save_browsers(fresh_browsers);
 
         browser::get_cache(true);   // invalidate cache
 
@@ -714,7 +715,7 @@ special keyword - %url% which is replaced by opening url.)";
 
         vector<shared_ptr<browser>> all = browser::get_cache();
         all.push_back(b);
-        config::i.save_browsers(all);
+        g_config.save_browsers(all);
         browser::get_cache(true); // invalidate
 
         build_browsers();
@@ -919,7 +920,7 @@ special keyword - %url% which is replaced by opening url.)";
     }
 
     void config_window::set_fallback(std::shared_ptr<browser_instance> bi) {
-        config::i.set_fallback(bi->long_id());
+        g_config.set_fallback(bi->long_id());
         build_browsers();
         ui::ensure_no_instances();
     }
@@ -932,9 +933,9 @@ special keyword - %url% which is replaced by opening url.)";
         string to = update_to;
 
         if(to.empty()) {
-            to = config::i.get_open_method();
+            to = g_config.get_open_method();
         } else {
-            config::i.set_open_method(to);
+            g_config.set_open_method(to);
         }
 
         if(to == "silent") {
@@ -956,17 +957,17 @@ special keyword - %url% which is replaced by opening url.)";
 
         // update config if required
         if(to.empty()) {
-            if(config::i.get_picker_enabled()) {
-                to = config::i.get_picker_hotkey();
+            if(g_config.get_picker_enabled()) {
+                to = g_config.get_picker_hotkey();
             } else {
                 to = "never";
             }
         } else {
             if(to == "never") {
-                config::i.set_picker_enabled(false);
+                g_config.set_picker_enabled(false);
             } else {
-                config::i.set_picker_enabled(true);
-                config::i.set_picker_hotkey(to);
+                g_config.set_picker_enabled(true);
+                g_config.set_picker_hotkey(to);
             }
         }
 
@@ -985,10 +986,10 @@ special keyword - %url% which is replaced by opening url.)";
         mi_ff_mode_off->is_selected = mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
 
         if(update) {
-            config::i.set_firefox_container_mode(mode);
+            g_config.set_firefox_container_mode(mode);
         }
 
-        mode = config::i.get_firefox_container_mode();
+        mode = g_config.get_firefox_container_mode();
         switch(mode) {
             case bt::firefox_container_mode::off:
                 mi_ff_mode_off->is_selected = true;

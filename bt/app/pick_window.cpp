@@ -22,10 +22,10 @@ namespace bt {
         std::vector<shared_ptr<browser_instance>> choices)
         : window{mgr, "Pick a Browser", width, height}, up{up}, scale{mgr.get_system_scale()} {
 
-        persist_popularity = config::i.get_persist_popularity();
+        persist_popularity = g_config.get_persist_popularity();
 
         for (auto bi : choices) {
-            bi->popularity = config::i.get_popularity(bi->long_id());
+            bi->popularity = g_config.get_popularity(bi->long_id());
             this->choices.push_back(bi);
         }
 
@@ -61,7 +61,7 @@ namespace bt {
         auto chk_persist_popularity = make_checkbox(ICON_FA_ARROW_DOWN_9_1, &persist_popularity);
         chk_persist_popularity->render_as_icon = true;
         chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
-        chk_persist_popularity->on_value_changed = [](bool v) { config::i.set_persist_popularity(v); };
+        chk_persist_popularity->on_value_changed = [](bool v) { g_config.set_persist_popularity(v); };
 
         auto wo = make_child_window(0, 0);
         //wo->padding_bottom = 89 * scale;
@@ -123,7 +123,7 @@ namespace bt {
         rpt->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser_instance> bi) {
             bi->launch(up);
             bi->popularity += 1;
-            config::i.set_popularity(bi->long_id(), bi->popularity);
+            g_config.set_popularity(bi->long_id(), bi->popularity);
 
             if(persist_domain) {
                 string rule_value = str::get_domain_from_url(up.url);

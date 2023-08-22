@@ -47,7 +47,7 @@ namespace bt {
     }
 
     void url_tester_window::match() {
-        clear_url = pipeline.process(raw_url);
+        clear_url = g_pipeline.process(raw_url);
         u = url{clear_url};
 
         string cu;

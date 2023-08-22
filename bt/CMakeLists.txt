@@ -47,6 +47,22 @@ target_sources(bt PRIVATE dpi-aware.manifest)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup")
 
+# include .pdb symbol generation
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CMAKE_BUILD_TYPE MATCHES "Release")
+   target_compile_options(${APP_NAME} PRIVATE /Zi)
+
+   # Tell linker to include symbol data
+    set_target_properties(${APP_NAME} PROPERTIES 
+        LINK_FLAGS "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
+    )
+
+    # Set file name & location
+    set_target_properties(${APP_NAME} PROPERTIES 
+        COMPILE_PDB_NAME ${APP_NAME} 
+        COMPILE_PDB_OUTPUT_DIR ${CMAKE_BINARY_DIR}
+    )
+endif()
+
 # packaging
 # see https://github.com/WerWolv/ImHex/blob/5680b90549dc940772daf3d31c72afd62f28b38f/cmake/build_helpers.cmake#L133
 # wix variables: https://cmake.org/cmake/help/latest/cpack_gen/wix.html
