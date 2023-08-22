@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "../url_pipeline_step.h"
 
 namespace bt::security {
     class clearurl_provider {
@@ -39,7 +40,7 @@ namespace bt::security {
      * 3. if "redirections" are defined, match them. If a redirection is matched, the url has to be transformed to search results's first subgroup (i.e. https://google.com/....&url=(submatch)&.... redirects to "submatch"
      * 4. perform parameter replacements from the "rules" section. "rawRules" perform replacement on the entire URL.
     */
-    class clearurls {
+    class clearurls : public url_pipeline_step {
     public:
         clearurls();
 
@@ -48,5 +49,8 @@ namespace bt::security {
     private:
         std::vector<clearurl_provider> providers;
         void load_db();
+
+        // Inherited via url_pipeline_step
+        std::string process(const std::string& url) override;
     };
 }

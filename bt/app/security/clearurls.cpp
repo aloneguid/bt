@@ -46,6 +46,9 @@ namespace bt::security {
                 }
 
                 // match found!
+                for(const string& rdr : p.redirections) {
+
+                }
 
                 // we are going to try "rawRules" (bold replacement)
                 for(const string& rr : p.raw_rules) {
@@ -83,6 +86,7 @@ namespace bt::security {
                     is_dirty = true;
                 }
 
+                // if "completeProvider" is false then just continue?
                 break;
             }
 
@@ -144,5 +148,10 @@ namespace bt::security {
         } catch(json::type_error) {
         }
         
+    }
+
+    std::string clearurls::process(const std::string& url) {
+        auto cr = clear(url);
+        return cr.clear_url;
     }
 }

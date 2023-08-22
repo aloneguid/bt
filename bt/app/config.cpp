@@ -21,6 +21,7 @@ namespace bt {
     const string LogRuleHitsKey = "log_rule_hits";
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
+    const string ClearURLsEnabledKey = "clearurls_enabled";
 
     common::config cfg{config::get_data_file_path(FileName)};
 
@@ -197,6 +198,15 @@ namespace bt {
 
     void config::set_show_hidden_browsers(bool show) {
         cfg.set_bool_value(ShowHiddenBrowsersKey, show);
+        cfg.commit();
+    }
+
+    bool config::get_clearurls_enabled() {
+        return cfg.get_bool_value(ClearURLsEnabledKey, false);
+    }
+
+    void config::set_clearurls_enabled(bool enabled) {
+        cfg.set_bool_value(ClearURLsEnabledKey, enabled);
         cfg.commit();
     }
 

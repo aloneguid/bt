@@ -223,6 +223,10 @@ namespace bt
         auto mi_log_rule_hits = mi_settings->add("log_rule_hits", "Log Rule Hits to File");
         mi_log_rule_hits->is_selected = log_rule_hits;
 
+        mi_settings->add("", "-");
+        auto mi_cu = mi_settings->add("clearurls", "Enable ClearURLs", ICON_FA_TRASH_CAN);   // icon closely matches official
+        mi_cu->is_selected = config::i.get_clearurls_enabled();
+
         // HELP
         auto mi_help = menu->items()->add("", "Help");
 
@@ -573,6 +577,10 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
             update_firefox_mode(true, config::to_firefox_container_mode(name));
+        } else if(mi.id == "clearurls") {
+            mi.is_selected = !mi.is_selected;
+            config::i.set_clearurls_enabled(mi.is_selected);
+            pipeline.reconfigure();
         }
     }
 

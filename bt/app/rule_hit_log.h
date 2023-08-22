@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include "browser.h"
-#include <fstream>
 #include <csv2/writer.hpp>
 
 namespace bt {
@@ -20,7 +19,5 @@ namespace bt {
         std::string path;
         std::ofstream stream;
         csv2::Writer<csv2::delimiter<','>> writer;
-
-        static std::string get_file_path();
     };
 }

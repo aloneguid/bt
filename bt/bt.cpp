@@ -19,6 +19,7 @@ static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x
 
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION};
+bt::url_pipeline pipeline;
 lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
 lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> open_on_match_event;
 

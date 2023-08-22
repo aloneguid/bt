@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
-#include <vector>
-#include <chrono>
-#include "app/config.h"
 #include "ext/lsignal/lsignal.h"
 #include "ext/alg_tracker.h"
 #include "app/browser.h"
+#include "app/url_pipeline.h"
 
 const std::string Win32ClassName("BTWindow");
 const std::string AppGuid("026741D2-FF77-462B-AD70-4140697C8AE1");
@@ -25,6 +23,8 @@ const std::string ArgSplitter = "|";
 const std::string PortableMarkerName = ".portable";
 
 extern alg::tracker t;
+
+extern bt::url_pipeline pipeline;
 
 /**
  * @brief Simple global app event. Args:
