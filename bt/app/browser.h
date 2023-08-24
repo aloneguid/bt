@@ -81,7 +81,6 @@ namespace bt {
         static std::vector<std::shared_ptr<browser>> cache;
         const bool supports_frameless_windows;
 
-        static void preprocess_url(std::string& url);
         static std::string get_image_name(const std::string& open_cmd);
 
         static bool is_chromium_browser(const std::string& system_id);

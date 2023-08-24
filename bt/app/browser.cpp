@@ -90,7 +90,6 @@ namespace bt {
         vector<browser_match_result> r;
         string url = raw_url;
         url = g_pipeline.process(url);
-        preprocess_url(url);
         url_to_open = url;
 
         // which browser should we use?
@@ -176,18 +175,6 @@ namespace bt {
         }
 
         return r;
-    }
-
-    void browser::preprocess_url(std::string& url) {
-        // https://eur02.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.microsoft.com%2Fen-us%2Fazure%2Fdatabricks%2Fsecurity%2Fsecrets%2Fsecrets&data=04%7C01%7Civan.gavryliuk%40digital.homeoffice.gov.uk%7C69bc2c30202c4b2d732708d94c58d32a%7C90a6982e16354aa087a6d5d63c7bc66e%7C0%7C0%7C637624766652025108%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&sdata=xRSD%2BBHpkwBES5SXKXSxQOCASAsRYX839AV37tezvtU%3D&reserved=0
-
-        /*if(url.starts_with("https://urldefense.com/v3/__")) {
-            size_t first = url.find_first_of("__");
-            size_t last = url.find_last_of("__");
-            if(first != string::npos && last != string::npos) {
-                url = url.substr(first + 2, last - first - 2);
-            }
-        }*/
     }
 
     std::string browser::get_image_name(const std::string& open_cmd) {
