@@ -13,7 +13,7 @@ namespace bt {
     public:
         url_pipeline(config& cfg);
 
-        std::string process(const std::string& url);
+        void process(url_payload& up);
 
         void reconfigure();
 

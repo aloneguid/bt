@@ -86,11 +86,8 @@ namespace bt {
 
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
-        const std::string& raw_url, std::string& url_to_open) {
+        const std::string& url) {
         vector<browser_match_result> r;
-        string url = raw_url;
-        url = g_pipeline.process(url);
-        url_to_open = url;
 
         // which browser should we use?
         for (auto b : browsers) {
@@ -212,15 +209,7 @@ namespace bt {
     browser_instance::~browser_instance() {}
 
     void browser_instance::launch(url_payload up) const {
-        string url = up.url;
-        bool is_xbt;
-        if (url.starts_with(CustomProtoName) && url.size() > CustomProtoName.size() + 3) {
-            url = url.substr(CustomProtoName.size() + 3);
-            is_xbt = true;
-        } else {
-            is_xbt = false;
-        }
-
+        string url = up.open_url.empty() ? up.url : up.open_url;
         string arg = launch_arg;
 
         if(arg.empty()) {

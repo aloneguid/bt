@@ -3,21 +3,9 @@
 #include <vector>
 #include <memory>
 #include "match_rule.h"
-#include <Windows.h>
+#include "url_payload.h"
 
 namespace bt {
-
-    struct url_payload {
-        std::string url;
-        bool app_mode{false};
-
-        HWND source_window_handle;  // handle of the system window where the click came from
-
-        // everything below is populated from HWND
-        std::string window_title;
-        std::string process_name;
-    };
-
 
     class browser_instance;
     class browser_match_result;
@@ -67,8 +55,7 @@ namespace bt {
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
-            const std::string& raw_url,
-            std::string& url_to_open);
+            const std::string& url);
 
         static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>>& browsers);
 

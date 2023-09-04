@@ -11,8 +11,7 @@ namespace bt {
     private:
         std::shared_ptr<grey::complex_table<browser_match_result>> tbl;
         std::vector<std::shared_ptr<browser_match_result>> matches;
-        std::string raw_url;
-        std::string clear_url;
+        url_payload up;
         url u{""};
 
         void match();

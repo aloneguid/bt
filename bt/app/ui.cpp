@@ -79,6 +79,9 @@ namespace bt::ui {
     }
 
     void url_open(url_payload up, open_method method) {
+
+        g_pipeline.process(up);
+
         // read in method if required
         if(method == open_method::configured) {
             auto sm = g_config.get_open_method();
@@ -95,9 +98,7 @@ namespace bt::ui {
             picker(up, browser::to_instances(browser::get_cache()));
         } else {
             // silent or decide
-            string real_url;
-            auto matches = browser::match(browser::get_cache(), up.url, real_url);
-            up.url = real_url;
+            auto matches = browser::match(browser::get_cache(), up.match_url);
             browser_match_result& first_match = matches[0];
             up.app_mode = first_match.rule.app_mode;
 

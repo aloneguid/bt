@@ -26,6 +26,8 @@ namespace bt {
                 "browser_name",
                 "profile_name",
                 "url",
+                "match_url",
+                "open_url",
                 "rule",
                 "calling_process_name",
                 "calling_process_window_title"
@@ -34,16 +36,18 @@ namespace bt {
         }
     }
 
-    void rule_hit_log::write(const bt::url_payload& url, const bt::browser_match_result& bmr) {
+    void rule_hit_log::write(const bt::url_payload& up, const bt::browser_match_result& bmr) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
             bmr.bi->b->id,
             bmr.bi->b->name,
             bmr.bi->name,
-            url.url,
+            up.url,
+            up.match_url,
+            up.open_url,
             bmr.rule.to_line(),
-            url.process_name,
-            url.window_title
+            up.process_name,
+            up.window_title
         });
         stream.flush();
     }

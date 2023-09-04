@@ -126,7 +126,7 @@ namespace bt {
             g_config.set_popularity(bi->long_id(), bi->popularity);
 
             if(persist_domain) {
-                string rule_value = str::get_domain_from_url(up.url);
+                string rule_value = str::get_domain_from_url(up.open_url);
                 bi->add_rule(rule_value);
                 browser::persist_cache();
                 ui::ensure_no_instances();

@@ -24,9 +24,11 @@ const set<string> SupportedDomains = {
     "tinyurl.com", "tiny.one"
 };
 
-std::string bt::pipeline::unshortener::process(const std::string& url) {
+void bt::pipeline::unshortener::process(url_payload& up) {
 
-    if(!is_supported(url)) return url;
+    string url = up.match_url.empty() ? up.url : up.match_url;
+
+    if(!is_supported(url)) return;
 
     // example: https://bit.ly/47EZHSl -> https://github.com/aloneguid/bt
 
@@ -36,10 +38,8 @@ std::string bt::pipeline::unshortener::process(const std::string& url) {
     map<string, string>::const_iterator it_loc;
     if((code == 301 || code == 302) && (it_loc = headers.find(LocationHeaderName)) != headers.end()) {
         string new_url = it_loc->second;
-        return new_url;
+        up.match_url = up.open_url = new_url;
     }
-
-    return url;
 }
 
 bool bt::pipeline::unshortener::is_supported(const std::string& abs_url) {

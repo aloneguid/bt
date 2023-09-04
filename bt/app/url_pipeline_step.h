@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
+#include "url_payload.h"
 
 namespace bt {
     class url_pipeline_step {
     public:
-        virtual std::string process(const std::string& url) = 0;
+        virtual void process(url_payload& up) = 0;
     };
 }

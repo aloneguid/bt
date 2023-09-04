@@ -5,17 +5,17 @@ using namespace std;
 using namespace grey;
 
 namespace bt {
-    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 600, 300} {
+    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 600, 330} {
         can_resize = false;
         float scale = ctx.get_system_scale();
         make_label("Input:");
-        auto txt_url = make_input(ICON_FA_GLOBE, &raw_url);
+        auto txt_url = make_input(ICON_FA_GLOBE, &up.url);
         txt_url->tooltip = "Type your URL here to test";
 
         spacer();
         make_label("Results:");
-        auto txt_clear_url = make_input(ICON_FA_GLOBE, &clear_url);
-        txt_clear_url->tooltip = "Clear URL";
+        auto txt_clear_url = make_input(ICON_FA_GLOBE, &up.match_url);
+        txt_clear_url->tooltip = "URL to apply rules to";
 
         auto txt_host = make_input(ICON_FA_LANDMARK_DOME, &u.host);
         txt_host->set_is_readonly();
@@ -26,6 +26,9 @@ namespace bt {
         auto txt_query = make_input(ICON_FA_LINES_LEANING, &u.query);
         txt_query->set_is_readonly();
         txt_query->tooltip = "Query string";
+
+        auto txt_open_url = make_input(ICON_FA_GLOBE, &up.open_url);
+        txt_open_url->tooltip = "URL to open in a browser.";
 
         spacer();
         make_label("Matches:");
@@ -47,12 +50,12 @@ namespace bt {
     }
 
     void url_tester_window::match() {
-        clear_url = g_pipeline.process(raw_url);
-        u = url{clear_url};
+        up.match_url = up.open_url = "";
+        g_pipeline.process(up);
+        u = url{up.match_url};
 
-        string cu;
         matches.clear();
-        for(auto& m : browser::match(browser::get_cache(), clear_url, cu)) {
+        for(auto& m : browser::match(browser::get_cache(), up.match_url)) {
             matches.push_back(make_shared<browser_match_result>(m));
         }
         tbl->clear();

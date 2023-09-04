@@ -12,6 +12,14 @@ For instance pressing [https://bit.ly/47EZHSl](https://bit.ly/47EZHSl) will actu
 
 If for some reason you don't like to un-shorten URLs, the tool can be disabled from `Tools`->`Enable URL Un-Shortener` menu.
 
+## Office 365 link unwrapping
+
+Since v3.5.1 **Office 365** links are unwrapped for rule matching, but for security reasons wrapped URL is open. For instance,
+
+`https://eur02.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.google.com`
+
+will apply rules to `http://www.google.com` but still open the original URL.
+
 ### Testing
 
 You can test the un-shortener by using the "URL Tester" tool, which can be called from `Tools`->`URL Tester` menu:
