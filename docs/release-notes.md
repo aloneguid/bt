@@ -1,6 +1,6 @@
 ## 3.5.1
 
-**New feature!** Office 365 link unwrapping implemented, thanks to @maluht in #36.
+**New feature!** [Office 365 link unwrapping](https://aloneguid.github.io/bt/url-processing.html#office-365-link-unwrapping) implemented, thanks to @maluht in #36.
 
 ## 3.5.0
 

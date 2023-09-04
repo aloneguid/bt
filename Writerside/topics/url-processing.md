@@ -20,6 +20,10 @@ Since v3.5.1 **Office 365** links are unwrapped for rule matching, but for secur
 
 will apply rules to `http://www.google.com` but still open the original URL.
 
+<tip>
+Link unwrapping is applied to any URL of which domain name ends with <code>.safelinks.protection.outlook.com</code>.
+</tip>
+
 ### Testing
 
 You can test the un-shortener by using the "URL Tester" tool, which can be called from `Tools`->`URL Tester` menu:
