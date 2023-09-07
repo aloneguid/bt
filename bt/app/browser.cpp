@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <algorithm>
 #include "win32/shell.h"
+#include "win32/process.h"
 #include "str.h"
 #include "../globals.h"
 #include <fmt/core.h>
@@ -232,7 +233,8 @@ namespace bt {
             arg += user_arg;
         }
 
-        win32::shell::exec(b->open_cmd, arg);
+        //win32::shell::exec(b->open_cmd, arg);
+        win32::process::start(b->open_cmd + " " + arg);
     }
 
     bool browser_instance::is_match(const std::string& url, match_rule& mr) const {
