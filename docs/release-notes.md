@@ -1,3 +1,9 @@
+## 3.5.2
+
+Resolves an issue when Chromium browsers are not brought to foreground. Thanks to @tallen1983 in #39.
+
+> Not using `ShellExecute` and waiting for successful process handle seems to be making Chromium happy.
+
 ## 3.5.1
 
 **New feature!** [Office 365 link unwrapping](https://aloneguid.github.io/bt/url-processing.html#office-365-link-unwrapping) implemented, thanks to @maluht in #36.
