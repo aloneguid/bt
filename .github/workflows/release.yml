@@ -38,6 +38,7 @@ jobs:
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
+          discussion_category_name: announcements
           files: |
             bin/*.msi
             bin/*.zip

@@ -1,3 +1,3 @@
 
 
-Please star🌟 this project. There are [installation instructions](https://aloneguid.github.io/bt/installing.html) available if you need them. I also have optional integration extensions for [Chromium](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd), [Edge](https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin) and [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/).
+[Installation instructions](https://aloneguid.github.io/bt/installing.html).
