@@ -1,3 +1,8 @@
+## 3.6.0
+
+- URL picker displays extra metadata if known: process name and window title.
+- Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
+
 ## 3.5.2
 
 Resolves an issue when Chromium browsers are not brought to foreground. Thanks to @tallen1983 in #39.

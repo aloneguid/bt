@@ -39,7 +39,7 @@ namespace bt {
 
     void pick_window::init() {
 
-        same_line();
+        same_line(15 * scale);
         auto cmd_cac = make_button(ICON_FA_COPY);
         cmd_cac->tooltip = fmt::format("Copy URL to clipboard and cancel picker without opening any browser\nurl: {}", up.url);
 
@@ -62,6 +62,22 @@ namespace bt {
         chk_persist_popularity->render_as_icon = true;
         chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
         chk_persist_popularity->on_value_changed = [](bool v) { g_config.set_persist_popularity(v); };
+
+        // process name (if present)
+        if(!up.process_name.empty()) {
+            same_line();
+            auto lbl_pn = make_label(ICON_FA_MICROCHIP);
+            lbl_pn->is_enabled = false;
+            lbl_pn->tooltip = fmt::format("process name: {}", up.process_name);
+        }
+
+        // window title (if present)
+        if(!up.window_title.empty()) {
+            same_line();
+            auto lbl = make_label(ICON_FA_WINDOW_MAXIMIZE);
+            lbl->is_enabled = false;
+            lbl->tooltip = fmt::format("window title:\n{}", up.window_title);
+        }
 
         auto wo = make_child_window(0, 0);
         //wo->padding_bottom = 89 * scale;

@@ -395,7 +395,7 @@ namespace bt
             profiles_tabs_visible = true;
             browser_free_area_visible = false;
 
-            for(auto bi : b->instances) {
+            for(shared_ptr<browser_instance> bi : b->instances) {
                 string tab_icon;
                 if(bi->is_incognito) {
                     tab_icon = fmt::format("{} ", ICON_FA_GLASSES);
@@ -438,7 +438,7 @@ namespace bt
         } else {
             profiles_tabs_visible = false;
             browser_free_area_visible = true;
-            auto bi = b->instances[0];
+            shared_ptr<browser_instance> bi = b->instances[0];
 
             browser_free_area->make_label("Parameters");
 
@@ -776,21 +776,6 @@ special keyword - %url% which is replaced by opening url.)";
                 chk_regex->tooltip = "Rule is a Regular Expression (advanced)";
                 chk_regex->set_checked(rule->is_regex);
 
-                // priority
-                /*ctr->same_line();
-                auto chk_priority = ctr->make_checkbox(ICON_FA_ARROW_UP_9_1);
-                chk_priority->render_as_icon = true;
-                chk_priority->tooltip = "If multiple rules will match an URL, you can override default priority";
-                chk_priority->set_checked(ctx.data->priority != 0);
-
-                ctr->same_line();
-                auto txt_priority = ctr->make_input_int("");
-                txt_priority->set_value(ctx.data->priority);
-                txt_priority->width = 20 * scale;
-                txt_priority->set_step_button_step(0);
-                txt_priority->tooltip = "If multiple rules will match an URL, this value indicates priority.";
-                txt_priority->is_visible = ctx.data->priority != 0;*/
-
                 // app mode
                 if(bi->b->is_chromium) {
                     ctr->same_line();
@@ -828,10 +813,6 @@ special keyword - %url% which is replaced by opening url.)";
                 auto rm = ctr->make_button(ICON_FA_DELETE_LEFT);
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
-
-                //ctr->make_label("");
-                //ctr->same_line(25 * scale);
-                //ctr->make_input(ICON_FA_BOX);
 
                 // handlers
 
@@ -873,22 +854,6 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_value->on_arrow_down = [this, bi, rule, ctx, move_rule]() {
                     move_rule(1);
                 };
-
-
-                /*chk_priority->on_value_changed = [this, txt_priority, ctx](bool set) {
-                    //txt_priority->is_visible = set;
-                    if(set) {
-                        //
-                    } else {
-                        txt_priority->set_value(0);
-                        ctx.data->priority = 0;
-                    }
-                    persist_ui();
-                };
-                txt_priority->on_value_changed = [this, bi, ctx](int& v) {
-                    ctx.data->priority = v;
-                    persist_ui();
-                };*/
 
                 rm->on_pressed = [this, bi, ctx](button&) {
                     bi->delete_rule(ctx.data->value);

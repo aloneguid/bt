@@ -17,6 +17,7 @@
 #include "win32/process.h"
 #include "win32/kernel.h"
 #include "win32/user.h"
+#include "win32/monitor.h"
 
 namespace bt::ui {
 
@@ -73,7 +74,12 @@ namespace bt::ui {
         float height = min(400, (choices.size() + 1) * 50);
         auto w = active_backend->make_window<pick_window>(up, 300, height, choices);
         w->can_resize = false;
-        w->center();
+        size_t monitor_index{0};
+        if(up.source_window_handle) {
+            win32::monitor monitor = win32::monitor::get_nearest(up.source_window_handle);
+            monitor_index = monitor.index;
+        }
+        w->center(monitor_index);
         w->bring_to_top();
         w->detach_on_close = true;
     }
