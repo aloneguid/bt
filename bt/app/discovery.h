@@ -16,6 +16,10 @@ namespace bt
         // Scans the system for all the browsers. Also returns custom browser placeholder.
         static const std::vector<std::shared_ptr<browser>> discover_all_browsers();
 
+        static bool is_chromium_id(const std::string& system_id);
+
+        static bool is_firefox_id(const std::string& system_id);
+
     private:
         inline static const int ICON_SIZE = 256;
 

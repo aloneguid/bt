@@ -26,10 +26,11 @@ map<string, string> chromium_id_to_vdf {
     { "msedge", "Microsoft\\Edge\\User Data" },
     { "chrome", "Google\\Chrome\\User Data" },
     { "vivaldi", "Vivaldi\\User Data" },
-    { "brave", "BraveSoftware\\Brave-Browser\\User Data" }
+    { "brave", "BraveSoftware\\Brave-Browser\\User Data" },
+    { "thorium", "Thorium\\User Data" }
 };
 
-map<string, string> firefox_id_to_vdf {
+map<string, string> firefox_id_to_vdf{
     { "firefox", "Mozilla\\Firefox" },
     { "waterfox", "Waterfox" }
 };
@@ -371,6 +372,14 @@ namespace bt {
 
     const std::vector<shared_ptr<browser>> discovery::discover_all_browsers() {
         return bt::discovery::discover_browsers(ProtoName);
+    }
+
+    bool discovery::is_chromium_id(const std::string& system_id) {
+        return chromium_id_to_vdf.find(system_id) != chromium_id_to_vdf.end();
+    }
+
+    bool discovery::is_firefox_id(const std::string& system_id) {
+        return firefox_id_to_vdf.find(system_id) != firefox_id_to_vdf.end();
     }
 
     string discovery::get_shell_url_association_progid(const string& protocol_name) {

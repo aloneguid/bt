@@ -69,9 +69,6 @@ namespace bt {
         const bool supports_frameless_windows;
 
         static std::string get_image_name(const std::string& open_cmd);
-
-        static bool is_chromium_browser(const std::string& system_id);
-        static bool is_firefox_browser(const std::string& system_id);
     };
 
     class browser_instance {

@@ -7,6 +7,7 @@
 #include "../globals.h"
 #include <fmt/core.h>
 #include "config.h"
+#include "discovery.h"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -21,7 +22,7 @@ namespace bt {
         const std::string& open_cmd,
         bool is_system)
         : id{id}, name{ name }, open_cmd{ open_cmd },
-        is_chromium{ is_chromium_browser(id) }, is_firefox{ is_firefox_browser(id) },
+        is_chromium{ discovery::is_chromium_id(id) }, is_firefox{ discovery::is_firefox_id(id) },
         is_system{ is_system },
         supports_frameless_windows{is_chromium}
     {
@@ -178,18 +179,6 @@ namespace bt {
     std::string browser::get_image_name(const std::string& open_cmd) {
         if(open_cmd.empty()) return open_cmd;
         return fs::path{open_cmd}.filename().replace_extension().string();
-    }
-
-    bool browser::is_chromium_browser(const std::string& system_id) {
-        return
-            system_id == "msedge"  ||
-            system_id == "chrome"  ||
-            system_id == "vivaldi" ||
-            system_id == "brave";
-    }
-
-    bool browser::is_firefox_browser(const std::string& system_id) {
-        return system_id == "firefox" || system_id == "waterfox";
     }
 
     browser_instance::browser_instance(
