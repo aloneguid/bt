@@ -1,8 +1,17 @@
 ## 3.6.0
 
+### New
+
 - URL picker displays extra metadata if known: process name and window title.
-- Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
 - Added support for [Thorium Browser](https://thorium.rocks/) (#43 for @paz)
+
+### Improvements
+
+- Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
+
+### Bugs Fixed
+
+- do not show hidden browser's profiles in picker (#41 for @mahoromax)
 
 ## 3.5.2
 

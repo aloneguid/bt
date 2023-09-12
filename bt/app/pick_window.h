@@ -19,7 +19,6 @@ namespace bt {
         const float SQUARE_PADDING = 8;
         const float ICON_SIZE = 100;
         const float ICON_LEVITATION = 10;
-        const float scale;
 
         url_payload up;
         std::vector<std::shared_ptr<browser_instance>> choices;

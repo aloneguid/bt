@@ -57,9 +57,12 @@ namespace bt {
         g_config.save_browsers(cache);
     }
 
-    std::vector<std::shared_ptr<browser_instance>> browser::to_instances(const std::vector<std::shared_ptr<browser>>& browsers) {
+    std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
+        const std::vector<std::shared_ptr<browser>>& browsers,
+        bool skip_hidden) {
         vector<shared_ptr<browser_instance>> r;
-        for(const auto& b : browsers) {
+        for(const auto b : browsers) {
+            if(skip_hidden && b->is_hidden) continue;
             for(const auto& bi : b->instances) {
                 r.push_back(bi);
             }

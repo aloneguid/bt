@@ -20,11 +20,11 @@ namespace bt {
         url_payload up,
         float width, float height,
         std::vector<shared_ptr<browser_instance>> choices)
-        : window{mgr, "Pick a Browser", width, height}, up{up}, scale{mgr.get_system_scale()} {
+        : window{mgr, "Pick a Browser", width, height}, up{up} {
 
         persist_popularity = g_config.get_persist_popularity();
 
-        for (auto bi : choices) {
+        for (const auto bi : choices) {
             bi->popularity = g_config.get_popularity(bi->long_id());
             this->choices.push_back(bi);
         }
