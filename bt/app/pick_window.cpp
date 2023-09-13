@@ -125,7 +125,7 @@ namespace bt {
 
             if(persist_popularity && ctx.data->popularity > 0) {
                 c->same_line(this->width - style.FrameBorderSize * 4 - style.ItemSpacing.x * 8);
-                auto cmd = c->make_button(fmt::format("{}", ctx.data->popularity), true, emphasis::warning);
+                auto cmd = c->make_button(fmt::format("{}", ctx.data->popularity), true, emphasis::error);
                 cmd->tooltip = fmt::format("picked {}", str::humanise(ctx.data->popularity, "time", "times", "once", "twice"));
                 cmd->bg_draw = true;
             }

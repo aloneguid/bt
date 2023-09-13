@@ -69,7 +69,7 @@ namespace bt {
             if(match->rule.priority != 0) {
                 rc->same_line();
                 auto p = rc->make_label(std::to_string(match->rule.priority));
-                p->set_emphasis(emphasis::warning);
+                p->set_emphasis(emphasis::error);
                 p->tooltip = "priority";
             }
             rc->same_line();

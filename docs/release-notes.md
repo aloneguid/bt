@@ -8,6 +8,11 @@
 ### Improvements
 
 - Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
+- Theming improvements:
+  - Better dark theme.
+  - Theme switching was leaving some colours from the old theme.
+  - Button colours on lite theme do not look ugly anymore.
+
 
 ### Bugs Fixed
 

@@ -317,7 +317,7 @@ namespace bt
                         g_static->same_line();
                         auto cmd_x = g_static->make_button(ICON_FA_PUZZLE_PIECE);
                         cmd_x->tooltip = "download required extension";
-                        cmd_x->set_emphasis(emphasis::warning);
+                        cmd_x->set_emphasis(emphasis::error);
                         cmd_x->on_pressed = [this, b](button&) {
                             // extenstion page needs to be opened in Firefox bypassing container mode
                             auto mode = g_config.get_firefox_container_mode();
@@ -749,7 +749,7 @@ special keyword - %url% which is replaced by opening url.)";
 
         tab->same_line();
         auto rca = tab->make_button(ICON_FA_TRASH " clear all");
-        rca->set_emphasis(emphasis::warning);
+        rca->set_emphasis(emphasis::error);
 
         tab->same_line();
         auto rt = tab->make_button(ICON_FA_TIMELINE " test");
