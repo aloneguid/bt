@@ -231,13 +231,9 @@ namespace bt
         // HELP
         auto mi_help = menu->items()->add("", "Help");
 
-        auto mi_links = mi_help->add("", "Extensions", ICON_FA_PUZZLE_PIECE);
-        mi_links->add("chrome_ex", "Google Chrome", ICON_FA_CHROME);
-        mi_links->add("firefox_ex", "Mozilla Firefox", ICON_FA_FIREFOX);
-        mi_links->add("edge_ex", "Microsoft Edge", ICON_FA_EDGE);
+        mi_help->add("browser_ex", "Extensions", ICON_FA_PUZZLE_PIECE);
 
         mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
-        mi_help->add("coffee", "Donate", ICON_FA_MUG_HOT);
         mi_help->add("releases", "All Releases", ICON_FA_CLOCK_ROTATE_LEFT);
         mi_help->add("check_version", "Check for Updates", ICON_FA_CODE_BRANCH);
 
@@ -319,12 +315,7 @@ namespace bt
                         cmd_x->tooltip = "download required extension";
                         cmd_x->set_emphasis(emphasis::error);
                         cmd_x->on_pressed = [this, b](button&) {
-                            // extenstion page needs to be opened in Firefox bypassing container mode
-                            auto mode = g_config.get_firefox_container_mode();
-                            string url = mode == firefox_container_mode::bt
-                                ? APP_BROWSER_EXTENSION_FIREFOX_URL
-                                : APP_BROWSER_EXTENSION_FIREFOX_OUIC_URL;
-                            win32::shell::exec(b->open_cmd, url);
+                            ui::url_open(url_payload{"https://aloneguid.github.io/bt/firefox-containers.html#install-extension"}, bt::ui::open_method::configured);
                         };
                     }
                 }
@@ -335,10 +326,7 @@ namespace bt
                     cmd_x->on_pressed = [this, b](button&) {
                         // extenstion page needs to be opened in the correct profile
                         auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-                        string url = b->id == "msedge"
-                            ? APP_BROWSER_EXTENSION_EDGE_URL
-                            : APP_BROWSER_EXTENSION_CHROME_URL;
-                        instance->launch(url_payload{url});
+                        instance->launch(url_payload{APP_BROWSER_EXTENSIONS_DOCS_URL});
                     };
 
                 }
@@ -490,8 +478,6 @@ special keyword - %url% which is replaced by opening url.)";
             win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
         } else if(mi.id == "contact") {
             bt::ui::contact();
-        } else if(mi.id == "coffee") {
-            bt::ui::coffee("menu");
         } else if(mi.id == "check_version") {
             string vn;
             if(bt::app::has_new_version(vn)) {
@@ -532,23 +518,15 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "refresh") {
             rediscover_browsers();
         } else if(mi.id == "open_picker") {
-            ui::url_open(bt::url_payload{"https://aloneguid.uk"}, ui::open_method::pick);
+            ui::url_open(bt::url_payload{APP_URL}, ui::open_method::pick);
         } else if(mi.id == "update") {
             // todo: open direct url
             ui::url_open(
                url_payload{string(APP_URL) + "#installing"},
                ui::open_method::configured);
-        } else if(mi.id == "chrome_ex") {
+        } else if(mi.id == "browser_ex") {
             ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_CHROME_URL},
-               ui::open_method::configured);
-        } else if(mi.id == "firefox_ex") {
-            ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_FIREFOX_URL},
-               ui::open_method::configured);
-        } else if(mi.id == "edge_ex") {
-            ui::url_open(
-               url_payload{APP_BROWSER_EXTENSION_EDGE_URL},
+               url_payload{APP_BROWSER_EXTENSIONS_DOCS_URL},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
             g_config.set_picker_enabled(!mi.is_selected);

@@ -175,10 +175,6 @@ namespace bt::ui {
             ui::open_method::configured);
     }
 
-    void coffee(const string& from) {
-        ui::url_open(url_payload{CoffeePageUrl}, ui::open_method::silent);
-    }
-
     bool is_picker_hotkey_down() {
         string hk = g_config.get_picker_hotkey();
 

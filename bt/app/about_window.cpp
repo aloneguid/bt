@@ -62,11 +62,6 @@ It super fast, extremely light on resources, completely free and open source.)")
         };
 
         same_line();
-        make_button(ICON_FA_MUG_HOT " Coffee")->on_pressed = [](button&) {
-            bt::ui::coffee("about");
-        };
-
-        same_line();
         auto cmd_close = make_button("Close");
         cmd_close->on_pressed = [this](button&) {
             close();

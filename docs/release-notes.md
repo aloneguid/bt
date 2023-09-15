@@ -8,6 +8,7 @@
 ### Improvements
 
 - Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
+- Picker allows selecting first 10 browsers with a number key, thanks to @coromd for the idea in #38!
 - Theming improvements:
   - Better dark theme.
   - Theme switching was leaving some colours from the old theme.

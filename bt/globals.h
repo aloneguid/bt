@@ -18,7 +18,7 @@ const std::string PdfProtoName = "BrowserTamerPDF";
 
 const std::string CustomProtoName = "x-bt";
 
-const std::string CoffeePageUrl = "https://www.buymeacoffee.com/alonecoffee";
+const std::string ContributeUrl = "https://github.com/aloneguid/bt#contributing";
 
 const std::string ArgSplitter = "|";
 

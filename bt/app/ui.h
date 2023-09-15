@@ -47,7 +47,5 @@ namespace bt::ui
 
     void contact();
 
-    void coffee(const std::string& from);
-
     bool is_picker_hotkey_down();
 }
