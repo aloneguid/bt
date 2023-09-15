@@ -24,5 +24,7 @@ namespace bt {
         std::vector<std::shared_ptr<browser_instance>> choices;
         bool persist_domain{false};
         bool persist_popularity{false};
+
+        void launch(std::shared_ptr<browser_instance> bi);
     };
 }
