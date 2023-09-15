@@ -23,8 +23,9 @@ You can do that as many times as you want, or any time you add, delete, or renam
 
 Then it's configuring rules as usual.
 
-And the last thing to do is install the extension you have chosen. Depending on your choice, BT will give you a shortcut in Firefox options - just press the toolbar button which will open addon store in the correct browser to install it.
+## Install Extension
 
-the last thing to do is install the extension you have chosen. Depending on your choice, BT will give you a shortcut in Firefox options - just press the toolbar button which will open addon store in the correct browser to install it.
+And the last thing to do is install the extension you have chosen. Depending on your choice, use the following links:
 
-![](ff-containers-xcmd.png)
+- [Browser Tamer](Browser-Extensions.md).
+- ["Open external links in a container"](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/).
