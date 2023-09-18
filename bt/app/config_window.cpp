@@ -24,7 +24,7 @@ using namespace grey;
 namespace bt
 {
     config_window::config_window(grey::grey_context& ctx)
-        : grey::window{ctx, string{APP_LONG_NAME} + " " + APP_VERSION, 1000, 500}, gctx{ctx} {
+        : grey::window{ctx, string{APP_LONG_NAME} + " " + APP_VERSION, 900, 450}, gctx{ctx} {
         scale = get_system_scale();
 
         // just in case
@@ -59,7 +59,7 @@ namespace bt
         cmd_discover->on_pressed = [this](button&) {
             rediscover_browsers();
         };
-        auto panel_left = make_child_window(400 * scale);
+        auto panel_left = make_child_window(250 * scale);
         panel_left->is_visible = &panel_left_visible;
 
         // before browser list starts
@@ -738,7 +738,17 @@ special keyword - %url% which is replaced by opening url.)";
                 shared_ptr<grey::container> ctr = ctx.container;
                 shared_ptr<match_rule> rule = ctx.data;
 
+                // location
+                auto lst_loc = ctr->make_listbox("");
+                lst_loc->mode = listbox_mode::combo;
+                lst_loc->width = 70 * scale;
+                lst_loc->items.push_back(list_item{"URL", ""});
+                lst_loc->items.push_back(list_item{"Title", ""});
+                lst_loc->items.push_back(list_item{"Process", ""});
+                lst_loc->selected_index = static_cast<size_t>(rule->loc);
+
                 // value
+                ctr->same_line();
                 auto txt_value = ctr->make_input("");
                 txt_value->set_value(rule->value);
                 txt_value->width = 250 * scale;
@@ -774,19 +784,38 @@ special keyword - %url% which is replaced by opening url.)";
 
                 // scope
                 ctr->same_line();
-                ctr->make_label("|")->is_enabled = false;
-                ctr->same_line();
-                auto lst_scope = ctr->make_listbox("");
+                auto g_scope = ctr->make_group();
+                g_scope->tag_bool = rule->loc == match_location::url;
+                g_scope->make_label("|")->is_enabled = false;
+                g_scope->same_line();
+                auto lst_scope = g_scope->make_listbox("");
                 lst_scope->mode = listbox_mode::icons;
                 lst_scope->items.push_back(list_item{ICON_FA_GLOBE, "match anywhere"});
                 lst_scope->items.push_back(list_item{ICON_FA_LANDMARK_DOME, "match only in host name"});
                 lst_scope->items.push_back(list_item{ICON_FA_LINES_LEANING, "match only in path"});
                 lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
+                g_scope->is_visible = &g_scope->tag_bool;
 
                 ctr->same_line();
                 auto rm = ctr->make_button(ICON_FA_DELETE_LEFT);
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
+
+                // experi-mental
+                //ctr->same_line(240 * scale);
+                //auto cmd_more = ctr->make_button(ICON_FA_PLUS, true);
+                //cmd_more->padding_top = 8 * scale;
+                //cmd_more->tooltip = "more matching options";
+                //cmd_more->alpha = 0.7;
+
+                //auto w_more = ctr->make_child_window(400 * scale, 50 * scale);
+                //auto txt_title = w_more->make_input("title");
+                //auto txt_proc = w_more->make_input("proc");
+                //txt_title->width = txt_proc->width = 250 * scale;
+
+                //cmd_more->on_pressed = [w_more](button&) {
+                //    w_more->is_visible = !w_more->is_visible;
+                //};
 
                 // handlers
 
@@ -797,6 +826,12 @@ special keyword - %url% which is replaced by opening url.)";
 
                 chk_regex->on_value_changed = [this, rule](bool is_regex) {
                     rule->is_regex = is_regex;
+                    persist_ui();
+                };
+
+                lst_loc->on_selected = [this, rule, g_scope](size_t idx, list_item& li) {
+                    rule->loc = (match_location)idx;
+                    g_scope->tag_bool = rule->loc == match_location::url;
                     persist_ui();
                 };
 

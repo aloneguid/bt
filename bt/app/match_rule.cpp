@@ -8,6 +8,7 @@ using namespace std;
 namespace bt {
 
     const string ScopeKey = "scope";
+    const string LocationKey = "loc";
     const string PriorityKey = "priority";
     const string ModeKey = "mode";
     const string AppKey = "app";
@@ -31,6 +32,8 @@ namespace bt {
 
                 if(k == ScopeKey) {
                     scope = to_match_scope(v);
+                } else if(k == LocationKey) {
+                    loc = to_match_location(v);
                 } else if(k == PriorityKey) {
                     priority = str::to_int(v);
                 } else if(k == ModeKey) {
@@ -68,6 +71,10 @@ namespace bt {
         if(s.empty()) return "";
 
         vector<string> parts;
+
+        if(loc != match_location::url) {
+            parts.push_back(fmt::format("{}:{}", LocationKey, to_string(loc)));
+        }
 
         if(scope != match_scope::any) {
             parts.push_back(fmt::format("{}:{}", ScopeKey, to_string(scope)));
@@ -112,10 +119,29 @@ namespace bt {
         }
     }
 
+    std::string match_rule::to_string(match_location s) {
+        switch(s) {
+            case bt::match_location::url:
+                return "url";
+            case bt::match_location::window_title:
+                return "window_title";
+            case bt::match_location::process_name:
+                return "process_name";
+            default:
+                return "";
+        }
+    }
+
     match_scope match_rule::to_match_scope(const std::string& s) {
         if(s == "domain") return match_scope::domain;
         if(s == "path") return match_scope::path;
         return match_scope::any;
+    }
+
+    match_location match_rule::to_match_location(const std::string& s) {
+        if(s == "window_title") return match_location::window_title;
+        if(s == "process_name") return match_location::process_name;
+        return match_location::url;
     }
 
     bool match_rule::parse_url(const string& url, string& proto, string& host, string& path) {
