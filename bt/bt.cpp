@@ -18,6 +18,7 @@
 static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x99, 0x9e, 0xf1, 0x5f, 0x1b, 0xe4 }};
 
 // globals.h
+alg::tracker t{APP_SHORT_NAME, APP_VERSION};
 bt::config g_config;
 bt::url_pipeline g_pipeline{g_config};
 lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
@@ -52,6 +53,16 @@ void execute(const string& data) {
     } else {
         bt::ui::config();
     }
+}
+
+void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
+    t.track(map<string, string> {
+        {"event", "ping"},
+        {"log_rule_hits", g_config.get_log_rule_hits() ? "y" : "n"},
+        {"theme", g_config.get_theme()},
+        {"unshort", g_config.get_unshort_enabled() ? "y" : "n"},
+        {"browsers_total", std::to_string(bt::browser::get_cache().size())}
+    }, true);
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
@@ -162,6 +173,11 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     //bt::ui::launch_or_pick(bt::url_payload{"https://aloneguid.uk"}, bt::ui::open_method::pick);
 
     execute(arg);
+
+    // set 1h
+    ::SetTimer(win32app.get_hwnd(), 1,
+        1000 * 60 * 60, // ms * sec * min
+        KeepAliveTimerProc);
 
     open_on_match_event.connect([&sni](const bt::url_payload& url, const bt::browser_match_result& bmr) {
         if(g_config.get_log_rule_hits()) {

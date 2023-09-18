@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include "ext/lsignal/lsignal.h"
+#include "ext/alg_tracker.h"
 #include "app/browser.h"
 #include "app/url_pipeline.h"
 #include "app/config.h"
@@ -22,6 +23,8 @@ const std::string ContributeUrl = "https://github.com/aloneguid/bt#contributing"
 const std::string ArgSplitter = "|";
 
 const std::string PortableMarkerName = ".portable";
+
+extern alg::tracker t;
 
 extern bt::config g_config;
 

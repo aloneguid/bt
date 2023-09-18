@@ -13,6 +13,7 @@
   - Better dark theme.
   - Theme switching was leaving some colours from the old theme.
   - Button colours on lite theme do not look ugly anymore.
+- Update checks removed to avoid bugging users. You can still check from them from "Help" menu.
 
 
 ### Bugs Fixed
