@@ -16,7 +16,6 @@
 #include "config.h"
 #include "rule_hit_log.h"
 #include "ui.h"
-#include "update_check.h"
 #include "url_pipeline.h"
 
 using namespace std;
@@ -479,10 +478,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "contact") {
             bt::ui::contact();
         } else if(mi.id == "check_version") {
-            string vn;
-            if(bt::app::has_new_version(vn)) {
-                app_event("new_version", vn, "");
-            }
+            bt::ui::url_open(bt::url_payload{APP_GITHUB_RELEASES_URL}, bt::ui::open_method::configured);
         } else if(mi.id == "releases") {
             ui::url_open(
                url_payload{APP_GITHUB_RELEASES_URL},
