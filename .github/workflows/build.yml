@@ -90,6 +90,13 @@ jobs:
         name: bin
         path: atf/*
 
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          build/bt/Release/bt.exe
+
   build-linux:
     runs-on: ubuntu-latest
     name: 'Linux Build'
