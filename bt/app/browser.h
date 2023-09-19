@@ -57,7 +57,7 @@ namespace bt {
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
-            const std::string& url);
+            const url_payload& up);
 
         static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>>& browsers);
 
@@ -93,7 +93,7 @@ namespace bt {
 
         void launch(url_payload up) const;
 
-        bool is_match(const std::string& url, match_rule& mr) const;
+        bool is_match(const url_payload& up, match_rule& mr) const;
 
         /// <summary>
         /// Adds a rule from text. Does not persist.

@@ -5,46 +5,58 @@ using namespace std;
 using namespace grey;
 
 namespace bt {
-    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 600, 330} {
+    url_tester_window::url_tester_window(grey::grey_context& ctx) : grey::window{ctx, "URL Tester", 600, 400} {
         can_resize = false;
         float scale = ctx.get_system_scale();
         make_label("Input:");
-        auto txt_url = make_input(ICON_FA_GLOBE, &up.url);
-        txt_url->tooltip = "Type your URL here to test";
+
+        //auto lst_loc = make_listbox("");
+        //lst_loc->mode = listbox_mode::icons;
+        //lst_loc->items.push_back(list_item{ICON_FA_GLOBE, "URL"});
+        //lst_loc->items.push_back(list_item{ICON_FA_WINDOW_MAXIMIZE, "Window title"});
+        //lst_loc->items.push_back(list_item{ICON_FA_MICROCHIP, "Process name"});
+        //lst_loc->selected_index = 0;
+        //same_line();
+
+        auto txt_url = make_input("URL", &up.url);
+        auto txt_title = make_input("window title", &up.window_title);
+        auto txt_proc = make_input("process name", &up.process_name);
 
         spacer();
         make_label("Results:");
-        auto txt_clear_url = make_input(ICON_FA_GLOBE, &up.match_url);
+        auto txt_clear_url = make_input(ICON_FA_QUESTION, &up.match_url);
         txt_clear_url->tooltip = "URL to apply rules to";
+        txt_clear_url->set_is_readonly();
 
-        auto txt_host = make_input(ICON_FA_LANDMARK_DOME, &u.host);
+        auto txt_host = make_input("/", &u.host);
         txt_host->set_is_readonly();
         txt_host->width = 300;
         txt_host->tooltip = "Host name";
 
         same_line();
-        auto txt_query = make_input(ICON_FA_LINES_LEANING, &u.query);
+        auto txt_query = make_input("", &u.query);
         txt_query->set_is_readonly();
         txt_query->tooltip = "Query string";
 
-        auto txt_open_url = make_input(ICON_FA_GLOBE, &up.open_url);
+        auto txt_open_url = make_input(ICON_FA_ARROW_RIGHT_FROM_BRACKET, &up.open_url);
+        txt_open_url->set_is_readonly();
         txt_open_url->tooltip = "URL to open in a browser.";
 
         spacer();
         make_label("Matches:");
 
-        auto w_matches = make_child_window(0, 80 * scale);
-        tbl = w_matches->make_complex_table<browser_match_result>({"rule", "browser", "profile"});
-        tbl->stretchy = true;
+        w_matches = make_child_window(0, 100 * scale);
+        w_matches->has_border = true;
 
         spacer();
         separator();
         auto cmd_close = make_button("Close");
+        cmd_close->set_emphasis(emphasis::primary);
         cmd_close->on_pressed = [this](button&) {
             close();
         };
 
-        txt_url->on_value_changed = [this](string&) { match(); };
+        txt_url->on_value_changed = txt_title->on_value_changed = txt_proc->on_value_changed = [this](string&) { match(); };
 
         match();
     }
@@ -55,28 +67,35 @@ namespace bt {
         u = url{up.match_url};
 
         matches.clear();
-        for(auto& m : browser::match(browser::get_cache(), up.match_url)) {
+        for(auto& m : browser::match(browser::get_cache(), up)) {
             matches.push_back(make_shared<browser_match_result>(m));
         }
-        tbl->clear();
+        w_matches->clear();
 
         for(auto& match : matches) {
-            auto row = tbl->make_row(match);
 
-            auto rc = row.cells[0];
-            auto scope = rc->make_label(to_icon(match->rule.scope));
-            scope->tooltip = "match scope";
-            if(match->rule.priority != 0) {
-                rc->same_line();
-                auto p = rc->make_label(std::to_string(match->rule.priority));
-                p->set_emphasis(emphasis::error);
-                p->tooltip = "priority";
-            }
-            rc->same_line();
-            rc->make_label(match->rule.value);
+            auto icon = w_matches->make_label(ICON_FA_MAXIMIZE);
+            icon->set_emphasis(emphasis::error);
 
-            row.cells[1]->make_label(match->bi->b->name);
-            row.cells[2]->make_label(match->bi->name);
+            w_matches->same_line();
+            auto lbl_browser = w_matches->make_label(match->bi->b->name);
+
+            w_matches->same_line();
+            w_matches->make_label("|")->is_enabled = false;
+
+            w_matches->same_line();
+            auto lbl_profile = w_matches->make_label(match->bi->name);
+
+            w_matches->make_label("");
+            w_matches->same_line(35 * scale);
+            w_matches->make_label(match->rule.to_string());
+            w_matches->spacer();
+            w_matches->separator();
+
+            //rc->make_label(match->rule.to_string());
+
+            //row.cells[1]->make_label(match->bi->b->name);
+            //row.cells[2]->make_label(match->bi->name);
         }
     }
 

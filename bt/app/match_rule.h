@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "url_payload.h"
 
 namespace bt {
     enum class match_scope {
@@ -19,7 +20,8 @@ namespace bt {
     public:
         explicit match_rule(const std::string& line);
 
-        bool is_match(const std::string& line) const;
+        bool is_match(const url_payload& up) const;
+        bool is_match(const std::string& url) const;
 
         std::string value;
         match_location loc{match_location::url};
@@ -27,16 +29,7 @@ namespace bt {
         int priority{0};
         bool is_regex{false};
         bool app_mode{false};
-
-        /**
-         * @brief When set, process name must be equal to this value. Case-insensitive.
-        */
-        std::string process_name_eq;
-
-        /**
-         * @brief When set, window title must be equal to this value. Case-insensitive.
-        */
-        std::string window_title_contains;
+        bool is_fallback{false};
 
         bool operator==(const match_rule& other) const;
 

@@ -20,9 +20,13 @@ Most browsers will not apply settings like <a href="https://peter.sh/experiments
 
 ## Auditing
 
-%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**, and the file path can be found in `File` menu:
+%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**:
 
-![](audit-menus.png)
+<img height="150" src="audit00.png"/>
+
+and the file path can be found in `File` menu:
+
+<img height="120" src="audit01.png"/>
 
 The file itself has all the information about the rule hit event:
 

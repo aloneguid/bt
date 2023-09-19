@@ -21,7 +21,11 @@ If yes, then you need %product%! It's a smart and powerful tool that acts as a b
     - Support for [Firefox Containers](Installing.md).
     - Support for incognito mode / tor mode.
 - Add your own, custom browser or application customised with any parameters you want.
-- Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
+- Rule-based redirect based on matching inside:
+  - Entire URL, domain, or path.
+  - Source application title.
+  - Calling process name.
+  - This can be a simple case-insensitive substring or a regular expression.
 - Assign rule priorities.
 - **[Extensions](Installing.md)** to integrate with [Chrome](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd), [Edge](https://microsoftedge.microsoft.com/addons/detail/browser-tamer/gofjagaghddmjloaecpnldjmjlplicin), [Firefox](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/), or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox etc.).
 - Open links in "chromeless (frameless)" window.

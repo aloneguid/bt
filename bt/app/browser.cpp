@@ -91,21 +91,23 @@ namespace bt {
 
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
-        const std::string& url) {
+        const url_payload& up) {
         vector<browser_match_result> r;
 
         // which browser should we use?
         for (auto b : browsers) {
             for (auto i : b->instances) {
                 match_rule mr{ "" };
-                if (i->is_match(url, mr)) {
+                if (i->is_match(up, mr)) {
                     r.emplace_back(i, mr);
                 }
             }
         }
 
         if (r.empty() && !browsers.empty()) {
-            r.emplace_back(get_fallback(browsers), match_rule{ "fallback browser" });
+            match_rule fbr{"default"};
+            fbr.is_fallback = true;
+            r.emplace_back(get_fallback(browsers), fbr);
         }
 
         // sort by priority, descending
@@ -229,9 +231,9 @@ namespace bt {
         win32::process::start(b->open_cmd + " " + arg);
     }
 
-    bool browser_instance::is_match(const std::string& url, match_rule& mr) const {
+    bool browser_instance::is_match(const url_payload& up, match_rule& mr) const {
         for (const auto& rule : rules) {
-            if (rule->is_match(url)) {
+            if (rule->is_match(up)) {
                 mr = *rule;
                 return true;
             }

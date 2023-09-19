@@ -2,6 +2,7 @@
 
 ### New
 
+- You can create rules based on application title and process name.
 - URL picker displays extra metadata if known: process name and window title.
 - Added support for [Thorium Browser](https://thorium.rocks/) (#43 for @paz)
 

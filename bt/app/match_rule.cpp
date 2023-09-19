@@ -13,8 +13,6 @@ namespace bt {
     const string ModeKey = "mode";
     const string AppKey = "app";
     const string TypeKey = "type";
-    const string ProcessNameKey = "process_name";
-    const string WindowTitleKey = "window_title";
 
     match_rule::match_rule(const std::string& line) {
         string src = line;
@@ -40,10 +38,6 @@ namespace bt {
                     if(v == AppKey) app_mode = true;
                 } else if(k == TypeKey) {
                     if(v == "regex") is_regex = true;
-                } else if(k == ProcessNameKey) {
-                    process_name_eq = v;
-                } else if(k == WindowTitleKey) {
-                    window_title_contains = v;
                 }
 
             } else {
@@ -53,16 +47,38 @@ namespace bt {
     }
 
     std::string match_rule::to_string() const {
-        switch(scope) {
-            case match_scope::any:
-                return value;
-            case match_scope::domain:
-                return fmt::format("{} (in domain)", value);
-            case match_scope::path:
-                return fmt::format("{} (in path)", value);
+
+        if(is_fallback) return value;
+
+        string r = fmt::format("{} '{}' in ", 
+            is_regex ? "regular expression" : "substring",
+            value);
+
+        switch(loc) {
+            case match_location::url:
+            {
+                switch(scope) {
+                    case match_scope::any:
+                        r += "URL";
+                        break;
+                    case match_scope::domain:
+                        r += fmt::format("domain part of the URL", value);
+                        break;
+                    case match_scope::path:
+                        r += fmt::format("query part of the URL", value);
+                        break;
+                }
+            }
+            break;
+            case match_location::window_title:
+                r += "application title";
+                break;
+            case match_location::process_name:
+                r += "process name";
+                break;
         }
 
-        return "?";
+        return r;
     }
 
     std::string match_rule::to_line() const {
@@ -91,15 +107,6 @@ namespace bt {
         if(is_regex) {
             parts.push_back(fmt::format("{}:regex", TypeKey));
         }
-
-        if(!process_name_eq.empty()) {
-            parts.push_back(fmt::format("{}:{}", ProcessNameKey, process_name_eq));
-        }
-
-        if(!window_title_contains.empty()) {
-            parts.push_back(fmt::format("{}:{}", WindowTitleKey, window_title_contains));
-        }
-
 
         parts.push_back(s);
 
@@ -180,31 +187,57 @@ namespace bt {
         }
     }
 
-    bool match_rule::is_match(const std::string& line) const {
+    bool match_rule::is_match(const url_payload& up) const {
 
         if(value.empty()) return false;
 
-        string src = line;
+        string src;
+        switch(loc) {
+            case match_location::url:
+                src = up.match_url;
+                break;
+            case match_location::window_title:
+                src = up.window_title;
+                break;
+            case match_location::process_name:
+                src = up.process_name;
+                break;
+        }
         str::trim(src);
 
-        if(line.empty()) return false;
+        if(src.empty()) return false;
 
-        switch(scope) {
-            case match_scope::any: {
+        switch(loc) {
+            case bt::match_location::url: {
+                switch(scope) {
+                    case match_scope::any: {
+                        return contains(src, value);
+                    }
+                    case match_scope::domain: {
+                        string proto, host, path;
+                        if(!parse_url(src, proto, host, path)) return false;
+                        return contains(host, value);
+                    }
+                    case match_scope::path: {
+                        string proto, host, path, query;
+                        if(!parse_url(src, proto, host, path)) return false;
+                        return contains(path, value);
+                    }
+                }
+            }
+            break;
+            case bt::match_location::window_title:
                 return contains(src, value);
-            }
-            case match_scope::domain: {
-                string proto, host, path;
-                if(!parse_url(src, proto, host, path)) return false;
-                return contains(host, value);
-            }
-            case match_scope::path: {
-                string proto, host, path, query;
-                if(!parse_url(src, proto, host, path)) return false;
-                return contains(path, value);
-            }
+            case bt::match_location::process_name:
+                return contains(src, value);
         }
 
         return false;
+    }
+
+    bool match_rule::is_match(const string& url) const {
+        url_payload up{url};
+        up.match_url = url;
+        return is_match(up);
     }
 }

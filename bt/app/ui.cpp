@@ -104,7 +104,7 @@ namespace bt::ui {
             picker(up, browser::to_instances(browser::get_cache()));
         } else {
             // silent or decide
-            auto matches = browser::match(browser::get_cache(), up.match_url);
+            auto matches = browser::match(browser::get_cache(), up);
             browser_match_result& first_match = matches[0];
             up.app_mode = first_match.rule.app_mode;
 

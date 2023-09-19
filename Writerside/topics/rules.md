@@ -5,12 +5,12 @@ All the links that do not match any configured rules will open in the [default b
 To open a link in another browser, you need to create a **rule**.
 
 <note>
-A rule is just a text. It simply says that if a link contains the text you've typed in, then open the specified browser. It is case-insensitive so a line <strong>mydomain</strong> will match <strong>mydomain.com</strong>, <strong>MyDomain.com</strong> or <strong>https://blabla.mydomain.com</strong> just the same.
+A rule is just a text. It simply says that if a link (or application title, or process name) contains the text you've typed in, then open the specified browser. It is case-insensitive so a line <strong>mydomain</strong> will match <strong>mydomain.com</strong>, <strong>MyDomain.com</strong> or <strong>https://blabla.mydomain.com</strong> just the same.
 </note>
 
 To add a rule, simply press `add` button in browser parameters, and then type the rule text.
 
-![](rule-type.png)
+<img height="90" src="rule-type.png"/>
 
 You can keep adding as many rules as you want, they are always **case-insensitive** and by default match **any part or the URL**.
 
@@ -67,12 +67,6 @@ When typing in an expression, it has to match an **entire input** and not just a
 | https://github.com | `http?://github\.com/.*` |  ✅    |
 
 By default, a regular expression has to match an entire URL, however, [scoping](#scoping) applies during matching stage as well.
-
-## Conflicting rules
-
-Sometimes you might have a conflict in rule resolution. For instance URL `http://github.com` will match both `github` and `github.com` rule. By default, BT will take the first random rule and apply it, but you can override it by setting rule priority. The higher priority is, the higher chance the rule will be picked. To set the rule priority, first click the "priority" button, which will make a text field appear where you can type the priority number:
-
-![](rule-priority.png)
 
 ## Frameless windows
 
