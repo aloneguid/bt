@@ -1,4 +1,5 @@
 # Browser Tamer
+
 [![](https://www.aloneguid.uk/projects/bt/one.png)](https://www.aloneguid.uk/projects/bt/)
 
 | [official home page](https://www.aloneguid.uk/projects/bt/) - [documentation](https://aloneguid.github.io/bt/home.html) |
@@ -21,7 +22,8 @@
 - Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
 - Assign rule priorities.
 - Support for [shortened URLs](https://aloneguid.github.io/bt/url-processing.html#un-shortening).
-- **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox etc.).
+- **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox etc.). ![Mozilla Add-on Version](https://img.shields.io/amo/v/browser-tamer)
+
 - Open links in ["chromeless (frameless)" window](https://aloneguid.github.io/bt/rules.html#frameless-windows).
 - Optional [audit](https://aloneguid.github.io/bt/config-basic.html#audit) of rule hits to a csv file.
 - Beautiful UI based on [ImGui](https://github.com/ocornut/imgui) (GPU-accelerated UI engine used in games) with support for [themes](/posts/2022/12/bt-theming/).
