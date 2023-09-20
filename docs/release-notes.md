@@ -2,14 +2,14 @@
 
 ### New
 
-- You can create rules based on application title and process name.
-- URL picker displays extra metadata if known: process name and window title.
+- You can create rules based on [application title and process name](https://aloneguid.github.io/bt/rules.html#matching-locations).
+- URL picker displays extra metadata if known: [process name and window title](https://aloneguid.github.io/bt/picker.html).
 - Added support for [Thorium Browser](https://thorium.rocks/) (#43 for @paz)
 
 ### Improvements
 
-- Picker is shown on the monitor of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
-- Picker allows selecting first 10 browsers with a number key, thanks to @coromd for the idea in #38!
+- Picker is shown on the monitor 💻 of the source application instead of always defaulting to main monitor, thanks to @mahoromax in #42.
+- Picker allows selecting first 10 browsers with a 🔢 number key, thanks to @coromd for the idea in #38!
 - Theming improvements:
   - Better dark theme.
   - Theme switching was leaving some colours from the old theme.

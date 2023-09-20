@@ -44,3 +44,12 @@ jobs:
             bin/*.zip
             bin/*.sha256.txt
           body_path: final_notes.md
+
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v4
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          files: |
+            bin/bt-${{ env.VERSION }}.zip
+            bin/bt-${{ env.VERSION }}.msi
+          update_release_body: true
