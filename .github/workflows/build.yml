@@ -74,7 +74,7 @@ jobs:
         cp build/bt.msi atf/${{ env.MSI_FILE_NAME }}
         Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/${{ env.ZIP_FILE_NAME }} -CompressionLevel Optimal
         Compress-Archive -Path build/bt/Release/bt.pdb -DestinationPath atf/${{ env.PDB_FILE_NAME }} -CompressionLevel Optimal
-        "${{ env.VERSION }}" | Out-File atf/version.txt
+        "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
         (Get-FileHash -Algorithm SHA256 -Path atf/${{ env.ZIP_FILE_NAME }}).Hash | Out-File atf/${{ env.ZIP_FILE_NAME }}.sha256.txt
         (Get-FileHash -Algorithm SHA256 -Path atf/${{ env.MSI_FILE_NAME }}).Hash | Out-File atf/${{ env.MSI_FILE_NAME }}.sha256.txt
         cp docs/release-notes.md atf/
