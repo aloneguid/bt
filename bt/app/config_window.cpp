@@ -774,14 +774,6 @@ special keyword - %url% which is replaced by opening url.)";
                     };
                 }
 
-                // firefox container
-                if(bi->b->is_firefox) {
-                    ctr->same_line();
-                    auto chk_ct = ctr->make_checkbox(ICON_FA_BOX);
-                    chk_ct->render_as_icon = true;
-                    chk_ct->tooltip = "open in Firefox container";
-                }
-
                 // scope
                 ctr->same_line();
                 auto g_scope = ctr->make_group();

@@ -68,6 +68,14 @@ When typing in an expression, it has to match an **entire input** and not just a
 
 By default, a regular expression has to match an entire URL, however, [scoping](#scoping) applies during matching stage as well.
 
+## Matching locations
+
+By default, rules are matched based on input URL. However, since v3.6.0 you can also optionally match on application title and process name. [URL Tester](#testing-rules) and [auditing](config-basic.md#auditing) supports these options as well.
+
+<img height="100" src="rule-loc.png"/>
+
+When selecting title or process, you can, just like URL matching, use regular expressions or plain substring. Note that scoping is only applicable to URL matching.
+
 ## Frameless windows
 
 Part of rule definition is attempt to open an URL as "frameless window". Frameless windows have no browser toolbar, url, or any other controls and try to behave like dump apps. If your browser supports frameless windows (currently Chromium-based only) you will have a button to test this behavior (1) and also rule definitions will have a button to enable frameless window triggers (2).

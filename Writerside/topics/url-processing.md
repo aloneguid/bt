@@ -4,6 +4,10 @@
 
 ## Un-shortening
 
+<warning>
+Internet access is required for this feature to work.
+</warning>
+
 Since v3.5.0 URL un-shortening is enabled by default due to the fact shortened URLs mask target link and make it impossible to apply a rule to it.
 
 For instance pressing [https://bit.ly/47EZHSl](https://bit.ly/47EZHSl) will actually open [https://github.com/aloneguid/bt](https://github.com/aloneguid/bt), allowing potential attackers to evade configured rules. 
@@ -28,4 +32,4 @@ Link unwrapping is applied to any URL of which domain name ends with <code>.safe
 
 You can test the un-shortener by using the "URL Tester" tool, which can be called from `Tools`->`URL Tester` menu:
 
-<img src="unshorten.png" width="500"/>
+<img src="unshorten.png" width="500" alt="URL Tester window"/>

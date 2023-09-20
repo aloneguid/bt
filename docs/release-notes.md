@@ -19,7 +19,8 @@
 
 ### Bugs Fixed
 
-- do not show hidden browser's profiles in picker (#41 for @mahoromax)
+- do not show hidden browser's profiles in picker (#41 for @mahoromax).
+- crash on update check when no internet available (#44 for @neoOpus).
 
 ## 3.5.2
 
