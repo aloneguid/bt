@@ -74,12 +74,12 @@ namespace bt::ui {
         float height = min(400, (choices.size() + 1) * 50);
         auto w = active_backend->make_window<pick_window>(up, 300, height, choices);
         w->can_resize = false;
-        size_t monitor_index{0};
+        void* h_monitor{nullptr};
         if(up.source_window_handle) {
             win32::monitor monitor = win32::monitor::get_nearest(up.source_window_handle);
-            monitor_index = monitor.index;
+            h_monitor = static_cast<void*>(monitor.h);
         }
-        w->center(monitor_index);
+        w->center(h_monitor);
         w->bring_to_top();
         w->detach_on_close = true;
     }

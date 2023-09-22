@@ -1,3 +1,7 @@
+## 3.6.1
+
+🐞Fixed: when external monitor is set as primary, picker is shown on a wrong monitor. Thanks to @ianzhuo in #48.
+
 ## 3.6.0
 
 ### New
