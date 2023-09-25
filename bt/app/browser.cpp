@@ -228,7 +228,7 @@ namespace bt {
         }
 
         //win32::shell::exec(b->open_cmd, arg);
-        win32::process::start(b->open_cmd + " " + arg);
+        win32::process::start(b->open_cmd + " " + arg, false);
     }
 
     bool browser_instance::is_match(const url_payload& up, match_rule& mr) const {

@@ -1,3 +1,7 @@
+## 3.6.2
+
+🐞Fixed: BT hangs waiting for browser proxy process to terminate. Thanks to @cjs1976 and @fixator10 in #51.
+
 ## 3.6.1
 
 🐞Fixed: when external monitor is set as primary, picker is shown on a wrong monitor. Thanks to @ianzhuo in #48.
