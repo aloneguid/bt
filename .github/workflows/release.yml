@@ -44,6 +44,7 @@ jobs:
             bin/*.sha256.txt
           body_path: final_notes.md
 
+      # update_release_body does not actually work, i'll revisit how to do it automatically later
       - name: VirusTotal Scan
         uses: crazy-max/ghaction-virustotal@v4
         with:
