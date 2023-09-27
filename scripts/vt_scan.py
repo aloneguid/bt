@@ -57,12 +57,15 @@ if __name__ == "__main__":
             progress.update(file_task, advance=1)
 
     # generate markdown
-    if args.md_output:
+    md_path = args.md_output
+    if md_path:
+        print(f"writing markdown to {md_path}")
         smd = ["## 🛡️ VirusTotal Analysis", "" ]
         for result in results:
             smd.append(f"\n - [{result.file_name}]({result.web_url})")
 
-        with open(args.md_output, "w", encoding="utf-8") as f:
+        with open(md_path, "w", encoding="utf-8") as f:
             f.writelines(smd)
 
     client.close()
+    exit(0)
