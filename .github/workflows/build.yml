@@ -82,7 +82,7 @@ jobs:
         mkdir atf
         cp build/bt.msi atf/${{ env.MSI_FILE_NAME }}
         Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/${{ env.ZIP_FILE_NAME }} -CompressionLevel Optimal
-        # Compress-Archive -Path build/bt/Release/bt.pdb -DestinationPath atf/${{ env.PDB_FILE_NAME }} -CompressionLevel Optimal
+        Compress-Archive -Path build/bt/Release/bt.pdb -DestinationPath atf/${{ env.PDB_FILE_NAME }} -CompressionLevel Optimal
         python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
         "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
         (Get-FileHash -Algorithm SHA256 -Path atf/${{ env.ZIP_FILE_NAME }}).Hash | Out-File atf/${{ env.ZIP_FILE_NAME }}.sha256.txt
@@ -91,7 +91,7 @@ jobs:
         cp docs/instructions.md atf/
       env:
         ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
-        # PDB_FILE_NAME: bt-${{ env.VERSION }}.pdb.zip
+        PDB_FILE_NAME: pdb-${{ env.VERSION }}.zip
         MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
         VT_API_KEY: ${{ secrets.VT_API_KEY }}
 

@@ -39,17 +39,5 @@ jobs:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           files: |
-            bin/*.msi
-            bin/*.zip
-            bin/*.sha256.txt
+            bin/bt-*.*
           body_path: final_notes.md
-
-      # update_release_body does not actually work, i'll revisit how to do it automatically later
-      - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          vt_api_key: ${{ secrets.VT_API_KEY }}
-          files: |
-            bin/bt-${{ env.VERSION }}.zip
-            bin/bt-${{ env.VERSION }}.msi
-          update_release_body: true
