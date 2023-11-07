@@ -1,36 +1,31 @@
-/*
- * Permissions:
- * - contextMenus: add context menu item "open with bt"
- * - tabs: read current tab URL to send to BT.
- */
+importScripts("core.js");
 
-const BtProtoPrefix = "x-bt://";
-
-async function openInBT(tabId, url) {
-
-  const destUrl = BtProtoPrefix + url;
-
-  console.log("opening " + destUrl);
-
-  await chrome.tabs.update(tabId, {
-    url: destUrl
-  });
-}
-
-chrome.action.onClicked.addListener((tab) => {
-  openInBT(tab.id, tab.url);
-});
-
+// context menu item click handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  openInBT(tab.id, info.linkUrl);
+    openInBT(tab.id, info.linkUrl);
 });
+
+// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+//     if (changeInfo.status === "complete") {
+//         // requires "scripting" permission and "activeTab" permission, plus host permissions for the tab URL (patterns)
+//         console.log(`injecting into ${tab.url}`);
+//         chrome.scripting
+//             .executeScript({
+//                 target: {tabId: tabId},
+//                 func: interceptLinkClicks,
+//             })
+//             .then(
+//                 () => console.log("injected."),
+//                 (err) => console.log(`failed to inject: ${err}`));
+//     }
+// });
 
 // add context menu item for a hyperlink (contexts: link)
 chrome.runtime.onInstalled.addListener(() => {
 
-  chrome.contextMenus.create({
-    id: "bt-menu-item",
-    title: "Open with Browser Tamer",
-    contexts: ["link"]
-  });
+    chrome.contextMenus.create({
+        id: "bt-menu-item",
+        title: "Open with Browser Tamer",
+        contexts: ["link"]
+    });
 });

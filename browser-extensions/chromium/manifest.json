@@ -1,6 +1,6 @@
 {
     "name": "Browser Tamer",
-    "version": "1.3",
+    "version": "1.4",
     "manifest_version": 3,
     "description": "Integrates Browser Tamer with Chromium based browsers. Windows only.",
     "icons": {
@@ -12,12 +12,20 @@
     },
     "permissions": [
         "contextMenus",
-        "tabs"
+        "tabs",
+        "storage"
+    ],
+    "content_scripts":[
+        {
+            "matches": ["<all_urls>"],
+            "js": ["core.js", "content.js"]
+        }
     ],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
-        "default_title": "Open with Browser Tamer"
+        "default_title": "Open with Browser Tamer",
+        "default_popup": "popup.html"
     }
 }
