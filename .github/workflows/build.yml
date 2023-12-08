@@ -45,10 +45,6 @@ jobs:
       with:
         python-version: '3.11' 
 
-    - name: Install Python dependencies
-      run: pip install -r requirements.txt
-      working-directory: scripts
-
     - name: ⚙️ configure
       run: >
         cmake -B build -S .
@@ -73,13 +69,21 @@ jobs:
     #   run: ls -R
     #   working-directory: build 
 
-    # creates "atf" subdir and put the following:
+    - name: Create artifacts directory
+      run: mkdir atf
+
+    - name: VT Scan
+      run: |
+        pip install -r scripts/requirements.txt
+        python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
+        
+
+    # put the following inside "atf" subdir:
     # 1. msi installer, renamed after version number
     # 2. zipped .exe
     # 3. version.txt containing version number
     - name: prep artifacts
       run: |
-        mkdir atf
         cp build/bt.msi atf/${{ env.MSI_FILE_NAME }}
         Compress-Archive -Path build/bt/Release/bt.exe -DestinationPath atf/${{ env.ZIP_FILE_NAME }} -CompressionLevel Optimal
         Compress-Archive -Path build/bt/Release/bt.pdb -DestinationPath atf/${{ env.PDB_FILE_NAME }} -CompressionLevel Optimal
