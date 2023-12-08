@@ -1,3 +1,13 @@
+## 3.7.0
+
+## Improvements
+
+- ?
+
+### Bugs fixed
+
+- BT crashed with unhandled exception when regular expression rule was executing a regex with invalid syntax (#59).
+
 ## 3.6.2
 
 🐞Fixed: BT hangs waiting for browser proxy process to terminate. Thanks to @cjs1976 and @fixator10 in #51.

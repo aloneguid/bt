@@ -180,8 +180,13 @@ namespace bt {
 
     bool match_rule::contains(const string& input, const string& value) const {
         if(is_regex) {
-            regex r{value, regex_constants::icase};
-            return regex_match(input, r);
+            try {
+                regex r{value, regex_constants::icase};
+                return regex_match(input, r);
+            } catch(const std::regex_error& e) {
+                // most probably invalid regex pattern
+                return false;
+            }
         } else {
             return str::contains_ic(input, value);
         }

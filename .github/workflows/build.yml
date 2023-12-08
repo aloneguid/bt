@@ -1,11 +1,11 @@
 ﻿name: 'Build'
 
 env:
-  VERSION: 3.6.2
+  VERSION: 3.7.0
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: e8c2a04eb7ca058b6e2f0e6e33c67fdbffeee846
+  VCPKG_HASH: 8ee46dc72f75fc3d8d8dc90386bf7e84f2eb7450
   DOC_ARTIFACT: webHelpBT2-all.zip
 
 on: [push, workflow_dispatch]
