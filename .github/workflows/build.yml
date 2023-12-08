@@ -70,15 +70,7 @@ jobs:
     #   working-directory: build 
 
     - name: Create artifacts directory
-      run: mkdir atf
-
-    - name: VT Scan
-      run: |
-        pip install -r scripts/requirements.txt
-        python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
-      env:
-        VT_API_KEY: ${{ secrets.VT_API_KEY }}
-        
+      run: mkdir atf        
 
     # put the following inside "atf" subdir:
     # 1. msi installer, renamed after version number
@@ -98,6 +90,16 @@ jobs:
         ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
         PDB_FILE_NAME: pdb-${{ env.VERSION }}.zip
         MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
+
+    - name: VT Scan
+      run: |
+        pip install -r scripts/requirements.txt
+        python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
+      env:
+        ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
+        MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
+        VT_API_KEY: ${{ secrets.VT_API_KEY }}
+
 
     - uses: actions/upload-artifact@v3
       name: collect binaries

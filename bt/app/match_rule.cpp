@@ -192,6 +192,14 @@ namespace bt {
         }
     }
 
+    std::string match_rule::escape_rule_value(const std::string& input) const {
+
+    }
+
+    std::string match_rule::unescape_rule_value(const std::string& input) const {
+        return std::string();
+    }
+
     bool match_rule::is_match(const url_payload& up) const {
 
         if(value.empty()) return false;
