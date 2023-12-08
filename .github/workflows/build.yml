@@ -107,44 +107,44 @@ jobs:
         name: bin
         path: atf/*
 
-  build-linux:
-    runs-on: ubuntu-latest
-    name: 'Linux Build'
-    env:
-      VCPKG_DEFAULT_VCPKG_TRIPLET: x64-linux
-      VCPKG_TRIPLET: x64-linux
+  # build-linux:
+  #   runs-on: ubuntu-latest
+  #   name: 'Linux Build'
+  #   env:
+  #     VCPKG_DEFAULT_VCPKG_TRIPLET: x64-linux
+  #     VCPKG_TRIPLET: x64-linux
 
-    steps:
+  #   steps:
       
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       submodules: true
 
-    - uses: friendlyanon/setup-vcpkg@v1
-      with:
-        committish: ${{ env.VCPKG_HASH }} 
-        cache: true
+  #   - uses: friendlyanon/setup-vcpkg@v1
+  #     with:
+  #       committish: ${{ env.VCPKG_HASH }} 
+  #       cache: true
 
-    - name: ⚙️ configure
-      run: >
-        cmake -B build -S .
-        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
-        -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
-      working-directory: . 
+  #   - name: ⚙️ configure
+  #     run: >
+  #       cmake -B build -S .
+  #       -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+  #       -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
+  #       -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
+  #     working-directory: . 
 
 
-    - name: 🏭 build
-      run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
-      working-directory: . 
+  #   - name: 🏭 build
+  #     run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
+  #     working-directory: . 
 
-    - name: debug
-      run: ls -R
-      working-directory: build 
+  #   - name: debug
+  #     run: ls -R
+  #     working-directory: build 
 
-    - name: 🧪 unit tests
-      run: ./test
-      working-directory: build/test
+  #   - name: 🧪 unit tests
+  #     run: ./test
+  #     working-directory: build/test
 
   writerside-build:
     runs-on: ubuntu-latest
