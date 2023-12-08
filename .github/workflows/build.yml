@@ -94,7 +94,9 @@ jobs:
     - name: VT Scan
       run: |
         pip install -r scripts/requirements.txt
+        Write-Host "x: $LASTEXITCODE"
         python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
+        Write-Host "x: $LASTEXITCODE"
       env:
         ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
         MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
