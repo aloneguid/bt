@@ -76,6 +76,8 @@ jobs:
       run: |
         pip install -r scripts/requirements.txt
         python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
+      env:
+        VT_API_KEY: ${{ secrets.VT_API_KEY }}
         
 
     # put the following inside "atf" subdir:
