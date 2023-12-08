@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "url_payload.h"
 
 namespace bt {
@@ -46,9 +47,10 @@ namespace bt {
     private:
         bool contains(const std::string& input, const std::string& value) const;
 
-        // rule values cannot contain the following characters: '|'
-        std::string escape_rule_value(const std::string& input) const;
-        std::string unescape_rule_value(const std::string& input) const;
-        
+        std::string escape_pipe(const std::string& input) const;
+        std::string unescape_pipe(const std::string& input) const;
+
+        std::string join_to_line(const std::vector<std::string>& parts) const;
+        std::vector<std::string> split_line(const std::string& line) const;
     };
 }
