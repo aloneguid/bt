@@ -21,6 +21,7 @@ namespace bt {
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
+    const string ReplacementPipelineRule = "url_replacement";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
@@ -202,6 +203,15 @@ namespace bt {
 
     void config::set_unshort_enabled(bool enabled) {
         cfg.set_bool_value(UnshortEnabledKey, enabled);
+        cfg.commit();
+    }
+
+    std::vector<std::string> config::get_pipeline_replacement_rules() {
+        return cfg.get_all_values(ReplacementPipelineRule);
+    }
+
+    void config::set_pipeline_replacement_rules(const std::vector<std::string>& rules) {
+        cfg.set_value(ReplacementPipelineRule, rules);
         cfg.commit();
     }
 

@@ -41,6 +41,8 @@ namespace bt::ui
 
     void url_tester();
 
+    void url_pipeline();
+
     void ensure_no_instances();
 
     bool try_invoke_running_instance(const std::string& data);

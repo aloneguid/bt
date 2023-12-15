@@ -1,13 +1,12 @@
 #include "url_pipeline.h"
 #include "pipeline/unshortener.h"
 #include "pipeline/o365.h"
+#include "pipeline/replacer.h"
 #include "../globals.h"
 
 using namespace std;
 
 namespace bt {
-
-    //const string ClearUrlsDataFileName = "clearurls_db.json";
 
     url_pipeline::url_pipeline(config& cfg) : cfg{cfg} {
         reconfigure();
@@ -33,16 +32,15 @@ namespace bt {
     void url_pipeline::reconfigure() {
         steps.clear();
 
-        //if(g_config.get_clearurls_enabled()) {
-        //    string data_path = config::get_data_file_path(ClearUrlsDataFileName);
-
-        //    steps.push_back(make_unique<bt::security::clearurls>());
-        //}
-
-        steps.push_back(make_unique<bt::pipeline::o365>());
+        steps.push_back(make_shared<bt::pipeline::o365>());
 
         if(cfg.get_unshort_enabled()) {
-            steps.push_back(make_unique<bt::pipeline::unshortener>());
+            steps.push_back(make_shared<bt::pipeline::unshortener>());
+        }
+
+        auto replacer_rules = cfg.get_pipeline_replacement_rules();
+        if(!replacer_rules.empty()) {
+            steps.push_back(make_shared<bt::pipeline::replacer>(replacer_rules));
         }
     }
 }

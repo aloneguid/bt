@@ -226,6 +226,7 @@ namespace bt
         mi_settings->add("", "-");
         auto mi_cu = mi_settings->add("unshort", "Enable URL Un-Shortener", ICON_FA_SHIRT); 
         mi_cu->is_selected = g_config.get_unshort_enabled();
+        mi_settings->add("pipeline_config", "Configure URL pipeline", ICON_FA_BOLT);
 
         // HELP
         auto mi_help = menu->items()->add("", "Help");
@@ -556,6 +557,8 @@ special keyword - %url% which is replaced by opening url.)";
             mi.is_selected = !mi.is_selected;
             g_config.set_unshort_enabled(mi.is_selected);
             g_pipeline.reconfigure();
+        } else if(mi.id == "pipeline_config") {
+            bt::ui::url_pipeline();
         }
     }
 

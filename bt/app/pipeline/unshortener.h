@@ -6,6 +6,8 @@ namespace bt::pipeline {
     class unshortener : public bt::url_pipeline_step {
 
     public:
+        unshortener() : url_pipeline_step(url_pipeline_step_type::unshortener) {}
+
         // Inherited via url_pipeline_step
         void process(url_payload& up) override;
 

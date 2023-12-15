@@ -57,6 +57,9 @@ namespace bt {
         bool get_unshort_enabled();
         void set_unshort_enabled(bool enabled);
 
+        std::vector<std::string> get_pipeline_replacement_rules();
+        void set_pipeline_replacement_rules(const std::vector<std::string>& rules);
+
         // --- browser/instance
         
         void save_browsers(std::vector<std::shared_ptr<browser>> browsers);

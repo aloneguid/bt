@@ -1,8 +1,12 @@
 ## 3.7.0
 
+### New features
+
+- Introducing a new type of link pre-processing - **replacement rules**. BT now allows you to to define custom find and replace rules on URLs before applying rules to them. Simple strings and regular expressions are supported. Read more about this (todo: add link).
+
 ## Improvements
 
-- ?
+- Upgraded dependencies to latest.
 
 ### Bugs fixed
 

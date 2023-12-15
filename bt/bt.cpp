@@ -118,6 +118,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
     m.add("url", "URL Tester");
+    m.add("pipeline", "URL Pipeline");
     m.separator();
     m.add("x", "&Exit");
 
@@ -144,6 +145,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                     bt::ui::config();
                 } else if(id == "url") {
                     bt::ui::url_tester();
+                } else if(id == "pipeline") {
+                    bt::ui::url_pipeline();
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
                 }
