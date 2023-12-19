@@ -748,7 +748,7 @@ special keyword - %url% which is replaced by opening url.)";
                 lst_loc->items.push_back(list_item{"URL", ""});
                 lst_loc->items.push_back(list_item{"Title", ""});
                 lst_loc->items.push_back(list_item{"Process", ""});
-                lst_loc->selected_index = static_cast<size_t>(rule->loc);
+                lst_loc->set_selected_index(static_cast<int>(rule->loc));
 
                 // value
                 ctr->same_line();
@@ -788,7 +788,7 @@ special keyword - %url% which is replaced by opening url.)";
                 lst_scope->items.push_back(list_item{ICON_FA_GLOBE, "match anywhere"});
                 lst_scope->items.push_back(list_item{ICON_FA_LANDMARK_DOME, "match only in host name"});
                 lst_scope->items.push_back(list_item{ICON_FA_LINES_LEANING, "match only in path"});
-                lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
+                lst_scope->set_selected_index(static_cast<int>(ctx.data->scope));
                 g_scope->is_visible = &g_scope->tag_bool;
 
                 ctr->same_line();

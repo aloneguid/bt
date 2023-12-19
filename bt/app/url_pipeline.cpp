@@ -38,9 +38,13 @@ namespace bt {
             steps.push_back(make_shared<bt::pipeline::unshortener>());
         }
 
-        auto replacer_rules = cfg.get_pipeline_replacement_rules();
-        if(!replacer_rules.empty()) {
-            steps.push_back(make_shared<bt::pipeline::replacer>(replacer_rules));
-        }
+        //auto replacer_rules = cfg.get_pipeline_replacement_rules();
+        steps.push_back(make_shared<bt::pipeline::replacer>(""));
+    }
+
+    void url_pipeline::reset() {
+        steps.clear();
+        steps.push_back(make_shared<bt::pipeline::o365>());
+        steps.push_back(make_shared<bt::pipeline::unshortener>());
     }
 }

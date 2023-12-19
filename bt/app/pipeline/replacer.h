@@ -6,25 +6,22 @@
 namespace bt::pipeline {
 
     enum class replacer_kind {
-        contains = 0,
+        find_replace,
         regex
-    };
-
-    class replacer_rule {
-    public:
-        replacer_kind kind;
-        std::string match;
-        std::string replace;
     };
 
     class replacer : public url_pipeline_step {
     public:
-        replacer(const std::vector<std::string>& rules);
+
+        replacer_kind kind{replacer_kind::find_replace};
+        std::string find;
+        std::string replace;
+
+        replacer(const std::string& rule);
 
         // Inherited via url_pipeline_step
         void process(url_payload& up) override;
 
     private:
-        std::vector<replacer_rule> rules;
     };
 }

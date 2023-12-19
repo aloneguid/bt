@@ -9,15 +9,20 @@ namespace bt {
     */
     enum class url_pipeline_step_type {
         rule_matcher = 0,   // match a rule using the configured browser rules
+        find_replace,
         o365,
-        unshortener,
-        replacer
+        unshortener
     };
 
     class url_pipeline_step {
     public:
         virtual void process(url_payload& up) = 0;
         const url_pipeline_step_type type;
+
+        /**
+         * @brief Convert to human-readable string.
+        */
+        static std::string to_string(url_pipeline_step_type type);
 
     protected:
         url_pipeline_step(url_pipeline_step_type type) : type{type} {}

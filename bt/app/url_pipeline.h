@@ -17,6 +17,8 @@ namespace bt {
 
         void reconfigure();
 
+        void reset();
+
         std::vector<std::shared_ptr<url_pipeline_step>>& get_steps() { return steps; }
 
     private:

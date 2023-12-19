@@ -14,11 +14,19 @@ namespace bt {
 
         float icon_width;
         float item_padding;
+        std::shared_ptr<grey::repeater<url_pipeline_step>> rpt;
+
+        /**
+         * @brief Convert to FA_ icon.
+         */
+        static std::string to_icon(url_pipeline_step_type type);
 
         void make_ui_step(grey::repeater_bind_context<url_pipeline_step> ctx);
         void make_unconfigurable_step(std::shared_ptr<grey::container> container,
             const std::string& icon,
             const std::string& title);
         void make_replacer_step(std::shared_ptr<grey::container> container, std::shared_ptr<bt::url_pipeline_step> step);
+
+        void add_step(url_pipeline_step_type type);
     };
 }
