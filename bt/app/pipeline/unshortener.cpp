@@ -21,7 +21,8 @@ const set<string> SupportedDomains = {
     "pxlme.me",
     "rb.gy",
     "snip.ly",
-    "tinyurl.com", "tiny.one"
+    "tinyurl.com", "tiny.one",
+    "vrch.at"
 };
 
 void bt::pipeline::unshortener::process(url_payload& up) {
