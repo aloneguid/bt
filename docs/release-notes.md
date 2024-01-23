@@ -12,6 +12,7 @@
 
 - BT crashed with unhandled exception when regular expression rule was executing a regex with invalid syntax (#59). Thanks @egerlach.
 - Pipe characters ('|') in rule values were screwing up configuration (#59).
+- Empty rule would make URL Tester hang.
 
 ## 3.6.2
 

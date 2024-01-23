@@ -9,7 +9,7 @@ using namespace std;
 namespace bt {
 
     url_pipeline::url_pipeline(config& cfg) : cfg{cfg} {
-        reconfigure();
+        reload();
     }
 
     void url_pipeline::process(url_payload& up) {
@@ -29,7 +29,7 @@ namespace bt {
             up.open_url = up.url;
     }
 
-    void url_pipeline::reconfigure() {
+    void url_pipeline::reload() {
         steps.clear();
 
         steps.push_back(make_shared<bt::pipeline::o365>());

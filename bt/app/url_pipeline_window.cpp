@@ -2,6 +2,8 @@
 #include "url_pipeline.h"
 #include "../globals.h"
 #include "pipeline/replacer.h"
+#include "pipeline/o365.h"
+#include "pipeline/unshortener.h"
 
 using namespace std;
 
@@ -22,7 +24,7 @@ namespace bt {
         same_line();
         auto cmd_add = make_button(ICON_FA_CIRCLE_PLUS " add");
         cmd_add->set_emphasis(grey::emphasis::primary);
-        cmd_add->tooltip = "Add a new step to the pipeline.";
+        cmd_add->tooltip = "Add a new step (from drop-down on the left) to the pipeline.";
         cmd_add->on_pressed = [this, lst_pipeline_type](grey::button&) {
             auto type = static_cast<url_pipeline_step_type>(lst_pipeline_type->get_selected_index() + 1);
             add_step(type);
@@ -36,15 +38,15 @@ namespace bt {
         // step buttons
         same_line(); make_label("|")->is_enabled = false;
         same_line();
-        auto cmd_up = make_button(ICON_FA_ARROW_UP, true);
+        cmd_up = make_button(ICON_FA_ARROW_UP, true);
         cmd_up->tooltip = "Move selected step up.";
         cmd_up->is_enabled = false;
         same_line();
-        auto cmd_down = make_button(ICON_FA_ARROW_DOWN, true);
+        cmd_down = make_button(ICON_FA_ARROW_DOWN, true);
         cmd_down->tooltip = "Move selected step down.";
         cmd_down->is_enabled = false;
         same_line();
-        auto cmd_delete = make_button(ICON_FA_TRASH, " delete");
+        cmd_delete = make_button(ICON_FA_TRASH, " delete");
         cmd_delete->tooltip = "Delete selected step.";
         cmd_delete->is_enabled = false;
 
@@ -54,9 +56,20 @@ namespace bt {
         auto rpt_container = make_child_window();
 
         rpt = rpt_container->make_repeater<url_pipeline_step>(
-            [this](auto bctx) {make_ui_step(bctx); },
+            [this](auto bctx) {
+                make_ui_step(bctx);
+            },
             true);
         rpt->bind(g_pipeline.get_steps());
+        rpt->on_item_clicked = [this](
+            size_t idx, shared_ptr<grey::container>, shared_ptr<url_pipeline_step>) {
+            update_step_manipulation_buttons();
+        };
+
+        cmd_reset->on_pressed = [this](grey::button&) {
+            g_pipeline.reset();
+            rpt->bind(g_pipeline.get_steps());
+        };
     }
 
     void url_pipeline_window::make_ui_step(grey::repeater_bind_context<url_pipeline_step> ctx) {
@@ -123,8 +136,10 @@ namespace bt {
                 g_pipeline.get_steps().emplace_back(std::make_shared<bt::pipeline::replacer>(""));
                 break;
             case url_pipeline_step_type::o365:
+                g_pipeline.get_steps().emplace_back(std::make_shared<bt::pipeline::o365>());
                 break;
             case url_pipeline_step_type::unshortener:
+                g_pipeline.get_steps().emplace_back(std::make_shared<bt::pipeline::unshortener>());
                 break;
             default:
                 break;
@@ -132,6 +147,13 @@ namespace bt {
 
         // re-bind repeater
         rpt->bind(g_pipeline.get_steps());
+    }
+
+    void url_pipeline_window::update_step_manipulation_buttons() {
+        int idx = rpt->get_selected_index();
+        cmd_up->is_enabled = idx;
+        cmd_down->is_enabled = idx < g_pipeline.get_steps().size() - 1;
+        cmd_delete->is_enabled = g_pipeline.get_steps().size() > 0; // avoid deleting last step
     }
 
     std::string url_pipeline_window::to_icon(url_pipeline_step_type type) {

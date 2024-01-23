@@ -15,8 +15,14 @@ namespace bt {
 
         void process(url_payload& up);
 
-        void reconfigure();
+        /**
+         * @brief Reloads pipeline from configuration file.
+        */
+        void reload();
 
+        /**
+         * @brief Resets pipeline to minimum working state.
+        */
         void reset();
 
         std::vector<std::shared_ptr<url_pipeline_step>>& get_steps() { return steps; }

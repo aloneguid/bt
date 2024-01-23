@@ -80,7 +80,7 @@ namespace bt
             [this](repeater_bind_context<browser> ctx) {
             render(ctx.data, ctx.container);
         }, true);
-        rpt_browsers->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser> b) {
+        rpt_browsers->on_item_clicked = [this](size_t idx, shared_ptr<container> c, shared_ptr<browser> b) {
             handle_selection(b);
         };
 
@@ -556,7 +556,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "unshort") {
             mi.is_selected = !mi.is_selected;
             g_config.set_unshort_enabled(mi.is_selected);
-            g_pipeline.reconfigure();
+            g_pipeline.reload();
         } else if(mi.id == "pipeline_config") {
             bt::ui::url_pipeline();
         }

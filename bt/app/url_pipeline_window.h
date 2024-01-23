@@ -15,6 +15,9 @@ namespace bt {
         float icon_width;
         float item_padding;
         std::shared_ptr<grey::repeater<url_pipeline_step>> rpt;
+        std::shared_ptr<grey::button> cmd_up;
+        std::shared_ptr<grey::button> cmd_down;
+        std::shared_ptr<grey::button> cmd_delete;
 
         /**
          * @brief Convert to FA_ icon.
@@ -28,5 +31,7 @@ namespace bt {
         void make_replacer_step(std::shared_ptr<grey::container> container, std::shared_ptr<bt::url_pipeline_step> step);
 
         void add_step(url_pipeline_step_type type);
+
+        void update_step_manipulation_buttons();
     };
 }
