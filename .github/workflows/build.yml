@@ -60,9 +60,9 @@ jobs:
       run: cmake --build build --config ${{ env.VCPKG_CONFIG }}
       working-directory: . 
 
-    #- name: 🧪 unit tests
-    #  run: test.exe
-    #  working-directory: build/test/Release
+    - name: 🧪 unit tests
+      run: test.exe
+      working-directory: build/test/Release
 
     - name: 📦 pack
       run: cpack -C ${{ env.BUILD_TYPE }}
