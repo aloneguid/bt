@@ -157,8 +157,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build Writerside docs using Docker
+      - name: Build docs
         uses: JetBrains/writerside-github-action@v4
+        with:
+          instance: ${{ env.DOC_INSTANCE }}
+          artifact: ${{ env.DOC_INSTANCE }}
+          docker-version: ${{ env.DOC_DOCKER_VERSION }}
       - name: Upload documentation
         uses: actions/upload-artifact@v4
         with:
