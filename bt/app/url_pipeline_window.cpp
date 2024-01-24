@@ -14,19 +14,21 @@ namespace bt {
         icon_width = 25 * scale;
         item_padding = 5 * scale;
 
-        auto lst_pipeline_type = make_listbox("", 0);
-        lst_pipeline_type->mode = grey::listbox_mode::combo;
-        lst_pipeline_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::find_replace), "");
-        lst_pipeline_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::o365), "");
-        lst_pipeline_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::unshortener), "");
-        lst_pipeline_type->width = 150 * scale;
+        // step type combo
+        auto lst_step_type = make_listbox("", 0);
+        lst_step_type->mode = grey::listbox_mode::combo;
+        lst_step_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::find_replace), "");
+        lst_step_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::o365), "");
+        lst_step_type->items.emplace_back(url_pipeline_step::to_string(url_pipeline_step_type::unshortener), "");
+        lst_step_type->width = 150 * scale;
 
+        // "add step to pipeline" button
         same_line();
         auto cmd_add = make_button(ICON_FA_CIRCLE_PLUS " add");
         cmd_add->set_emphasis(grey::emphasis::primary);
         cmd_add->tooltip = "Add a new step (from drop-down on the left) to the pipeline.";
-        cmd_add->on_pressed = [this, lst_pipeline_type](grey::button&) {
-            auto type = static_cast<url_pipeline_step_type>(lst_pipeline_type->get_selected_index() + 1);
+        cmd_add->on_pressed = [this, lst_step_type](grey::button&) {
+            auto type = static_cast<url_pipeline_step_type>(lst_step_type->get_selected_index() + 1);
             add_step(type);
         };
 
@@ -41,14 +43,23 @@ namespace bt {
         cmd_up = make_button(ICON_FA_ARROW_UP, true);
         cmd_up->tooltip = "Move selected step up.";
         cmd_up->is_enabled = false;
+        cmd_up->on_pressed = [this](grey::button&) {
+            move_active_step(-1);
+        };
         same_line();
         cmd_down = make_button(ICON_FA_ARROW_DOWN, true);
         cmd_down->tooltip = "Move selected step down.";
         cmd_down->is_enabled = false;
+        cmd_down->on_pressed = [this](grey::button&) {
+            move_active_step(1);
+        };
         same_line();
         cmd_delete = make_button(ICON_FA_TRASH, " delete");
         cmd_delete->tooltip = "Delete selected step.";
         cmd_delete->is_enabled = false;
+        cmd_delete->on_pressed = [this](grey::button&) {
+            delete_active_step();
+        };
 
         separator();
 
@@ -117,17 +128,24 @@ namespace bt {
         type->items.emplace_back("Regex", "");
         type->on_selected = [replacer_step](size_t idx, grey::list_item& li) {
             replacer_step->kind = static_cast<bt::pipeline::replacer_kind>(idx);
+            g_pipeline.save();
         };
 
         float left_pad = icon_width + 100 * scale;
 
         container->same_line(left_pad);
         auto txt_find = container->make_input("find", &replacer_step->find);
+        txt_find->on_value_changed = [replacer_step](const std::string& value) {
+            g_pipeline.save();
+        };
 
         container->make_label("");
         container->same_line(left_pad);
         auto txt_replace = container->make_input("replace", &replacer_step->replace);
         txt_replace->set_padding(0, 0, 0, item_padding);
+        txt_replace->on_value_changed = [replacer_step](const std::string& value) {
+            g_pipeline.save();
+        };
     }
 
     void url_pipeline_window::add_step(url_pipeline_step_type type) {
@@ -144,16 +162,38 @@ namespace bt {
             default:
                 break;
         }
+        g_pipeline.save();
 
         // re-bind repeater
         rpt->bind(g_pipeline.get_steps());
+    }
+
+    void url_pipeline_window::move_active_step(int direction) {
+        int idx = rpt->get_selected_index();
+        stl::move(g_pipeline.get_steps(), rpt->get_selected_index(), direction, true);
+        rpt->bind(g_pipeline.get_steps());
+        rpt->set_selected_index(idx + direction);
+        update_step_manipulation_buttons();
+        g_pipeline.save();
+    }
+
+    void url_pipeline_window::delete_active_step() {
+        if(g_pipeline.get_steps().size() < 2) return;
+        int idx = rpt->get_selected_index();
+
+        g_pipeline.get_steps().erase(g_pipeline.get_steps().begin() + rpt->get_selected_index());
+        rpt->bind(g_pipeline.get_steps());
+        int count = g_pipeline.get_steps().size();
+        rpt->set_selected_index(idx < count ? idx : count - 1);
+        update_step_manipulation_buttons();
+        g_pipeline.save();
     }
 
     void url_pipeline_window::update_step_manipulation_buttons() {
         int idx = rpt->get_selected_index();
         cmd_up->is_enabled = idx;
         cmd_down->is_enabled = idx < g_pipeline.get_steps().size() - 1;
-        cmd_delete->is_enabled = g_pipeline.get_steps().size() > 0; // avoid deleting last step
+        cmd_delete->is_enabled = g_pipeline.get_steps().size() > 1; // avoid deleting last step
     }
 
     std::string url_pipeline_window::to_icon(url_pipeline_step_type type) {

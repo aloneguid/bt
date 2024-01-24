@@ -16,8 +16,10 @@ namespace bt {
 
     class url_pipeline_step {
     public:
-        virtual void process(url_payload& up) = 0;
+
         const url_pipeline_step_type type;
+
+        virtual void process(url_payload& up) = 0;
 
         /**
          * @brief Convert to human-readable string.

@@ -32,6 +32,9 @@ namespace bt {
 
         void add_step(url_pipeline_step_type type);
 
+        void move_active_step(int direction);
+        void delete_active_step();
+
         void update_step_manipulation_buttons();
     };
 }

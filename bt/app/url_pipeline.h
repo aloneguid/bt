@@ -18,7 +18,12 @@ namespace bt {
         /**
          * @brief Reloads pipeline from configuration file.
         */
-        void reload();
+        void load();
+
+        /**
+         * @brief Saves pipeline to configuration file.
+        */
+        void save();
 
         /**
          * @brief Resets pipeline to minimum working state.

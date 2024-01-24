@@ -556,7 +556,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id == "unshort") {
             mi.is_selected = !mi.is_selected;
             g_config.set_unshort_enabled(mi.is_selected);
-            g_pipeline.reload();
+            g_pipeline.load();
         } else if(mi.id == "pipeline_config") {
             bt::ui::url_pipeline();
         }
