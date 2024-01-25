@@ -80,7 +80,7 @@ namespace bt
             [this](repeater_bind_context<browser> ctx) {
             render(ctx.data, ctx.container);
         }, true);
-        rpt_browsers->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser> b) {
+        rpt_browsers->on_item_clicked = [this](size_t idx, shared_ptr<container> c, shared_ptr<browser> b) {
             handle_selection(b);
         };
 
@@ -224,8 +224,7 @@ namespace bt
         mi_log_rule_hits->is_selected = log_rule_hits;
 
         mi_settings->add("", "-");
-        auto mi_cu = mi_settings->add("unshort", "Enable URL Un-Shortener", ICON_FA_SHIRT); 
-        mi_cu->is_selected = g_config.get_unshort_enabled();
+        mi_settings->add("pipeline_config", "Configure URL pipeline", ICON_FA_BOLT);
 
         // HELP
         auto mi_help = menu->items()->add("", "Help");
@@ -552,10 +551,8 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
             update_firefox_mode(true, config::to_firefox_container_mode(name));
-        } else if(mi.id == "unshort") {
-            mi.is_selected = !mi.is_selected;
-            g_config.set_unshort_enabled(mi.is_selected);
-            g_pipeline.reconfigure();
+        } else if(mi.id == "pipeline_config") {
+            bt::ui::url_pipeline();
         }
     }
 
@@ -745,7 +742,7 @@ special keyword - %url% which is replaced by opening url.)";
                 lst_loc->items.push_back(list_item{"URL", ""});
                 lst_loc->items.push_back(list_item{"Title", ""});
                 lst_loc->items.push_back(list_item{"Process", ""});
-                lst_loc->selected_index = static_cast<size_t>(rule->loc);
+                lst_loc->set_selected_index(static_cast<int>(rule->loc));
 
                 // value
                 ctr->same_line();
@@ -785,7 +782,7 @@ special keyword - %url% which is replaced by opening url.)";
                 lst_scope->items.push_back(list_item{ICON_FA_GLOBE, "match anywhere"});
                 lst_scope->items.push_back(list_item{ICON_FA_LANDMARK_DOME, "match only in host name"});
                 lst_scope->items.push_back(list_item{ICON_FA_LINES_LEANING, "match only in path"});
-                lst_scope->selected_index = static_cast<size_t>(ctx.data->scope);
+                lst_scope->set_selected_index(static_cast<int>(ctx.data->scope));
                 g_scope->is_visible = &g_scope->tag_bool;
 
                 ctr->same_line();

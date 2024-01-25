@@ -60,7 +60,6 @@ void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWOR
         {"event", "ping"},
         {"log_rule_hits", g_config.get_log_rule_hits() ? "y" : "n"},
         {"theme", g_config.get_theme()},
-        {"unshort", g_config.get_unshort_enabled() ? "y" : "n"},
         {"browsers_total", std::to_string(bt::browser::get_cache().size())}
     }, true);
 }
@@ -118,6 +117,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     win32::popup_menu m{win32app.get_hwnd()};
     m.add("cfg", "Configure");
     m.add("url", "URL Tester");
+    m.add("pipeline", "URL Pipeline");
     m.separator();
     m.add("x", "&Exit");
 
@@ -144,6 +144,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                     bt::ui::config();
                 } else if(id == "url") {
                     bt::ui::url_tester();
+                } else if(id == "pipeline") {
+                    bt::ui::url_pipeline();
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
                 }

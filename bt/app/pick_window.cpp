@@ -156,7 +156,7 @@ namespace bt {
             lbl_spacer->padding_left = -10 * scale;
         }, true);
         rpt->bind(choices);
-        rpt->on_item_clicked = [this](shared_ptr<container> c, shared_ptr<browser_instance> bi) {
+        rpt->on_item_clicked = [this](size_t idx, shared_ptr<container> c, shared_ptr<browser_instance> bi) {
             launch(bi);
             if(persist_domain) {
                 string rule_value = str::get_domain_from_url(up.open_url);

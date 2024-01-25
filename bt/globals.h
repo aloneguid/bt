@@ -26,7 +26,7 @@ const std::string PortableMarkerName = ".portable";
 
 extern alg::tracker t;
 
-extern bt::config g_config;
+extern bt::config g_config; // todo: pass by reference, do not make it global
 
 extern bt::url_pipeline g_pipeline;
 

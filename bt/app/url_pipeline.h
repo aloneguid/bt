@@ -7,7 +7,7 @@
 
 namespace bt {
     /**
-     * @brief URL processing pipeline. Includes stuff like cleaning the URL, unshortening etc.
+     * @brief URL processing pipeline. Includes stuff like cleaning the URL, unshortening, find/replace etc.
     */
     class url_pipeline {
     public:
@@ -15,10 +15,25 @@ namespace bt {
 
         void process(url_payload& up);
 
-        void reconfigure();
+        /**
+         * @brief Reloads pipeline from configuration file.
+        */
+        void load();
+
+        /**
+         * @brief Saves pipeline to configuration file.
+        */
+        void save();
+
+        /**
+         * @brief Resets pipeline to minimum working state.
+        */
+        void reset();
+
+        std::vector<std::shared_ptr<url_pipeline_step>>& get_steps() { return steps; }
 
     private:
         config& cfg;
-        std::vector<std::unique_ptr<url_pipeline_step>> steps;
+        std::vector<std::shared_ptr<url_pipeline_step>> steps;
     };
 }

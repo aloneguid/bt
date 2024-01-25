@@ -25,6 +25,7 @@ namespace bt::ui {
     std::function<void(bool is_open)> on_ui_open_changed;
     bool is_main_instance{false};
     bool is_config_running{false};
+    bool is_url_pipeline_running{false};
 
     void set_main_instance() {
         is_main_instance = true;
@@ -143,6 +144,20 @@ namespace bt::ui {
         auto w = active_backend->make_window<url_tester_window>();
         w->detach_on_close = true;
         w->center();
+    }
+
+    void url_pipeline() {
+        // allow only a single instance
+        if(is_url_pipeline_running) return;
+
+        prepare_ui_backend();
+
+        auto w = active_backend->make_window<url_pipeline_window>();
+        w->detach_on_close = true;
+        w->on_open_changed = [](bool is_open) {
+            is_url_pipeline_running = is_open;
+        };
+        is_url_pipeline_running = true;
     }
 
     void ensure_no_instances() {

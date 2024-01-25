@@ -102,6 +102,10 @@ TEST(Rules, Deserialise) {
     match_rule mr5{"mode:app|p"};
     EXPECT_EQ("p", mr5.value);
     EXPECT_EQ(true, mr5.app_mode);
+
+    //match_rule mr6{"just a co:lon"};
+    //EXPECT_EQ("just a co:lon", mr6.value);
+    //EXPECT_EQ(match_scope::any, mr6.scope);
 }
 
 // --- parse URL ---

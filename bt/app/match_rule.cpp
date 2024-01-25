@@ -17,7 +17,7 @@ namespace bt {
     match_rule::match_rule(const std::string& line) {
         string src = line;
         str::trim(src);
-        auto parts = split_line(src);
+        auto parts = str::split_pipe(src);
 
         for(string& p : parts) {
             if(p.empty()) continue;
@@ -111,7 +111,7 @@ namespace bt {
 
         parts.push_back(s);
 
-        return join_to_line(parts);
+        return str::join_with_pipe(parts);
     }
 
     std::string match_rule::to_string(match_scope s) {
@@ -192,56 +192,6 @@ namespace bt {
             return str::contains_ic(input, value);
         }
     }
-
-    std::string match_rule::escape_pipe(const std::string& input) const {
-        std::string result;
-        for(char c : input) {
-            if(c == '|') {
-                result += "\\|";
-            } else {
-                result += c;
-            }
-        }
-        return result;
-    }
-
-    std::string match_rule::unescape_pipe(const std::string& input) const {
-        std::string result = input;
-        size_t position = 0;
-        while((position = result.find("\\|", position)) != std::string::npos) {
-            result.erase(position, 1);
-        }
-        return result;
-    }
-
-    std::string match_rule::join_to_line(const std::vector<std::string>& parts) const {
-        std::ostringstream joined;
-        for(auto it = parts.begin(); it != parts.end(); ++it) {
-            if(it != parts.begin()) {
-                joined << "|";
-            }
-            joined << escape_pipe(*it);
-        }
-        return joined.str();
-    }
-
-    std::vector<std::string> match_rule::split_line(const std::string& line) const {
-
-        // This function replaces all escaped pipes (\\|) with a non-printable character (\v),
-        // then splits the string by the pipe character (|). After splitting, it replaces the
-        // non-printable character back to the pipe character in each substring.
-        // Please note that this code assumes that the non - printable character \v is not used in
-        // the input string.If it is, you may need to choose a different character for temporary replacement.
-
-        std::string copy(line);
-        str::replace_all(copy, "\\|", "\v");
-        auto result = str::split(copy, "|");
-        for(auto& s : result) {
-            str::replace_all(s, "\v", "|");
-        }
-        return result;
-    }
-
 
     bool match_rule::is_match(const url_payload& up) const {
 

@@ -21,6 +21,8 @@ namespace bt {
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
+    const string PipelineSectionName = "pipeline";
+    const string PipelineStepKeyName = "step";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
@@ -196,12 +198,12 @@ namespace bt {
         cfg.commit();
     }
 
-    bool config::get_unshort_enabled() {
-        return cfg.get_bool_value(UnshortEnabledKey, true);
+    std::vector<std::string> config::get_pipeline() {
+        return cfg.get_all_values(PipelineStepKeyName, PipelineSectionName);
     }
 
-    void config::set_unshort_enabled(bool enabled) {
-        cfg.set_bool_value(UnshortEnabledKey, enabled);
+    void config::set_pipeline(const std::vector<std::string>& steps) {
+        cfg.set_value(PipelineStepKeyName, steps, PipelineSectionName);
         cfg.commit();
     }
 

@@ -16,6 +16,14 @@ add_compile_definitions(UNICODE) # required for WIN32 API to use correct version
 # see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_RUNTIME_LIBRARY.html
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+# The cool "edit & continue" feature of MSVC is disabled by default in CMake.
+# https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#edit-and-continue-for-cmake-projects
+# enable globally: https://stackoverflow.com/a/76254117/80858
+if(MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options("/ZI")
+    add_link_options("/INCREMENTAL")
+endif()
+
 if(WIN32)
     add_subdirectory(grey)
     add_subdirectory(bt)
