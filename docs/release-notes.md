@@ -7,6 +7,7 @@
 ## Improvements
 
 - Upgraded dependencies to latest.
+- Un-shortener supports `vrch.at` shortlinks, by @Bluscream in #62.
 
 ### Bugs fixed
 
