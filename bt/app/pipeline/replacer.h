@@ -17,7 +17,9 @@ namespace bt::pipeline {
         std::string find;
         std::string replace;
 
+        replacer(replacer_kind kind, const std::string& find, const std::string& replace);
         replacer(const std::string& rule);
+
 
         // Inherited via url_pipeline_step
         void process(url_payload& up) override;

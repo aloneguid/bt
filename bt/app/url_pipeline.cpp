@@ -33,14 +33,28 @@ namespace bt {
     void url_pipeline::load() {
         steps.clear();
 
-        steps.push_back(make_shared<bt::pipeline::o365>());
+        vector<string> steps_str = cfg.get_pipeline();
+        for(const string& step_str : steps_str) {
+            vector<string> parts = str::split_pipe(step_str);
+            if(parts.size() < 1)
+                continue;
 
-        if(cfg.get_unshort_enabled()) {
-            steps.push_back(make_shared<bt::pipeline::unshortener>());
+            string name = parts[0];
+
+            if(name == "o365") {
+                steps.push_back(make_shared<bt::pipeline::o365>());
+            } else if(name == "unshorten") {
+                steps.push_back(make_shared<bt::pipeline::unshortener>());
+            } else if(name == "find_replace") {
+                if(parts.size() < 4)
+                    continue;
+                steps.push_back(make_shared<bt::pipeline::replacer>(
+                    parts[1] == "rgx"
+                    ? bt::pipeline::replacer_kind::find_replace : bt::pipeline::replacer_kind::find_replace,
+                    parts[2],
+                    parts[3]));
+            }
         }
-
-        //auto replacer_rules = cfg.get_pipeline_replacement_rules();
-        steps.push_back(make_shared<bt::pipeline::replacer>(""));
     }
 
     void url_pipeline::save() {
@@ -58,7 +72,7 @@ namespace bt {
                     std::shared_ptr<bt::pipeline::replacer> replacer_step = std::static_pointer_cast<bt::pipeline::replacer>(step);                    
                     steps_str.push_back(str::join_with_pipe({
                         "find_replace",
-                        replacer_step->kind == bt::pipeline::replacer_kind::find_replace ? "substring" : "regex",
+                        replacer_step->kind == bt::pipeline::replacer_kind::find_replace ? "substr" : "rgx",
                         replacer_step->find,
                         replacer_step->replace
                         }));

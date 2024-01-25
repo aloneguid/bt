@@ -60,7 +60,6 @@ void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWOR
         {"event", "ping"},
         {"log_rule_hits", g_config.get_log_rule_hits() ? "y" : "n"},
         {"theme", g_config.get_theme()},
-        {"unshort", g_config.get_unshort_enabled() ? "y" : "n"},
         {"browsers_total", std::to_string(bt::browser::get_cache().size())}
     }, true);
 }

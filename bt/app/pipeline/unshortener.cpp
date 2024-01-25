@@ -9,23 +9,23 @@ namespace bt::pipeline {
 
     const string LocationHeaderName = "Location";
 
-const set<string> SupportedDomains = {
-    "bit.ly",
-    "rebrand.ly",
-    "bl.ink",
-    "zapier.com",
-    "short.io",
-    "ow.ly",
-    "linktr.ee",
-    "t2m.io",
-    "linkjoy.io",
-    "geni.us",
-    "pxlme.me",
-    "rb.gy",
-    "snip.ly",
-    "tinyurl.com", "tiny.one",
-    "vrch.at"
-};
+    const set<string> SupportedDomains = {
+        "bit.ly",
+        "rebrand.ly",
+        "bl.ink",
+        "zapier.com",
+        "short.io",
+        "ow.ly",
+        "linktr.ee",
+        "t2m.io",
+        "linkjoy.io",
+        "geni.us",
+        "pxlme.me",
+        "rb.gy",
+        "snip.ly",
+        "tinyurl.com", "tiny.one",
+        "vrch.at"
+    };
 
     void unshortener::process(url_payload& up) {
 

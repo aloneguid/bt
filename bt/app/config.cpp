@@ -198,15 +198,6 @@ namespace bt {
         cfg.commit();
     }
 
-    bool config::get_unshort_enabled() {
-        return cfg.get_bool_value(UnshortEnabledKey, true);
-    }
-
-    void config::set_unshort_enabled(bool enabled) {
-        cfg.set_bool_value(UnshortEnabledKey, enabled);
-        cfg.commit();
-    }
-
     std::vector<std::string> config::get_pipeline() {
         return cfg.get_all_values(PipelineStepKeyName, PipelineSectionName);
     }

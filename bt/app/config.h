@@ -54,10 +54,6 @@ namespace bt {
         bool get_show_hidden_browsers();
         void set_show_hidden_browsers(bool show);
 
-        // todo: delete
-        bool get_unshort_enabled();
-        void set_unshort_enabled(bool enabled);
-
         std::vector<std::string> get_pipeline();
         void set_pipeline(const std::vector<std::string>& steps);
 
