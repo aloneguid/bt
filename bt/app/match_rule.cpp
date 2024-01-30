@@ -13,6 +13,7 @@ namespace bt {
     const string ModeKey = "mode";
     const string AppKey = "app";
     const string TypeKey = "type";
+    const string TypeRegexKey = "regex";
 
     match_rule::match_rule(const std::string& line) {
         string src = line;
@@ -38,7 +39,9 @@ namespace bt {
                 } else if(k == ModeKey) {
                     if(v == AppKey) app_mode = true;
                 } else if(k == TypeKey) {
-                    if(v == "regex") is_regex = true;
+                    if(v == TypeRegexKey) is_regex = true;
+                } else {
+                    value = p;
                 }
 
             } else {
