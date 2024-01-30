@@ -139,6 +139,14 @@ namespace bt
 
         bc->is_enabled = pc->is_enabled = rc->is_enabled = false;
 
+        status->make_label("|")->is_enabled = false;
+        auto bmac = status->make_label(ICON_FA_MUG_HOT);
+        bmac->tooltip = "Support this app, buy me a coffee!";
+        bmac->is_enabled = false;
+        bmac->on_click = [this](component&) {
+            ui::url_open(url_payload{APP_BUYMEACOFFEE_URL}, ui::open_method::configured);
+        };
+
         status->on_frame = [this, bc, pc, rc](component&) {
             bc->set_value(fmt::format("{} {}", ICON_FA_WINDOW_RESTORE, browsers.size()));
 
