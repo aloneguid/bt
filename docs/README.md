@@ -33,6 +33,10 @@
 - Optional [audit](https://aloneguid.github.io/bt/config-basic.html#audit) of rule hits to a csv file.
 - Beautiful UI based on [ImGui](https://github.com/ocornut/imgui) (GPU-accelerated UI engine used in games) with support for [themes](/posts/2022/12/bt-theming/).
 
+## Statistics
+
+In 2023, Browser Tamer was installed by **5150 people** and in February 2023 it had **561 regular users** (using BT constantly for more than 7 days in a row)! This is all I can expose, as only very basic anonymous stats are reported (the fact that you have launched BT).
+
 ## Raising an Issue
 
 Feel free to [raise an issue here](https://github.com/aloneguid/bt/issues/new) or [start a discussion](https://github.com/aloneguid/bt/discussions/new/choose).
