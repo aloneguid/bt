@@ -119,6 +119,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     m.add("url", "URL Tester");
     m.add("pipeline", "URL Pipeline");
     m.separator();
+    m.add("bmc", "Buy me a coffee");
+    m.separator();
     m.add("x", "&Exit");
 
     win32app.on_app_window_message = [&m, &win32app](UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -146,6 +148,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
                     bt::ui::url_tester();
                 } else if(id == "pipeline") {
                     bt::ui::url_pipeline();
+                } else if(id == "bmc") {
+                    bt::ui::url_open(bt::url_payload{APP_BUYMEACOFFEE_URL}, bt::ui::open_method::configured);
                 } else if(id == "x") {
                     ::PostQuitMessage(0);
                 }
@@ -171,8 +175,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
         //win32app.set_max_fps_mode(is_open);
         win32app.set_message_timeout(is_open ? 100 : -1);
     };
-
-    //bt::ui::launch_or_pick(bt::url_payload{"https://aloneguid.uk"}, bt::ui::open_method::pick);
 
     execute(arg);
 

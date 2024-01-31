@@ -1,6 +1,10 @@
-# URL processing
+# URL processing (legacy)
 
 %product% can optionally pre-process URLs before applying the rules.
+
+<warning>
+URL Processing is replaced by <strong>URL Pipeline</strong> in v3.7.0. See <a href="url-pipeline.md">URL Pipeline</a> for more details. This page is left untouched for historical reasons.
+</warning>
 
 ## Un-shortening
 

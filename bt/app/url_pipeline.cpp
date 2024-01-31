@@ -50,7 +50,7 @@ namespace bt {
                     continue;
                 steps.push_back(make_shared<bt::pipeline::replacer>(
                     parts[1] == "rgx"
-                    ? bt::pipeline::replacer_kind::find_replace : bt::pipeline::replacer_kind::find_replace,
+                    ? bt::pipeline::replacer_kind::regex : bt::pipeline::replacer_kind::find_replace,
                     parts[2],
                     parts[3]));
             }

@@ -126,6 +126,7 @@ namespace bt {
         type->mode = grey::listbox_mode::combo;
         type->items.emplace_back("Substring", "");
         type->items.emplace_back("Regex", "");
+        type->set_selected_index(static_cast<int>(replacer_step->kind));
         type->on_selected = [replacer_step](size_t idx, grey::list_item& li) {
             replacer_step->kind = static_cast<bt::pipeline::replacer_kind>(idx);
             g_pipeline.save();

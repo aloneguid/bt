@@ -1,5 +1,6 @@
 #include "replacer.h"
 #include "str.h"
+#include <regex>
 
 using namespace std;
 
@@ -39,6 +40,12 @@ namespace bt::pipeline {
             if(idx != string::npos) {
                 str::replace_all(url, find, replace);
                 up.match_url = up.open_url = url;
+            }
+        } else {
+            // regex
+            regex rgx{find, regex_constants::icase};
+            if(regex_search(url, rgx)) {
+                up.match_url = up.open_url = regex_replace(url, rgx, replace);
             }
         }
     }
