@@ -15,6 +15,10 @@
 - Pipe `|` and colon `:` in rule values were screwing up configuration (#59, 67). Thanks to @liny01-nbsa and @egerlach.
 - Empty rule would make URL Tester hang.
 
+> As you may have noticed, the number of releases went down in frequency. This is mostly due to the fact I wanted to sort out AV false-positives by contacting AV vendors one by one, and this is a long and tedious process which has nothing to do with technology.
+>
+> Remember, if you like this project and wish and can to support it, you can always star :star: it, which helps a lot in terms of spreading the word. Optionally, if you can, you can :coffee: [buy me a coffee](https://www.buymeacoffee.com/alonecoffee) as well.
+
 ## 3.6.2
 
 🐞Fixed: BT hangs waiting for browser proxy process to terminate. Thanks to @cjs1976 and @fixator10 in #51.
