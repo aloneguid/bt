@@ -2,7 +2,7 @@
 
 ### New features
 
-- Introducing **URL Pipeline**. BT now allows you to to define custom find and replace rules on URLs before applying rules to them. Simple strings and regular expressions are supported. Read more about this (todo: add link).
+- Introducing **URL Pipeline**. BT now allows you to to define custom find and replace rules on URLs before applying rules to them. Simple strings and regular expressions are supported. Read more about this in the [official docs](https://aloneguid.github.io/bt/url-pipeline.html).
 
 ## Improvements
 
