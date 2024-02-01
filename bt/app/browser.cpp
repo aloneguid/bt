@@ -228,7 +228,8 @@ namespace bt {
         }
 
         //win32::shell::exec(b->open_cmd, arg);
-        win32::process::start(b->open_cmd + " " + arg, false);
+        //win32::process::start(b->open_cmd + " " + arg, false);
+        launch_win32_process_and_foreground(b->open_cmd + " " + arg);
     }
 
     bool browser_instance::is_match(const url_payload& up, match_rule& mr) const {
@@ -288,6 +289,33 @@ namespace bt {
             if(!clean_rule.empty()) {
                 add_rule(rule);
             }
+        }
+    }
+
+    void browser_instance::launch_win32_process_and_foreground(const std::string& cmdline) const {
+        STARTUPINFO si{};
+        PROCESS_INFORMATION pi{};
+        DWORD pid{0};
+
+        if(::CreateProcess(nullptr,
+            const_cast<wchar_t*>(str::to_wstr(cmdline).c_str()),
+            nullptr,
+            nullptr,
+            false,
+            0,
+            nullptr,
+            nullptr,
+            &si,
+            &pi)) {
+
+            // Wait for the process to start before closing the handles,
+            // otherwise the process will be terminated (browser will be shown in the background).
+
+            // Wait for 5 seconds maximum
+            ::WaitForSingleObject(pi.hProcess, 5000);
+
+            ::CloseHandle(pi.hProcess);
+            ::CloseHandle(pi.hThread);
         }
     }
 }

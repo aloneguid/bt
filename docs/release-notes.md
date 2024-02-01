@@ -1,3 +1,9 @@
+## 3.7.1
+
+### Improvements
+
+- Hopefully fixed browser being backgrounded for some users (#39).
+
 ## 3.7.0
 
 ### New features
