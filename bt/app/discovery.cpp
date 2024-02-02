@@ -136,14 +136,24 @@ namespace bt {
         }
 
         {
-            auto inprivate = make_shared<browser_instance>(
-                b, "InPrivate", "Private",
-                fmt::format("\"{}\" -inprivate", browser_instance::URL_ARG_NAME),
-                ""
-            );
-            inprivate->is_incognito = true;
-            inprivate->order = b->instances.size();
-            b->instances.push_back(inprivate);
+            if(b->id == "msedge") {
+                // Edge is not stupid, it's just different
+                auto inprivate = make_shared<browser_instance>(
+                    b, "InPrivate", "InPrivate",
+                    fmt::format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
+                    "");
+                inprivate->is_incognito = true;
+                inprivate->order = b->instances.size();
+                b->instances.push_back(inprivate);
+            } else {
+                auto inprivate = make_shared<browser_instance>(
+                b, "Incognito", "Incognito",
+                fmt::format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
+                "");
+                inprivate->is_incognito = true;
+                inprivate->order = b->instances.size();
+                b->instances.push_back(inprivate);
+            }
         }
 
         // Brave additionally supports Tor mode
