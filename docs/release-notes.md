@@ -1,3 +1,8 @@
+## 3.7.2
+
+### Bugs fixed
+- Latest version of Firefox omits ':' character from the URL when it's passed to the browser. This was causing BT to not be able to open URLs from Firefox. Thanks to @jnv in #68.
+
 ## 3.7.1
 
 ### Improvements

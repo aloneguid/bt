@@ -15,8 +15,18 @@ namespace bt {
 
     void url_pipeline::process(url_payload& up) {
 
+        // remove custom protocol prefix
         if(up.url.starts_with(CustomProtoName) && up.url.size() > CustomProtoName.size() + 3) {
             up.url = up.url.substr(CustomProtoName.size() + 3);
+        }
+
+        // Firefox for some reason removes ':' when opening custom protocol links, so we need to add it back
+        size_t idx = up.url.find("://");
+        if(idx == string::npos) {
+            idx = up.url.find("//");
+            if(idx != string::npos) {
+                up.url = up.url.substr(0, idx) + ":" + up.url.substr(idx);
+            }
         }
 
         for(auto& step : steps) {
