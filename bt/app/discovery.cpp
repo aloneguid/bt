@@ -230,11 +230,13 @@ namespace bt {
                         b->instances.push_back(bi);
                     } else {
 
-                        /*vector<string> addons = get_firefox_addons_installed(roaming_home);
-                        if(std::find(addons.begin(), addons.end(), "{f069aec0-43c5-4bbf-b6b4-df95c4326b98}") != addons.end()) {
-                            bi->has_firefox_ouic_addon = true;
-                        }*/
+                        // add "no container" profile
+                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
+                        auto bi = make_shared<browser_instance>(b, e.pItem, "No container", arg, "");
+                        bi->order = 0;
+                        b->instances.push_back(bi);
 
+                        // add profile for each container
                         vector<firefox_container> containers = discover_firefox_containers(roaming_home);
                         for(const auto& container : containers) {
 
