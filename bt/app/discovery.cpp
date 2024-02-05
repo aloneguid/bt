@@ -30,9 +30,10 @@ map<string, string> chromium_id_to_vdf {
     { "thorium", "Thorium\\User Data" }
 };
 
-map<string, string> firefox_id_to_vdf{
+map<string, string> firefox_id_to_vdf {
     { "firefox", "Mozilla\\Firefox" },
-    { "waterfox", "Waterfox" }
+    { "waterfox", "Waterfox" },
+    { "librewolf", "Librewolf" }
 };
 
 namespace bt {

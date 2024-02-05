@@ -1,3 +1,10 @@
+## 3.7.3
+
+### New feature
+
+- Added support for opening links in "no container" in Firefox container mode. Thanks to @benaduggan in #69.
+- [LibreWolf](https://librewolf.net/) is now recognized as a Firefox-compatible browser.
+
 ## 3.7.2
 
 ### Bugs fixed

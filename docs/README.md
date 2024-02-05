@@ -27,7 +27,7 @@
   - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-pipeline.html#office-365-link-unwrapping).
   - [Find/replace](Find/replace) functionality, including regular expression support.
 
-- **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox etc.).
+- **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox, LibreWolf etc.).
   [![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/oggcljknmiiomjekepdoindjcpnpglnd)](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd)  [![Mozilla Add-on Version](https://img.shields.io/amo/v/browser-tamer)](https://addons.mozilla.org/eu/firefox/addon/browser-tamer/)
 - Open links in ["chromeless (frameless)" window](https://aloneguid.github.io/bt/rules.html#frameless-windows).
 - Optional [audit](https://aloneguid.github.io/bt/config-basic.html#audit) of rule hits to a csv file.
