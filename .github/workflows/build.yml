@@ -5,7 +5,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: 8e9dc3c690558456a667ede3555e01783c3fab9c
+  VCPKG_HASH: ad25766aefb5313b6bc4e2a4b78a2946f84fbf66
   DOC_INSTANCE: wrs/bt
   DOC_ARTIFACT: webHelpBT2-all.zip
   DOC_ALGOLIA_ARTIFACT: algolia-indexes-BT.zip
