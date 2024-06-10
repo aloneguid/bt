@@ -24,6 +24,10 @@ if(MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
     add_link_options("/INCREMENTAL")
 endif()
 
+if(MSVC AND CMAKE_BUILD_TYPE MATCHES Release)
+    add_link_options("/OPT:REF")
+endif()
+
 if(WIN32)
     add_subdirectory(grey)
     add_subdirectory(bt)

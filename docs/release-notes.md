@@ -1,6 +1,6 @@
-## 3.8.0
+## 3.7.4
 
-- Updated to latest dependencies.
+This build has nothing new, and only updates to latest dependencies that fix security vulnerabilities.
 
 ## 3.7.3
 
