@@ -1,3 +1,7 @@
+## 3.8.0
+
+- Updated to latest dependencies.
+
 ## 3.7.3
 
 ### New feature
