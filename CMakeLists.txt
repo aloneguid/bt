@@ -29,7 +29,7 @@ if(MSVC AND CMAKE_BUILD_TYPE MATCHES Release)
 endif()
 
 if(WIN32)
-    add_subdirectory(grey)
+    add_subdirectory(../grey/grey ${CMAKE_CURRENT_BINARY_DIR}/grey_build)
     add_subdirectory(bt)
 endif()
 

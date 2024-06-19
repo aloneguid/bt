@@ -39,7 +39,7 @@ target_link_libraries(bt
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
 )
-target_include_directories(${APP_NAME} PRIVATE "../common" "../grey" ${P_RANAV_CSV2_INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PRIVATE "../common" "../../grey/grey" ${P_RANAV_CSV2_INCLUDE_DIRS})
 
 target_sources(bt PRIVATE dpi-aware.manifest)
 

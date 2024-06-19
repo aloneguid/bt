@@ -1,6 +1,7 @@
 #include "url_pipeline_window.h"
 #include "url_pipeline.h"
 #include "../globals.h"
+#include "stl.hpp"
 #include "pipeline/replacer.h"
 #include "pipeline/o365.h"
 #include "pipeline/unshortener.h"

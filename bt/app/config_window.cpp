@@ -7,6 +7,7 @@
 #include "win32/ole32.h"
 #include "win32/process.h"
 #include "win32/clipboard.h"
+#include "stl.hpp"
 #include "win32/sysinfo.h"
 #include "datetime.h"
 #include "../globals.h"
