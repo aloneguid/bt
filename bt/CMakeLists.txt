@@ -16,6 +16,7 @@ find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 
 file(GLOB core_src CONFIGURE_DEPENDS
     "app/*.cpp"
+    "app/ui/*.cpp"
     "app/pipeline/*.cpp"
     "../common/*.cpp"
     "../common/ext/*.cpp"

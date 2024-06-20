@@ -40,16 +40,16 @@ namespace bt {
     void pick_window::init() {
 
         same_line(15 * scale);
-        auto cmd_cac = make_button(ICON_FA_COPY);
+        auto cmd_cac = make_button(ICON_FK_FILES_O);
         cmd_cac->tooltip = fmt::format("Copy URL to clipboard and cancel picker without opening any browser\nurl: {}", up.url);
 
         same_line();
-        auto chk_app_mode = make_checkbox(ICON_FA_CROP, &up.app_mode);
+        auto chk_app_mode = make_checkbox(ICON_FK_CROP, &up.app_mode);
         chk_app_mode->render_as_icon = true;
         chk_app_mode->tooltip = "Try to open in frameless window.";
 
         same_line();
-        auto chk_persist_domain = make_checkbox(ICON_FA_CIRCLE_PLUS, &persist_domain);
+        auto chk_persist_domain = make_checkbox(ICON_FK_PLUS_CIRCLE, &persist_domain);
         chk_persist_domain->render_as_icon = true;
         chk_persist_domain->tooltip = fmt::format(
             "Add domain of this url ({}) as a rule to a browser you click.", str::get_domain_from_url(up.url));
@@ -58,7 +58,7 @@ namespace bt {
         make_label("|")->is_enabled = false;
 
         same_line();
-        auto chk_persist_popularity = make_checkbox(ICON_FA_ARROW_DOWN_9_1, &persist_popularity);
+        auto chk_persist_popularity = make_checkbox(ICON_FK_CHEVRON_DOWN, &persist_popularity);
         chk_persist_popularity->render_as_icon = true;
         chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
         chk_persist_popularity->on_value_changed = [](bool v) { g_config.set_persist_popularity(v); };
@@ -66,7 +66,7 @@ namespace bt {
         // process name (if present)
         if(!up.process_name.empty()) {
             same_line();
-            auto lbl_pn = make_label(ICON_FA_MICROCHIP);
+            auto lbl_pn = make_label(ICON_FK_MICROCHIP);
             lbl_pn->is_enabled = false;
             lbl_pn->tooltip = fmt::format("process name: {}", up.process_name);
         }
@@ -74,7 +74,7 @@ namespace bt {
         // window title (if present)
         if(!up.window_title.empty()) {
             same_line();
-            auto lbl = make_label(ICON_FA_WINDOW_MAXIMIZE);
+            auto lbl = make_label(ICON_FK_WINDOW_MAXIMIZE);
             lbl->is_enabled = false;
             lbl->tooltip = fmt::format("window title:\n{}", up.window_title);
         }

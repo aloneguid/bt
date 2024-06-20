@@ -64,13 +64,13 @@ namespace bt
         panel_left->is_visible = &panel_left_visible;
 
         // before browser list starts
-        auto cmd_add_custom = panel_left->make_button(ICON_FA_CIRCLE_PLUS " Add");
+        auto cmd_add_custom = panel_left->make_button(ICON_FK_PLUS_CIRCLE " Add");
         cmd_add_custom->set_emphasis(emphasis::primary);
         cmd_add_custom->tooltip = "Add custom browser definition";
         cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
 
         panel_left->same_line();
-        auto chk_show_hidden = panel_left->make_checkbox(ICON_FA_EYE, &show_hidden_browsers);
+        auto chk_show_hidden = panel_left->make_checkbox(ICON_FK_EYE, &show_hidden_browsers);
         chk_show_hidden->render_as_icon = true;
         chk_show_hidden->tooltip = "show hidden browsers";
         chk_show_hidden->on_value_changed = [this](bool) { build_browsers(); };
@@ -122,7 +122,7 @@ namespace bt
 
     void config_window::build_status_bar() {
         auto status = make_status_bar();
-        st_health = status->make_label(ICON_FA_HEART);
+        st_health = status->make_label(ICON_FK_HEART);
         st_health->on_click = [this](component&) {
             bool healthy = w_dash->recheck();
             if(!healthy && !dash_visible) dash_visible = true;
@@ -141,7 +141,7 @@ namespace bt
         bc->is_enabled = pc->is_enabled = rc->is_enabled = false;
 
         status->make_label("|")->is_enabled = false;
-        auto bmac = status->make_label(ICON_FA_MUG_HOT);
+        auto bmac = status->make_label(ICON_FK_BUYMEACOFFEE);
         bmac->tooltip = "Support this app, buy me a coffee!";
         bmac->is_enabled = false;
         bmac->on_click = [this](component&) {
@@ -149,7 +149,7 @@ namespace bt
         };
 
         status->on_frame = [this, bc, pc, rc](component&) {
-            bc->set_value(fmt::format("{} {}", ICON_FA_WINDOW_RESTORE, browsers.size()));
+            bc->set_value(fmt::format("{} {}", ICON_FK_WINDOW_RESTORE, browsers.size()));
 
             size_t ipc{0};
             size_t irc{0};
@@ -160,8 +160,8 @@ namespace bt
                 }
             }
 
-            pc->set_value(fmt::format("{} {}", ICON_FA_USER, ipc));
-            rc->set_value(fmt::format("{} {}", ICON_FA_RULER, irc));
+            pc->set_value(fmt::format("{} {}", ICON_FK_USER, ipc));
+            rc->set_value(fmt::format("{} {}", ICON_FK_BULLSEYE, irc));
         };
     }
 
@@ -180,24 +180,24 @@ namespace bt
 
         // FILE
         auto mi_file = menu->items()->add("", "File");
-        mi_file->add("+b", "Add Custom Browser", ICON_FA_CIRCLE_PLUS);
-        auto mi_ini = mi_file->add("", "config.ini", ICON_FA_GEARS);
+        mi_file->add("+b", "Add Custom Browser", ICON_FK_PLUS_CIRCLE);
+        auto mi_ini = mi_file->add("", "config.ini", ICON_FK_COG);
         mi_ini->add("ini", "Open");
         mi_ini->add("ini+c", "Copy path to clipboard");
-        auto mi_csv = mi_file->add("", "hit_log.csv", ICON_FA_BOOK);
+        auto mi_csv = mi_file->add("", "hit_log.csv", ICON_FK_BOOK);
         mi_csv->add("csv", "Open");
         mi_csv->add("csv+c", "Copy path to clipboard");
         mi_file->add("", "-");
-        mi_file->add("x", "Exit", ICON_FA_ARROW_RIGHT_FROM_BRACKET);
+        mi_file->add("x", "Exit", ICON_FK_EXTERNAL_LINK);
         
 
         // TOOLS
         auto mi_tools = menu->items()->add("", "Tools");
-        mi_tools->add("dash", "Readiness Dashboard", ICON_FA_GAUGE);
-        mi_tools->add("test", "URL Tester", ICON_FA_TIMELINE);
-        mi_tools->add("windows_defaults", "Windows Defaults", ICON_FA_WINDOWS);
-        mi_tools->add("refresh", "Rediscover Browsers", ICON_FA_RETWEET);
-        mi_tools->add("open_picker", "Test URL Picker", ICON_FA_CROSSHAIRS);
+        mi_tools->add("dash", "Readiness Dashboard", ICON_FK_TACHOMETER);
+        mi_tools->add("test", "URL Tester", ICON_FK_USER_TIMES);
+        mi_tools->add("windows_defaults", "Windows Defaults", ICON_FK_WINDOWS);
+        mi_tools->add("refresh", "Rediscover Browsers", ICON_FK_RETWEET);
+        mi_tools->add("open_picker", "Test URL Picker", ICON_FK_CROSSHAIRS);
         auto mi_tbs = mi_tools->add("", "Troubleshooting");
         mi_tbs->add("fix_xbt", "Re-register Custom Protocol");
         mi_tbs->add("fix_browser", "Re-register as Browser");
@@ -213,18 +213,18 @@ namespace bt
         set_open_method("");
         auto mi_phk = mi_open_mode->add("", "Also Open On");
         mi_phk_never = mi_phk->add("mi_phk_never", "Never");
-        mi_phk_ctrlshift = mi_phk->add("mi_phk_cs", "CTRL+SHIFT+ " ICON_FA_ARROW_POINTER);
-        mi_phk_ctrlalt = mi_phk->add("mi_phk_ca", "CTRL+ALT+ " ICON_FA_ARROW_POINTER);
-        mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FA_ARROW_POINTER);
+        mi_phk_ctrlshift = mi_phk->add("mi_phk_cs", "CTRL+SHIFT+ " ICON_FK_MOUSE_POINTER);
+        mi_phk_ctrlalt = mi_phk->add("mi_phk_ca", "CTRL+ALT+ " ICON_FK_MOUSE_POINTER);
+        mi_phk_altshift = mi_phk->add("mi_phk_as", "SHIFT+ALT+ " ICON_FK_MOUSE_POINTER);
         set_picker_hotkey("");
 
-        auto mi_ff_mode = mi_settings->add("", "Firefox Container Mode", ICON_FA_FIREFOX);
-        mi_ff_mode_off = mi_ff_mode->add("mi_ff_mode_off", "off (use profiles)", ICON_FA_POWER_OFF);
-        mi_ff_mode_bt = mi_ff_mode->add("mi_ff_mode_bt", APP_LONG_NAME, ICON_FA_PUZZLE_PIECE);
-        mi_ff_mode_ouic = mi_ff_mode->add("mi_ff_mode_ouic", "open-url-in-container", ICON_FA_PUZZLE_PIECE);
+        auto mi_ff_mode = mi_settings->add("", "Firefox Container Mode", ICON_FK_FIREFOX);
+        mi_ff_mode_off = mi_ff_mode->add("mi_ff_mode_off", "off (use profiles)", ICON_FK_POWER_OFF);
+        mi_ff_mode_bt = mi_ff_mode->add("mi_ff_mode_bt", APP_LONG_NAME, ICON_FK_PUZZLE_PIECE);
+        mi_ff_mode_ouic = mi_ff_mode->add("mi_ff_mode_ouic", "open-url-in-container", ICON_FK_PUZZLE_PIECE);
         update_firefox_mode(false, firefox_container_mode::off);
 
-        auto mi_themes = mi_settings->add("", "Theme", ICON_FA_PAINT_ROLLER);
+        auto mi_themes = mi_settings->add("", "Theme", ICON_FK_PAINT_BRUSH);
         for(auto& theme : gctx.list_themes()) {
             mi_themes->add(fmt::format("set_theme_{}", theme.id), theme.name);
         }
@@ -233,27 +233,27 @@ namespace bt
         mi_log_rule_hits->is_selected = log_rule_hits;
 
         mi_settings->add("", "-");
-        mi_settings->add("pipeline_config", "Configure URL pipeline", ICON_FA_BOLT);
+        mi_settings->add("pipeline_config", "Configure URL pipeline", ICON_FK_BOLT);
 
         // HELP
         auto mi_help = menu->items()->add("", "Help");
 
-        mi_help->add("browser_ex", "Extensions", ICON_FA_PUZZLE_PIECE);
+        mi_help->add("browser_ex", "Extensions", ICON_FK_PUZZLE_PIECE);
 
-        mi_help->add("contact", "Contact", ICON_FA_ENVELOPE);
-        mi_help->add("releases", "All Releases", ICON_FA_CLOCK_ROTATE_LEFT);
-        mi_help->add("check_version", "Check for Updates", ICON_FA_CODE_BRANCH);
+        mi_help->add("contact", "Contact", ICON_FK_ENVELOPE);
+        mi_help->add("releases", "All Releases");
+        mi_help->add("check_version", "Check for Updates");
 
         auto mi_reg = mi_help->add("", "Registry")->add("", "Copy path to clipboard");
         mi_reg->add("reg_xbt", "Custom Protocol");
         mi_reg->add("reg_browser", "Browser Registration");
 
         mi_help->add("", "-");
-        mi_help->add("doc", "Documentation", ICON_FA_BOOK);
-        mi_help->add("?", "About", ICON_FA_INFO);
+        mi_help->add("doc", "Documentation", ICON_FK_BOOK);
+        mi_help->add("?", "About", ICON_FK_INFO);
 #if _DEBUG
         mi_help->add("", "-");
-        mi_help->add("demo", "Demo", ICON_FA_BOOK);
+        mi_help->add("demo", "Demo", ICON_FK_BOOK);
 #endif
     }
 
@@ -264,7 +264,7 @@ namespace bt
 
         // universal test button
         browser_toolbar->same_line();
-        auto cmd_test = browser_toolbar->make_button(ICON_FA_SQUARE_UP_RIGHT);
+        auto cmd_test = browser_toolbar->make_button(ICON_FK_EXTERNAL_LINK);
         cmd_test->tooltip = "test by opening a link";
         cmd_test->on_click = [this, b](component&) {
             auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
@@ -274,7 +274,7 @@ namespace bt
 
         if(b->is_chromium) {
             browser_toolbar->same_line();
-            auto cmd_test_app = browser_toolbar->make_button(ICON_FA_SQUARE_ARROW_UP_RIGHT);
+            auto cmd_test_app = browser_toolbar->make_button(ICON_FK_EXTERNAL_LINK);
             cmd_test_app->tooltip = "test by opening a link as an app";
             cmd_test_app->on_click = [this, b](component&) {
                 auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
@@ -289,7 +289,7 @@ namespace bt
             browser_toolbar->same_line();
             auto g_static = browser_toolbar->make_group();
             if(!b->open_cmd.empty()) {
-                auto bf = g_static->make_button(ICON_FA_FOLDER_OPEN);
+                auto bf = g_static->make_button(ICON_FK_FOLDER_OPEN);
                 bf->tooltip = fmt::format("open {}'s folder in Explorer.", b->name);
                 bf->on_pressed = [b](button&) {
                     std::filesystem::path p{b->open_cmd};
@@ -303,14 +303,14 @@ namespace bt
 
                     if(cm == firefox_container_mode::off) {
                         g_static->same_line();
-                        auto pmgr = g_static->make_button(ICON_FA_ADDRESS_CARD);
+                        auto pmgr = g_static->make_button(ICON_FK_ADDRESS_CARD);
                         pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
                         pmgr->on_pressed = [b](button&) {
                             win32::shell::exec(b->open_cmd, "-P");
                         };
 
                         g_static->same_line();
-                        pmgr = g_static->make_button(ICON_FA_ID_CARD);
+                        pmgr = g_static->make_button(ICON_FK_ID_CARD);
                         pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
                         pmgr->on_pressed = [b](button&) {
                             win32::shell::exec(b->open_cmd, "about:profiles");
@@ -318,7 +318,7 @@ namespace bt
                     } else {
 
                         g_static->same_line();
-                        auto cmd_x = g_static->make_button(ICON_FA_PUZZLE_PIECE);
+                        auto cmd_x = g_static->make_button(ICON_FK_PUZZLE_PIECE);
                         cmd_x->tooltip = "download required extension";
                         cmd_x->set_emphasis(emphasis::error);
                         cmd_x->on_pressed = [this, b](button&) {
@@ -328,7 +328,7 @@ namespace bt
                 }
                 else if(b->is_chromium) {
                     g_static->same_line();
-                    auto cmd_x = g_static->make_button(ICON_FA_PUZZLE_PIECE);
+                    auto cmd_x = g_static->make_button(ICON_FK_PUZZLE_PIECE);
                     cmd_x->tooltip = "download optional integration extension";
                     cmd_x->on_pressed = [this, b](button&) {
                         // extenstion page needs to be opened in the correct profile
@@ -342,7 +342,7 @@ namespace bt
         } else {
             browser_toolbar->same_line();
             auto cmd_rm = browser_toolbar->make_button(
-                ICON_FA_TRASH " delete", false, grey::emphasis::error);
+                ICON_FK_TRASH " delete", false, grey::emphasis::error);
             cmd_rm->tooltip = "Completely deletes this browser, no questions asked";
             cmd_rm->on_pressed = [this, b](grey::button&) {
 
@@ -370,7 +370,7 @@ namespace bt
 
         // hide/show button
         browser_toolbar->same_line();
-        auto chk_show = browser_toolbar->make_checkbox(ICON_FA_EYE);
+        auto chk_show = browser_toolbar->make_checkbox(ICON_FK_EYE);
         chk_show->tooltip = "Show or hide this browser from the browser list";
         chk_show->render_as_icon = true;
         chk_show->set_checked(!b->is_hidden);
@@ -393,7 +393,7 @@ namespace bt
             for(shared_ptr<browser_instance> bi : b->instances) {
                 string tab_icon;
                 if(bi->is_incognito) {
-                    tab_icon = fmt::format("{} ", ICON_FA_GLASSES);
+                    tab_icon = fmt::format("{} ", ICON_FK_LOCK);
                 }
                 auto tab = profiles_tabs->make(fmt::format(" {}{} ", tab_icon, bi->name));
 
@@ -593,40 +593,40 @@ special keyword - %url% which is replaced by opening url.)";
 
         if(b->instances.size() > 0) {
             if(b->is_system) {
-                auto i_where = c->make_label(fmt::format("{} {}", ICON_FA_USER, b->instances.size()));
+                auto i_where = c->make_label(fmt::format("{} {}", ICON_FK_USER, b->instances.size()));
                 i_where->tooltip = str::humanise(b->instances.size(), "profile", "profiles");
                 i_where->is_enabled = false;
 
                 if(b->is_chromium) {
                     c->same_line();
-                    auto sign_cb = c->make_label(ICON_FA_CHROME);
+                    auto sign_cb = c->make_label(ICON_FK_CHROME);
                     sign_cb->is_enabled = false;
                     sign_cb->tooltip = "Chromium-based";
                 } else if(b->is_firefox) {
                     c->same_line();
-                    auto sign_fb = c->make_label(ICON_FA_FIREFOX);
+                    auto sign_fb = c->make_label(ICON_FK_FIREFOX);
                     sign_fb->is_enabled = false;
                     sign_fb->tooltip = "Firefox-based";
                 }
             } else {
-                auto lbl_custom = c->make_label(ICON_FA_PERSON_MILITARY_POINTING);
+                auto lbl_custom = c->make_label(ICON_FK_PUZZLE_PIECE);
                 lbl_custom->is_enabled = false;
                 lbl_custom->tooltip = "User-defined";
             }
 
             if(b->get_supports_frameless_windows()) {
-                auto i = c->make_label(ICON_FA_CROP,
+                auto i = c->make_label(ICON_FK_CROP,
                     "Supports frameless windows", false, true);
             }
 
-            auto chk_hidden = c->make_label(ICON_FA_EYE_SLASH);
+            auto chk_hidden = c->make_label(ICON_FK_EYE_SLASH);
             chk_hidden->same_line = true;
             chk_hidden->is_enabled = false;
             chk_hidden->tooltip = "Hidden";
             chk_hidden->is_visible = &(b->is_hidden);
 
         } else {
-            auto i_where = c->make_label(ICON_FA_USER);
+            auto i_where = c->make_label(ICON_FK_USER);
             i_where->tooltip = "no profiles";
             i_where->is_enabled = false;
         }
@@ -724,15 +724,15 @@ special keyword - %url% which is replaced by opening url.)";
     void config_window::bind_edit_rules(std::shared_ptr<grey::container> tab, shared_ptr<browser_instance> bi) {
 
         tab->make_label("Rules");
-        auto radd = tab->make_button(ICON_FA_CIRCLE_PLUS " add");
+        auto radd = tab->make_button(ICON_FK_PLUS_CIRCLE " add");
         radd->set_emphasis(emphasis::primary);
 
         tab->same_line();
-        auto rca = tab->make_button(ICON_FA_TRASH " clear all");
+        auto rca = tab->make_button(ICON_FK_TRASH " clear all");
         rca->set_emphasis(emphasis::error);
 
         tab->same_line();
-        auto rt = tab->make_button(ICON_FA_TIMELINE " test");
+        auto rt = tab->make_button(ICON_FK_ACTIVITYPUB " test");
         rt->tooltip = "Open URL Tester";
 
         auto rw = tab->make_child_window();
@@ -761,7 +761,7 @@ special keyword - %url% which is replaced by opening url.)";
 
                 // is regex checkbox
                 ctr->same_line();
-                auto chk_regex = ctr->make_checkbox(ICON_FA_TRUCK_FAST);
+                auto chk_regex = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
                 chk_regex->render_as_icon = true;
                 chk_regex->tooltip = "Rule is a Regular Expression (advanced)";
                 chk_regex->set_checked(rule->is_regex);
@@ -769,7 +769,7 @@ special keyword - %url% which is replaced by opening url.)";
                 // app mode
                 if(bi->b->is_chromium) {
                     ctr->same_line();
-                    auto chk_app_mode = ctr->make_checkbox(ICON_FA_CROP_SIMPLE);
+                    auto chk_app_mode = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
                     chk_app_mode->render_as_icon = true;
                     chk_app_mode->set_checked(ctx.data->app_mode);
                     chk_app_mode->tooltip = "open in chromeless window";
@@ -788,20 +788,20 @@ special keyword - %url% which is replaced by opening url.)";
                 g_scope->same_line();
                 auto lst_scope = g_scope->make_listbox("");
                 lst_scope->mode = listbox_mode::icons;
-                lst_scope->items.push_back(list_item{ICON_FA_GLOBE, "match anywhere"});
-                lst_scope->items.push_back(list_item{ICON_FA_LANDMARK_DOME, "match only in host name"});
-                lst_scope->items.push_back(list_item{ICON_FA_LINES_LEANING, "match only in path"});
+                lst_scope->items.push_back(list_item{ICON_FK_GLOBE, "match anywhere"});
+                lst_scope->items.push_back(list_item{ICON_FK_ACTIVITYPUB, "match only in host name"});
+                lst_scope->items.push_back(list_item{ICON_FK_ACTIVITYPUB, "match only in path"});
                 lst_scope->set_selected_index(static_cast<int>(ctx.data->scope));
                 g_scope->is_visible = &g_scope->tag_bool;
 
                 ctr->same_line();
-                auto rm = ctr->make_button(ICON_FA_DELETE_LEFT);
+                auto rm = ctr->make_button(ICON_FK_TIMES);
                 rm->set_emphasis(emphasis::error);
                 rm->tooltip = "delete rule";
 
                 // experi-mental
                 //ctr->same_line(240 * scale);
-                //auto cmd_more = ctr->make_button(ICON_FA_PLUS, true);
+                //auto cmd_more = ctr->make_button(ICON_FK_PLUS, true);
                 //cmd_more->padding_top = 8 * scale;
                 //cmd_more->tooltip = "more matching options";
                 //cmd_more->alpha = 0.7;

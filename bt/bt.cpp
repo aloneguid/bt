@@ -2,20 +2,15 @@
 #include "globals.h"
 #include "app/ui.h"
 #include "../common/str.h"
-#include "win32/app.h"
 #include "win32/process.h"
-#include "win32/shell_notify_icon.h"
-#include "win32/popup_menu.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
 #include "app/setup.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
 
-#define OWN_WM_NOTIFY_ICON_MESSAGE WM_APP + 1
-
-// {365F3F68-6330-4D4F-BEF2-999EF15F1BE4}
-static const GUID NotifyIconGuid = {0x365f3f68, 0x6330, 0x4d4f, { 0xbe, 0xf2, 0x99, 0x9e, 0xf1, 0x5f, 0x1b, 0xe4 }};
+//ui
+#include "app/ui/configure.h"
 
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION};
@@ -27,12 +22,7 @@ lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> o
 using namespace std;
 
 void execute(const string& data) {
-    if (data.starts_with("shutdown")) {
-        ::PostQuitMessage(0);
-    } else if(data.starts_with("purge")) {
-        bt::setup::unregister_all();
-        ::PostQuitMessage(0);
-    } else if(!data.empty() && !data.starts_with(ArgSplitter)) {
+    if(!data.empty() && !data.starts_with(ArgSplitter)) {
         // if data starts with argsplitter that means command line is empty
 
         // 0 - url
@@ -51,21 +41,18 @@ void execute(const string& data) {
 
         bt::ui::url_open(up, om);
     } else {
-        bt::ui::config();
+        bt::ui::config_app app;
+        app.run();
+        //bt::ui::config();
     }
 }
 
-void CALLBACK KeepAliveTimerProc(HWND hwnd, UINT message, UINT_PTR idTimer, DWORD dwTime) {
-    t.track(map<string, string> {
-        {"event", "ping"},
-        {"log_rule_hits", g_config.get_log_rule_hits() ? "y" : "n"},
-        {"theme", g_config.get_theme()},
-        {"browsers_total", std::to_string(bt::browser::get_cache().size())}
-    }, true);
-}
-
-int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
-
+/**
+ * @brief Shows a message box with the command line arguments (for debugging purposes)
+ * @param argc 
+ * @param argv 
+ */
+void debug_args_msgbox(int argc, wchar_t* argv[]) {
     if(g_config.get_flag("debug_args") == "y") {
         wostringstream msg;
         msg << "count: " << argc << endl;
@@ -78,7 +65,15 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
         ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
     }
+}
 
+/**
+ * @brief Parses incoming arguments and shapes them into universal command format.
+ * @param argc 
+ * @param argv 
+ * @return 
+ */
+string parse_args(int argc, wchar_t* argv[]) {
     string arg;
 
     for(int i = 1; i < argc; i++) {
@@ -88,108 +83,20 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     }
 
     arg = fmt::format("{}{}{:x}",
-        arg,
-        ArgSplitter,
-        (DWORD)(win32::window::get_foreground().get_handle()));
+      arg,
+      ArgSplitter,
+      (DWORD)(win32::window::get_foreground().get_handle()));
 
-    if(bt::ui::try_invoke_running_instance(arg)) {
-        return 0;
-    }
+    return arg;
+}
 
-    // if we have reached this point, it's a primary instance
-    bt::ui::set_main_instance();
+int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
-    win32::app win32app{Win32ClassName, AppGuid};
+    debug_args_msgbox(argc, argv);
 
-    {
-        // make us energy efficient
-        win32::process p;
-        p.set_priority(IDLE_PRIORITY_CLASS);
-        p.enable_efficiency_mode();
-    }
-
-    win32::shell_notify_icon sni{
-        win32app.get_hwnd(),
-            NotifyIconGuid,
-            OWN_WM_NOTIFY_ICON_MESSAGE,
-            fmt::format("{} {}", APP_LONG_NAME, APP_VERSION)};
-
-    win32::popup_menu m{win32app.get_hwnd()};
-    m.add("cfg", "Configure");
-    m.add("url", "URL Tester");
-    m.add("pipeline", "URL Pipeline");
-    m.separator();
-    m.add("bmc", "Buy me a coffee");
-    m.separator();
-    m.add("x", "&Exit");
-
-    win32app.on_app_window_message = [&m, &win32app](UINT msg, WPARAM wParam, LPARAM lParam) {
-        switch(msg) {
-            case OWN_WM_NOTIFY_ICON_MESSAGE:
-                switch(lParam) {
-                    case WM_LBUTTONUP:
-                        bt::ui::config();
-                        break;
-                    case WM_RBUTTONUP:
-                        // show context menu
-                        m.show();
-                        break;
-                    //case NIN_BALLOONUSERCLICK:
-                    //    bt::ui::url_open(bt::url_payload{APP_GITHUB_RELEASES_URL}, bt::ui::open_method::configured);
-                    //    break;
-                }
-                break;
-            case WM_COMMAND: {
-                int loword_wparam = LOWORD(wParam);
-                string id = m.id_from_loword_wparam(loword_wparam);
-                if(id == "cfg") {
-                    bt::ui::config();
-                } else if(id == "url") {
-                    bt::ui::url_tester();
-                } else if(id == "pipeline") {
-                    bt::ui::url_pipeline();
-                } else if(id == "bmc") {
-                    bt::ui::url_open(bt::url_payload{APP_BUYMEACOFFEE_URL}, bt::ui::open_method::configured);
-                } else if(id == "x") {
-                    ::PostQuitMessage(0);
-                }
-                }
-                break;
-            case WM_COPYDATA:
-                COPYDATASTRUCT* cds = reinterpret_cast<COPYDATASTRUCT*>(lParam);
-                string command(static_cast<const char*>(cds->lpData));
-                execute(command);
-                // https://docs.microsoft.com/en-us/windows/win32/dataxchg/using-data-copy
-                return 1;   // processed!
-
-        }
-        return 0;
-    };
-
-    win32app.on_message_loop_message = [](MSG& msg) {
-        bt::ui::render_ui_frame_if_required();
-        return 0;
-    };
-
-    bt::ui::on_ui_open_changed = [&win32app](bool is_open) {
-        //win32app.set_max_fps_mode(is_open);
-        win32app.set_message_timeout(is_open ? 100 : -1);
-    };
+    string arg = parse_args(argc, argv);
 
     execute(arg);
-
-    // set 1h
-    ::SetTimer(win32app.get_hwnd(), 1,
-        1000 * 60 * 60, // ms * sec * min
-        KeepAliveTimerProc);
-
-    open_on_match_event.connect([&sni](const bt::url_payload& url, const bt::browser_match_result& bmr) {
-        if(g_config.get_log_rule_hits()) {
-            bt::rule_hit_log::i.write(url, bmr);
-        }
-    });
-
-    win32app.run();
 
     return 0;
 }

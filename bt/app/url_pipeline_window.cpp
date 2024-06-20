@@ -25,7 +25,7 @@ namespace bt {
 
         // "add step to pipeline" button
         same_line();
-        auto cmd_add = make_button(ICON_FA_CIRCLE_PLUS " add");
+        auto cmd_add = make_button(ICON_FK_PLUS_CIRCLE " add");
         cmd_add->set_emphasis(grey::emphasis::primary);
         cmd_add->tooltip = "Add a new step (from drop-down on the left) to the pipeline.";
         cmd_add->on_pressed = [this, lst_step_type](grey::button&) {
@@ -34,28 +34,28 @@ namespace bt {
         };
 
         same_line();
-        auto cmd_reset = make_button(ICON_FA_TRASH " reset");
+        auto cmd_reset = make_button(ICON_FK_TRASH " reset");
         cmd_reset->set_emphasis(grey::emphasis::error);
         cmd_reset->tooltip = "Reset to default pipeline.";
 
         // step buttons
         same_line(); make_label("|")->is_enabled = false;
         same_line();
-        cmd_up = make_button(ICON_FA_ARROW_UP, true);
+        cmd_up = make_button(ICON_FK_ARROW_UP, true);
         cmd_up->tooltip = "Move selected step up.";
         cmd_up->is_enabled = false;
         cmd_up->on_pressed = [this](grey::button&) {
             move_active_step(-1);
         };
         same_line();
-        cmd_down = make_button(ICON_FA_ARROW_DOWN, true);
+        cmd_down = make_button(ICON_FK_ARROW_DOWN, true);
         cmd_down->tooltip = "Move selected step down.";
         cmd_down->is_enabled = false;
         cmd_down->on_pressed = [this](grey::button&) {
             move_active_step(1);
         };
         same_line();
-        cmd_delete = make_button(ICON_FA_TRASH, " delete");
+        cmd_delete = make_button(ICON_FK_TRASH, " delete");
         cmd_delete->tooltip = "Delete selected step.";
         cmd_delete->is_enabled = false;
         cmd_delete->on_pressed = [this](grey::button&) {
@@ -97,7 +97,7 @@ namespace bt {
                 make_replacer_step(ctx.container, ctx.data);
                 break;
             default:
-                make_unconfigurable_step(ctx.container, ICON_FA_QUESTION, "Unknown");
+                make_unconfigurable_step(ctx.container, ICON_FK_QUESTION, "Unknown");
                 break;
         }
     }
@@ -200,10 +200,10 @@ namespace bt {
 
     std::string url_pipeline_window::to_icon(url_pipeline_step_type type) {
         switch(type) {
-            case url_pipeline_step_type::find_replace: return ICON_FA_MAGNIFYING_GLASS_ARROW_RIGHT;
-            case url_pipeline_step_type::o365: return ICON_FA_MICROSOFT;
-            case url_pipeline_step_type::unshortener: return ICON_FA_ARROW_UP_WIDE_SHORT;
-            default: return ICON_FA_QUESTION;
+            case url_pipeline_step_type::find_replace: return ICON_FK_PENCIL_SQUARE_O;
+            case url_pipeline_step_type::o365: return ICON_FK_PIE_CHART;
+            case url_pipeline_step_type::unshortener: return ICON_FK_EXPAND;
+            default: return ICON_FK_QUESTION;
         }
     }
 }

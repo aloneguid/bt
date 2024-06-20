@@ -51,13 +51,13 @@ It super fast, extremely light on resources, completely free and open source.)")
 
         separator();
 
-        auto cmd_homepage = make_button(ICON_FA_HOUSE " Home");
+        auto cmd_homepage = make_button(ICON_FK_HOME " Home");
         cmd_homepage->on_pressed = [this](button&) {
             ui::url_open(url_payload{APP_URL}, ui::open_method::configured);
         };
 
         same_line();
-        make_button(ICON_FA_GITHUB " GitHub")->on_pressed = [](button&) {
+        make_button(ICON_FK_GITHUB " GitHub")->on_pressed = [](button&) {
             ui::url_open(url_payload{APP_GITHUB_URL}, ui::open_method::configured);
         };
 
@@ -81,7 +81,7 @@ It super fast, extremely light on resources, completely free and open source.)")
     }
 
     void about_window::refresh_system_status() {
-        st_fps->set_value(fmt::format("{} {:.1f}", ICON_FA_FILM, ImGui::GetIO().Framerate));
+        st_fps->set_value(fmt::format("{} {:.1f}", ICON_FK_FILM, ImGui::GetIO().Framerate));
         st_fps->tooltip = fmt::format(
             "Framerate: {:.1f}\nScale: {:.1f}\nSystem DPI: {}\nWindow DPI: {}",
             ImGui::GetIO().Framerate,
@@ -93,10 +93,10 @@ It super fast, extremely light on resources, completely free and open source.)")
         win32::process p;
         uint64_t working_set;
         if(p.get_memory_info(working_set)) {
-            mem_display = fmt::format("{} {}", ICON_FA_MICROCHIP, str::to_human_readable_size(working_set));
+            mem_display = fmt::format("{} {}", ICON_FK_MICROCHIP, str::to_human_readable_size(working_set));
         }
 
         // total CPU usage
-        cpu_display = fmt::format("{} {:.1f}", ICON_FA_MICROCHIP, win32::system_info::get_cpu_usage_perc());
+        cpu_display = fmt::format("{} {:.1f}", ICON_FK_MICROCHIP, win32::system_info::get_cpu_usage_perc());
     }
 }

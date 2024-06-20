@@ -12,9 +12,9 @@ namespace bt {
 
         //auto lst_loc = make_listbox("");
         //lst_loc->mode = listbox_mode::icons;
-        //lst_loc->items.push_back(list_item{ICON_FA_GLOBE, "URL"});
-        //lst_loc->items.push_back(list_item{ICON_FA_WINDOW_MAXIMIZE, "Window title"});
-        //lst_loc->items.push_back(list_item{ICON_FA_MICROCHIP, "Process name"});
+        //lst_loc->items.push_back(list_item{ICON_FK_GLOBE, "URL"});
+        //lst_loc->items.push_back(list_item{ICON_FK_WINDOW_MAXIMIZE, "Window title"});
+        //lst_loc->items.push_back(list_item{ICON_FK_MICROCHIP, "Process name"});
         //lst_loc->selected_index = 0;
         //same_line();
 
@@ -24,7 +24,7 @@ namespace bt {
 
         spacer();
         make_label("Results:");
-        auto txt_clear_url = make_input(ICON_FA_QUESTION, &up.match_url);
+        auto txt_clear_url = make_input(ICON_FK_QUESTION, &up.match_url);
         txt_clear_url->tooltip = "URL to apply rules to";
         txt_clear_url->set_is_readonly();
 
@@ -38,7 +38,7 @@ namespace bt {
         txt_query->set_is_readonly();
         txt_query->tooltip = "Query string";
 
-        auto txt_open_url = make_input(ICON_FA_ARROW_RIGHT_FROM_BRACKET, &up.open_url);
+        auto txt_open_url = make_input(ICON_FK_EXTERNAL_LINK, &up.open_url);
         txt_open_url->set_is_readonly();
         txt_open_url->tooltip = "URL to open in a browser.";
 
@@ -74,7 +74,7 @@ namespace bt {
 
         for(auto& match : matches) {
 
-            auto icon = w_matches->make_label(ICON_FA_MAXIMIZE);
+            auto icon = w_matches->make_label(ICON_FK_WINDOW_MAXIMIZE);
             icon->set_emphasis(emphasis::error);
 
             w_matches->same_line();
@@ -102,11 +102,11 @@ namespace bt {
     std::string url_tester_window::to_icon(match_scope scope) {
         switch(scope) {
             case bt::match_scope::any:
-                return ICON_FA_GLOBE;
+                return ICON_FK_GLOBE;
             case bt::match_scope::domain:
-                return ICON_FA_LANDMARK_DOME;
+                return ICON_FK_ACTIVITYPUB;
             case bt::match_scope::path:
-                return ICON_FA_LINES_LEANING;
+                return ICON_FK_ACTIVITYPUB;
             default:
                 return "?";
         }

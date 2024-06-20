@@ -1,6 +1,6 @@
-## 3.7.4
+## 4.0.0
 
-This build has nothing new, and only updates to latest dependencies that fix security vulnerabilities.
+- Updates to latest version of ImGui and MSVC compiler.
 
 ## 3.7.3
 
