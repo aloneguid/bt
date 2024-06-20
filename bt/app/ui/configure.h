@@ -18,7 +18,14 @@ namespace bt::ui {
 #if _DEBUG
         bool show_demo{false};
 #endif
+
+        // "About" window
         bool show_about{false};
+        float about_frame_time{5.0f};
+        std::string about_fps;
+        std::string about_fps_tooltip;
+        std::string about_mem;
+        std::string about_cpu;
 
         std::vector<grey::widgets::menu_item> menu_items
         {
