@@ -5,6 +5,7 @@
 #include "win32/shell.h"
 #include "win32/sysinfo.h"
 #include "str.h"
+#include <filesystem>
 
 using namespace std;
 namespace w = grey::widgets;
@@ -12,7 +13,10 @@ namespace w = grey::widgets;
 namespace bt::ui {
     config_app::config_app() {
         title = string{APP_LONG_NAME} + " " + APP_VERSION;
+        browsers = bt::browser::get_cache();
         app = grey::app::make(title);
+        w_left_panel = w::container{250 * app->scale};
+        w_right_panel = w::container{}.border();
     }
 
     void config_app::run() {
@@ -29,6 +33,12 @@ namespace bt::ui {
 
         {
             w::menu_bar menu{menu_items, [this](const string& id) { handle_menu_click(id); }};
+        }
+
+        if(browsers.empty()) {
+            render_no_browsers();
+        } else {
+            render_browsers();
         }
 
 #if _DEBUG
@@ -54,35 +64,32 @@ namespace bt::ui {
     }
 
     void config_app::run_about_window_frame() {
-
-        app->preload_texture("logo", icon_png, icon_png_len);
-
         const int width = 310;
+        app->preload_texture("logo", icon_png, icon_png_len);
         w::window wnd{"About"};
         wnd
-            .size(width, 350, app->scale)
+            .size(width, 355, app->scale)
             .no_resize()
             .render();
 
         float icon_size = 50 * app->scale;
         w::set_pos(width * app->scale / 2 - icon_size / 2, 40 * app->scale);
         w::image(*app, "logo", icon_size, icon_size);
-        w::sp(3);
+        w::spc(3);
 
         w::label(
             R"(Browser Tamer acts as a virtual browser, but instead of showing web pages, it redirects links to a browser or browser profile of your choice.
 
 It super fast, extremely light on resources, completely free and open source.)",
 300 * app->scale);
-        w::sp();
+        w::spc();
 
         w::label("Version:");
 
-        w::sl(); w::label(APP_VERSION);// ->set_emphasis(emphasis::primary);
+        w::sl(); w::label(APP_VERSION, w::emphasis::primary);
 
         w::label("ImGui Version:");
-        w::sl(); w::label(ImGui::GetVersion());// ->set_emphasis(emphasis::primary);
-        w::sl(); w::label("(docking branch)");
+        w::sl(); w::label(ImGui::GetVersion(), w::emphasis::primary);
 
         // sys info
 
@@ -92,7 +99,7 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(about_frame_time >= 1) {
                 about_frame_time = 0;
 
-                about_fps = fmt::format("{} {:.1f}", ICON_FK_FILM, ImGui::GetIO().Framerate);
+                about_fps = fmt::format("{} {:.1f}", ICON_MD_SCREENSHOT_MONITOR, ImGui::GetIO().Framerate);
                 about_fps_tooltip = fmt::format(
                     "Framerate: {:.1f}\nScale: {:.1f}\nDPI: {}",
                     ImGui::GetIO().Framerate,
@@ -103,15 +110,15 @@ It super fast, extremely light on resources, completely free and open source.)",
                 win32::process p;
                 uint64_t working_set;
                 if(p.get_memory_info(working_set)) {
-                    about_mem = fmt::format("{} {}", ICON_FK_MICROCHIP, str::to_human_readable_size(working_set));
+                    about_mem = fmt::format("{} {}", ICON_MD_MEMORY, str::to_human_readable_size(working_set));
                 }
 
                 // total CPU usage
-                about_cpu = fmt::format("{} {:.1f}", ICON_FK_MICROCHIP, win32::system_info::get_cpu_usage_perc());
+                about_cpu = fmt::format("{} {:.1f}", ICON_MD_DEVELOPER_BOARD, win32::system_info::get_cpu_usage_perc());
             }
         }
 
-        w::sp();
+        w::spc();
 
         w::label(about_fps);
         w::tooltip(about_fps_tooltip);
@@ -122,34 +129,136 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::label(about_cpu);
         w::tooltip("Current CPU load of your entire system (not this application) in percentages.");
 
-        w::sp();
+        w::sep();
+        w::spc();
 
-        /*auto cmd_homepage = make_button(ICON_FK_HOME " Home");
-        cmd_homepage->on_pressed = [this](button&) {
-            ui::url_open(url_payload{APP_URL}, ui::open_method::configured);
+        if(w::button(ICON_MD_HOME " Home")) {
+            // ui::url_open(url_payload{APP_URL}, ui::open_method::configured);
+        }
+        w::sl();
+        if(w::button("GitHub")) {
+            //ui::url_open(url_payload{APP_GITHUB_URL}, ui::open_method::configured);
         };
+        w::sl();
+        if(w::button("Close")) {
+            show_about = false;
+        }
+    }
+    
+    void config_app::render_no_browsers() {
+        for(int i = 0; i < 5; i++)
+            w::label("");
 
-        same_line();
-        make_button(ICON_FK_GITHUB " GitHub")->on_pressed = [](button&) {
-            ui::url_open(url_payload{APP_GITHUB_URL}, ui::open_method::configured);
-        };
+        w::label(string(90, ' ')); w::sl();
+        w::label("Currently there are no browsers registered.", w::emphasis::primary);
 
-        same_line();
-        auto cmd_close = make_button("Close");
-        cmd_close->on_pressed = [this](button&) {
-            close();
-        };
+        w::label(string(70, ' ')); w::sl();
+        w::label("Press the button below to scan your system for installed browsers.");
+        w::label("");
+        w::label(string(100, ' ')); w::sl();
+        if(w::button("discover system browsers", w::emphasis::error)) {
+            //rediscover_browsers();
+        }
+    }
 
-        on_frame = [this](grey::component& c) {
-            this->tag_float += ImGui::GetIO().DeltaTime;
+    void config_app::render_browsers() {
+        {
+            w::guard g{w_left_panel};
 
-            if(this->tag_float >= 1) {
-                refresh_system_status();
-
-                this->tag_float = 0;
+            if(w::button(ICON_MD_ADD_CIRCLE " Add", w::emphasis::primary)) {
+                //add_custom_browser_by_asking();
             }
-        };
+            w::tooltip("Add custom browser definition");
+            w::sl();
+            w::label("todo: hidden");
 
-        refresh_system_status();*/
+            for(int i = 0; i < browsers.size(); i++) {
+                render_card(browsers[i]);
+
+                // we can now react on click
+                if(ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+
+                }
+            }
+        }
+        w::sl();
+        {
+            w::guard g{w_right_panel};
+
+        }
+    }
+
+    void config_app::render_card(std::shared_ptr<bt::browser> b) {
+
+        w::group g;
+        g
+            .border_hover(ImGuiCol_HeaderHovered)
+            .spread_horizontally()
+            .render();
+
+        float padding = 10 * app->scale;
+        float icon_size = 32 * app->scale;
+        float left_pad = icon_size + padding * 2;
+
+        // render icon and come back to starting position
+        w::set_pos(0, -1);
+        w::move_pos(padding, padding);
+        if(b->open_cmd.empty() || !std::filesystem::exists(b->open_cmd)) {
+            app->preload_texture("logo", icon_png, icon_png_len);
+            w::image(*app, "logo", icon_size, icon_size);
+        } else {
+            app->preload_texture(b->open_cmd, b->open_cmd);
+            w::image(*app, b->open_cmd, icon_size, icon_size);
+        }
+        w::set_pos(0, -1);
+        w::move_pos(0, -(icon_size + padding));
+
+        // elements
+        w::set_pos(0, -1);
+        w::move_pos(left_pad, 0);
+        w::label(b->name);
+
+        w::move_pos(left_pad, 0);
+
+        if(b->instances.size() > 0) {
+            if(b->is_system) {
+                w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
+                w::tooltip(str::humanise(b->instances.size(), "profile", "profiles"));
+                //i_where->is_enabled = false;
+
+                if(b->is_chromium) {
+                    w::sl();
+                    w::label(ICON_MD_TAB, 0, false);
+                    w::tooltip("Chromium-based");
+                } else if(b->is_firefox) {
+                    w::sl();
+                    w::label(ICON_MD_WHATSHOT, 0, false);
+                    w::tooltip("Firefox-based");
+                }
+            } else {
+                w::label(ICON_MD_SUPPORT_AGENT, 0, false);
+                w::tooltip("User-defined");
+            }
+
+            if(b->get_supports_frameless_windows()) {
+                w::sl();
+                w::label(ICON_MD_TAB_UNSELECTED, 0, false);
+                w::tooltip("Supports frameless windows");
+            }
+
+            if(b->is_hidden) {
+                w::sl();
+                w::label(ICON_FK_EYE_SLASH, 0, false);
+                //chk_hidden->is_enabled = false;
+                w::tooltip("Hidden");
+            }
+
+        } else {
+            w::label(ICON_FK_USER, 0, false);
+            w::tooltip("no profiles");
+        }
+
+        w::spc();
+        w::set_pos(0, -1);
     }
 }

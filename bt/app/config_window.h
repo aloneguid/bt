@@ -3,7 +3,6 @@
 #include "browser.h"
 #include "dash_window.h"
 #include "url_tester_window.h"
-#include "about_window.h"
 #include "url_pipeline_window.h"
 #include "config.h"
 

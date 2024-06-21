@@ -496,9 +496,9 @@ special keyword - %url% which is replaced by opening url.)";
                 url_payload{APP_DOCS_URL},
                 ui::open_method::configured);
         } else if(mi.id == "?") {
-            auto w = gctx.make_window<about_window>();
+            /*auto w = gctx.make_window<about_window>();
             w->detach_on_close = true;
-            w->center();
+            w->center();*/
         } else if(mi.id == "demo") {
 #if _DEBUG
             demo_visible = true;
