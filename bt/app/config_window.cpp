@@ -18,6 +18,8 @@
 #include "rule_hit_log.h"
 #include "ui.h"
 #include "url_pipeline.h"
+#include "fmt/core.h"
+#include "setup.h"
 
 using namespace std;
 using namespace grey;
@@ -109,23 +111,14 @@ namespace bt
         auto w_demo = make_demo();
         w_demo->is_visible = &demo_visible;
 #endif
-
-        w_dash = make_shared<dash_window>(gctx);
-        w_dash->is_visible = &dash_visible;
-        assign_child(w_dash);
-        dash_visible = false;
-        w_dash->on_health_changed = [this](bool healthy) {
-            update_health_icon(healthy);
-        };
-        update_health_icon(w_dash->recheck());
     }
 
     void config_window::build_status_bar() {
         auto status = make_status_bar();
         st_health = status->make_label(ICON_FK_HEART);
         st_health->on_click = [this](component&) {
-            bool healthy = w_dash->recheck();
-            if(!healthy && !dash_visible) dash_visible = true;
+            //bool healthy = w_dash->recheck();
+            //if(!healthy && !dash_visible) dash_visible = true;
         };
 
         status->make_label("|")->is_enabled = false;
@@ -975,18 +968,6 @@ special keyword - %url% which is replaced by opening url.)";
             default:
                 break;
         }
-    }
-
-    void config_window::update_health_icon(bool healthy) {
-        if(!healthy) {
-            dash_visible = true;
-            w_dash->center();
-            w_dash->bring_to_top();
-        }
-        st_health->set_emphasis(healthy ? emphasis::primary : emphasis::error);
-        st_health->tooltip = healthy
-            ? "good health"
-            : "health issues detected";
     }
 
     void config_window::persist_ui() {

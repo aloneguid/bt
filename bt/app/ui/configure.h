@@ -109,6 +109,8 @@ namespace bt::ui {
 #endif
             }}
         };
+        std::vector<std::string> rule_locations { "URL", "Title", "Process" };
+
 
         bool run_frame();
         void handle_menu_click(const std::string& id);
@@ -121,5 +123,6 @@ namespace bt::ui {
         void render_browsers();
         void render_card(std::shared_ptr<bt::browser> b, bool is_selected);
         void render_detail(std::shared_ptr<bt::browser> b);
+        void render_rules(std::shared_ptr<browser_instance> bi);
     };
 }

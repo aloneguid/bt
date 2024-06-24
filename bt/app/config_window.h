@@ -1,7 +1,6 @@
 #pragma once
 #include "grey.h"
 #include "browser.h"
-#include "dash_window.h"
 #include "url_tester_window.h"
 #include "url_pipeline_window.h"
 #include "config.h"
@@ -28,7 +27,6 @@ namespace bt
         std::string latest_version;
         std::shared_ptr<grey::menu_bar> menu;
 
-        std::shared_ptr<dash_window> w_dash;
         bool dash_visible{false};
 
         bool panel_no_browsers_visible{false};

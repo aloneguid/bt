@@ -301,7 +301,9 @@ It super fast, extremely light on resources, completely free and open source.)",
         {
             w::guard g{w_right_panel};
 
-            render_detail(browsers[0]);
+            if(selected_browser_idx < browsers.size()) {
+                render_detail(browsers[selected_browser_idx]);
+            }
         }
     }
 
@@ -491,36 +493,84 @@ It super fast, extremely light on resources, completely free and open source.)",
         // --- profiles start
 
         if(b->is_system) {
+            w::tab_bar tabs{b->id};
+
             for(shared_ptr<browser_instance> bi : b->instances) {
                 string tab_icon;
                 if(bi->is_incognito) {
-                    tab_icon = fmt::format("{} ", ICON_FK_LOCK);
+                    tab_icon = fmt::format("{} ", ICON_MD_SECURITY);
                 }
-                auto tab = profiles_tabs->make(fmt::format(" {}{} ", tab_icon, bi->name));
+                string tab_title = fmt::format(" {}{} ", tab_icon, bi->name);
 
-                tab->spacer();
-
-                auto acc_params = tab->make_accordion("Parameters");
                 {
-                    // basic metadata
+                    auto t = tabs.next_tab(tab_title);
+                    if(t) {
+                        w::spc();
 
-                    auto txt_arg = acc_params->make_input("arg");
-                    txt_arg->tooltip = "Discovered arguments (read-only)";
-                    txt_arg->set_value(bi->launch_arg);
-                    txt_arg->set_select_all_on_focus();
-                    txt_arg->set_is_readonly();
+                        if(w::accordion("Parameters")) {
+                            w::input(bi->launch_arg, "arg", false);
+                            w::tooltip("Discovered arguments (read-only)");
 
-                    auto txt_user_arg = acc_params->make_input("extra arg");
-                    txt_user_arg->tooltip = "Any extra arguments to pass.\nIf you break it, you fix it ;)";
-                    txt_user_arg->set_value(bi->user_arg);
-                    txt_user_arg->on_value_changed = [this, bi](string& v) {
-                        string uv = v;
-                        str::trim(uv);
-                        bi->user_arg = uv;
-                        persist_ui();
-                    };
+                            w::input(bi->user_arg, "extra arg");
+                            w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                        }
+
+                        w::spc();
+                        render_rules(bi);
+                    }
                 }
             }
-        } 
+        } else {
+            shared_ptr<browser_instance> bi = b->instances[0];
+
+            if(w::accordion("Parameters")) {
+                w::input(b->open_cmd, "exe", false);
+                w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+
+                w::input(bi->name, "name");
+                //b->name = bi->name;
+
+                w::input(bi->launch_arg, "arg");
+                w::tooltip(R"(Argument(s) to pass to the browser.
+It is empty by default and opening url is always passed as an argument.
+If you set this value, it is used as is. Also, 'arg' can contain a
+special keyword - %url% which is replaced by opening url.)");
+            }
+
+            // rules
+            w::spc();
+            render_rules(bi);
+        }
+    }
+
+    void config_app::render_rules(std::shared_ptr<browser_instance> bi) {
+        w::label("Rules");
+
+        w::button(ICON_MD_PLUS_ONE " add", w::emphasis::primary);
+        w::sl();
+        w::button(ICON_MD_DELETE " clear all", w::emphasis::error);
+        w::sl();
+        w::button(ICON_MD_CRUELTY_FREE " test");
+        w::tooltip("Open URL Tester");
+
+        // scrollable area with list of rules
+        {
+            w::container c{"rules"};
+            w::guard g{c};
+
+            for(int i = 0; i < bi->rules.size(); i++) {
+                auto rule = bi->rules[i];
+
+                // location
+                w::combo(string{"##loc"} + std::to_string(i), 
+                    rule_locations, (size_t&)rule->loc, 70 * app->scale);
+
+                // value
+                w::sl();
+                w::input(rule->value, string{"##val"} + std::to_string(i));
+                //txt_value->width = 250 * scale;
+
+            }
+        }
     }
 }

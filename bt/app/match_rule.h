@@ -11,7 +11,7 @@ namespace bt {
         path    = 2
     };
 
-    enum class match_location {
+    enum class match_location : size_t {
         url             = 0,
         window_title    = 1,
         process_name    = 2
