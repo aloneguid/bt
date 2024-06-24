@@ -5,6 +5,7 @@
 #include <memory>
 #include "fonts/forkawesome.h"
 #include "../browser.h"
+#include "../setup.h"
 
 namespace bt::ui {
     class config_app {
@@ -22,6 +23,7 @@ namespace bt::ui {
         bool show_demo{false};
 #endif
         // UI elements
+        size_t selected_browser_idx{0};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
 
@@ -32,6 +34,13 @@ namespace bt::ui {
         std::string about_fps_tooltip;
         std::string about_mem;
         std::string about_cpu;
+
+        // "Health Dashboard" window
+        bool show_dash{false};
+        std::vector<system_check> health_checks;
+        size_t health_succeeded{0};
+        size_t health_failed{0};
+        void check_health();
 
         std::vector<grey::widgets::menu_item> menu_items
         {
@@ -104,10 +113,13 @@ namespace bt::ui {
         bool run_frame();
         void handle_menu_click(const std::string& id);
 
-        void run_about_window_frame();
+        void render_about_window();
+        void render_dashboard_window();
 
+        void render_status_bar();
         void render_no_browsers();
         void render_browsers();
-        void render_card(std::shared_ptr<bt::browser> b);
+        void render_card(std::shared_ptr<bt::browser> b, bool is_selected);
+        void render_detail(std::shared_ptr<bt::browser> b);
     };
 }
