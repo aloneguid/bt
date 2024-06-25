@@ -4,7 +4,12 @@
 #include "win32/process.h"
 #include "win32/shell.h"
 #include "win32/sysinfo.h"
+#include "win32/user.h"
+#include "win32/ole32.h"
+#include "win32/clipboard.h"
 #include "str.h"
+#include "stl.hpp"
+#include "../rule_hit_log.h"
 #include <filesystem>
 #include "../../globals.h"
 
@@ -79,7 +84,17 @@ namespace bt::ui {
     }
 
     void config_app::handle_menu_click(const std::string& id) {
-        if(id == "demo") {
+        if(id == "+b") {
+            add_custom_browser_by_asking();
+        } else if(id == "ini") {
+            win32::shell::exec(g_config.get_absolute_path(), "");
+        } else if(id == "ini+c") {
+            win32::clipboard::set_ascii_text(g_config.get_absolute_path());
+        } else if(id == "csv") {
+            win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
+        } else if(id == "csv+c") {
+            win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
+        } else if(id == "demo") {
             show_demo = !show_demo;
         } else if(id.starts_with("set_theme")) {
             grey::themes::set_theme(id, app->scale);
@@ -282,14 +297,20 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::guard g{w_left_panel};
 
             if(w::button(ICON_MD_ADD_CIRCLE " Add", w::emphasis::primary)) {
-                //add_custom_browser_by_asking();
+                add_custom_browser_by_asking();
             }
             w::tooltip("Add custom browser definition");
             w::sl();
-            w::label("todo: hidden");
+            show_hidden_browsers = w::icon_checkbox(ICON_MD_VISIBILITY, show_hidden_browsers);
+            w::tooltip("Show hidden browsers");
 
             for(int i = 0; i < browsers.size(); i++) {
-                render_card(browsers[i], i == selected_browser_idx);
+                auto br = browsers[i];
+                if(!show_hidden_browsers && br->is_hidden) {
+                    continue;
+                }
+
+                render_card(br, i == selected_browser_idx);
 
                 // we can now react on click
                 if(ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
@@ -372,8 +393,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
             if(b->is_hidden) {
                 w::sl();
-                w::label(ICON_FK_EYE_SLASH, 0, false);
-                //chk_hidden->is_enabled = false;
+                w::label(ICON_MD_HIDE_IMAGE, 0, false);
                 w::tooltip("Hidden");
             }
 
@@ -460,25 +480,21 @@ It super fast, extremely light on resources, completely free and open source.)",
         } else {
             w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
-                /*size_t idx = index_of(b);
+                size_t idx = browser::index_of(browsers, b);
 
                 // erase and save
                 vector<shared_ptr<browser>> all = browser::get_cache();
                 std::erase_if(all, [b](auto i) { return i->id == b->id; });
                 g_config.save_browsers(all);
-                browser::get_cache(true); // invalidate
-
-                // rebuild profiles
-                build_browsers();
+                browsers = browser::get_cache(true); // invalidate
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
                     idx -= 1;
                     if(idx >= 0 && idx < browsers.size()) {
-                        rpt_browsers->set_selected_index(idx);
-                        handle_selection(browsers[idx]);
+                        selected_browser_idx = idx;
                     }
-                }*/
+                }
             }
             w::tooltip("Completely deletes this browser, no questions asked");
         }
@@ -546,7 +562,7 @@ special keyword - %url% which is replaced by opening url.)");
     void config_app::render_rules(std::shared_ptr<browser_instance> bi) {
         w::label("Rules");
 
-        w::button(ICON_MD_PLUS_ONE " add", w::emphasis::primary);
+        w::button(ICON_MD_ADD " add", w::emphasis::primary);
         w::sl();
         w::button(ICON_MD_DELETE " clear all", w::emphasis::error);
         w::sl();
@@ -567,10 +583,65 @@ special keyword - %url% which is replaced by opening url.)");
 
                 // value
                 w::sl();
-                w::input(rule->value, string{"##val"} + std::to_string(i));
-                //txt_value->width = 250 * scale;
+                w::input(rule->value, string{"##val"} + std::to_string(i), true, 250 * app->scale);
 
+                // up/down logic is very custom and is bound to the textbox itself
+                if(ImGui::IsItemFocused()) {
+                    if(ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+                        stl::move(bi->rules, i, -1, true);
+                    } else if(ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+                        stl::move(bi->rules, i, 1, true);
+                    }
+                }
+
+                // is regex checkbox
+                w::sl();
+                rule->is_regex = w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
+                w::tooltip("Rule is a Regular Expression (advanced)");
+
+                // app mode
+                if(bi->b->is_chromium) {
+                    w::sl();
+                    rule->app_mode = w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule->app_mode);
+                    w::tooltip("Open in chromeless window");
+                }
+
+                // scope (for "URL" rules)
+                if(rule->loc == match_location::url) {
+                    w::sl();
+                    w::label("|", 0, false);
+                    w::sl();
+                    w::icon_list(url_scopes, (size_t&)rule->scope);
+                }
+
+                w::sl();
+                if(w::button(ICON_MD_DELETE, w::emphasis::error)) {
+                    //bi->rules.erase(bi->rules.begin() + i);
+                }
+                w::tooltip("Delete rule");
             }
+        }
+    }
+
+    void config_app::add_custom_browser_by_asking() {
+        string exe_path = win32::shell::file_open_dialog("Windows Executable", "*.exe");
+        if(exe_path.empty()) return;
+
+        wstring w_product_name = win32::user::get_file_version_info_string(exe_path, "ProductName");
+        string id = win32::ole32::create_guid();
+        string name = str::to_str(w_product_name);
+        auto b = make_shared<browser>(id, name, exe_path, false);
+        b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
+
+        vector<shared_ptr<browser>> all = browser::get_cache();
+        all.push_back(b);
+        g_config.save_browsers(all);
+        browsers = browser::get_cache(true); // invalidate
+
+        // find this new browser and select it (it won't be the last in the list)
+        size_t idx = browser::index_of(browsers, b);
+        if(idx != string::npos) {
+            selected_browser_idx = idx;
         }
     }
 }

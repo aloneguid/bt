@@ -65,6 +65,8 @@ namespace bt {
             std::vector<std::shared_ptr<browser>> new_set,
             std::vector<std::shared_ptr<browser>> old_set);
 
+        static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
+
     private:
 
         static std::vector<std::shared_ptr<browser>> cache;

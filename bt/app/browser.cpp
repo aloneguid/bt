@@ -181,6 +181,19 @@ namespace bt {
         return r;
     }
 
+    size_t browser::index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b) {
+        string id = b->id;
+        auto bit = std::find_if(browsers.begin(), browsers.end(),
+            [id](const shared_ptr<browser>& i) {return i->id == id; });
+
+        if(bit != browsers.end()) {
+            size_t idx = bit - browsers.begin();
+            return idx;
+        }
+
+        return string::npos;
+    }
+
     std::string browser::get_image_name(const std::string& open_cmd) {
         if(open_cmd.empty()) return open_cmd;
         return fs::path{open_cmd}.filename().replace_extension().string();

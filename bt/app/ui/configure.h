@@ -23,6 +23,7 @@ namespace bt::ui {
         bool show_demo{false};
 #endif
         // UI elements
+        bool show_hidden_browsers{true};
         size_t selected_browser_idx{0};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
@@ -110,7 +111,11 @@ namespace bt::ui {
             }}
         };
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
-
+        std::vector<std::pair<std::string, std::string>> url_scopes{
+            { ICON_MD_LANGUAGE, "Match anywhere" },
+            { ICON_MD_GITE, "Match only in host name" },
+            { ICON_MD_ROUNDABOUT_LEFT, "Match only in path" }
+        };
 
         bool run_frame();
         void handle_menu_click(const std::string& id);
@@ -124,5 +129,7 @@ namespace bt::ui {
         void render_card(std::shared_ptr<bt::browser> b, bool is_selected);
         void render_detail(std::shared_ptr<bt::browser> b);
         void render_rules(std::shared_ptr<browser_instance> bi);
+
+        void add_custom_browser_by_asking();
     };
 }

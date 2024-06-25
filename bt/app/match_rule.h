@@ -5,7 +5,7 @@
 #include "url_payload.h"
 
 namespace bt {
-    enum class match_scope {
+    enum class match_scope : size_t {
         any     = 0,
         domain  = 1,
         path    = 2
