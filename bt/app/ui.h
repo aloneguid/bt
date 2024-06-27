@@ -39,8 +39,6 @@ namespace bt::ui
 
     void config();
 
-    void url_tester();
-
     void url_pipeline();
 
     void ensure_no_instances();

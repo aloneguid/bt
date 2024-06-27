@@ -27,19 +27,11 @@ namespace bt {
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
         ensure_instance_id();
+        load();
     }
 
     std::string config::get_iid() {
         return win32::reg::get_value(win32::reg::hive::current_user, settings_root, IIDKeyName);
-    }
-
-    void config::set_theme(const std::string& id) {
-        cfg.set_value("theme", id == "follow_os" ? "" : id);
-        cfg.commit();
-    }
-
-    std::string config::get_theme() {
-        return cfg.get_value("theme");
     }
 
     std::string config::get_data_file_path(const std::string& name) {
@@ -106,6 +98,17 @@ namespace bt {
         if(is_dirty) {
             cfg.commit();
         }
+    }
+
+    void config::load() {
+        show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
+        theme_id = cfg.get_value("theme");
+    }
+
+    void config::commit() {
+        cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
+        cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
+        cfg.commit();
     }
 
     void config::set_picker_enabled(bool enabled) {
@@ -186,15 +189,6 @@ namespace bt {
 
     void config::set_firefox_container_mode(firefox_container_mode mode) {
         cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(mode));
-        cfg.commit();
-    }
-
-    bool config::get_show_hidden_browsers() {
-        return cfg.get_bool_value(ShowHiddenBrowsersKey, true);
-    }
-
-    void config::set_show_hidden_browsers(bool show) {
-        cfg.set_bool_value(ShowHiddenBrowsersKey, show);
         cfg.commit();
     }
 

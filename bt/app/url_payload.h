@@ -23,5 +23,17 @@ namespace bt {
         // the URLs below are optional, and if populated, extra handling is possible
         std::string match_url;  // URL to match on
         std::string open_url;   // final URL to open
+
+        bool empty() const {
+            return url.empty() && window_title.empty() && process_name.empty();
+        }
+
+        void clear() {
+            url.clear();
+            window_title.clear();
+            process_name.clear();
+            match_url.clear();
+            open_url.clear();
+        }
     };
 }

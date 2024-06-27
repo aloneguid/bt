@@ -1,7 +1,6 @@
 #pragma once
 #include "grey.h"
 #include "browser.h"
-#include "url_tester_window.h"
 #include "url_pipeline_window.h"
 #include "config.h"
 
@@ -21,7 +20,6 @@ namespace bt
         bool is_https{false};
         bool is_xbt{false};
         bool log_rule_hits{false};
-        bool show_hidden_browsers{true};
         std::vector<std::shared_ptr<bt::browser>> browsers;
         std::shared_ptr<browser_instance> fb;
         std::string latest_version;

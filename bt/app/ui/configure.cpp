@@ -12,20 +12,42 @@
 #include "../rule_hit_log.h"
 #include <filesystem>
 #include "../../globals.h"
+#include "../url_opener.h"
+#include "../discovery.h"
 
 using namespace std;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    config_app::config_app() {
-        title = string{APP_LONG_NAME} + " " + APP_VERSION;
+    config_app::config_app() :
+        title{string{APP_LONG_NAME} + " " + APP_VERSION},
+        wnd_config{title, &is_open},
+        wnd_about{"About"} {
+
         browsers = bt::browser::get_cache();
         app = grey::app::make(title);
+
+        wnd_config
+            .size(900, 450)
+            .has_menubar()
+            .center()
+            .no_resize()
+            .no_scroll();
+
+        wnd_about
+            .size(310, 355)
+            .center()
+            .no_resize();
+
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom};
         w_right_panel = w::container{0, -padding_bottom}.border();
 
         check_health();
+    }
+
+    config_app::~config_app() {
+        g_config.commit();
     }
 
     void config_app::run() {
@@ -49,12 +71,7 @@ namespace bt::ui {
     }
 
     bool config_app::run_frame() {
-        w::window wnd{title, &is_open};
-        wnd
-            .size(900, 450, app->scale)
-            .has_menubar()
-            .no_resize()
-            .render();
+        w::guard gw{wnd_config};
 
         {
             w::menu_bar menu{menu_items, [this](const string& id) { handle_menu_click(id); }};
@@ -63,6 +80,8 @@ namespace bt::ui {
         if(browsers.empty()) {
             render_no_browsers();
         } else {
+            render_url_tester_input();
+
             render_browsers();
         }
 
@@ -72,13 +91,12 @@ namespace bt::ui {
         }
 #endif
 
-        //render_status_bar();
+        render_status_bar();
 
         if(show_about)
             render_about_window();
 
-        if(show_dash)
-            render_dashboard_window();
+        render_dashboard();
 
         return is_open;
     }
@@ -97,24 +115,47 @@ namespace bt::ui {
         } else if(id == "demo") {
             show_demo = !show_demo;
         } else if(id.starts_with("set_theme")) {
+            string id = id.substr(10);
             grey::themes::set_theme(id, app->scale);
-        } else if(id == "?") {
-            show_about = !show_about;
-        } else if(id == "dash") {
-            show_dash = !show_dash;
+            g_config.theme_id = id;
+        }
+
+        
+         else if(id == "test") {
+            //show_url_tester = !show_url_tester;
+        } else if(id == "windows_defaults") {
+            win32::shell::open_default_apps();
+        } else if(id == "refresh") {
+            rediscover_browsers();
         } else if(id == "x") {
             is_open = false;
+        }
+
+        // "Help"
+
+        else if(id == "browser_ex") {
+            url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
+        } else if(id == "contact") {
+            url_opener::open("https://www.aloneguid.uk/about/#contact");
+        } else if(id == "releases") {
+            url_opener::open(APP_GITHUB_RELEASES_URL);
+        } else if(id == "reg_xbt") {
+            win32::clipboard::set_ascii_text(
+            fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
+        } else if(id == "reg_browser") {
+            win32::clipboard::set_ascii_text(
+            fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
+        } else if(id == "?") {
+            show_about = !show_about;
+        } else if(id == "doc") {
+            url_opener::open(APP_DOCS_URL);
         }
     }
 
     void config_app::render_about_window() {
         const int width = 310;
         app->preload_texture("logo", icon_png, icon_png_len);
-        w::window wnd{"About"};
-        wnd
-            .size(width, 355, app->scale)
-            .no_resize()
-            .render();
+        w::guard gw{wnd_about};
 
         float icon_size = 50 * app->scale;
         w::set_pos(width * app->scale / 2 - icon_size / 2, 40 * app->scale);
@@ -177,11 +218,11 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::spc();
 
         if(w::button(ICON_MD_HOME " Home")) {
-            // ui::url_open(url_payload{APP_URL}, ui::open_method::configured);
+            url_opener::open(APP_URL);
         }
         w::sl();
         if(w::button("GitHub")) {
-            //ui::url_open(url_payload{APP_GITHUB_URL}, ui::open_method::configured);
+            url_opener::open(APP_GITHUB_URL);
         };
         w::sl();
         if(w::button("Close")) {
@@ -189,13 +230,10 @@ It super fast, extremely light on resources, completely free and open source.)",
         }
     }
 
-    void config_app::render_dashboard_window() {
-        w::window wnd{"Readiness Dashboard"};
-        wnd
-            .size(400, 160, app->scale)
-            .no_resize()
-            .render();
+    void config_app::render_dashboard() {
 
+        w::guard gpop{pop_dash};
+        if(!pop_dash) return;
 
         for(auto& sc : health_checks) {
             string tooltip = sc.description;
@@ -208,8 +246,8 @@ It super fast, extremely light on resources, completely free and open source.)",
                 w::label(sc.name);
 
                 if(!sc.is_ok) {
-                    w::sl();
-                    if(w::button("fix", w::emphasis::error)) {
+                    w::sl(250 * app->scale);
+                    if(w::button("fix", w::emphasis::error, true, true)) {
                         sc.fix();
                         check_health();
                     }
@@ -232,19 +270,96 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(w::button("recheck", w::emphasis::primary)) {
             check_health();
         }
+    }
+
+    void config_app::render_url_tester_input() {
+
+        w::container c{"url_tester", 0, 65 * app->scale};
+        c.border();
+        w::guard g{c};
+
+        bool i0 = w::input(url_tester_up.url, ICON_MD_LINK " URL");
+        bool i1 = w::input(url_tester_up.window_title, ICON_MD_WINDOW " window", true, 250 * app->scale);
+        w::tooltip("window title");
         w::sl();
-        if(w::button("close")) {
-            show_dash = false;
+        bool i2 = w::input(url_tester_up.process_name, ICON_MD_MEMORY " process", true, 120 * app->scale);
+        w::tooltip("process name");
+
+        w::sl();
+        w::label(std::to_string(url_tester_payload_version));
+
+        if(i0 || i1 || i2) {
+            test_url();
         }
+
+        /*w::spc();
+        w::label("Results:");
+        w::input(url_tester_up.match_url, ICON_MD_LOGIN, true, 0, true);
+        w::tooltip("URL to apply rules to");
+
+        w::input(url_tester_u.host, "/", true, 300, true);
+        w::tooltip("Host name");
+
+        w::sl();
+        w::input(url_tester_u.query, "##query", true, 0, true);
+        w::tooltip("Query string");
+
+        w::input(url_tester_up.open_url, ICON_MD_LOGOUT, true, 0, true);
+        w::tooltip("URL to open in a browser.");
+
+        w::spc();
+        w::label("Matches:");
+
+        {
+            w::container c{"matches", 0, 100 * app->scale};
+            c.border();
+            w::guard g{c};
+
+            for(int i = 0; i < url_tester_matches.size(); i++) {
+
+                if(i > 0) {
+                    w::spc();
+                    w::sep();
+                }
+
+                auto m = url_tester_matches[i];
+                w::label(ICON_MD_PUBLIC);
+                w::sl();
+                w::label(m->bi->b->name);
+                w::tooltip("Browser");
+                w::sl();
+                w::label(ICON_MD_ARROW_FORWARD_IOS, 0, false);
+                w::sl();
+                w::label(m->bi->name, 0, false);
+                w::tooltip("Profile");
+                w::label("");
+
+                w::sl(35 * app->scale);
+                w::label(m->rule.to_string(), 0, false);
+                w::tooltip("Rule");
+            }
+
+        }
+
+        w::spc();
+        w::sep();
+        w::spc();
+
+        if(w::button("Close", w::emphasis::primary)) {
+            show_url_tester = false;
+        }*/
     }
     
     void config_app::render_status_bar() {
         w::status_bar sb;
 
-        w::label(ICON_MD_HEALTH_AND_SAFETY);
+        w::label(ICON_MD_HEALTH_AND_SAFETY, health_failed > 0 ? w::emphasis::error : w::emphasis::primary);
+        w::tooltip("Shows if there are any issues preventing " APP_SHORT_NAME " from working properly");
+        if(ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
         if(w::is_leftclicked()) {
-            //bool healthy = w_dash->recheck();
-            //if(!healthy && !dash_visible) dash_visible = true;
+            pop_dash.open();
         }
 
         size_t ipc{0};
@@ -256,23 +371,28 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
         }
 
+        w::sl();
         w::label("|", 0, false);
+        w::sl();
         w::label(fmt::format("{} {}", ICON_MD_WEB, browsers.size()), 0, false);
         w::tooltip("Browser count");
 
+        w::sl();
         w::label(fmt::format("{} {}", ICON_MD_PERSON, ipc), 0, false);
         w::tooltip("Profile count");
 
+        w::sl();
         w::label(fmt::format("{} {}", ICON_MD_RULE, irc), 0, false);
         w::tooltip("Configured rule count");
 
-
+        w::sl();
         w::label("|", 0, false);
 
+        w::sl();
         w::label(ICON_MD_COFFEE, 0, false);
         w::tooltip("Support this app, buy me a coffee!");
         if(w::is_leftclicked()) {
-            //ui::url_open(url_payload{APP_BUYMEACOFFEE_URL}, ui::open_method::configured);
+            url_opener::open(APP_BUYMEACOFFEE_URL);
         };
     }
 
@@ -288,7 +408,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::label("");
         w::label(string(100, ' ')); w::sl();
         if(w::button("discover system browsers", w::emphasis::error)) {
-            //rediscover_browsers();
+            rediscover_browsers();
         }
     }
 
@@ -301,12 +421,12 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
             w::tooltip("Add custom browser definition");
             w::sl();
-            show_hidden_browsers = w::icon_checkbox(ICON_MD_VISIBILITY, show_hidden_browsers);
+            g_config.show_hidden_browsers = w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
             w::tooltip("Show hidden browsers");
 
             for(int i = 0; i < browsers.size(); i++) {
                 auto br = browsers[i];
-                if(!show_hidden_browsers && br->is_hidden) {
+                if(!g_config.show_hidden_browsers && br->is_hidden) {
                     continue;
                 }
 
@@ -326,6 +446,31 @@ It super fast, extremely light on resources, completely free and open source.)",
                 render_detail(browsers[selected_browser_idx]);
             }
         }
+    }
+
+    bool config_app::matches_test_url(std::shared_ptr<bt::browser> b) {
+        auto fe = id_to_rule_match_status.find(b->id);
+        bool found = fe != id_to_rule_match_status.end();
+        rule_match_status rms = found ? fe->second : rule_match_status{b->id, false, 0};
+
+        if(rms.version != url_tester_payload_version) {
+            rms.matched = false;
+            rms.version = url_tester_payload_version;
+            
+            // try to find a match
+            for(auto& bi : b->instances) {
+                for(auto& r : bi->rules) {
+                    if(r->is_match(url_tester_up)) {
+                        rms.matched = true;
+                        break;
+                    }
+                }
+            }
+
+            id_to_rule_match_status[b->id] = rms;
+        }
+
+        return rms.matched;
     }
 
     void config_app::render_card(std::shared_ptr<bt::browser> b, bool is_selected) {
@@ -362,6 +507,11 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::set_pos(0, -1);
         w::move_pos(left_pad, 0);
         w::label(b->name);
+
+        if(!url_tester_up.empty()) {
+            w::sl();
+            w::label(ICON_MD_CHECK, matches_test_url(b) ? w::emphasis::primary : w::emphasis::error);
+        }
 
         w::move_pos(left_pad, 0);
 
@@ -623,6 +773,13 @@ special keyword - %url% which is replaced by opening url.)");
         }
     }
 
+    void config_app::rediscover_browsers() {
+        vector<shared_ptr<browser>> fresh_browsers = discovery::discover_all_browsers();
+        fresh_browsers = browser::merge(fresh_browsers, browser::get_cache());
+        g_config.save_browsers(fresh_browsers);
+        browsers = browser::get_cache(true); // invalidate
+    }
+
     void config_app::add_custom_browser_by_asking() {
         string exe_path = win32::shell::file_open_dialog("Windows Executable", "*.exe");
         if(exe_path.empty()) return;
@@ -643,5 +800,11 @@ special keyword - %url% which is replaced by opening url.)");
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }
+    }
+
+    void config_app::test_url() {
+        url_tester_payload_version++;
+        url_tester_up.match_url = url_tester_up.open_url = "";
+        g_pipeline.process(url_tester_up);
     }
 }

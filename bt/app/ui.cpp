@@ -62,9 +62,8 @@ namespace bt::ui {
         string title = fmt::format("{} {}", APP_LONG_NAME, APP_VERSION);
         active_backend = grey::backend::make_platform_default(title);
 
-        string theme_id = g_config.get_theme();
-        if(!theme_id.empty()) {
-            active_backend->set_theme(theme_id);
+        if(!g_config.theme_id.empty()) {
+            active_backend->set_theme(g_config.theme_id);
         }
     }
 
@@ -136,14 +135,6 @@ namespace bt::ui {
             is_config_running = is_open;
         };
         is_config_running = true;
-    }
-
-    void url_tester() {
-        prepare_ui_backend();
-
-        auto w = active_backend->make_window<url_tester_window>();
-        w->detach_on_close = true;
-        w->center();
     }
 
     void url_pipeline() {

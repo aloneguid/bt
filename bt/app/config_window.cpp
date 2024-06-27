@@ -42,7 +42,6 @@ namespace bt
         // restore from config
         // todo: move more here
         log_rule_hits = g_config.get_log_rule_hits();
-        show_hidden_browsers = g_config.get_show_hidden_browsers();
 
         // build UI
 
@@ -72,7 +71,7 @@ namespace bt
         cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
 
         panel_left->same_line();
-        auto chk_show_hidden = panel_left->make_checkbox(ICON_FK_EYE, &show_hidden_browsers);
+        auto chk_show_hidden = panel_left->make_checkbox(ICON_FK_EYE, &g_config.show_hidden_browsers);
         chk_show_hidden->render_as_icon = true;
         chk_show_hidden->tooltip = "show hidden browsers";
         chk_show_hidden->on_value_changed = [this](bool) { build_browsers(); };
@@ -508,8 +507,6 @@ special keyword - %url% which is replaced by opening url.)";
             bt::setup::register_browser();
         } else if(mi.id == "dash") {
             dash_visible = true;
-        } else if(mi.id == "test") {
-            ui::url_tester();
         } else if(mi.id == "windows_defaults") {
             win32::shell::open_default_apps();
         } else if(mi.id == "refresh") {
@@ -549,7 +546,7 @@ special keyword - %url% which is replaced by opening url.)";
         } else if(mi.id.starts_with("set_theme_")) {
             string id = mi.id.substr(10);
             gctx.set_theme(id);
-            g_config.set_theme(id);
+            g_config.theme_id = id;
         } else if(mi.id.starts_with("mi_ff_mode_")) {
             string name = mi.id.substr(11);
             update_firefox_mode(true, config::to_firefox_container_mode(name));
@@ -646,7 +643,7 @@ special keyword - %url% which is replaced by opening url.)";
             panel_left_visible = panel_right_visible = true;
 
             vector<shared_ptr<browser>> filtered;
-            if(show_hidden_browsers) {
+            if(g_config.show_hidden_browsers) {
                 filtered = browsers;
             } else {
                 std::copy_if(browsers.begin(), browsers.end(),
@@ -880,7 +877,7 @@ special keyword - %url% which is replaced by opening url.)";
         };
 
         rt->on_pressed = [this](button&) {
-            ui::url_tester();
+            //ui::url_tester();
         };
     }
 

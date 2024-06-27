@@ -1,8 +1,14 @@
 #pragma once
+#include <string>
+#include <memory>
+#include "browser.h"
+#include "url_payload.h"
 
 namespace bt {
     class url_opener {
     public:
-        url_opener();
+        static void open(std::shared_ptr<browser_instance> bi, url_payload up);
+        static void open(url_payload up);
+        static void open(const std::string& url);
     };
 }

@@ -3,27 +3,40 @@
 #include "widgets.h"
 #include <string>
 #include <memory>
+#include <map>
 #include "fonts/forkawesome.h"
 #include "../browser.h"
 #include "../setup.h"
+#include "url.h"
 
 namespace bt::ui {
+
+    struct rule_match_status {
+        std::string id;
+        bool matched;
+        size_t version;
+    };
+
     class config_app {
     public:
         config_app();
+        ~config_app();
         void run();
 
     private:
 
         std::unique_ptr<grey::app> app;
         std::string title;
+        grey::widgets::window wnd_config;
+        grey::widgets::popup pop_dash{"pop_dash"};
+        grey::widgets::window wnd_about;
         bool is_open{true};
         std::vector<std::shared_ptr<bt::browser>> browsers;
+        std::map<std::string, rule_match_status> id_to_rule_match_status;
 #if _DEBUG
         bool show_demo{false};
 #endif
         // UI elements
-        bool show_hidden_browsers{true};
         size_t selected_browser_idx{0};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
@@ -37,11 +50,14 @@ namespace bt::ui {
         std::string about_cpu;
 
         // "Health Dashboard" window
-        bool show_dash{false};
         std::vector<system_check> health_checks;
         size_t health_succeeded{0};
         size_t health_failed{0};
         void check_health();
+
+        // URL Tester
+        size_t url_tester_payload_version{0};
+        url_payload url_tester_up;
 
         std::vector<grey::widgets::menu_item> menu_items
         {
@@ -59,7 +75,6 @@ namespace bt::ui {
                 { "x", "Exit", ICON_MD_LOGOUT }
             } },
             { "Tools", {
-                { "dash", "Readiness dashboard", ICON_MD_DASHBOARD },
                 { "test", "URL Tester", ICON_MD_CRUELTY_FREE },
                 { "windows_defaults", "Windows Defaults", ICON_MD_PSYCHOLOGY },
                 { "refresh", "Rediscover Browsers", ICON_MD_REFRESH },
@@ -95,7 +110,6 @@ namespace bt::ui {
                 { "browser_ex", "Extensions", ICON_MD_EXTENSION },
                 { "contact", "Contact" },
                 { "releases", "All Releases" },
-                { "check_version", "Check for Updates" },
                 { "Registry", {
                     { "reg_xbt", "Custom Protocol" },
                     { "reg_browser", "Browser Registration" }
@@ -121,7 +135,8 @@ namespace bt::ui {
         void handle_menu_click(const std::string& id);
 
         void render_about_window();
-        void render_dashboard_window();
+        void render_dashboard();
+        void render_url_tester_input();
 
         void render_status_bar();
         void render_no_browsers();
@@ -130,6 +145,10 @@ namespace bt::ui {
         void render_detail(std::shared_ptr<bt::browser> b);
         void render_rules(std::shared_ptr<browser_instance> bi);
 
+        void rediscover_browsers();
         void add_custom_browser_by_asking();
+        void test_url();
+
+        bool matches_test_url(std::shared_ptr<bt::browser> b);
     };
 }

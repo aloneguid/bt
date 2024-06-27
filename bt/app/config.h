@@ -23,12 +23,14 @@ namespace bt {
 
     class config {
     public:
+        bool show_hidden_browsers{true};
+        std::string theme_id;
+
         config();
+        void commit();
+
 
         std::string get_iid();
-
-        void set_theme(const std::string& id);
-        std::string get_theme();
 
         void set_picker_enabled(bool enabled);
         bool get_picker_enabled();
@@ -50,9 +52,6 @@ namespace bt {
 
         firefox_container_mode get_firefox_container_mode();
         void set_firefox_container_mode(firefox_container_mode mode);
-
-        bool get_show_hidden_browsers();
-        void set_show_hidden_browsers(bool show);
 
         std::vector<std::string> get_pipeline();
         void set_pipeline(const std::vector<std::string>& steps);
@@ -79,9 +78,10 @@ namespace bt {
         static std::string get_data_file_path(const std::string& name);
 
     private:
-        common::config cfg;
+        ::common::config cfg;
 
         void ensure_instance_id();
         void migrate();
+        void load();
     };
 }
