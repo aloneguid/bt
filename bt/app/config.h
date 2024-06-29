@@ -25,19 +25,27 @@ namespace bt {
     public:
         bool show_hidden_browsers{true};
         std::string theme_id;
+        bool log_rule_hits{true};
+        firefox_container_mode firefox_mode{firefox_container_mode::off};
 
-        config();
-        void commit();
+        // legacy picker settings
+        bool picker_enabled{true};
+        std::string open_method;
 
+        // picker
+        // when set, picker can be opened manually when holding a hot key and clicking
+        std::string picker_hotkey;
+        // whether to show picker on conflict (more than one browser/profile match)
+        bool picker_on_conflict;
+        // whether to show picker if none of the rules match at all
+        bool picker_on_no_rule;
+        // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
+        bool picker_always;
 
         std::string get_iid();
 
-        void set_picker_enabled(bool enabled);
-        bool get_picker_enabled();
-        void set_picker_hotkey(const std::string& hotkey);
-        std::string get_picker_hotkey();
-        void set_open_method(const std::string& method_name);
-        std::string get_open_method();
+        config();
+        void commit();
 
         void set_fallback(const std::string& long_sys_name);
         std::string get_fallback_long_sys_name();
@@ -46,12 +54,6 @@ namespace bt {
         bool get_persist_popularity();
         int get_popularity(const std::string& long_sys_name);
         void set_popularity(const std::string& long_sys_name, int value);
-
-        bool get_log_rule_hits();
-        void set_log_rule_hits(bool on);
-
-        firefox_container_mode get_firefox_container_mode();
-        void set_firefox_container_mode(firefox_container_mode mode);
 
         std::vector<std::string> get_pipeline();
         void set_pipeline(const std::vector<std::string>& steps);

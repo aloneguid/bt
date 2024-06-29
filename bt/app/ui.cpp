@@ -90,7 +90,7 @@ namespace bt::ui {
 
         // read in method if required
         if(method == open_method::configured) {
-            auto sm = g_config.get_open_method();
+            auto sm = g_config.open_method;
             if(sm == "silent") {
                 method = open_method::silent;
             } else if(sm == "pick") {
@@ -182,7 +182,7 @@ namespace bt::ui {
     }
 
     bool is_picker_hotkey_down() {
-        string hk = g_config.get_picker_hotkey();
+        string hk = g_config.picker_hotkey;
 
         if(hk == "cs") return win32::user::is_kbd_ctrl_down() && win32::user::is_kbd_shift_down();
         if(hk == "ca") return win32::user::is_kbd_ctrl_down() && win32::user::is_kbd_alt_down();

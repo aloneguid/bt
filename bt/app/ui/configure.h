@@ -8,6 +8,7 @@
 #include "../browser.h"
 #include "../setup.h"
 #include "url.h"
+#include "../../globals.h"
 
 namespace bt::ui {
 
@@ -24,6 +25,9 @@ namespace bt::ui {
         void run();
 
     private:
+
+        const std::string RuleMatchesIcon = ICON_MD_CHECK_BOX;
+        const std::string RuleDoesNotMatchIcon = ICON_MD_CHECK_BOX_OUTLINE_BLANK;
 
         std::unique_ptr<grey::app> app;
         std::string title;
@@ -56,12 +60,20 @@ namespace bt::ui {
         void check_health();
 
         // URL Tester
+        bool show_url_tester{false};
         size_t url_tester_payload_version{0};
         url_payload url_tester_up;
+
+        // browser picker mode
+        bool phk_never{false};
+        bool phk_cs{false};
+        bool phk_ca{false};
+        bool phk_as{false};
 
         std::vector<grey::widgets::menu_item> menu_items
         {
             { "File", {
+                { "w", "Save configuration", ICON_MD_SAVE },
                 { "+b", "Add Custom Browser", ICON_MD_ADD_CIRCLE },
                 { "config.ini", {
                     { "ini", "Open" },
@@ -75,7 +87,6 @@ namespace bt::ui {
                 { "x", "Exit", ICON_MD_LOGOUT }
             } },
             { "Tools", {
-                { "test", "URL Tester", ICON_MD_CRUELTY_FREE },
                 { "windows_defaults", "Windows Defaults", ICON_MD_PSYCHOLOGY },
                 { "refresh", "Rediscover Browsers", ICON_MD_REFRESH },
                 { "open_picker", "Test URL Picker", ICON_MD_CRUELTY_FREE },
@@ -85,27 +96,14 @@ namespace bt::ui {
                 }
             } },
             { "Settings", {
-                { "Browser Picker Mode", {
-                    { "open_method_silent", "Never Ask" },
-                    { "open_method_decide", "Ask on Conflict" },
-                    { "open_method_pick", "Always Ask" },
-                    { "Also Open On", {
-                        { "mi_phk_never", "Never" },
-                        { "mi_phk_cs", "Ctrl+Shift+" ICON_MD_MOUSE },
-                        { "mi_phk_ca", "Ctrl+Alt+" ICON_MD_MOUSE },
-                        { "mi_phk_as", "Alt+Shift+" ICON_MD_MOUSE }
-                    } }
-                } },
-                { "Firefox container mode", {
-                    { "mi_ff_mode_off", "off (use profiles)" },
-                    { "mi_ff_mode_bt", APP_LONG_NAME, ICON_MD_EXTENSION },
-                    { "mi_ff_mode_ouic", "open-url-in-container", ICON_MD_EXTENSION }
-                    }, ICON_MD_LOCAL_FIRE_DEPARTMENT },
-                { "Theme", grey::widgets::menu_item::make_ui_theme_items(), ICON_MD_DARK_MODE },
-                { "log_rule_hits", "Log Rule Hits to File" },
-                { "", "-" },
-                { "pipeline_config", "Configure URL pipeline" }
+                { "pipeline_config", "Pipeline" },
+                { "Theme", grey::widgets::menu_item::make_ui_theme_items() },
+                { "log_rule_hits", "Log URLs", "", &g_config.log_rule_hits },
+                { "", "-Firefox Container Mode-" },
             } },
+            { "Picker", {
+                { "", "-Manual Invocation-" }
+            }},
             { "Help", {
                 { "browser_ex", "Extensions", ICON_MD_EXTENSION },
                 { "contact", "Contact" },
@@ -132,8 +130,11 @@ namespace bt::ui {
         };
 
         bool run_frame();
-        void handle_menu_click(const std::string& id);
+        void handle_menu_click(const std::string id);
 
+        bool startup_health_warned{false};
+        bool startup_health_opened{false};
+        void startup_health_warning();
         void render_about_window();
         void render_dashboard();
         void render_url_tester_input();

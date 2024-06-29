@@ -101,48 +101,47 @@ namespace bt {
     }
 
     void config::load() {
+        string v;
+
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
         theme_id = cfg.get_value("theme");
+        log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
+        picker_enabled = cfg.get_value("use_picker") != "n";
+        v = cfg.get_value("picker_hotkey");
+        if(v.empty()) v = "cs";
+        picker_hotkey = v;
+        v = cfg.get_value("open_method");
+        open_method = v.empty() ? "decide" : v;
+        
+        // picker
+        picker_on_conflict = cfg.get_bool_value("picker_on_conflict", true);
+        picker_on_no_rule = cfg.get_bool_value("picker_on_no_rule", false);
+        picker_always = cfg.get_bool_value("picker_always", false);
+
+        string mode = cfg.get_value(FirefoxContainerModeKey);
+        firefox_mode = to_firefox_container_mode(mode);
     }
 
     void config::commit() {
         cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
-        cfg.commit();
-    }
-
-    void config::set_picker_enabled(bool enabled) {
-        cfg.set_value("use_picker", enabled ? "y" : "n");
-        cfg.commit();
-    }
-
-    bool config::get_picker_enabled() {
-        return cfg.get_value("use_picker") != "n";
-    }
-
-    void config::set_picker_hotkey(const std::string& hotkey) {
-        cfg.set_value("picker_hotkey", hotkey);
-        cfg.commit();
-    }
-
-    std::string config::get_picker_hotkey() {
-        string v = cfg.get_value("picker_hotkey");
-        if(v.empty()) v = "cs";
-        return v;
-    }
-
-    void config::set_open_method(const std::string& method_name) {
-        if(method_name == "decide") {
+        cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
+        cfg.set_value("use_picker", picker_enabled ? "y" : "n");
+        cfg.set_value("picker_hotkey", picker_hotkey);
+        if(open_method == "decide") {
             cfg.delete_key("open_method");
         } else {
-            cfg.set_value("open_method", method_name);
+            cfg.set_value("open_method", open_method);
         }
-        cfg.commit();
-    }
 
-    std::string config::get_open_method() {
-        auto m = cfg.get_value("open_method");
-        return m.empty() ? "decide" : m;
+        // picker
+        cfg.set_bool_value("picker_on_conflict", picker_on_conflict);
+        cfg.set_bool_value("picker_on_no_rule", picker_on_no_rule);
+        cfg.set_bool_value("picker_always", picker_always);
+
+        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
+
+        cfg.commit();
     }
 
     void config::set_fallback(const string& long_sys_name) {
@@ -170,25 +169,6 @@ namespace bt {
 
     void config::set_popularity(const std::string& long_sys_name, int value) {
         cfg.set_value(long_sys_name, std::to_string(value), "popularity");
-        cfg.commit();
-    }
-
-    bool config::get_log_rule_hits() {
-        return cfg.get_bool_value(LogRuleHitsKey);
-    }
-
-    void config::set_log_rule_hits(bool on) {
-        cfg.set_bool_value(LogRuleHitsKey, on);
-        cfg.commit();
-    }
-
-    firefox_container_mode config::get_firefox_container_mode() {
-        string mode = cfg.get_value(FirefoxContainerModeKey);
-        return to_firefox_container_mode(mode);
-    }
-
-    void config::set_firefox_container_mode(firefox_container_mode mode) {
-        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(mode));
         cfg.commit();
     }
 

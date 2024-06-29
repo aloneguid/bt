@@ -43,25 +43,25 @@ namespace bt {
         auto cmd_cac = make_button(ICON_FK_FILES_O);
         cmd_cac->tooltip = fmt::format("Copy URL to clipboard and cancel picker without opening any browser\nurl: {}", up.url);
 
-        same_line();
-        auto chk_app_mode = make_checkbox(ICON_FK_CROP, &up.app_mode);
-        chk_app_mode->render_as_icon = true;
-        chk_app_mode->tooltip = "Try to open in frameless window.";
+        //same_line();
+        //auto chk_app_mode = make_checkbox(ICON_FK_CROP, &up.app_mode);
+        //chk_app_mode->render_as_icon = true;
+        //chk_app_mode->tooltip = "Try to open in frameless window.";
 
-        same_line();
-        auto chk_persist_domain = make_checkbox(ICON_FK_PLUS_CIRCLE, &persist_domain);
-        chk_persist_domain->render_as_icon = true;
-        chk_persist_domain->tooltip = fmt::format(
-            "Add domain of this url ({}) as a rule to a browser you click.", str::get_domain_from_url(up.url));
+        //same_line();
+        //auto chk_persist_domain = make_checkbox(ICON_FK_PLUS_CIRCLE, &persist_domain);
+        //chk_persist_domain->render_as_icon = true;
+        //chk_persist_domain->tooltip = fmt::format(
+        //    "Add domain of this url ({}) as a rule to a browser you click.", str::get_domain_from_url(up.url));
 
         same_line();
         make_label("|")->is_enabled = false;
 
-        same_line();
-        auto chk_persist_popularity = make_checkbox(ICON_FK_CHEVRON_DOWN, &persist_popularity);
-        chk_persist_popularity->render_as_icon = true;
-        chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
-        chk_persist_popularity->on_value_changed = [](bool v) { g_config.set_persist_popularity(v); };
+        //same_line();
+        //auto chk_persist_popularity = make_checkbox(ICON_FK_CHEVRON_DOWN, &persist_popularity);
+        //chk_persist_popularity->render_as_icon = true;
+        //chk_persist_popularity->tooltip = "Record number of clicks to sort in descending order by this number.";
+        //chk_persist_popularity->on_value_changed = [](bool v) { g_config.set_persist_popularity(v); };
 
         // process name (if present)
         if(!up.process_name.empty()) {

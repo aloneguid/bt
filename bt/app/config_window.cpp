@@ -41,7 +41,7 @@ namespace bt
 
         // restore from config
         // todo: move more here
-        log_rule_hits = g_config.get_log_rule_hits();
+        log_rule_hits = true;// g_config.get_log_rule_hits();
 
         // build UI
 
@@ -70,11 +70,11 @@ namespace bt
         cmd_add_custom->tooltip = "Add custom browser definition";
         cmd_add_custom->on_pressed = [this](button&) { add_custom_browser_by_asking(); };
 
-        panel_left->same_line();
-        auto chk_show_hidden = panel_left->make_checkbox(ICON_FK_EYE, &g_config.show_hidden_browsers);
-        chk_show_hidden->render_as_icon = true;
-        chk_show_hidden->tooltip = "show hidden browsers";
-        chk_show_hidden->on_value_changed = [this](bool) { build_browsers(); };
+        //panel_left->same_line();
+        //auto chk_show_hidden = panel_left->make_checkbox(ICON_FK_EYE, &g_config.show_hidden_browsers);
+        //chk_show_hidden->render_as_icon = true;
+        //chk_show_hidden->tooltip = "show hidden browsers";
+        //chk_show_hidden->on_value_changed = [this](bool) { build_browsers(); };
 
         //w_browsers->has_border = true;
         panel_left->padding_bottom = 75 * scale;
@@ -291,7 +291,7 @@ namespace bt
 
                 if(b->is_firefox) {
 
-                    auto cm = g_config.get_firefox_container_mode();
+                    auto cm = g_config.firefox_mode;
 
                     if(cm == firefox_container_mode::off) {
                         g_static->same_line();
@@ -361,15 +361,15 @@ namespace bt
         }
 
         // hide/show button
-        browser_toolbar->same_line();
-        auto chk_show = browser_toolbar->make_checkbox(ICON_FK_EYE);
-        chk_show->tooltip = "Show or hide this browser from the browser list";
-        chk_show->render_as_icon = true;
-        chk_show->set_checked(!b->is_hidden);
-        chk_show->on_value_changed = [this, b](bool is_visible) {
-            b->is_hidden = !is_visible;
-            persist_ui();
-        };
+        //browser_toolbar->same_line();
+        //auto chk_show = browser_toolbar->make_checkbox(ICON_FK_EYE);
+        //chk_show->tooltip = "Show or hide this browser from the browser list";
+        //chk_show->render_as_icon = true;
+        //chk_show->set_checked(!b->is_hidden);
+        //chk_show->on_value_changed = [this, b](bool is_visible) {
+        //    b->is_hidden = !is_visible;
+        //    persist_ui();
+        //};
 
 
         // --- toolbar end
@@ -523,12 +523,12 @@ special keyword - %url% which is replaced by opening url.)";
                url_payload{APP_BROWSER_EXTENSIONS_DOCS_URL},
                ui::open_method::configured);
         } else if(mi.id == "picker") {
-            g_config.set_picker_enabled(!mi.is_selected);
+            g_config.picker_enabled = !mi.is_selected;
             mi.is_selected = !mi.is_selected;
             ui::ensure_no_instances();
         } else if(mi.id == "log_rule_hits") {
             mi.is_selected = !mi.is_selected;
-            g_config.set_log_rule_hits(mi.is_selected);
+            //g_config.set_log_rule_hits(mi.is_selected);
             ui::ensure_no_instances();
         } else if(mi.id.starts_with("set_fallback_")) {
             string lsn = mi.id.substr(13);
@@ -750,25 +750,25 @@ special keyword - %url% which is replaced by opening url.)";
                 txt_value->width = 250 * scale;
 
                 // is regex checkbox
-                ctr->same_line();
-                auto chk_regex = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
-                chk_regex->render_as_icon = true;
-                chk_regex->tooltip = "Rule is a Regular Expression (advanced)";
-                chk_regex->set_checked(rule->is_regex);
+                //ctr->same_line();
+                //auto chk_regex = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
+                //chk_regex->render_as_icon = true;
+                //chk_regex->tooltip = "Rule is a Regular Expression (advanced)";
+                //chk_regex->set_checked(rule->is_regex);
 
                 // app mode
-                if(bi->b->is_chromium) {
-                    ctr->same_line();
-                    auto chk_app_mode = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
-                    chk_app_mode->render_as_icon = true;
-                    chk_app_mode->set_checked(ctx.data->app_mode);
-                    chk_app_mode->tooltip = "open in chromeless window";
+                //if(bi->b->is_chromium) {
+                //    ctr->same_line();
+                //    auto chk_app_mode = ctr->make_checkbox(ICON_FK_ACTIVITYPUB);
+                //    chk_app_mode->render_as_icon = true;
+                //    chk_app_mode->set_checked(ctx.data->app_mode);
+                //    chk_app_mode->tooltip = "open in chromeless window";
 
-                    chk_app_mode->on_value_changed = [this, ctx](bool set) {
-                        ctx.data->app_mode = set;
-                        persist_ui();
-                    };
-                }
+                //    chk_app_mode->on_value_changed = [this, ctx](bool set) {
+                //        ctx.data->app_mode = set;
+                //        persist_ui();
+                //    };
+                //}
 
                 // scope
                 ctr->same_line();
@@ -812,10 +812,10 @@ special keyword - %url% which is replaced by opening url.)";
                     persist_ui();
                 };
 
-                chk_regex->on_value_changed = [this, rule](bool is_regex) {
-                    rule->is_regex = is_regex;
-                    persist_ui();
-                };
+                //chk_regex->on_value_changed = [this, rule](bool is_regex) {
+                //    rule->is_regex = is_regex;
+                //    persist_ui();
+                //};
 
                 lst_loc->on_selected = [this, rule, g_scope](size_t idx, list_item& li) {
                     rule->loc = (match_location)idx;
@@ -895,9 +895,9 @@ special keyword - %url% which is replaced by opening url.)";
         string to = update_to;
 
         if(to.empty()) {
-            to = g_config.get_open_method();
+            to = g_config.open_method;
         } else {
-            g_config.set_open_method(to);
+            g_config.open_method = to;
         }
 
         if(to == "silent") {
@@ -919,17 +919,17 @@ special keyword - %url% which is replaced by opening url.)";
 
         // update config if required
         if(to.empty()) {
-            if(g_config.get_picker_enabled()) {
-                to = g_config.get_picker_hotkey();
+            if(g_config.picker_enabled) {
+                to = g_config.picker_hotkey;
             } else {
                 to = "never";
             }
         } else {
             if(to == "never") {
-                g_config.set_picker_enabled(false);
+                g_config.picker_enabled = false;
             } else {
-                g_config.set_picker_enabled(true);
-                g_config.set_picker_hotkey(to);
+                g_config.picker_enabled = true;
+                g_config.picker_hotkey = to;
             }
         }
 
@@ -948,10 +948,10 @@ special keyword - %url% which is replaced by opening url.)";
         mi_ff_mode_off->is_selected = mi_ff_mode_bt->is_selected = mi_ff_mode_ouic->is_selected = false;
 
         if(update) {
-            g_config.set_firefox_container_mode(mode);
+            g_config.firefox_mode = mode;
         }
 
-        mode = g_config.get_firefox_container_mode();
+        mode = g_config.firefox_mode;
         switch(mode) {
             case bt::firefox_container_mode::off:
                 mi_ff_mode_off->is_selected = true;
