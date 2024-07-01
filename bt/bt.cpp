@@ -1,6 +1,5 @@
 ﻿#include <fmt/core.h>
 #include "globals.h"
-#include "app/ui.h"
 #include "../common/str.h"
 #include "win32/process.h"
 #include "app/config.h"
@@ -11,13 +10,12 @@
 
 //ui
 #include "app/ui/configure.h"
+#include "app/ui/picker.h"
 
 // globals.h
-alg::tracker t{APP_SHORT_NAME, APP_VERSION};
+//alg::tracker t{APP_SHORT_NAME, APP_VERSION};
 bt::config g_config;
 bt::url_pipeline g_pipeline{g_config};
-lsignal::signal<void(const std::string&, const std::string&, const std::string&)> app_event;
-lsignal::signal<void(const bt::url_payload&, const bt::browser_match_result&)> open_on_match_event;
 
 using namespace std;
 
@@ -29,8 +27,10 @@ void execute(const string& data) {
         // 1 - HWND
         auto parts = str::split(data, ArgSplitter, true);
         bt::url_payload up{parts[0]};
-        bool picker_down = bt::ui::is_picker_hotkey_down();
-        bt::ui::open_method om = picker_down ? bt::ui::open_method::pick : bt::ui::open_method::configured;
+
+        //bool picker_down = bt::ui::is_picker_hotkey_down();
+        //bt::ui::open_method om = picker_down ? bt::ui::open_method::pick : bt::ui::open_method::configured;
+
         up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 
         win32::window win{up.source_window_handle};
@@ -39,11 +39,13 @@ void execute(const string& data) {
         win32::process proc{win.get_pid()};
         up.process_name = proc.get_name();
 
-        bt::ui::url_open(up, om);
+        //bt::ui::url_open(up, om);
     } else {
-        bt::ui::config_app app;
+        //bt::ui::config_app app;
+        //app.run();
+
+        bt::ui::picker_app app;
         app.run();
-        //bt::ui::config();
     }
 }
 

@@ -600,7 +600,7 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
 
         } else {
-            w::label(ICON_FK_USER, 0, false);
+            w::label(ICON_MD_FACE, 0, false);
             w::tooltip("no profiles");
         }
 

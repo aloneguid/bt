@@ -28,9 +28,6 @@ if(MSVC AND CMAKE_BUILD_TYPE MATCHES Release)
     add_link_options("/OPT:REF")
 endif()
 
-if(WIN32)
-    add_subdirectory(../grey/grey ${CMAKE_CURRENT_BINARY_DIR}/grey_build)
-    add_subdirectory(bt)
-endif()
-
+add_subdirectory(grey)
+add_subdirectory(bt)
 add_subdirectory(test)

@@ -1,6 +1,6 @@
 [submodule "common"]
 	path = common
 	url = https://github.com/aloneguid/common
-[submodule "bt/ext/lsignal"]
-	path = bt/ext/lsignal
-	url = https://github.com/cpp11nullptr/lsignal
+[submodule "grey"]
+	path = grey
+	url = https://github.com/aloneguid/grey

@@ -1,10 +1,8 @@
 #pragma once
-#include "app.h"
-#include "widgets.h"
+#include "grey.h"
 #include <string>
 #include <memory>
 #include <map>
-#include "fonts/forkawesome.h"
 #include "../browser.h"
 #include "../setup.h"
 #include "url.h"
