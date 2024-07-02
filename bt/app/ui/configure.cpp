@@ -158,8 +158,6 @@ namespace bt::ui {
             win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
         } else if(id == "csv+c") {
             win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
-        } else if(id == "demo") {
-            show_demo = !show_demo;
         } else if(id.starts_with(w::SetThemeMenuPrefix)) {
             string theme_id = w::menu_item::remove_theme_prefix(id);
             grey::themes::set_theme(theme_id, app->scale);
@@ -221,6 +219,13 @@ namespace bt::ui {
         } else if(id == "doc") {
             url_opener::open(APP_DOCS_URL);
         }
+
+        // debug only
+#if _DEBUG
+        else if(id == "demo") {
+            show_demo = !show_demo;
+        }
+#endif
     }
 
     void config_app::startup_health_warning() {
