@@ -5,8 +5,16 @@
 #include "../browser.h"
 
 namespace bt::ui {
+
     class picker_app {
     public:
+
+        struct connection_box {
+            ImVec2 min;
+            ImVec2 max;
+        };
+
+
         picker_app(const std::string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices);
         picker_app(const std::string& url);
         ~picker_app();
@@ -17,9 +25,15 @@ namespace bt::ui {
 
         const float BrowserSquareSize = 60.0f;
         const float BrowserSquarePadding = 10.0f;
-        const float ProfileSquareSize = 30.0f;
+        const float InactiveBrowserSquarePadding = 12.0f;
+        const float ProfileSquareSize = 40.0f;
         const float ProfileSquarePadding = 5.0f;
+        const float InactiveProfileSquarePadding = 7.0f;
         const float WindowMinWidth = BrowserSquareSize * 6;
+        float wnd_width;
+        float wnd_height_normal;
+        float wnd_height_profiles;
+        bool wnd_height_is_normal{true};
 
         const float InactiveAlpha = 0.8;
 
@@ -32,11 +46,22 @@ namespace bt::ui {
         // calculated
         std::vector<bt::browser> browsers;
         int active_browser_idx{-1};
+        int active_profile_idx{-1};
+        connection_box active_browser_cb;
+        std::vector<connection_box> profiles_cb;
         float browser_bar_left_pad{0};
 
         grey::widgets::window wnd_main;
 
-
         bool run_frame();
+        void render_browser_bar();
+        void render_profile_bar();
+        void render_connection_box();
+
+        /**
+         * @brief Invoked on user's final decision
+         * @param decision 
+         */
+        void make_decision(std::shared_ptr<bt::browser_instance> decision);
     };
 }

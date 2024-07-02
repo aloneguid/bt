@@ -87,7 +87,6 @@ namespace bt::ui {
             { "Tools", {
                 { "windows_defaults", "Windows Defaults", ICON_MD_PSYCHOLOGY },
                 { "refresh", "Rediscover Browsers", ICON_MD_REFRESH },
-                { "open_picker", "Test URL Picker", ICON_MD_CRUELTY_FREE },
                 { "Troubleshooting", {
                     { "fix_xbt", "Re-register Custom Protocol" },
                     { "fix_browser", "Re-register as Browser" } }
