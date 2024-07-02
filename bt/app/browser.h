@@ -37,6 +37,9 @@ namespace bt {
 
         std::vector<std::shared_ptr<browser_instance>> instances;
 
+        // UI helper properties
+        bool ui_is_hovered{false};
+
         size_t get_total_rule_count() const;
 
         bool get_supports_frameless_windows() const { return supports_frameless_windows; }
@@ -126,6 +129,7 @@ namespace bt {
         std::string icon_path;
 
         int popularity{ 0 };
+        bool ui_is_hovered{false};
 
         /**
          * @brief Optional sort order

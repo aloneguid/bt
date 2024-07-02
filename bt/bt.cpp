@@ -42,9 +42,7 @@ void execute(const string& data) {
         //bt::ui::url_open(up, om);
     } else {
         //bt::ui::config_app app;
-        //app.run();
-
-        bt::ui::picker_app app;
+        bt::ui::picker_app app{"https://github.com/sonnyp/Junction"};
         app.run();
     }
 }
