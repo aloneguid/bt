@@ -92,18 +92,9 @@ namespace bt::ui {
 
             // inject custom radios
             if (ImGui::BeginMenu("Picker")) {
-                if (w::small_radio("Never", g_config.picker_hotkey == "" || g_config.picker_hotkey == "never")) {
-                    g_config.picker_hotkey = "never";
-                }
-                if (w::small_radio("Ctrl + Shift + " ICON_MD_MOUSE, g_config.picker_hotkey == "cs")) {
-                    g_config.picker_hotkey = "cs";
-                }
-                if (w::small_radio("Ctrl + Alt   + " ICON_MD_MOUSE, g_config.picker_hotkey == "ca")) {
-                    g_config.picker_hotkey = "ca";
-                }
-                if (w::small_radio("Alt  + Shift + " ICON_MD_MOUSE, g_config.picker_hotkey == "as")) {
-                    g_config.picker_hotkey = "as";
-                }
+                w::small_checkbox("Ctrl + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_cs);
+                w::small_checkbox("Ctrl + Alt   + " ICON_MD_MOUSE, g_config.picker_on_key_ca);
+                w::small_checkbox("Alt  + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_as);
 
                 w::sep("Automatic Invocation");
                 w::small_checkbox("Always", g_config.picker_always);
@@ -158,8 +149,6 @@ namespace bt::ui {
             win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
         } else if(id == "csv+c") {
             win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
-        } else if(id == "demo") {
-            show_demo = !show_demo;
         } else if(id.starts_with(w::SetThemeMenuPrefix)) {
             string theme_id = w::menu_item::remove_theme_prefix(id);
             grey::themes::set_theme(theme_id, app->scale);
@@ -178,30 +167,7 @@ namespace bt::ui {
         }
 
         // Settings
-        else if (id == "phk_never") {
-            phk_never = true;
-            phk_cs = false;
-            phk_ca = false;
-            phk_as = false;
-        }
-        else if (id == "phk_cs") {
-            phk_never = false;
-            phk_cs = true;
-            phk_ca = false;
-            phk_as = false;
-        }
-        else if (id == "phk_ca") {
-            phk_never = false;
-            phk_cs = false;
-            phk_ca = true;
-            phk_as = false;
-        }
-        else if (id == "phk_as") {
-            phk_never = false;
-            phk_cs = false;
-            phk_ca = false;
-            phk_as = true;
-        }
+        // 
         // "Help"
 
         else if(id == "browser_ex") {
@@ -221,6 +187,13 @@ namespace bt::ui {
         } else if(id == "doc") {
             url_opener::open(APP_DOCS_URL);
         }
+
+        // debug only
+#if _DEBUG
+        else if(id == "demo") {
+            show_demo = !show_demo;
+        }
+#endif
     }
 
     void config_app::startup_health_warning() {
@@ -438,6 +411,9 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::sl();
         w::label(ICON_MD_COFFEE, 0, false);
         w::tooltip("Support this app, buy me a coffee!");
+        if(w::is_hovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
         if(w::is_leftclicked()) {
             url_opener::open(APP_BUYMEACOFFEE_URL);
         };
@@ -523,6 +499,15 @@ It super fast, extremely light on resources, completely free and open source.)",
         return rms.matched;
     }
 
+    std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
+        auto browser = browsers[selected_browser_idx];
+        if(browser->is_system) {
+            return browser->instances[selected_profile_idx];
+        } else {
+            return browser->instances[0];
+        }
+    }
+
     void config_app::render_card(std::shared_ptr<bt::browser> b, bool is_selected) {
 
         w::group g;
@@ -595,7 +580,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
             if(b->is_hidden) {
                 w::sl();
-                w::label(ICON_MD_HIDE_IMAGE, 0, false);
+                w::label(ICON_MD_VISIBILITY, 0, false);
                 w::tooltip("Hidden");
             }
 
@@ -612,19 +597,16 @@ It super fast, extremely light on resources, completely free and open source.)",
         // universal test button
         w::sl();
         if(w::button(ICON_MD_LAUNCH)) {
-            //auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-            url_payload pl{APP_URL};
-            //instance->launch(pl);
+            url_opener::open(get_selected_browser_instance(), APP_URL);
         }
         w::tooltip("test by opening a link");
 
         if(b->is_chromium) {
             w::sl();
-            if(w::button(ICON_MD_OPEN_IN_NEW)) {
-                //auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-                //url_payload pl{APP_URL};
-                //pl.app_mode = true;
-                //instance->launch(pl);
+            if(w::button(ICON_MD_TAB_UNSELECTED)) {
+                url_payload up{APP_URL};
+                up.app_mode = true;
+                url_opener::open(get_selected_browser_instance(), up);
             }
             w::tooltip("test by opening a link as an app");
         }
@@ -642,38 +624,30 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                 if(b->is_firefox) {
 
-                    /*auto cm = g_config.get_firefox_container_mode();
-
-                    if(cm == firefox_container_mode::off) {
-                        g_static->same_line();
-                        auto pmgr = g_static->make_button(ICON_FK_ADDRESS_CARD);
-                        pmgr->tooltip = "open Firefox Profile Manager (-P flag)";
-                        pmgr->on_pressed = [b](button&) {
+                    if(g_config.firefox_mode == firefox_container_mode::off) {
+                        w::sl();
+                        if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
                             win32::shell::exec(b->open_cmd, "-P");
-                        };
+                        }
+                        w::tooltip("open Firefox Profile Manager (-P flag)");
 
-                        g_static->same_line();
-                        pmgr = g_static->make_button(ICON_FK_ID_CARD);
-                        pmgr->tooltip = "open Firefox Profile Manager in Firefox itself";
-                        pmgr->on_pressed = [b](button&) {
+                        w::sl();
+                        if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
                             win32::shell::exec(b->open_cmd, "about:profiles");
-                        };
+                        }
+                        w::tooltip("open Firefox Profile Manager in Firefox itself");
                     } else {
-
-                        g_static->same_line();
-                        auto cmd_x = g_static->make_button(ICON_FK_PUZZLE_PIECE);
-                        cmd_x->tooltip = "download required extension";
-                        cmd_x->set_emphasis(emphasis::error);
-                        cmd_x->on_pressed = [this, b](button&) {
-                            ui::url_open(url_payload{"https://aloneguid.github.io/bt/firefox-containers.html#install-extension"}, bt::ui::open_method::configured);
-                        };
-                    }*/
+                        w::sl();
+                        if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
+                            url_opener::open("https://aloneguid.github.io/bt/firefox-containers.html");
+                        }
+                        w::tooltip("download required extension");
+                    }
                 } else if(b->is_chromium) {
                     w::sl();
                     if(w::button(ICON_MD_EXTENSION)) {
                         // extenstion page needs to be opened in the correct profile
-                        //auto instance = b->instances[b->is_system ? profiles_tabs->get_selected_idx() : 0];
-                        //instance->launch(url_payload{APP_BROWSER_EXTENSIONS_DOCS_URL});
+                        url_opener::open(get_selected_browser_instance(), APP_BROWSER_EXTENSIONS_DOCS_URL);
                     }
                     w::tooltip("download optional integration extension");
                 }
@@ -708,11 +682,14 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         // --- toolbar end
 
+        //w::label(std::to_string(selected_profile_idx));
+
         // --- profiles start
 
         if(b->is_system) {
             w::tab_bar tabs{b->id};
 
+            int idx{0};
             for(shared_ptr<browser_instance> bi : b->instances) {
                 string tab_icon;
                 if(bi->is_incognito) {
@@ -723,6 +700,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 {
                     auto t = tabs.next_tab(tab_title);
                     if(t) {
+                        selected_profile_idx = idx;
                         w::spc();
 
                         if(w::accordion("Parameters")) {
@@ -736,6 +714,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                         w::spc();
                         render_rules(bi);
                     }
+                    idx++;
                 }
             }
         } else {

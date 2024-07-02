@@ -121,7 +121,7 @@ namespace bt {
     }
 
     shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>>& browsers) {
-        string lsn = g_config.get_fallback_long_sys_name();
+        string lsn = g_config.default_browser;
 
         bool found;
         auto bi = find_profile_by_long_id(browsers, lsn, found);

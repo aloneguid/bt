@@ -40,6 +40,7 @@ namespace bt::ui {
 #endif
         // UI elements
         size_t selected_browser_idx{0};
+        size_t selected_profile_idx{0};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
 
@@ -61,12 +62,6 @@ namespace bt::ui {
         bool show_url_tester{false};
         size_t url_tester_payload_version{0};
         url_payload url_tester_up;
-
-        // browser picker mode
-        bool phk_never{false};
-        bool phk_cs{false};
-        bool phk_ca{false};
-        bool phk_as{false};
 
         std::vector<grey::widgets::menu_item> menu_items
         {
@@ -148,5 +143,7 @@ namespace bt::ui {
         void test_url();
 
         bool matches_test_url(std::shared_ptr<bt::browser> b);
+
+        std::shared_ptr<bt::browser_instance> get_selected_browser_instance();
     };
 }

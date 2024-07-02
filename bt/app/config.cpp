@@ -106,69 +106,37 @@ namespace bt {
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
         theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
-        picker_enabled = cfg.get_value("use_picker") != "n";
-        v = cfg.get_value("picker_hotkey");
-        if(v.empty()) v = "cs";
-        picker_hotkey = v;
-        v = cfg.get_value("open_method");
-        open_method = v.empty() ? "decide" : v;
-        
+        string mode = cfg.get_value(FirefoxContainerModeKey);
+        firefox_mode = to_firefox_container_mode(mode);
+        default_browser = cfg.get_value("default_browser");
+
         // picker
+        picker_on_key_cs = cfg.get_bool_value("picker_on_key_cs", true);
+        picker_on_key_ca = cfg.get_bool_value("picker_on_key_ca", false);
+        picker_on_key_as = cfg.get_bool_value("picker_on_key_as", false);
         picker_on_conflict = cfg.get_bool_value("picker_on_conflict", true);
         picker_on_no_rule = cfg.get_bool_value("picker_on_no_rule", false);
         picker_always = cfg.get_bool_value("picker_always", false);
 
-        string mode = cfg.get_value(FirefoxContainerModeKey);
-        firefox_mode = to_firefox_container_mode(mode);
     }
 
     void config::commit() {
         cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
-        cfg.set_value("use_picker", picker_enabled ? "y" : "n");
-        cfg.set_value("picker_hotkey", picker_hotkey);
-        if(open_method == "decide") {
-            cfg.delete_key("open_method");
-        } else {
-            cfg.set_value("open_method", open_method);
-        }
+        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
+        cfg.set_value("default_browser", default_browser);
 
         // picker
+        cfg.set_bool_value("picker_on_key_cs", picker_on_key_cs);
+        cfg.set_bool_value("picker_on_key_ca", picker_on_key_ca);
+        cfg.set_bool_value("picker_on_key_as", picker_on_key_as);
         cfg.set_bool_value("picker_on_conflict", picker_on_conflict);
         cfg.set_bool_value("picker_on_no_rule", picker_on_no_rule);
         cfg.set_bool_value("picker_always", picker_always);
 
-        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
+        
 
-        cfg.commit();
-    }
-
-    void config::set_fallback(const string& long_sys_name) {
-        cfg.set_value("fallback", long_sys_name);
-        cfg.commit();
-    }
-
-    string config::get_fallback_long_sys_name() {
-        return cfg.get_value("fallback");
-    }
-
-    void config::set_persist_popularity(bool v) {
-        cfg.set_bool_value(PersistPopularityKey, v);
-        cfg.commit();
-    }
-
-    bool config::get_persist_popularity() {
-        return cfg.get_bool_value(PersistPopularityKey, true);
-    }
-
-    int config::get_popularity(const std::string& long_sys_name) {
-        string v = cfg.get_value(long_sys_name, "popularity");
-        return str::to_int(v);
-    }
-
-    void config::set_popularity(const std::string& long_sys_name, int value) {
-        cfg.set_value(long_sys_name, std::to_string(value), "popularity");
         cfg.commit();
     }
 

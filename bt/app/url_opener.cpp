@@ -7,6 +7,11 @@ namespace bt {
         bi->launch(up);
     }
 
+    void url_opener::open(std::shared_ptr<browser_instance> bi, const std::string& url) {
+        url_payload up{url};
+        open(bi, up);
+    }
+
     void url_opener::open(url_payload up) {
         auto matches = browser::match(browser::get_cache(), up);
         browser_match_result& first_match = matches[0];
