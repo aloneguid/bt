@@ -43,15 +43,17 @@ namespace bt {
         // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
         bool picker_always;
 
+        // pipeline
+        bool pipeline_unwrap_o365;
+        bool pipeline_unshorten;
+
+        // browser collection
         std::vector<std::shared_ptr<browser>> browsers;
 
         std::string get_iid();
 
         config();
         void commit();
-
-        std::vector<std::string> get_pipeline();
-        void set_pipeline(const std::vector<std::string>& steps);
 
         std::string get_absolute_path();
 

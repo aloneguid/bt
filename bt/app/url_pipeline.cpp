@@ -43,7 +43,15 @@ namespace bt {
     void url_pipeline::load() {
         steps.clear();
 
-        vector<string> steps_str = cfg.get_pipeline();
+        if(cfg.pipeline_unwrap_o365) {
+            steps.push_back(make_shared<bt::pipeline::o365>());
+        }
+
+        if(cfg.pipeline_unshorten) {
+            steps.push_back(make_shared<bt::pipeline::unshortener>());
+        }
+
+        /*vector<string> steps_str = cfg.get_pipeline();
         for(const string& step_str : steps_str) {
             vector<string> parts = str::split_pipe(step_str);
             if(parts.size() < 1)
@@ -64,12 +72,12 @@ namespace bt {
                     parts[2],
                     parts[3]));
             }
-        }
+        }*/
     }
 
     void url_pipeline::save() {
         // convert steps to string vector
-        vector<string> steps_str;
+        /*vector<string> steps_str;
         for(auto step : steps) {
             switch(step->type) {
                 case url_pipeline_step_type::o365:
@@ -89,13 +97,6 @@ namespace bt {
                     break;
             }
         }
-        cfg.set_pipeline(steps_str);
-    }
-
-    void url_pipeline::reset() {
-        steps.clear();
-        steps.push_back(make_shared<bt::pipeline::o365>());
-        steps.push_back(make_shared<bt::pipeline::unshortener>());
-        save();
+        cfg.set_pipeline(steps_str);*/
     }
 }

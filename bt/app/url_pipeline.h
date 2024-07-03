@@ -25,11 +25,6 @@ namespace bt {
         */
         void save();
 
-        /**
-         * @brief Resets pipeline to minimum working state.
-        */
-        void reset();
-
         std::vector<std::shared_ptr<url_pipeline_step>>& get_steps() { return steps; }
 
     private:

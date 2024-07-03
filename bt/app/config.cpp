@@ -21,6 +21,7 @@ namespace bt {
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
+    const string PickerSectionName = "picker";
     const string PipelineSectionName = "pipeline";
     const string PipelineStepKeyName = "step";
 
@@ -111,12 +112,16 @@ namespace bt {
         default_browser = cfg.get_value("default_browser");
 
         // picker
-        picker_on_key_cs = cfg.get_bool_value("picker_on_key_cs", true);
-        picker_on_key_ca = cfg.get_bool_value("picker_on_key_ca", false);
-        picker_on_key_as = cfg.get_bool_value("picker_on_key_as", false);
-        picker_on_conflict = cfg.get_bool_value("picker_on_conflict", true);
-        picker_on_no_rule = cfg.get_bool_value("picker_on_no_rule", false);
-        picker_always = cfg.get_bool_value("picker_always", false);
+        picker_on_key_cs = cfg.get_bool_value("on_key_cs", true, PickerSectionName);
+        picker_on_key_ca = cfg.get_bool_value("on_key_ca", false, PickerSectionName);
+        picker_on_key_as = cfg.get_bool_value("on_key_as", false, PickerSectionName);
+        picker_on_conflict = cfg.get_bool_value("on_conflict", true, PickerSectionName);
+        picker_on_no_rule = cfg.get_bool_value("on_no_rule", false, PickerSectionName);
+        picker_always = cfg.get_bool_value("always", false, PickerSectionName);
+
+        // pipeline
+        pipeline_unwrap_o365 = cfg.get_bool_value("unwrap_o365", true, PipelineSectionName);
+        pipeline_unshorten = cfg.get_bool_value("unshorten", true, PipelineSectionName);
 
         browsers = load_browsers();
     }
@@ -129,24 +134,19 @@ namespace bt {
         cfg.set_value("default_browser", default_browser);
 
         // picker
-        cfg.set_bool_value("picker_on_key_cs", picker_on_key_cs);
-        cfg.set_bool_value("picker_on_key_ca", picker_on_key_ca);
-        cfg.set_bool_value("picker_on_key_as", picker_on_key_as);
-        cfg.set_bool_value("picker_on_conflict", picker_on_conflict);
-        cfg.set_bool_value("picker_on_no_rule", picker_on_no_rule);
-        cfg.set_bool_value("picker_always", picker_always);
+        cfg.set_bool_value("on_key_cs", picker_on_key_cs, PickerSectionName);
+        cfg.set_bool_value("on_key_ca", picker_on_key_ca, PickerSectionName);
+        cfg.set_bool_value("on_key_as", picker_on_key_as, PickerSectionName);
+        cfg.set_bool_value("on_conflict", picker_on_conflict, PickerSectionName);
+        cfg.set_bool_value("on_no_rule", picker_on_no_rule, PickerSectionName);
+        cfg.set_bool_value("always", picker_always, PickerSectionName);
+
+        // pipeline
+        cfg.set_bool_value("unwrap_o365", pipeline_unwrap_o365, PipelineSectionName);
+        cfg.set_bool_value("unshorten", pipeline_unshorten, PipelineSectionName);
 
         save_browsers(browsers);
 
-        cfg.commit();
-    }
-
-    std::vector<std::string> config::get_pipeline() {
-        return cfg.get_all_values(PipelineStepKeyName, PipelineSectionName);
-    }
-
-    void config::set_pipeline(const std::vector<std::string>& steps) {
-        cfg.set_value(PipelineStepKeyName, steps, PipelineSectionName);
         cfg.commit();
     }
 

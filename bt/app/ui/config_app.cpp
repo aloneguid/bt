@@ -201,6 +201,16 @@ namespace bt::ui {
                 }
             }
 
+            if(w::menu m{"Pipeline"}; m) {
+                if(w::small_checkbox("Unwrap Office 365 links", g_config.pipeline_unwrap_o365)) {
+                    g_pipeline.load();
+                }
+                if(w::small_checkbox("Unshorten links", g_config.pipeline_unshorten)) {
+                    g_pipeline.load();
+                }
+                w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE);
+            }
+
             if(w::menu m{"Help"}; m) {
                 if(w::mi("Extensions", true, ICON_MD_EXTENSION)) {
                     url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
