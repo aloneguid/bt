@@ -73,6 +73,7 @@ namespace bt::ui {
         w::guard gw{wnd_config};
 
         render_menu_bar();
+        recalculate_test_url_matches();
 
         if(g_config.browsers.empty()) {
             render_no_browsers();
@@ -503,31 +504,6 @@ It super fast, extremely light on resources, completely free and open source.)",
         }
     }
 
-    bool config_app::matches_test_url(std::shared_ptr<bt::browser> b) {
-        auto fe = id_to_rule_match_status.find(b->id);
-        bool found = fe != id_to_rule_match_status.end();
-        rule_match_status rms = found ? fe->second : rule_match_status{b->id, false, 0};
-
-        if(rms.version != url_tester_payload_version) {
-            rms.matched = false;
-            rms.version = url_tester_payload_version;
-            
-            // try to find a match
-            for(auto& bi : b->instances) {
-                for(auto& r : bi->rules) {
-                    if(r->is_match(url_tester_up)) {
-                        rms.matched = true;
-                        break;
-                    }
-                }
-            }
-
-            id_to_rule_match_status[b->id] = rms;
-        }
-
-        return rms.matched;
-    }
-
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
         auto browser = g_config.browsers[selected_browser_idx];
         if(browser->is_system) {
@@ -574,9 +550,8 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         if(!url_tester_up.empty()) {
             w::sl();
-            bool is_match = matches_test_url(b);
-            w::label(is_match ? RuleMatchesIcon : RuleDoesNotMatchIcon,
-                is_match ? w::emphasis::primary : w::emphasis::error);
+            w::label(b->ui_test_url_matches ? RuleMatchesIcon : RuleDoesNotMatchIcon,
+                b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::error);
         }
 
         w::move_pos(left_pad, 0);
@@ -707,7 +682,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 string tab_title = fmt::format(" {}{} ", tab_icon, bi->name);
 
                 {
-                    auto t = tabs.next_tab(tab_title);
+                    auto t = tabs.next_tab(tab_title, bi->ui_test_url_matches);
                     if(t) {
                         selected_profile_idx = idx;
                         w::spc();
@@ -830,6 +805,13 @@ special keyword - %url% which is replaced by opening url.)");
             for(int i = 0; i < bi->rules.size(); i++) {
                 auto rule = bi->rules[i];
 
+                if(!url_tester_up.empty()) {
+                    bool is_match = rule->is_match(url_tester_up);
+                    w::label(is_match ? RuleMatchesIcon : RuleDoesNotMatchIcon,
+                        is_match ? w::emphasis::primary : w::emphasis::error);
+                    w::sl();
+                }
+
                 // location
                 w::combo(string{"##loc"} + std::to_string(i), 
                     rule_locations, (size_t&)rule->loc, 70 * app->scale);
@@ -908,5 +890,22 @@ special keyword - %url% which is replaced by opening url.)");
         url_tester_payload_version++;
         url_tester_up.match_url = url_tester_up.open_url = "";
         g_pipeline.process(url_tester_up);
+    }
+
+    void config_app::recalculate_test_url_matches() {
+        for(auto b : g_config.browsers) {
+            b->ui_test_url_matches = false;
+            for(auto bi : b->instances) {
+                bi->ui_test_url_matches = false;
+
+                for(auto r : bi->rules) {
+                    if(r->is_match(url_tester_up)) {
+                        bi->ui_test_url_matches = true;
+                        b->ui_test_url_matches = true;
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

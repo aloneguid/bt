@@ -24,8 +24,8 @@ namespace bt::ui {
 
     private:
 
-        const std::string RuleMatchesIcon = ICON_MD_CHECK_BOX;
-        const std::string RuleDoesNotMatchIcon = ICON_MD_CHECK_BOX_OUTLINE_BLANK;
+        const std::string RuleMatchesIcon = ICON_MD_CRUELTY_FREE;
+        const std::string RuleDoesNotMatchIcon = ICON_MD_CRUELTY_FREE;
 
         std::unique_ptr<grey::app> app;
         std::string title;
@@ -127,7 +127,7 @@ namespace bt::ui {
         void add_custom_browser_by_asking();
         void test_url();
 
-        bool matches_test_url(std::shared_ptr<bt::browser> b);
+        void recalculate_test_url_matches();
 
         std::shared_ptr<bt::browser_instance> get_selected_browser_instance();
     };

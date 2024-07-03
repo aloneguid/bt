@@ -40,6 +40,7 @@ namespace bt {
         // UI helper properties
         bool ui_is_hovered{false};
         bool ui_is_default{false};
+        bool ui_test_url_matches;
 
         size_t get_total_rule_count() const;
 
@@ -132,6 +133,7 @@ namespace bt {
         // UI helpers
         bool ui_is_hovered{false};
         bool ui_is_default{false};
+        bool ui_test_url_matches;
 
         /**
          * @brief Optional sort order
