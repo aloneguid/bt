@@ -474,10 +474,10 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
             w::tooltip("Add custom browser definition");
             w::sl();
-            g_config.show_hidden_browsers = w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
+            w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
             w::tooltip("Show hidden browsers");
             w::sl();
-            show_url_tester = w::icon_checkbox(ICON_MD_CRUELTY_FREE, show_url_tester);
+            w::icon_checkbox(ICON_MD_CRUELTY_FREE, show_url_tester);
             w::tooltip("Show testing bar");
 
             for(int i = 0; i < browsers.size(); i++) {
@@ -610,8 +610,14 @@ It super fast, extremely light on resources, completely free and open source.)",
 
             if(b->is_hidden) {
                 w::sl();
-                w::label(ICON_MD_VISIBILITY, 0, false);
+                w::label(ICON_MD_VISIBILITY_OFF, 0, false);
                 w::tooltip("Hidden");
+            }
+
+            if(b->ui_is_default) {
+                w::sl();
+                w::label(ICON_MD_FAVORITE, w::emphasis::primary);
+                w::tooltip("Default browser");
             }
 
         } else {
@@ -624,6 +630,32 @@ It super fast, extremely light on resources, completely free and open source.)",
     }
 
     void config_app::render_detail(std::shared_ptr<bt::browser> b) {
+
+        // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
+        w::sl();
+        if(b->is_hidden) {
+            if(w::button(ICON_MD_VISIBILITY)) {
+                b->is_hidden = false;
+            }
+            w::tooltip("Show this browser in the browser list");
+        } else {
+            if(w::button(ICON_MD_VISIBILITY_OFF)) {
+                b->is_hidden = true;
+            }
+            w::tooltip("Hide this browser from the browser list");
+        }
+
+        if(!b->is_system) {
+            w::sl();
+            if(w::button(ICON_MD_FAVORITE)) {
+                browser::set_default(browsers, get_selected_browser_instance()->long_id());
+            }
+            w::tooltip("Make this browser the default one");
+        }
+
+        w::sl();
+        w::label("|", 0, false);
+
         // universal test button
         w::sl();
         if(w::button(ICON_MD_LAUNCH)) {
@@ -705,11 +737,6 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::tooltip("Completely deletes this browser, no questions asked");
         }
 
-        // hide/show button
-        w::sl();
-        b->is_hidden = !w::icon_checkbox(ICON_MD_VISIBILITY, !b->is_hidden);
-        w::tooltip("Show or hide this browser from the browser list");
-
         // --- toolbar end
 
         //w::label(std::to_string(selected_profile_idx));
@@ -732,6 +759,18 @@ It super fast, extremely light on resources, completely free and open source.)",
                     if(t) {
                         selected_profile_idx = idx;
                         w::spc();
+
+                        // mini toolbar
+
+                        if(b->ui_is_default) {
+                            w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
+                        }
+                        else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
+                            browser::set_default(browsers, get_selected_browser_instance()->long_id());
+                        }
+                        w::tooltip("Make this browser the default one");
+
+                        // end of mini toolbar
 
                         if(w::accordion("Parameters")) {
                             w::input(bi->launch_arg, "arg", false);
@@ -807,7 +846,7 @@ special keyword - %url% which is replaced by opening url.)");
 
                 // is regex checkbox
                 w::sl();
-                rule->is_regex = w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
+                w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
                 w::tooltip("Rule is a Regular Expression (advanced)");
 
                 // app mode

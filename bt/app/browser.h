@@ -39,6 +39,7 @@ namespace bt {
 
         // UI helper properties
         bool ui_is_hovered{false};
+        bool ui_is_default{false};
 
         size_t get_total_rule_count() const;
 
@@ -69,6 +70,8 @@ namespace bt {
             std::vector<std::shared_ptr<browser>> old_set);
 
         static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
+
+        static void set_default(std::vector<std::shared_ptr<browser>>& browsers, const std::string& profile_id);
 
     private:
 
@@ -129,7 +132,10 @@ namespace bt {
         std::string icon_path;
 
         int popularity{ 0 };
+
+        // UI helpers
         bool ui_is_hovered{false};
+        bool ui_is_default{false};
 
         /**
          * @brief Optional sort order

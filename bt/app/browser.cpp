@@ -47,8 +47,10 @@ namespace bt {
     }
 
     std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {
-        if(reload || cache.empty())
+        if(reload || cache.empty()) {
             cache = g_config.load_browsers();
+            set_default(cache, g_config.default_browser);
+        }
 
         return cache;
     }
@@ -192,6 +194,20 @@ namespace bt {
         }
 
         return string::npos;
+    }
+
+    void browser::set_default(std::vector<std::shared_ptr<browser>>& browsers, const std::string& profile_id) {
+        for(auto b : browsers) {
+            b->ui_is_default = false;
+            for(auto i : b->instances) {
+                i->ui_is_default = false;
+                if(i->long_id() == profile_id) {
+                    g_config.default_browser = profile_id;
+                    i->ui_is_default = true;
+                    b->ui_is_default = true;
+                }
+            }
+        }
     }
 
     std::string browser::get_image_name(const std::string& open_cmd) {
