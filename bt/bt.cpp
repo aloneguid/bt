@@ -1,6 +1,7 @@
 ﻿#include <fmt/core.h>
 #include "globals.h"
 #include "../common/str.h"
+#include "../common/ext/alg_tracker.h"
 #include "win32/process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
@@ -9,11 +10,11 @@
 #include "app/rule_hit_log.h"
 
 //ui
-#include "app/ui/configure.h"
-#include "app/ui/picker.h"
+#include "app/ui/config_app.h"
+#include "app/ui/picker_app.h"
 
 // globals.h
-//alg::tracker t{APP_SHORT_NAME, APP_VERSION};
+alg::tracker t{APP_SHORT_NAME, APP_VERSION};
 bt::config g_config;
 bt::url_pipeline g_pipeline{g_config};
 

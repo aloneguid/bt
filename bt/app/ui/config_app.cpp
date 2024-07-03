@@ -1,4 +1,4 @@
-#include "configure.h"
+#include "config_app.h"
 #include "../../res.inl"
 #include "fmt/core.h"
 #include "win32/process.h"
