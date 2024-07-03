@@ -14,7 +14,6 @@ using namespace std;
 
 namespace bt {
     const string lad = win32::shell::get_local_app_data_path();
-    vector<shared_ptr<browser>> browser::cache;
 
     browser::browser(
         const std::string& id,
@@ -44,19 +43,6 @@ namespace bt {
             r += i->rules.size();
         }
         return r;
-    }
-
-    std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {
-        if(reload || cache.empty()) {
-            cache = g_config.load_browsers();
-            set_default(cache, g_config.default_browser);
-        }
-
-        return cache;
-    }
-
-    void browser::persist_cache() {
-        g_config.save_browsers(cache);
     }
 
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
@@ -109,7 +95,7 @@ namespace bt {
         if (r.empty() && !browsers.empty()) {
             match_rule fbr{"default"};
             fbr.is_fallback = true;
-            r.emplace_back(get_fallback(browsers), fbr);
+            r.emplace_back(get_default(browsers), fbr);
         }
 
         // sort by priority, descending
@@ -122,7 +108,7 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>>& browsers) {
+    shared_ptr<browser_instance> browser::get_default(const std::vector<shared_ptr<browser>>& browsers) {
         string lsn = g_config.default_browser;
 
         bool found;

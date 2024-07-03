@@ -23,7 +23,6 @@ namespace bt::ui {
         wnd_config{title, &is_open},
         wnd_about{"About"} {
 
-        browsers = bt::browser::get_cache();
         app = grey::app::make(title);
         app->initial_theme_id = g_config.theme_id;
 
@@ -75,7 +74,7 @@ namespace bt::ui {
 
         render_menu_bar();
 
-        if(browsers.empty()) {
+        if(g_config.browsers.empty()) {
             render_no_browsers();
         } else {
             if (show_url_tester) {
@@ -414,7 +413,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         size_t ipc{0};
         size_t irc{0};
-        for(const auto& b : browsers) {
+        for(const auto& b : g_config.browsers) {
             ipc += b->instances.size();
             for(const auto& i : b->instances) {
                 irc += i->rules.size();
@@ -424,7 +423,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::sl();
         w::label("|", 0, false);
         w::sl();
-        w::label(fmt::format("{} {}", ICON_MD_WEB, browsers.size()), 0, false);
+        w::label(fmt::format("{} {}", ICON_MD_WEB, g_config.browsers.size()), 0, false);
         w::tooltip("Browser count");
 
         w::sl();
@@ -480,8 +479,8 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::icon_checkbox(ICON_MD_CRUELTY_FREE, show_url_tester);
             w::tooltip("Show testing bar");
 
-            for(int i = 0; i < browsers.size(); i++) {
-                auto br = browsers[i];
+            for(int i = 0; i < g_config.browsers.size(); i++) {
+                auto br = g_config.browsers[i];
                 if(!g_config.show_hidden_browsers && br->is_hidden) {
                     continue;
                 }
@@ -498,8 +497,8 @@ It super fast, extremely light on resources, completely free and open source.)",
         {
             w::guard g{w_right_panel};
 
-            if(selected_browser_idx < browsers.size()) {
-                render_detail(browsers[selected_browser_idx]);
+            if(selected_browser_idx < g_config.browsers.size()) {
+                render_detail(g_config.browsers[selected_browser_idx]);
             }
         }
     }
@@ -530,7 +529,7 @@ It super fast, extremely light on resources, completely free and open source.)",
     }
 
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
-        auto browser = browsers[selected_browser_idx];
+        auto browser = g_config.browsers[selected_browser_idx];
         if(browser->is_system) {
             return browser->instances[selected_profile_idx];
         } else {
@@ -631,6 +630,8 @@ It super fast, extremely light on resources, completely free and open source.)",
 
     void config_app::render_detail(std::shared_ptr<bt::browser> b) {
 
+        // begin toolbar
+
         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
         w::sl();
         if(b->is_hidden) {
@@ -645,91 +646,42 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::tooltip("Hide this browser from the browser list");
         }
 
-        if(!b->is_system) {
+        if(!b->open_cmd.empty()) {
             w::sl();
-            if(w::button(ICON_MD_FAVORITE)) {
-                browser::set_default(browsers, get_selected_browser_instance()->long_id());
+            if(w::button(ICON_MD_FOLDER)) {
+                std::filesystem::path p{b->open_cmd};
+                string path = p.parent_path().string();
+                win32::shell::exec(path, "");
             }
-            w::tooltip("Make this browser the default one");
-        }
-
-        w::sl();
-        w::label("|", 0, false);
-
-        // universal test button
-        w::sl();
-        if(w::button(ICON_MD_LAUNCH)) {
-            url_opener::open(get_selected_browser_instance(), APP_URL);
-        }
-        w::tooltip("test by opening a link");
-
-        if(b->is_chromium) {
-            w::sl();
-            if(w::button(ICON_MD_TAB_UNSELECTED)) {
-                url_payload up{APP_URL};
-                up.app_mode = true;
-                url_opener::open(get_selected_browser_instance(), up);
-            }
-            w::tooltip("test by opening a link as an app");
+            w::tooltip(fmt::format("open {}'s folder in Explorer.", b->name));
         }
 
         if(b->is_system) {
-
-            w::sl();
-            if(!b->open_cmd.empty()) {
-                if(w::button(ICON_MD_FOLDER)) {
-                    std::filesystem::path p{b->open_cmd};
-                    string path = p.parent_path().string();
-                    win32::shell::exec(path, "");
-                }
-                w::tooltip(fmt::format("open {}'s folder in Explorer.", b->name));
-
-                if(b->is_firefox) {
-
-                    if(g_config.firefox_mode == firefox_container_mode::off) {
-                        w::sl();
-                        if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-                            win32::shell::exec(b->open_cmd, "-P");
-                        }
-                        w::tooltip("open Firefox Profile Manager (-P flag)");
-
-                        w::sl();
-                        if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-                            win32::shell::exec(b->open_cmd, "about:profiles");
-                        }
-                        w::tooltip("open Firefox Profile Manager in Firefox itself");
-                    } else {
-                        w::sl();
-                        if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
-                            url_opener::open("https://aloneguid.github.io/bt/firefox-containers.html");
-                        }
-                        w::tooltip("download required extension");
-                    }
-                } else if(b->is_chromium) {
-                    w::sl();
-                    if(w::button(ICON_MD_EXTENSION)) {
-                        // extenstion page needs to be opened in the correct profile
-                        url_opener::open(get_selected_browser_instance(), APP_BROWSER_EXTENSIONS_DOCS_URL);
-                    }
-                    w::tooltip("download optional integration extension");
-                }
-
-            }
+            // anything?
         } else {
             w::sl();
+            if(w::button(ICON_MD_FAVORITE)) {
+                browser::set_default(g_config.browsers, b->instances[0]->long_id());
+            }
+            w::tooltip("Make this browser the default one");
+
+            w::sl();
+            if(w::button(ICON_MD_LAUNCH)) {
+                url_opener::open(b->instances[0], APP_URL);
+            }
+            w::tooltip("test by opening a link");
+
+            w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
-                size_t idx = browser::index_of(browsers, b);
+                size_t idx = browser::index_of(g_config.browsers, b);
 
                 // erase and save
-                vector<shared_ptr<browser>> all = browser::get_cache();
-                std::erase_if(all, [b](auto i) { return i->id == b->id; });
-                g_config.save_browsers(all);
-                browsers = browser::get_cache(true); // invalidate
+                std::erase_if(g_config.browsers, [b](auto i) { return i->id == b->id; });
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
                     idx -= 1;
-                    if(idx >= 0 && idx < browsers.size()) {
+                    if(idx >= 0 && idx < g_config.browsers.size()) {
                         selected_browser_idx = idx;
                     }
                 }
@@ -762,13 +714,62 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         // mini toolbar
 
-                        if(b->ui_is_default) {
+                        if(bi->ui_is_default) {
                             w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
                         }
                         else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
-                            browser::set_default(browsers, get_selected_browser_instance()->long_id());
+                            browser::set_default(g_config.browsers, bi->long_id());
                         }
                         w::tooltip("Make this browser the default one");
+
+                        w::sl();
+                        if(w::button(ICON_MD_LAUNCH)) {
+                            url_opener::open(bi, APP_URL);
+                        }
+                        w::tooltip("test by opening a link");
+
+                        if(b->is_chromium) {
+                            w::sl();
+                            if(w::button(ICON_MD_TAB_UNSELECTED)) {
+                                url_payload up{APP_URL};
+                                up.app_mode = true;
+                                url_opener::open(bi, up);
+                            }
+                            w::tooltip("test by opening a link as an app");
+                        }
+
+                        w::sl();
+                        if(!b->open_cmd.empty()) {
+                            if(b->is_firefox) {
+
+                                if(g_config.firefox_mode == firefox_container_mode::off) {
+                                    w::sl();
+                                    if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
+                                        win32::shell::exec(b->open_cmd, "-P");
+                                    }
+                                    w::tooltip("open Firefox Profile Manager (-P flag)");
+
+                                    w::sl();
+                                    if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
+                                        win32::shell::exec(b->open_cmd, "about:profiles");
+                                    }
+                                    w::tooltip("open Firefox Profile Manager in Firefox itself");
+                                } else {
+                                    w::sl();
+                                    if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
+                                        url_opener::open("https://aloneguid.github.io/bt/firefox-containers.html");
+                                    }
+                                    w::tooltip("download required extension");
+                                }
+                            } else if(b->is_chromium) {
+                                w::sl();
+                                if(w::button(ICON_MD_EXTENSION)) {
+                                    // extenstion page needs to be opened in the correct profile
+                                    url_opener::open(bi, APP_BROWSER_EXTENSIONS_DOCS_URL);
+                                }
+                                w::tooltip("download optional integration extension");
+                            }
+                        }
 
                         // end of mini toolbar
 
@@ -812,12 +813,14 @@ special keyword - %url% which is replaced by opening url.)");
     void config_app::render_rules(std::shared_ptr<browser_instance> bi) {
         w::label("Rules");
 
-        w::button(ICON_MD_ADD " add", w::emphasis::primary);
+        if(w::button(ICON_MD_ADD " add", w::emphasis::primary)) {
+            bi->add_rule(fmt::format("rule {}", bi->rules.size()));
+        }
+
         w::sl();
-        w::button(ICON_MD_DELETE " clear all", w::emphasis::error);
-        w::sl();
-        w::button(ICON_MD_CRUELTY_FREE " test");
-        w::tooltip("Open URL Tester");
+        if(w::button(ICON_MD_DELETE " clear all", w::emphasis::error)) {
+            bi->rules.clear();
+        }
 
         // scrollable area with list of rules
         {
@@ -865,8 +868,8 @@ special keyword - %url% which is replaced by opening url.)");
                 }
 
                 w::sl();
-                if(w::button(ICON_MD_DELETE, w::emphasis::error)) {
-                    //bi->rules.erase(bi->rules.begin() + i);
+                if(w::button(string{ICON_MD_DELETE} + "##" + to_string(i), w::emphasis::error)) {
+                    bi->delete_rule(rule->value);
                 }
                 w::tooltip("Delete rule");
             }
@@ -875,11 +878,10 @@ special keyword - %url% which is replaced by opening url.)");
 
     void config_app::rediscover_browsers() {
         vector<shared_ptr<browser>> fresh_browsers = discovery::discover_all_browsers();
-        fresh_browsers = browser::merge(fresh_browsers, browser::get_cache());
-        g_config.save_browsers(fresh_browsers);
-        browsers = browser::get_cache(true); // invalidate
+        fresh_browsers = browser::merge(fresh_browsers, g_config.browsers);
+        g_config.browsers = fresh_browsers;
 
-        string message = fmt::format("Discovered {} browser(s).", browsers.size());
+        string message = fmt::format("Discovered {} browser(s).", g_config.browsers.size());
         w::notify_info(message);
     }
 
@@ -893,13 +895,10 @@ special keyword - %url% which is replaced by opening url.)");
         auto b = make_shared<browser>(id, name, exe_path, false);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
 
-        vector<shared_ptr<browser>> all = browser::get_cache();
-        all.push_back(b);
-        g_config.save_browsers(all);
-        browsers = browser::get_cache(true); // invalidate
+        g_config.browsers.push_back(b);
 
         // find this new browser and select it (it won't be the last in the list)
-        size_t idx = browser::index_of(browsers, b);
+        size_t idx = browser::index_of(g_config.browsers, b);
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }

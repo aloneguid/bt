@@ -33,7 +33,6 @@ namespace bt::ui {
         grey::widgets::popup pop_dash{"pop_dash"};
         grey::widgets::window wnd_about;
         bool is_open{true};
-        std::vector<std::shared_ptr<bt::browser>> browsers;
         std::map<std::string, rule_match_status> id_to_rule_match_status;
 #if _DEBUG
         bool show_demo{false};

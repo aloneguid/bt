@@ -8,6 +8,7 @@
 #include "app/setup.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
+#include "app/url_opener.h"
 
 //ui
 #include "app/ui/config_app.h"
@@ -19,6 +20,22 @@ bt::config g_config;
 bt::url_pipeline g_pipeline{g_config};
 
 using namespace std;
+
+void open(bt::url_payload up) {
+
+    bool invoke_picker =
+        g_config.picker_always || 
+        bt::ui::picker_app::is_hotkey_down();
+
+    if(invoke_picker) {
+        bt::ui::picker_app app{up.url};
+        auto bi = app.run();
+        bt::url_opener::open(bi, up);
+    } else {
+        auto matches = bt::browser::match(g_config.browsers, up);
+        bt::url_opener::open(matches[0].bi, up);
+    }
+}
 
 void execute(const string& data) {
     if(!data.empty() && !data.starts_with(ArgSplitter)) {
@@ -40,7 +57,7 @@ void execute(const string& data) {
         win32::process proc{win.get_pid()};
         up.process_name = proc.get_name();
 
-        //bt::ui::url_open(up, om);
+        open(up);   // open-up hahaha
     } else {
         bt::ui::config_app app;
         //bt::ui::picker_app app{"https://github.com/sonnyp/Junction"};

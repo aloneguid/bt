@@ -3,6 +3,7 @@
 #include "../../globals.h"
 #include "../../res.inl"
 #include "fmt/core.h"
+#include "../common/win32/user.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -73,16 +74,29 @@ namespace bt::ui {
 
     }
 
-    picker_app::picker_app(const string& url) : picker_app::picker_app{url, browser::to_instances(browser::get_cache())} {
+    picker_app::picker_app(const string& url) : picker_app::picker_app{url, browser::to_instances(g_config.browsers)} {
     }
 
     picker_app::~picker_app() {
     }
 
-    void picker_app::run() {
+    std::shared_ptr<bt::browser_instance> picker_app::run() {
         app->run([this](const grey::app& app) {
             return run_frame();
         });
+
+        return decision;
+    }
+
+    bool picker_app::is_hotkey_down() {
+        bool k_shift = win32::user::is_kbd_shift_down();
+        bool k_ctrl = win32::user::is_kbd_ctrl_down();
+        bool k_alt = win32::user::is_kbd_alt_down();
+
+        return
+            (g_config.picker_on_key_as && (k_alt && k_shift)) ||
+            (g_config.picker_on_key_ca && (k_ctrl && k_alt)) ||
+            (g_config.picker_on_key_cs && (k_ctrl && k_shift));
     }
 
     bool picker_app::run_frame() {
@@ -326,6 +340,7 @@ namespace bt::ui {
     }
 
     void picker_app::make_decision(std::shared_ptr<bt::browser_instance> decision) {
+        this->decision = decision;
         is_open = false;
     }
 }

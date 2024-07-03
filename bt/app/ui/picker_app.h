@@ -19,7 +19,9 @@ namespace bt::ui {
         picker_app(const std::string& url);
         ~picker_app();
 
-        void run();
+        std::shared_ptr<bt::browser_instance> run();
+
+        static bool is_hotkey_down();
 
     private:
 
@@ -52,6 +54,8 @@ namespace bt::ui {
         float browser_bar_left_pad{0};
 
         grey::widgets::window wnd_main;
+
+        std::shared_ptr<bt::browser_instance> decision;
 
         bool run_frame();
         void render_browser_bar();

@@ -49,9 +49,6 @@ namespace bt {
 
         // ---- static members
 
-        static std::vector<std::shared_ptr<browser>> get_cache(bool reload = false);
-        static void persist_cache();
-
         static std::vector<std::shared_ptr<browser_instance>> to_instances(
             const std::vector<std::shared_ptr<browser>>& browsers,
             bool skip_hidden = true);
@@ -63,7 +60,7 @@ namespace bt {
             const std::vector<std::shared_ptr<browser>>& browsers,
             const url_payload& up);
 
-        static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>>& browsers);
+        static std::shared_ptr<browser_instance> get_default(const std::vector<std::shared_ptr<browser>>& browsers);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,
@@ -75,7 +72,6 @@ namespace bt {
 
     private:
 
-        static std::vector<std::shared_ptr<browser>> cache;
         const bool supports_frameless_windows;
 
         static std::string get_image_name(const std::string& open_cmd);

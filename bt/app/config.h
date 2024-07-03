@@ -43,6 +43,8 @@ namespace bt {
         // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
         bool picker_always;
 
+        std::vector<std::shared_ptr<browser>> browsers;
+
         std::string get_iid();
 
         config();
@@ -50,16 +52,6 @@ namespace bt {
 
         std::vector<std::string> get_pipeline();
         void set_pipeline(const std::vector<std::string>& steps);
-
-        // --- browser/instance
-        
-        void save_browsers(std::vector<std::shared_ptr<browser>> browsers);
-
-        std::vector<std::shared_ptr<browser>> load_browsers();
-
-        std::chrono::system_clock::time_point get_last_update_check_time();
-        void set_last_update_check_time_to_now();
-
 
         std::string get_absolute_path();
 
@@ -78,5 +70,10 @@ namespace bt {
         void ensure_instance_id();
         void migrate();
         void load();
+
+        // --- browser/instance
+
+        void save_browsers(std::vector<std::shared_ptr<browser>> browsers);
+        std::vector<std::shared_ptr<browser>> load_browsers();
     };
 }

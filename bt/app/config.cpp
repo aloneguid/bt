@@ -118,6 +118,7 @@ namespace bt {
         picker_on_no_rule = cfg.get_bool_value("picker_on_no_rule", false);
         picker_always = cfg.get_bool_value("picker_always", false);
 
+        browsers = load_browsers();
     }
 
     void config::commit() {
@@ -135,7 +136,7 @@ namespace bt {
         cfg.set_bool_value("picker_on_no_rule", picker_on_no_rule);
         cfg.set_bool_value("picker_always", picker_always);
 
-        
+        save_browsers(browsers);
 
         cfg.commit();
     }
@@ -192,7 +193,6 @@ namespace bt {
                 }
             }
         }
-        cfg.commit();
     }
 
     std::vector<std::shared_ptr<browser>> config::load_browsers() {
@@ -279,19 +279,6 @@ namespace bt {
         }
 
         return r;
-    }
-
-    std::chrono::system_clock::time_point config::get_last_update_check_time() {
-        string s = cfg.get_value("last_update_check");
-        auto ll = str::to_long_long(s);
-        return std::chrono::system_clock::from_time_t(ll);
-    }
-
-    void config::set_last_update_check_time_to_now() {
-        auto tp = std::chrono::system_clock::now();
-        time_t tt = std::chrono::system_clock::to_time_t(tp);
-        string s = std::to_string(tt);
-        cfg.set_value("last_update_check", s);
     }
 
     string config::get_absolute_path() {
