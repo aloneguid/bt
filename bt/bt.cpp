@@ -46,9 +46,6 @@ void execute(const string& data) {
         auto parts = str::split(data, ArgSplitter, true);
         bt::url_payload up{parts[0]};
 
-        //bool picker_down = bt::ui::is_picker_hotkey_down();
-        //bt::ui::open_method om = picker_down ? bt::ui::open_method::pick : bt::ui::open_method::configured;
-
         up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 
         win32::window win{up.source_window_handle};

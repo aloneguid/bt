@@ -212,6 +212,18 @@ namespace bt::ui {
                 have_bar = true;
                 w::move_pos(0, ProfileSquarePadding * app->scale);  // some distance
 
+                // find perfect position for profiles
+                float wnd_left = ImGui::GetWindowPos().x;
+                float wnd_width = ImGui::GetWindowWidth();
+                float browser_mid_x = active_browser_cb.min.x + BrowserSquareSize * app->scale / 2 - wnd_left;
+                float total_bar_width = ProfileSquareSize * b.instances.size() * app->scale;
+
+                float global_pad_left = browser_mid_x - total_bar_width / 2;
+                if(global_pad_left < 0)
+                    global_pad_left = 0;
+                else if(global_pad_left + total_bar_width > wnd_width)
+                    global_pad_left = wnd_width - total_bar_width;
+
                 float sq_size = ProfileSquareSize * app->scale;
                 float pad = ProfileSquarePadding * app->scale;
                 float pad1 = InactiveProfileSquarePadding * app->scale;
@@ -230,7 +242,7 @@ namespace bt::ui {
                         profiles_cb.resize(b.instances.size());
                     }
                     for(auto& c : b.instances) {
-                        float box_x_start = sq_size * idx + browser_bar_left_pad;
+                        float box_x_start = sq_size * idx + global_pad_left;
                         float box_y_start = y;
 
                         w::set_pos(box_x_start, box_y_start);

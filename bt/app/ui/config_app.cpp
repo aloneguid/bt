@@ -212,16 +212,16 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Help"}; m) {
-                if(w::mi("Extensions", true, ICON_MD_EXTENSION)) {
+                if(w::mi("Extensions", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
                 }
-                if(w::mi("Contact", true)) {
+                if(w::mi("Contact", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open("https://www.aloneguid.uk/about/#contact");
                 }
-                if(w::mi("All Releases", true)) {
+                if(w::mi("All Releases", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open(APP_GITHUB_RELEASES_URL);
                 }
-                if(w::mi("Documentation", true)) {
+                if(w::mi("Documentation", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open(APP_DOCS_URL);
                 }
                 if(w::mi("About", true, ICON_MD_INFO)) {
@@ -348,6 +348,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::guard gpop{pop_dash};
         if(!pop_dash) return;
 
+        bool recheck{false};
         for(auto& sc : health_checks) {
             string tooltip = sc.description;
             {
@@ -362,7 +363,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                     w::sl(250 * app->scale);
                     if(w::button("fix", w::emphasis::error, true, true)) {
                         sc.fix();
-                        check_health();
+                        recheck = true;
                     }
                 }
             }
@@ -380,8 +381,9 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::sep();
         w::spc();
 
-        if(w::button("recheck", w::emphasis::primary)) {
+        if(w::button("recheck", w::emphasis::primary) || recheck) {
             check_health();
+            recheck = false;
         }
     }
 
@@ -676,7 +678,6 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         // --- toolbar end
 
-        //w::label(std::to_string(selected_profile_idx));
 
         // --- profiles start
 
@@ -758,13 +759,44 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         // end of mini toolbar
 
-                        if(w::accordion("Parameters")) {
-                            w::input(bi->launch_arg, "arg", false);
-                            w::tooltip("Discovered arguments (read-only)");
+                         
+                        float x, y, x1, y1;
+                        w::get_pos(x, y);
+                        float box_size = 30 * app->scale;
+                        float sl = 45 * app->scale;
 
-                            w::input(bi->user_arg, "extra arg");
-                            w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                        w::label(""); w::sl(sl);
+                        w::input(bi->launch_arg, "arg", false);
+                        w::tooltip("Discovered arguments (read-only)");
+
+                        w::label(""); w::sl(sl);
+                        w::input(bi->user_arg, "extra arg");
+                        w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+
+                        {
+                            w::get_pos(x1, y1);
+                            w::set_pos(x, y);
+                            w::group g;
+                            g
+                                //.border(ImGuiCol_Border)
+                                .border_hover(ImGuiCol_ButtonHovered)
+                                .render();
+
+
+                            if(!bi->icon_path.empty()) {
+                                app->preload_texture(bi->icon_path, bi->icon_path);
+                                w::rounded_image(*app, bi->icon_path, box_size - 1, box_size - 1, box_size / 2);
+                            } else {
+                                ImGui::Dummy(ImVec2(box_size, box_size));
+                            }
                         }
+                        if(w::is_leftclicked()) {
+                            string icon_path = win32::shell::file_open_dialog("PNG", "*.png");
+                            if(!icon_path.empty()) {
+                                bi->icon_path = icon_path;
+                            }
+                        }
+                        w::set_pos(x1, y1);
 
                         w::spc();
                         render_rules(bi);
@@ -775,19 +807,18 @@ It super fast, extremely light on resources, completely free and open source.)",
         } else {
             shared_ptr<browser_instance> bi = b->instances[0];
 
-            if(w::accordion("Parameters")) {
-                w::input(b->open_cmd, "exe", false);
-                w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+            w::input(b->open_cmd, "exe", false);
+            w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
-                w::input(bi->name, "name");
-                //b->name = bi->name;
+            if(w::input(bi->name, "name")) {
+                b->name = bi->name;
+            }
 
-                w::input(bi->launch_arg, "arg");
-                w::tooltip(R"(Argument(s) to pass to the browser.
+            w::input(bi->launch_arg, "arg");
+            w::tooltip(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
 special keyword - %url% which is replaced by opening url.)");
-            }
 
             // rules
             w::spc();
@@ -796,7 +827,8 @@ special keyword - %url% which is replaced by opening url.)");
     }
 
     void config_app::render_rules(std::shared_ptr<browser_instance> bi) {
-        w::label("Rules");
+        //w::label("Rules");
+        w::sep("Rules");
 
         if(w::button(ICON_MD_ADD " add", w::emphasis::primary)) {
             bi->add_rule(fmt::format("rule {}", bi->rules.size()));
