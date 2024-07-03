@@ -3,6 +3,8 @@
 - Multiple picker hotkeys can be configured, you can even turn them all on at the same time.
 - "URL tester" is now built into main configuration window and highlights matched browsers, profiles and rules. This is to avoid confusion and make it more ergonomic.
 - URL Picker is completely rewritten. Browsers and profiles are now listed in 2D grid, removing the need to sort flat list by some means like popularity or user-defined order.
+- Added three new UI themes - "Darcula", "Steam" and "DUCK RED".
+- UI Theme selector has two-color half-square preview icon.
 - Updates to latest version of ImGui and MSVC compiler.
 
 ## 3.7.3

@@ -63,22 +63,8 @@ namespace bt::ui {
         size_t url_tester_payload_version{0};
         url_payload url_tester_up;
 
-        std::vector<grey::widgets::menu_item> menu_items
+        /*std::vector<grey::widgets::menu_item> menu_items
         {
-            { "File", {
-                { "w", "Save configuration", ICON_MD_SAVE },
-                { "+b", "Add Custom Browser", ICON_MD_ADD_CIRCLE },
-                { "config.ini", {
-                    { "ini", "Open" },
-                    { "ini+c", "Copy path to clipboard" } },
-                    ICON_MD_SETTINGS },
-                { "hit_log.csv", {
-                    { "csv", "Open" },
-                    { "csv+c", "Copy path to clipboard" } },
-                    ICON_MD_MENU_BOOK },
-                { "", "-" },
-                { "x", "Exit", ICON_MD_LOGOUT }
-            } },
             { "Tools", {
                 { "windows_defaults", "Windows Defaults", ICON_MD_PSYCHOLOGY },
                 { "refresh", "Rediscover Browsers", ICON_MD_REFRESH },
@@ -113,7 +99,7 @@ namespace bt::ui {
                 { "demo", "Demo", ICON_MD_SLIDESHOW }
 #endif
             }}
-        };
+        };*/
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },
@@ -122,7 +108,7 @@ namespace bt::ui {
         };
 
         bool run_frame();
-        void handle_menu_click(const std::string id);
+        void render_menu_bar();
 
         bool startup_health_warned{false};
         bool startup_health_opened{false};

@@ -73,39 +73,7 @@ namespace bt::ui {
     bool config_app::run_frame() {
         w::guard gw{wnd_config};
 
-        {
-            w::menu_bar menu{menu_items, [this](const string& id) { handle_menu_click(id); }};
-
-            // inject custom settings
-            if(ImGui::BeginMenu("Settings")) {
-                if(w::small_radio("Off (use legacy profiles)", g_config.firefox_mode == firefox_container_mode::off)) {
-                    g_config.firefox_mode = firefox_container_mode::off;
-                }
-                if(w::small_radio(APP_LONG_NAME, g_config.firefox_mode == firefox_container_mode::bt)) {
-                    g_config.firefox_mode = firefox_container_mode::bt;
-                }
-                if(w::small_radio("open-url-in-container", g_config.firefox_mode == firefox_container_mode::ouic)) {
-                    g_config.firefox_mode = firefox_container_mode::ouic;
-                }
-                ImGui::EndMenu();
-            }
-
-            // inject custom radios
-            if (ImGui::BeginMenu("Picker")) {
-                w::small_checkbox("Ctrl + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_cs);
-                w::small_checkbox("Ctrl + Alt   + " ICON_MD_MOUSE, g_config.picker_on_key_ca);
-                w::small_checkbox("Alt  + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_as);
-
-                w::sep("Automatic Invocation");
-                w::small_checkbox("Always", g_config.picker_always);
-                if (!g_config.picker_always) {
-                    w::small_checkbox("On conflict", g_config.picker_on_conflict);
-                    w::small_checkbox("On no rule", g_config.picker_on_no_rule);
-                }
-
-                ImGui::EndMenu();
-            }
-        }
+        render_menu_bar();
 
         if(browsers.empty()) {
             render_no_browsers();
@@ -119,7 +87,7 @@ namespace bt::ui {
 
 #if _DEBUG
         if(show_demo) {
-            ImGui::ShowDemoWindow();
+            ImGui::ShowDemoWindow(&show_demo);
         }
 #endif
 
@@ -130,70 +98,132 @@ namespace bt::ui {
 
         render_dashboard();
 
+        w::notify_render_frame();
+
         return is_open;
     }
 
-    void config_app::handle_menu_click(const std::string id) {
+    void config_app::render_menu_bar() {
+        //w::menu_bar menu{menu_items, [this](const string& id) { handle_menu_click(id); }};
 
-        // File
+        if(w::menu_bar menu; menu) {
 
-        if (id == "w") {
-            g_config.commit();
-        } else if (id == "+b") {
-            add_custom_browser_by_asking();
-        } else if(id == "ini") {
-            win32::shell::exec(g_config.get_absolute_path(), "");
-        } else if(id == "ini+c") {
-            win32::clipboard::set_ascii_text(g_config.get_absolute_path());
-        } else if(id == "csv") {
-            win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
-        } else if(id == "csv+c") {
-            win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
-        } else if(id.starts_with(w::SetThemeMenuPrefix)) {
-            string theme_id = w::menu_item::remove_theme_prefix(id);
-            grey::themes::set_theme(theme_id, app->scale);
-            g_config.theme_id = theme_id;
-        }
+            if(w::menu m_file{"File"}; m_file) {
+                if(w::mi("Save configuration", true, ICON_MD_SAVE)) {
+                    g_config.commit();
+                    w::notify_info("Configuration saved.");
+                }
+                if(w::mi("Add custom browser", true, ICON_MD_ADD_CIRCLE)) {
+                    add_custom_browser_by_asking();
+                }
+               
 
-        
-        else if(id == "test") {
-            //show_url_tester = !show_url_tester;
-        } else if(id == "windows_defaults") {
-            win32::shell::open_default_apps();
-        } else if(id == "refresh") {
-            rediscover_browsers();
-        } else if(id == "x") {
-            is_open = false;
-        }
+                if(w::menu m_ini{"config.ini", true, ICON_MD_SETTINGS}; m_ini) {
+                    if(w::mi("Open")) {
+                        win32::shell::exec(g_config.get_absolute_path(), "");
+                    }
+                    if(w::mi("Copy path")) {
+                        win32::clipboard::set_ascii_text(g_config.get_absolute_path());
+                        w::notify_info("Path copied to clipboard.");
+                    }
+                }
 
-        // Settings
-        // 
-        // "Help"
+                if(w::menu m_csv{"hit_log.csv", true, ICON_MD_BOOK}; m_csv) {
+                    if(w::mi("Open")) {
+                        win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
+                    }
+                    if(w::mi("Copy path")) {
+                        win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
+                        w::notify_info("Path copied to clipboard.");
+                    }
+                }
 
-        else if(id == "browser_ex") {
-            url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
-        } else if(id == "contact") {
-            url_opener::open("https://www.aloneguid.uk/about/#contact");
-        } else if(id == "releases") {
-            url_opener::open(APP_GITHUB_RELEASES_URL);
-        } else if(id == "reg_xbt") {
-            win32::clipboard::set_ascii_text(
-            fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
-        } else if(id == "reg_browser") {
-            win32::clipboard::set_ascii_text(
-            fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
-        } else if(id == "?") {
-            show_about = !show_about;
-        } else if(id == "doc") {
-            url_opener::open(APP_DOCS_URL);
-        }
+                w::sep();
+                if(w::mi("Exit", true, ICON_MD_LOGOUT)) {
+                    is_open = false;
+                }
+            }
 
-        // debug only
+            if(w::menu m_tools{"Tools"}; m_tools) {
+                if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
+                    win32::shell::open_default_apps();
+                }
+                if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
+                    rediscover_browsers();
+                }
+                if(w::menu m{"Troubleshooting", true}; m) {
+                    if(w::mi("Re-register custom protocol")) {
+                        w::notify_info("todo");
+                    }
+                    if(w::mi("Copy custom protocol")) {
+                        win32::clipboard::set_ascii_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
+                        w::notify_info("Registry path copied to clipboard.");
+                    }
+                    if(w::mi("Copy browser registration")) {
+                        win32::clipboard::set_ascii_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
+                        w::notify_info("Registry path copied to clipboard.");
+                    }
+                    if(w::mi("Re-register as browser")) {
+                        w::notify_info("todo");
+                    }
+                }
+            }
+
+            if(w::menu m{"General"}; m) {
+                w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
+                w::mi_themes([this](const string& theme_id) {
+                    grey::themes::set_theme(theme_id, app->scale);
+                    g_config.theme_id = theme_id;
+                });
+                w::sep("Firefox container mode");
+                if(w::small_radio("Off (use legacy profiles)", g_config.firefox_mode == firefox_container_mode::off)) {
+                    g_config.firefox_mode = firefox_container_mode::off;
+                }
+                if(w::small_radio(APP_LONG_NAME, g_config.firefox_mode == firefox_container_mode::bt)) {
+                    g_config.firefox_mode = firefox_container_mode::bt;
+                }
+                if(w::small_radio("open-url-in-container", g_config.firefox_mode == firefox_container_mode::ouic)) {
+                    g_config.firefox_mode = firefox_container_mode::ouic;
+                }
+            }
+
+            if(w::menu m{"Picker"}; m) {
+                w::sep("Manual invocation");
+                w::small_checkbox("Ctrl + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_cs);
+                w::small_checkbox("Ctrl + Alt   + " ICON_MD_MOUSE, g_config.picker_on_key_ca);
+                w::small_checkbox("Alt  + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_as);
+
+                w::sep("Automatic invocation");
+                w::small_checkbox("Always", g_config.picker_always);
+                if(!g_config.picker_always) {
+                    w::small_checkbox("On conflict", g_config.picker_on_conflict);
+                    w::small_checkbox("On no rule", g_config.picker_on_no_rule);
+                }
+            }
+
+            if(w::menu m{"Help"}; m) {
+                if(w::mi("Extensions", true, ICON_MD_EXTENSION)) {
+                    url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
+                }
+                if(w::mi("Contact", true)) {
+                    url_opener::open("https://www.aloneguid.uk/about/#contact");
+                }
+                if(w::mi("All Releases", true)) {
+                    url_opener::open(APP_GITHUB_RELEASES_URL);
+                }
+                if(w::mi("Documentation", true)) {
+                    url_opener::open(APP_DOCS_URL);
+                }
+                if(w::mi("About", true, ICON_MD_INFO)) {
+                    show_about = !show_about;
+                }
 #if _DEBUG
-        else if(id == "demo") {
-            show_demo = !show_demo;
-        }
+                if(w::mi("ImGui demo", true)) {
+                    show_demo = !show_demo;
+                }
 #endif
+            }
+        }
     }
 
     void config_app::startup_health_warning() {
@@ -809,6 +839,9 @@ special keyword - %url% which is replaced by opening url.)");
         fresh_browsers = browser::merge(fresh_browsers, browser::get_cache());
         g_config.save_browsers(fresh_browsers);
         browsers = browser::get_cache(true); // invalidate
+
+        string message = fmt::format("Discovered {} browser(s).", browsers.size());
+        w::notify_info(message);
     }
 
     void config_app::add_custom_browser_by_asking() {
