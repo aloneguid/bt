@@ -51,54 +51,23 @@ namespace bt::ui {
         std::string about_mem;
         std::string about_cpu;
 
-        // "Health Dashboard" window
+        // "Health Dashboard" popup
         std::vector<system_check> health_checks;
         size_t health_succeeded{0};
         size_t health_failed{0};
         void check_health();
+
+        // "Substitutions" window
+        bool show_subs{false};
+        grey::widgets::window wnd_subs{"Substitutions"};
+        std::vector<std::string> replacer_kinds{"string", "regex"};
+        url_payload url_subs_up;
 
         // URL Tester
         bool show_url_tester{false};
         size_t url_tester_payload_version{0};
         url_payload url_tester_up;
 
-        /*std::vector<grey::widgets::menu_item> menu_items
-        {
-            { "Tools", {
-                { "windows_defaults", "Windows Defaults", ICON_MD_PSYCHOLOGY },
-                { "refresh", "Rediscover Browsers", ICON_MD_REFRESH },
-                { "Troubleshooting", {
-                    { "fix_xbt", "Re-register Custom Protocol" },
-                    { "fix_browser", "Re-register as Browser" } }
-                }
-            } },
-            { "Settings", {
-                { "pipeline_config", "Pipeline" },
-                { "Theme", grey::widgets::menu_item::make_ui_theme_items() },
-                { "log_rule_hits", "Log URLs", "", &g_config.log_rule_hits },
-                { "", "-Firefox Container Mode-" },
-            } },
-            { "Picker", {
-                { "", "-Manual Invocation-" }
-            }},
-            { "Help", {
-                { "browser_ex", "Extensions", ICON_MD_EXTENSION },
-                { "contact", "Contact" },
-                { "releases", "All Releases" },
-                { "Registry", {
-                    { "reg_xbt", "Custom Protocol" },
-                    { "reg_browser", "Browser Registration" }
-                }},
-                { "", "-" },
-                { "doc", "Documentation" },
-                { "?", "About" }
-#if _DEBUG
-                ,
-                { "", "-" },
-                { "demo", "Demo", ICON_MD_SLIDESHOW }
-#endif
-            }}
-        };*/
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },
@@ -113,6 +82,7 @@ namespace bt::ui {
         bool startup_health_opened{false};
         void startup_health_warning();
         void render_about_window();
+        void render_subs_window();
         void render_dashboard();
         void render_url_tester_input();
 

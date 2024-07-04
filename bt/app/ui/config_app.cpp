@@ -13,6 +13,7 @@
 #include <filesystem>
 #include "../url_opener.h"
 #include "../discovery.h"
+#include "../pipeline/replacer.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -21,7 +22,8 @@ namespace bt::ui {
     config_app::config_app() :
         title{string{APP_LONG_NAME} + " " + APP_VERSION},
         wnd_config{title, &is_open},
-        wnd_about{"About"} {
+        wnd_about{"About"},
+        wnd_subs{"Substitutions", &show_subs} {
 
         app = grey::app::make(title);
         app->initial_theme_id = g_config.theme_id;
@@ -37,6 +39,10 @@ namespace bt::ui {
             .size(310, 355)
             .center()
             .no_resize();
+
+        wnd_subs
+            .size(600, 300)
+            .center();
 
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom};
@@ -95,6 +101,9 @@ namespace bt::ui {
 
         if(show_about)
             render_about_window();
+
+        if(show_subs)
+            render_subs_window();
 
         render_dashboard();
 
@@ -208,7 +217,9 @@ namespace bt::ui {
                 if(w::small_checkbox("Unshorten links", g_config.pipeline_unshorten)) {
                     g_pipeline.load();
                 }
-                w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE);
+                if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
+                    show_subs = !show_subs;
+                }
             }
 
             if(w::menu m{"Help"}; m) {
@@ -343,6 +354,81 @@ It super fast, extremely light on resources, completely free and open source.)",
         }
     }
 
+    void config_app::render_subs_window() {
+        w::guard gw{wnd_subs};
+
+        bool recompute{false};
+
+        if(w::button(ICON_MD_ADD " add", w::emphasis::primary)) {
+            g_config.pipeline_substitutions.push_back("");
+            g_pipeline.load();
+            recompute = true;
+        }
+
+        // testing stuff
+        w::sep("Test");
+        if(w::input(url_subs_up.url, ICON_MD_LOGIN)) recompute = true;
+        w::tooltip("Input a value to test substitutions.");
+        if(w::input(url_subs_up.open_url, ICON_MD_LOGOUT, true, 0, true)) recompute = true;
+        w::tooltip("Substitution result are populated here.");
+
+        w::sep("Substitutions");
+        // scrollable container of subs
+        w::container scr{"scr"};
+        scr.border();
+        {
+            w::guard g{scr};
+            
+            for(int i = 0; i < g_config.pipeline_substitutions.size(); i++) {
+                if(i > 0) w::sep();
+                string suffix = "##" + to_string(i);
+
+                auto replacer = g_pipeline.get_replacer_step(i);
+
+                float pad = 100.0f * app->scale + 10 * app->scale;
+                float iw = 250.0f * app->scale;
+
+                w::combo("##kind" + suffix,
+                    replacer_kinds,
+                    (size_t&)replacer->kind,
+                    100 * app->scale);
+
+                w::sl(pad);
+                if(w::input(replacer->find, "find" + suffix, true, iw)) recompute = true;
+
+                // "delete" button to the right
+                w::sl(pad + iw + 70 * app->scale);
+                if(w::button(ICON_MD_DELETE + suffix, w::emphasis::error)) {
+                    g_config.pipeline_substitutions.erase(g_config.pipeline_substitutions.begin() + i);
+                    g_pipeline.load();
+                    recompute = true;
+                    break;
+                }
+
+                w::label(""); w::sl(pad);
+                if(w::input(replacer->replace, "replace" + suffix, true, iw)) recompute = true;
+            }
+        }
+
+        if(recompute) {
+
+            // sync state back to config
+            g_config.pipeline_substitutions.clear();
+            for(auto& r : g_pipeline.get_steps()) {
+                if(r->type == url_pipeline_step_type::find_replace) {
+                    auto rr = std::static_pointer_cast<bt::pipeline::replacer>(r);
+                    g_config.pipeline_substitutions.push_back(rr->serialise());
+                }
+            }
+
+            // recompute
+            url_subs_up.clear(true);
+            g_pipeline.process(url_subs_up);
+            recompute = false;
+        }
+
+    }
+
     void config_app::render_dashboard() {
 
         w::guard gpop{pop_dash};
@@ -394,6 +480,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::guard g{c};
 
         bool i0 = w::input(url_tester_up.url, ICON_MD_LINK " URL", true, 500 * app->scale);
+        w::tooltip(fmt::format("match on: {}\nopen: {}", url_tester_up.match_url, url_tester_up.open_url));
         w::sl(820 * app->scale);
         if (w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
             url_tester_up.clear();
@@ -404,8 +491,8 @@ It super fast, extremely light on resources, completely free and open source.)",
         bool i2 = w::input(url_tester_up.process_name, ICON_MD_MEMORY " process", true, 120 * app->scale);
         w::tooltip("process name");
 
-        w::sl();
-        w::label(std::to_string(url_tester_payload_version));
+        //w::sl();
+        //w::label(std::to_string(url_tester_payload_version));
 
         if(i0 || i1 || i2) {
             test_url();

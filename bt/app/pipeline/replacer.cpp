@@ -16,9 +16,6 @@ namespace bt::pipeline {
         // kind|match|replace
 
         auto parts = str::split_pipe(rule);
-        //if(parts.size() != 3) {
-        //    continue;
-        //}
 
         if(parts[0] == "rgx") {
             kind = replacer_kind::regex;
@@ -30,6 +27,13 @@ namespace bt::pipeline {
             find = parts[1];
             replace = parts[2];
         }
+    }
+
+    std::string replacer::serialise() {
+        return str::join_with_pipe({
+                        kind == bt::pipeline::replacer_kind::find_replace ? "substr" : "rgx",
+                        find,
+                        replace});
     }
 
     void replacer::process(url_payload& up) {

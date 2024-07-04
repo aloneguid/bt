@@ -23,7 +23,7 @@ namespace bt {
     const string UnshortEnabledKey = "unshort_enabled";
     const string PickerSectionName = "picker";
     const string PipelineSectionName = "pipeline";
-    const string PipelineStepKeyName = "step";
+    const string PipelineSubstKeyName = "subst";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
@@ -122,6 +122,7 @@ namespace bt {
         // pipeline
         pipeline_unwrap_o365 = cfg.get_bool_value("unwrap_o365", true, PipelineSectionName);
         pipeline_unshorten = cfg.get_bool_value("unshorten", true, PipelineSectionName);
+        pipeline_substitutions = cfg.get_all_values(PipelineSubstKeyName, PipelineSectionName);
 
         browsers = load_browsers();
     }
@@ -144,6 +145,7 @@ namespace bt {
         // pipeline
         cfg.set_bool_value("unwrap_o365", pipeline_unwrap_o365, PipelineSectionName);
         cfg.set_bool_value("unshorten", pipeline_unshorten, PipelineSectionName);
+        cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
 
         save_browsers(browsers);
 

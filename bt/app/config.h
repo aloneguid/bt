@@ -46,6 +46,7 @@ namespace bt {
         // pipeline
         bool pipeline_unwrap_o365;
         bool pipeline_unshorten;
+        std::vector<std::string> pipeline_substitutions;
 
         // browser collection
         std::vector<std::shared_ptr<browser>> browsers;
