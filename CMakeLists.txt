@@ -17,6 +17,8 @@ add_compile_definitions(UNICODE) # required for WIN32 API to use correct version
 #set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Conditionally set CMAKE_MSVC_RUNTIME_LIBRARY based on VCPKG_TRIPLET
+# Retrieve the VCPKG_TRIPLET environment variable
+string(TOLOWER "$ENV{VCPKG_TRIPLET}" VCPKG_TRIPLET_LOWER)
 if(VCPKG_TRIPLET_LOWER STREQUAL "x64-windows")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 else()
