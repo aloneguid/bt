@@ -10,9 +10,17 @@ namespace w = grey::widgets;
 
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices) 
-        : url{url}, choices{choices}, title{"Pick"},
+        : url{url}, choices{choices}, title{APP_LONG_NAME " - Pick"},
         app{grey::app::make(title)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
+        app->load_icon_font = false;
+
+        // process URL with pipeline
+        {
+            url_payload up{url};
+            g_pipeline.process(up);
+            this->url = up.open_url;
+        }
 
         // get unique list of browsers
         for(auto& c : choices) {
@@ -57,7 +65,7 @@ namespace bt::ui {
                 style.WindowPadding.y * 2 / app->scale +
                 BrowserSquareSize +
                 //ProfileSquareSize +
-                25;
+                45;
             wnd_height_profiles = wnd_height_normal + ProfileSquareSize;
 
             // calculate lef pad so browsers look centered
@@ -65,7 +73,7 @@ namespace bt::ui {
 
             wnd_main
                 .size(wnd_width, wnd_height_normal)
-                .no_titlebar()
+                //.no_titlebar()
                 .no_resize()
                 //.no_border()
                 .no_scroll()
@@ -105,13 +113,6 @@ namespace bt::ui {
         // inspiration: https://github.com/sonnyp/Junction
 
         w::guard gw{wnd_main};
-
-        if(w::button(ICON_MD_CLOSE, w::emphasis::none, true, true)) {
-            make_decision(nullptr);
-        }
-        w::tooltip("Cancel and do nothing");
-        w::sl();
-        w::button(ICON_MD_SETTINGS, w::emphasis::none, true, true);
 
         // URL editor
         ImGui::PushItemWidth(-1);
