@@ -21,8 +21,9 @@ permissions:
 jobs:
   build-win:
     strategy:
+      fail-fast: false
       matrix:
-        config: [ {triplet: x64-windows-static, suffix: ''}, {triplet: x64-windows, suffix: '-min' } ]
+        config: [ {triplet: x64-windows-static, suffix: '-dynamic'}, {triplet: x64-windows, suffix: '-static' } ]
     runs-on: windows-latest 
     name: 'Windows Binary'
     env:
