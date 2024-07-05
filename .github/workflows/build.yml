@@ -24,7 +24,7 @@ jobs:
       matrix:
         config: [ {triplet: x64-windows-static, suffix: ''}, {triplet: x64-windows, suffix: '-min' } ]
     runs-on: windows-latest 
-    name: 'Windows Build'
+    name: 'Windows Binary'
     env:
       VCPKG_DEFAULT_VCPKG_TRIPLET: ${{ matrix.config.triplet }}
       VCPKG_TRIPLET: ${{ matrix.config.triplet }}
