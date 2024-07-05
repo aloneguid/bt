@@ -507,7 +507,12 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(ImGui::IsItemHovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
-        if(w::is_leftclicked()) {
+
+        if(health_failed > 0) {
+            ImVec2 pos = ImGui::GetItemRectMin();
+            pop_dash.open(pos.x, pos.y);
+        }
+        else if(w::is_leftclicked()) {
             pop_dash.open();
         }
 
