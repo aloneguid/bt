@@ -10,7 +10,8 @@ namespace w = grey::widgets;
 
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices) 
-        : url{url}, choices{choices}, title{"Pick"}, app{grey::app::make(title)}, wnd_main{ title, &is_open } {
+        : url{url}, choices{choices}, title{"Pick"},
+        app{grey::app::make(title)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
 
         // get unique list of browsers
@@ -106,8 +107,9 @@ namespace bt::ui {
         w::guard gw{wnd_main};
 
         if(w::button(ICON_MD_CLOSE, w::emphasis::none, true, true)) {
-            wnd_main.resize(100, 100);
+            make_decision(nullptr);
         }
+        w::tooltip("Cancel and do nothing");
         w::sl();
         w::button(ICON_MD_SETTINGS, w::emphasis::none, true, true);
 

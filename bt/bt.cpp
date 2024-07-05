@@ -21,45 +21,85 @@ bt::url_pipeline g_pipeline{g_config};
 
 using namespace std;
 
-void open(bt::url_payload up) {
+void open(bt::url_payload up, bool force_picker = false) {
 
-    bool invoke_picker =
+    bool picker_hotkeyed =
         g_config.picker_always || 
         bt::ui::picker_app::is_hotkey_down();
 
-    if(invoke_picker) {
+    g_pipeline.process(up);
+
+    if(force_picker || picker_hotkeyed) {
         bt::ui::picker_app app{up.url};
         auto bi = app.run();
-        bt::url_opener::open(bi, up);
+        if(bi) {
+            bt::url_opener::open(bi, up);
+        }
     } else {
         auto matches = bt::browser::match(g_config.browsers, up);
         bt::url_opener::open(matches[0].bi, up);
     }
 }
 
+string get_command(const string& data, string& command_data) {
+    // Find the position of the first space character
+    size_t pos = data.find(' ');
+
+    // If no space is found, return the entire string
+    if(pos == std::string::npos) {
+        return "";
+    }
+
+    // Return the substring from the beginning up to the space character
+    command_data = data.substr(pos + 1);
+    return data.substr(0, pos);
+}
+
 void execute(const string& data) {
-    if(!data.empty() && !data.starts_with(ArgSplitter)) {
+
+    // will be set to "true" if "pick" command is detected
+    bool force_picker{false};
+    string clean_data = data; // copy of the data, will be used for further processing
+
+
+    if(data.empty() || data.starts_with(ArgSplitter)) {
         // if data starts with argsplitter that means command line is empty
 
-        // 0 - url
-        // 1 - HWND
-        auto parts = str::split(data, ArgSplitter, true);
-        bt::url_payload up{parts[0]};
-
-        up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
-
-        win32::window win{up.source_window_handle};
-        up.window_title = win.get_text();
-
-        win32::process proc{win.get_pid()};
-        up.process_name = proc.get_name();
-
-        open(up);   // open-up hahaha
-    } else {
         bt::ui::config_app app;
         //bt::ui::picker_app app{"https://github.com/sonnyp/Junction"};
         app.run();
+        return;
     }
+
+
+    // try to extract command from the data, which is the first word in the data string
+    string command_data;
+    string command = get_command(data, command_data);
+    if(!command.empty()) {
+        // force-invoke the picker
+        if(command == "pick") {
+            force_picker = true;
+            clean_data = command_data;
+        }
+    }
+
+
+
+    // if we reached this point, it's a normal operation mode
+    // 0 - url
+    // 1 - HWND
+    auto parts = str::split(clean_data, ArgSplitter, true);
+    bt::url_payload up{parts[0]};
+
+    up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
+
+    win32::window win{up.source_window_handle};
+    up.window_title = win.get_text();
+
+    win32::process proc{win.get_pid()};
+    up.process_name = proc.get_name();
+
+    open(up, force_picker);   // open-up hahaha
 }
 
 /**

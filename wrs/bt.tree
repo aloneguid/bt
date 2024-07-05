@@ -20,6 +20,7 @@
     <toc-element topic="url-pipeline.md">
         <toc-element topic="url-processing.md"/>
     </toc-element>
+    <toc-element topic="commandline.md"/>
     <toc-element topic="Browser-Extensions.md">
         <toc-element topic="mozilla-firefox.md">
             <toc-element topic="firefox-containers.md"/>
