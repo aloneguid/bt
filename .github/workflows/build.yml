@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [ {triplet: x64-windows-static, suffix: '-dynamic'}, {triplet: x64-windows, suffix: '-static' } ]
+        config: [ {triplet: x64-windows-static, suffix: '-static'}, {triplet: x64-windows, suffix: '-dynamic' } ]
     runs-on: windows-latest 
     name: 'Windows Binary'
     env:
