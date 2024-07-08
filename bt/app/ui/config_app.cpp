@@ -483,8 +483,18 @@ It super fast, extremely light on resources, completely free and open source.)",
         c.border();
         w::guard g{c};
 
-        bool i0 = w::input(url_tester_up.url, ICON_MD_LINK " URL", true, 500 * app->scale);
+        bool different = url_tester_up.url != url_tester_up.open_url;
+        float i0w = (different ? 350 : 500) * app->scale;
+
+        bool i0 = w::input(url_tester_up.url, ICON_MD_LINK " URL", true, i0w);
         w::tooltip(fmt::format("match on: {}\nopen: {}", url_tester_up.match_url, url_tester_up.open_url));
+
+        if(different) {
+            w::sl();
+            w::input(url_tester_up.open_url, ICON_MD_OPEN_IN_NEW, true, 350 * app->scale, true);
+            w::tooltip("URL that will be opened in the browser");
+        }
+
         w::sl(820 * app->scale);
         if (w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
             url_tester_up.clear();
