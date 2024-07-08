@@ -21,6 +21,12 @@ bt::url_pipeline g_pipeline{g_config};
 
 using namespace std;
 
+void track_event(string name) {
+    t.track(map<string, string> {
+        {"event", name}
+    }, true);
+}
+
 void open(bt::url_payload up, bool force_picker = false) {
 
     bool picker_hotkeyed =
@@ -47,12 +53,6 @@ void open(bt::url_payload up, bool force_picker = false) {
     }
 
     track_event("click");
-}
-
-void track_event(string name) {
-    t.track(map<string, string> {
-        {"event", name}
-    }, true);
 }
 
 string get_command(const string& data, string& command_data) {
