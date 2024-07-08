@@ -23,7 +23,7 @@ jobs:
 
       - name: 🔢 set version environment variable
         run: |
-          echo "VERSION=$(cat bin/version.txt | xargs)" >> "$GITHUB_ENV"
+          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
 
       - name: 🔢 prep release notes
         run: |
