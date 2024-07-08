@@ -48,6 +48,10 @@ namespace bt::ui {
         w_left_panel = w::container{250 * app->scale, -padding_bottom};
         w_right_panel = w::container{0, -padding_bottom}.border();
 
+        app->on_initialised = [this]() {
+            app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
+        };
+
         check_health();
     }
 
@@ -641,8 +645,9 @@ It super fast, extremely light on resources, completely free and open source.)",
             app->preload_texture("logo", icon_png, icon_png_len);
             w::image(*app, "logo", icon_size, icon_size);
         } else {
-            app->preload_texture(b->open_cmd, b->open_cmd);
-            w::image(*app, b->open_cmd, icon_size, icon_size);
+            string path = b->get_best_icon_path();
+            app->preload_texture(path, path);
+            w::image(*app, path, icon_size, icon_size);
         }
         w::set_pos(0, -1);
         w::move_pos(0, -(icon_size + padding));
@@ -851,44 +856,18 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         // end of mini toolbar
 
+                        render_icon(bi->get_best_icon_path(false), bi->is_incognito, bi->user_icon_path);
                          
-                        float x, y, x1, y1;
-                        w::get_pos(x, y);
-                        float box_size = 30 * app->scale;
-                        float sl = 45 * app->scale;
-
-                        w::label(""); w::sl(sl);
-                        w::input(bi->launch_arg, "arg", false);
-                        w::tooltip("Discovered arguments (read-only)");
-
-                        w::label(""); w::sl(sl);
-                        w::input(bi->user_arg, "extra arg");
-                        w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
-
+                        w::sl();
                         {
-                            w::get_pos(x1, y1);
-                            w::set_pos(x, y);
                             w::group g;
-                            g
-                                //.border(ImGuiCol_Border)
-                                .border_hover(ImGuiCol_ButtonHovered)
-                                .render();
+                            g.render();
+                            w::input(bi->launch_arg, "arg", false);
+                            w::tooltip("Discovered arguments (read-only)");
 
-
-                            if(!bi->icon_path.empty()) {
-                                app->preload_texture(bi->icon_path, bi->icon_path);
-                                w::rounded_image(*app, bi->icon_path, box_size - 1, box_size - 1, box_size / 2);
-                            } else {
-                                ImGui::Dummy(ImVec2(box_size, box_size));
-                            }
+                            w::input(bi->user_arg, "extra arg");
+                            w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
                         }
-                        if(w::is_leftclicked()) {
-                            string icon_path = win32::shell::file_open_dialog("PNG", "*.png");
-                            if(!icon_path.empty()) {
-                                bi->icon_path = icon_path;
-                            }
-                        }
-                        w::set_pos(x1, y1);
 
                         w::spc();
                         render_rules(bi);
@@ -899,22 +878,72 @@ It super fast, extremely light on resources, completely free and open source.)",
         } else {
             shared_ptr<browser_instance> bi = b->instances[0];
 
-            w::input(b->open_cmd, "exe", false);
-            w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+            render_icon(bi->get_best_icon_path(false), bi->is_incognito, bi->user_icon_path);
 
-            if(w::input(bi->name, "name")) {
-                b->name = bi->name;
-            }
+            w::sl();
+            {
+                w::group g;
+                g.render();
 
-            w::input(bi->launch_arg, "arg");
-            w::tooltip(R"(Argument(s) to pass to the browser.
+                w::input(b->open_cmd, "exe", false);
+                w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+
+                if(w::input(bi->name, "name")) {
+                    b->name = bi->name;
+                }
+
+                w::input(bi->launch_arg, "arg");
+                w::tooltip(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
 special keyword - %url% which is replaced by opening url.)");
+            }
 
             // rules
             w::spc();
             render_rules(bi);
+        }
+    }
+
+    void config_app::render_icon(const std::string& path_default, bool is_incognito, string& path_override) {
+        {
+            w::group g;
+            g
+                //.border(ImGuiCol_Border)
+                .border_hover(ImGuiCol_ButtonHovered)
+                .render();
+
+            float box_size = 40 * app->scale;
+
+            if(is_incognito) {
+                if(!path_override.empty() && app->preload_texture(path_override, path_override)) {
+                    w::rounded_image(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
+                } else {
+                    w::rounded_image(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
+                }
+            } else {
+                string path = path_override.empty() ? path_default : path_override;
+
+                if(!path.empty() && app->preload_texture(path, path)) {
+                    w::rounded_image(*app, path, box_size - 1, box_size - 1, box_size / 2);
+                } else {
+                    ImGui::Dummy(ImVec2(box_size, box_size));
+                }
+            }
+        }
+        if(w::is_hovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+        w::tooltip("Click to override the built-in icon\nRight-click to reset to default");
+
+        if(w::is_leftclicked()) {
+            string icon_path = win32::shell::file_open_dialog("PNG", "*.png");
+            if(!icon_path.empty()) {
+                path_override = icon_path;
+            }
+        }
+        if(w::is_rightclicked()) {
+            path_override.clear();
         }
     }
 

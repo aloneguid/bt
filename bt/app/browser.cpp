@@ -45,6 +45,16 @@ namespace bt {
         return r;
     }
 
+    std::string browser::get_best_icon_path() const {
+        if(!is_system) {
+            if(!instances.empty()) {
+                return instances[0]->get_best_icon_path();
+            }
+        }
+
+        return open_cmd;
+    }
+
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
         const std::vector<std::shared_ptr<browser>>& browsers,
         bool skip_hidden) {
@@ -148,6 +158,7 @@ namespace bt {
 
                     // merge user-defined customisations
                     bi_new->user_arg = bi_old->user_arg;
+                    bi_new->user_icon_path = bi_old->user_icon_path;
 
                     // merge rules
                     for (auto& rule : bi_old->rules) {
@@ -285,6 +296,13 @@ namespace bt {
         if(b->is_system && is_singular()) return b->name;
 
         return name;
+    }
+
+    std::string browser_instance::get_best_icon_path(bool include_override) const {
+
+        if(include_override && !user_icon_path.empty()) return user_icon_path;
+
+        return icon_path.empty() ? b->open_cmd : icon_path;
     }
 
     vector<string> browser_instance::get_rules_as_text_clean() const {

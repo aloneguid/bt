@@ -46,6 +46,8 @@ namespace bt {
 
         bool get_supports_frameless_windows() const { return supports_frameless_windows; }
 
+        std::string get_best_icon_path() const;
+
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members
@@ -127,6 +129,11 @@ namespace bt {
          * @brief Optionally sets a custom profile icon if known.
         */
         std::string icon_path;
+        
+        /**
+         * @brief User can override the built-in icon with a custom one.
+         */
+        std::string user_icon_path;
 
         int popularity{ 0 };
 
@@ -157,6 +164,8 @@ namespace bt {
         bool is_singular() const; // whether this is a singular instance browser (private mode is not taken into account)
 
         std::string get_best_display_name() const;
+
+        std::string get_best_icon_path(bool include_override = true) const;
 
         std::vector<std::string> get_rules_as_text_clean() const;
         void set_rules_from_text(std::vector<std::string> rules_txt);

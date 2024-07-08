@@ -41,13 +41,15 @@ namespace bt::ui {
             // for each browser, get instances
             int max_instances{0};
             for(auto& b : browsers) {
-                app->preload_texture(b.open_cmd, b.open_cmd);
+                string path = b.get_best_icon_path();
+                app->preload_texture(path, path);
                 for(auto& c : this->choices) {
                     if(b.id == c->b->id) {
                         b.instances.push_back(c);
                         // pre-load icon texture once
-                        if(!c->icon_path.empty()) {
-                            app->preload_texture(c->icon_path, c->icon_path);
+                        string path = c->get_best_icon_path();
+                        if(!path.empty()) {
+                            app->preload_texture(path, path);
                         }
                     }
                 }
@@ -155,7 +157,7 @@ namespace bt::ui {
 
                 if(b.ui_is_hovered || idx == active_browser_idx) {
                     w::move_pos(pad, pad);
-                    w::image(*app, b.open_cmd, full_icon_size, full_icon_size);
+                    w::image(*app, b.get_best_icon_path(), full_icon_size, full_icon_size);
                 } else {
                     float pad1 = InactiveBrowserSquarePadding * app->scale;
                     float diff = pad1 - pad;
@@ -163,7 +165,7 @@ namespace bt::ui {
 
                     w::move_pos(pad1, pad1);
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, InactiveAlpha);
-                    w::image(*app, b.open_cmd, full_icon_size1, full_icon_size1);
+                    w::image(*app, b.get_best_icon_path(), full_icon_size1, full_icon_size1);
                     ImGui::PopStyleVar();
                 }
             }
@@ -265,11 +267,8 @@ namespace bt::ui {
                             if(c->is_incognito) {
                                 w::image(*app, "incognito", isz, isz);
                             } else {
-                                if(c->icon_path.empty()) {
-                                    w::image(*app, c->b->open_cmd, isz, isz);
-                                } else {
-                                    w::rounded_image(*app, c->icon_path, isz, isz, isz / 2);
-                                }
+                                string path = c->get_best_icon_path();
+                                w::rounded_image(*app, path, isz, isz, isz / 2);
                             }
                         }
 
