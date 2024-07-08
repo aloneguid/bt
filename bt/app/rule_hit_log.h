@@ -8,7 +8,7 @@ namespace bt {
     public:
         rule_hit_log();
 
-        void write(const bt::url_payload& url, const bt::browser_match_result& bmr);
+        void write(const bt::url_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule);
 
         std::string get_absolute_path() { return path; }
 
