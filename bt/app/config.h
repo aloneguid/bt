@@ -23,18 +23,19 @@ namespace bt {
 
     class config {
     public:
+        // whether to show hidden browsers in the configuration list
         bool show_hidden_browsers{true};
         std::string theme_id;
         bool log_rule_hits{true};
         firefox_container_mode firefox_mode{firefox_container_mode::off};
-
-        // legacy picker settings
-        bool picker_enabled{true};
-        std::string open_method;
+        // default browser long sys name
+        std::string default_profile_long_id;
 
         // picker
-        // when set, picker can be opened manually when holding a hot key and clicking
-        std::string picker_hotkey;
+        // ctrl + shift
+        bool picker_on_key_cs;
+        bool picker_on_key_ca;
+        bool picker_on_key_as;
         // whether to show picker on conflict (more than one browser/profile match)
         bool picker_on_conflict;
         // whether to show picker if none of the rules match at all
@@ -42,31 +43,18 @@ namespace bt {
         // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
         bool picker_always;
 
+        // pipeline
+        bool pipeline_unwrap_o365;
+        bool pipeline_unshorten;
+        std::vector<std::string> pipeline_substitutions;
+
+        // browser collection
+        std::vector<std::shared_ptr<browser>> browsers;
+
         std::string get_iid();
 
         config();
         void commit();
-
-        void set_fallback(const std::string& long_sys_name);
-        std::string get_fallback_long_sys_name();
-
-        void set_persist_popularity(bool v);
-        bool get_persist_popularity();
-        int get_popularity(const std::string& long_sys_name);
-        void set_popularity(const std::string& long_sys_name, int value);
-
-        std::vector<std::string> get_pipeline();
-        void set_pipeline(const std::vector<std::string>& steps);
-
-        // --- browser/instance
-        
-        void save_browsers(std::vector<std::shared_ptr<browser>> browsers);
-
-        std::vector<std::shared_ptr<browser>> load_browsers();
-
-        std::chrono::system_clock::time_point get_last_update_check_time();
-        void set_last_update_check_time_to_now();
-
 
         std::string get_absolute_path();
 
@@ -85,5 +73,10 @@ namespace bt {
         void ensure_instance_id();
         void migrate();
         void load();
+
+        // --- browser/instance
+
+        void save_browsers(std::vector<std::shared_ptr<browser>> browsers);
+        std::vector<std::shared_ptr<browser>> load_browsers();
     };
 }

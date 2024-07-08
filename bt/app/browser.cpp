@@ -14,7 +14,6 @@ using namespace std;
 
 namespace bt {
     const string lad = win32::shell::get_local_app_data_path();
-    vector<shared_ptr<browser>> browser::cache;
 
     browser::browser(
         const std::string& id,
@@ -46,15 +45,21 @@ namespace bt {
         return r;
     }
 
-    std::vector<std::shared_ptr<browser>> browser::get_cache(bool reload) {
-        if(reload || cache.empty())
-            cache = g_config.load_browsers();
+    std::string browser::get_best_icon_path() const {
+        if(!is_system) {
+            if(!instances.empty()) {
+                return instances[0]->get_best_icon_path();
+            }
+        }
 
-        return cache;
+        return open_cmd;
     }
 
-    void browser::persist_cache() {
-        g_config.save_browsers(cache);
+    bool browser::contains_profile_id(const std::string& long_id) const {
+        for(const auto i : instances) {
+            if(i->long_id() == long_id) return true;
+        }
+        return false;
     }
 
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
@@ -91,7 +96,8 @@ namespace bt {
 
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
-        const url_payload& up) {
+        const url_payload& up,
+        const string& default_profile_long_id) {
         vector<browser_match_result> r;
 
         // which browser should we use?
@@ -107,7 +113,7 @@ namespace bt {
         if (r.empty() && !browsers.empty()) {
             match_rule fbr{"default"};
             fbr.is_fallback = true;
-            r.emplace_back(get_fallback(browsers), fbr);
+            r.emplace_back(get_default(browsers, default_profile_long_id), fbr);
         }
 
         // sort by priority, descending
@@ -120,11 +126,11 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_fallback(const std::vector<shared_ptr<browser>>& browsers) {
-        string lsn = g_config.get_fallback_long_sys_name();
-
+    shared_ptr<browser_instance> browser::get_default(
+        const std::vector<shared_ptr<browser>>& browsers,
+        const string& default_profile_long_id) {
         bool found;
-        auto bi = find_profile_by_long_id(browsers, lsn, found);
+        auto bi = find_profile_by_long_id(browsers, default_profile_long_id, found);
 
         return found ? bi : browsers[0]->instances[0];
     }
@@ -160,6 +166,7 @@ namespace bt {
 
                     // merge user-defined customisations
                     bi_new->user_arg = bi_old->user_arg;
+                    bi_new->user_icon_path = bi_old->user_icon_path;
 
                     // merge rules
                     for (auto& rule : bi_old->rules) {
@@ -283,6 +290,13 @@ namespace bt {
         if(b->is_system && is_singular()) return b->name;
 
         return name;
+    }
+
+    std::string browser_instance::get_best_icon_path(bool include_override) const {
+
+        if(include_override && !user_icon_path.empty()) return user_icon_path;
+
+        return icon_path.empty() ? b->open_cmd : icon_path;
     }
 
     vector<string> browser_instance::get_rules_as_text_clean() const {

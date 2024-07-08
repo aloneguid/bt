@@ -36,16 +36,16 @@ namespace bt {
         }
     }
 
-    void rule_hit_log::write(const bt::url_payload& up, const bt::browser_match_result& bmr) {
+    void rule_hit_log::write(const bt::url_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
-            bmr.bi->b->id,
-            bmr.bi->b->name,
-            bmr.bi->name,
+            bi->b->id,
+            bi->b->name,
+            bi->name,
             up.url,
             up.match_url,
             up.open_url,
-            bmr.rule.to_line(),
+            rule,
             up.process_name,
             up.window_title
         });

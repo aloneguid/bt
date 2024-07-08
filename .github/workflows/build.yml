@@ -5,7 +5,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: 67a300519ea09dbf02b4d06982e781a01b617b93
+  VCPKG_HASH: f61a294e765b257926ae9e9d85f96468a0af74e7
   DOC_INSTANCE: wrs/bt
   DOC_ARTIFACT: webHelpBT2-all.zip
   DOC_ALGOLIA_ARTIFACT: algolia-indexes-BT.zip
@@ -20,11 +20,15 @@ permissions:
 
 jobs:
   build-win:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ {triplet: x64-windows-static, suffix: '-static'}, {triplet: x64-windows, suffix: '-dynamic' } ]
     runs-on: windows-latest 
-    name: 'Windows Build'
+    name: 'Windows Binary'
     env:
-      VCPKG_DEFAULT_VCPKG_TRIPLET: x64-windows-static
-      VCPKG_TRIPLET: x64-windows-static
+      VCPKG_DEFAULT_VCPKG_TRIPLET: ${{ matrix.config.triplet }}
+      VCPKG_TRIPLET: ${{ matrix.config.triplet }}
 
     steps:
       
@@ -99,22 +103,10 @@ jobs:
         PDB_FILE_NAME: pdb-${{ env.VERSION }}.zip
         MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
 
-    # python.exe exit code for vt_scan.py is -1073741819 - this is a bug in python, it's not a real error.
-    # - name: VT Scan
-    #   run: |
-    #     pip install -r scripts/requirements.txt
-    #     python scripts/vt_scan.py --files atf/${{ env.ZIP_FILE_NAME }} atf/${{ env.MSI_FILE_NAME }} --md-output atf/vt.md
-    #     $LASTEXITCODE = 0
-    #   env:
-    #     ZIP_FILE_NAME: bt-${{ env.VERSION }}.zip
-    #     MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
-    #     VT_API_KEY: ${{ secrets.VT_API_KEY }}
-
-
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       name: collect binaries
       with:
-        name: bin
+        name: bin${{ matrix.config.suffix }}
         path: atf/*
 
   wrs-build:
@@ -136,25 +128,25 @@ jobs:
           path: artifacts/*.zip
           retention-days: 1
 
-  # wrs-deploy:
-  #   needs: wrs-build
-  #   if: github.ref == 'refs/heads/master'
-  #   runs-on: ubuntu-latest
-  #   name: 'Deploy Docs to GitHub Pages'
-  #   steps:
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: docs
-  #     - name: Unzip artifact
-  #       run: unzip -O UTF-8 -qq ${{ env.DOC_ARTIFACT }} -d dir
-  #     - name: Setup Pages
-  #       uses: actions/configure-pages@v2
-  #     - name: Upload artifact
-  #       uses: actions/upload-pages-artifact@v1
-  #       with:
-  #         path: dir
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v1
+  wrs-deploy:
+    needs: wrs-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    name: 'Deploy Docs to GitHub Pages'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+      - name: Unzip artifact
+        run: unzip -O UTF-8 -qq ${{ env.DOC_ARTIFACT }} -d dir
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: dir
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 

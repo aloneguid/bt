@@ -28,8 +28,10 @@ namespace bt {
             return url.empty() && window_title.empty() && process_name.empty();
         }
 
-        void clear() {
-            url.clear();
+        void clear(bool leave_url = false) {
+            if(!leave_url) {
+                url.clear();
+            }
             window_title.clear();
             process_name.clear();
             match_url.clear();

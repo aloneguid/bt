@@ -39,30 +39,42 @@ namespace bt {
 
         // UI helper properties
         bool ui_is_hovered{false};
+        bool ui_test_url_matches;
 
         size_t get_total_rule_count() const;
 
         bool get_supports_frameless_windows() const { return supports_frameless_windows; }
 
+        std::string get_best_icon_path() const;
+
+        bool contains_profile_id(const std::string& long_id) const;
+
         friend bool operator==(const browser& b1, const browser& b2);
 
         // ---- static members
-
-        static std::vector<std::shared_ptr<browser>> get_cache(bool reload = false);
-        static void persist_cache();
 
         static std::vector<std::shared_ptr<browser_instance>> to_instances(
             const std::vector<std::shared_ptr<browser>>& browsers,
             bool skip_hidden = true);
 
+        /**
+         * @brief Finds and returns profile by it's long id. If not found, returns the first profile or the first browser.
+         * @param browsers 
+         * @param long_sys_name 
+         * @param found 
+         * @return 
+         */
         static std::shared_ptr<browser_instance> find_profile_by_long_id(
             const std::vector<std::shared_ptr<browser>>& browsers, const std::string& long_sys_name, bool& found);
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
-            const url_payload& up);
+            const url_payload& up,
+            const std::string& default_profile_long_id);
 
-        static std::shared_ptr<browser_instance> get_fallback(const std::vector<std::shared_ptr<browser>>& browsers);
+        static std::shared_ptr<browser_instance> get_default(
+            const std::vector<std::shared_ptr<browser>>& browsers,
+            const std::string& default_profile_long_id);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,
@@ -72,7 +84,6 @@ namespace bt {
 
     private:
 
-        static std::vector<std::shared_ptr<browser>> cache;
         const bool supports_frameless_windows;
 
         static std::string get_image_name(const std::string& open_cmd);
@@ -127,9 +138,17 @@ namespace bt {
          * @brief Optionally sets a custom profile icon if known.
         */
         std::string icon_path;
+        
+        /**
+         * @brief User can override the built-in icon with a custom one.
+         */
+        std::string user_icon_path;
 
         int popularity{ 0 };
+
+        // UI helpers
         bool ui_is_hovered{false};
+        bool ui_test_url_matches;
 
         /**
          * @brief Optional sort order
@@ -153,6 +172,8 @@ namespace bt {
         bool is_singular() const; // whether this is a singular instance browser (private mode is not taken into account)
 
         std::string get_best_display_name() const;
+
+        std::string get_best_icon_path(bool include_override = true) const;
 
         std::vector<std::string> get_rules_as_text_clean() const;
         void set_rules_from_text(std::vector<std::string> rules_txt);

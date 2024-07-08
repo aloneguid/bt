@@ -4,6 +4,7 @@
 #include <vector>
 #include "url_pipeline_step.h"
 #include "config.h"
+#include "pipeline/replacer.h"
 
 namespace bt {
     /**
@@ -20,17 +21,14 @@ namespace bt {
         */
         void load();
 
-        /**
-         * @brief Saves pipeline to configuration file.
-        */
-        void save();
-
-        /**
-         * @brief Resets pipeline to minimum working state.
-        */
-        void reset();
-
         std::vector<std::shared_ptr<url_pipeline_step>>& get_steps() { return steps; }
+
+        /**
+         * @brief Get replacer step by index by finding the replacer step among all steps and downcasting it.
+         * @param idx 
+         * @return 
+         */
+        std::shared_ptr<bt::pipeline::replacer> get_replacer_step(size_t idx);
 
     private:
         config& cfg;

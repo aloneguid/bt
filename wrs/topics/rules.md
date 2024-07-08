@@ -16,7 +16,7 @@ You can keep adding as many rules as you want, they are always **case-insensitiv
 
 ## Testing rules
 
-%product% has a "URL Tester" utility which can be invoked either from "Rules" toolbar's `Test` button, or by going to `Tools`->`URL Tester` menu. URL Tester checks all the configured rules as you type, splits them in separate parts and calculates a match on where a particular URL will open.
+%product% has a "URL Tester" utility which can be invoked by pressing the test button which looks like a bunny. URL Tester checks all the configured rules as you type, and highlights browsers, profiles and rules as you type.
 
 ![](rules-tester.png)
 

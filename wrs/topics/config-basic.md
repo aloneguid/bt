@@ -2,15 +2,19 @@
 
 ## Default browser
 
-By default, BT takes the first browser it finds and opens all the links in it.
+By default, %product% takes the first browser it finds and opens all the links in it.
 
-You can change this from `Settings->Default Browser` menu which lists all the detected browsers and profiles hierarchically.
+You can change the default browser by clicking the "heart" button on the tab of the profile you want to set as default. This will also be reflected in the browser list:
 
-![](default.png)
+<img height="100" src="default.png"/>
+
+Additionally, status bar will show the default browser:
+
+![](default-sb.png)
 
 ## Custom arguments
 
-Both user-defined and system (autodetected) browsers have an additional argument added. For system browsers, expand "Parameters" to add this "extra arg". %product% does **not** allow modifying `arg` to avoid breaking basic functionality.
+Both user-defined and system (autodetected) browsers have an additional argument added. This is "extra arg". %product% does **not** allow modifying `arg` to avoid breaking basic functionality.
 
 <warning>
 Most browsers will not apply settings like <a href="https://peter.sh/experiments/chromium-command-line-switches/">chromium flags</a> until you restart the browser completely.
@@ -20,13 +24,11 @@ Most browsers will not apply settings like <a href="https://peter.sh/experiments
 
 ## Auditing
 
-%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **Settings**:
+%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **General** menu:
 
 <img height="150" src="audit00.png"/>
 
-and the file path can be found in `File` menu:
-
-<img height="120" src="audit01.png"/>
+and the file path can be found in "File" menu.
 
 The file itself has all the information about the rule hit event:
 

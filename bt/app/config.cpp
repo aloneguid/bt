@@ -21,8 +21,9 @@ namespace bt {
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
+    const string PickerSectionName = "picker";
     const string PipelineSectionName = "pipeline";
-    const string PipelineStepKeyName = "step";
+    const string PipelineSubstKeyName = "subst";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
@@ -106,78 +107,48 @@ namespace bt {
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
         theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
-        picker_enabled = cfg.get_value("use_picker") != "n";
-        v = cfg.get_value("picker_hotkey");
-        if(v.empty()) v = "cs";
-        picker_hotkey = v;
-        v = cfg.get_value("open_method");
-        open_method = v.empty() ? "decide" : v;
-        
-        // picker
-        picker_on_conflict = cfg.get_bool_value("picker_on_conflict", true);
-        picker_on_no_rule = cfg.get_bool_value("picker_on_no_rule", false);
-        picker_always = cfg.get_bool_value("picker_always", false);
-
         string mode = cfg.get_value(FirefoxContainerModeKey);
         firefox_mode = to_firefox_container_mode(mode);
+        default_profile_long_id = cfg.get_value("default_profile");
+
+        // picker
+        picker_on_key_cs = cfg.get_bool_value("on_key_cs", true, PickerSectionName);
+        picker_on_key_ca = cfg.get_bool_value("on_key_ca", false, PickerSectionName);
+        picker_on_key_as = cfg.get_bool_value("on_key_as", false, PickerSectionName);
+        picker_on_conflict = cfg.get_bool_value("on_conflict", true, PickerSectionName);
+        picker_on_no_rule = cfg.get_bool_value("on_no_rule", false, PickerSectionName);
+        picker_always = cfg.get_bool_value("always", false, PickerSectionName);
+
+        // pipeline
+        pipeline_unwrap_o365 = cfg.get_bool_value("unwrap_o365", true, PipelineSectionName);
+        pipeline_unshorten = cfg.get_bool_value("unshorten", true, PipelineSectionName);
+        pipeline_substitutions = cfg.get_all_values(PipelineSubstKeyName, PipelineSectionName);
+
+        browsers = load_browsers();
     }
 
     void config::commit() {
         cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
-        cfg.set_value("use_picker", picker_enabled ? "y" : "n");
-        cfg.set_value("picker_hotkey", picker_hotkey);
-        if(open_method == "decide") {
-            cfg.delete_key("open_method");
-        } else {
-            cfg.set_value("open_method", open_method);
-        }
+        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
+        cfg.set_value("default_profile", default_profile_long_id);
 
         // picker
-        cfg.set_bool_value("picker_on_conflict", picker_on_conflict);
-        cfg.set_bool_value("picker_on_no_rule", picker_on_no_rule);
-        cfg.set_bool_value("picker_always", picker_always);
+        cfg.set_bool_value("on_key_cs", picker_on_key_cs, PickerSectionName);
+        cfg.set_bool_value("on_key_ca", picker_on_key_ca, PickerSectionName);
+        cfg.set_bool_value("on_key_as", picker_on_key_as, PickerSectionName);
+        cfg.set_bool_value("on_conflict", picker_on_conflict, PickerSectionName);
+        cfg.set_bool_value("on_no_rule", picker_on_no_rule, PickerSectionName);
+        cfg.set_bool_value("always", picker_always, PickerSectionName);
 
-        cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
+        // pipeline
+        cfg.set_bool_value("unwrap_o365", pipeline_unwrap_o365, PipelineSectionName);
+        cfg.set_bool_value("unshorten", pipeline_unshorten, PipelineSectionName);
+        cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
 
-        cfg.commit();
-    }
+        save_browsers(browsers);
 
-    void config::set_fallback(const string& long_sys_name) {
-        cfg.set_value("fallback", long_sys_name);
-        cfg.commit();
-    }
-
-    string config::get_fallback_long_sys_name() {
-        return cfg.get_value("fallback");
-    }
-
-    void config::set_persist_popularity(bool v) {
-        cfg.set_bool_value(PersistPopularityKey, v);
-        cfg.commit();
-    }
-
-    bool config::get_persist_popularity() {
-        return cfg.get_bool_value(PersistPopularityKey, true);
-    }
-
-    int config::get_popularity(const std::string& long_sys_name) {
-        string v = cfg.get_value(long_sys_name, "popularity");
-        return str::to_int(v);
-    }
-
-    void config::set_popularity(const std::string& long_sys_name, int value) {
-        cfg.set_value(long_sys_name, std::to_string(value), "popularity");
-        cfg.commit();
-    }
-
-    std::vector<std::string> config::get_pipeline() {
-        return cfg.get_all_values(PipelineStepKeyName, PipelineSectionName);
-    }
-
-    void config::set_pipeline(const std::vector<std::string>& steps) {
-        cfg.set_value(PipelineStepKeyName, steps, PipelineSectionName);
         cfg.commit();
     }
 
@@ -210,6 +181,7 @@ namespace bt {
                 auto instance = b->instances[0];
                 cfg.set_value("arg", instance->launch_arg, section);
                 cfg.set_value("rule", instance->get_rules_as_text_clean(), section);
+                cfg.set_value("user_icon", instance->user_icon_path, section);
             } else {
                 // instances
                 for(auto& bi : b->instances) {
@@ -218,13 +190,13 @@ namespace bt {
                     cfg.set_value("arg", bi->launch_arg, section);
                     cfg.set_value("user_arg", bi->user_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
+                    cfg.set_value("user_icon", bi->user_icon_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
                     if(bi->order != 0) cfg.set_value("order", to_string(bi->order), section);
                 }
             }
         }
-        cfg.commit();
     }
 
     std::vector<std::shared_ptr<browser>> config::load_browsers() {
@@ -267,6 +239,7 @@ namespace bt {
                         cfg.get_value("name", ssn),
                         cfg.get_value("arg", ssn),
                         cfg.get_value("icon", ssn));
+                    bi->user_icon_path = cfg.get_value("user_icon", ssn);
                     bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
                     string s_order = cfg.get_value("order", ssn);
@@ -279,6 +252,7 @@ namespace bt {
                 }
             } else {
                 auto uprof = make_shared<browser_instance>(b, "default", b->name, cfg.get_value("arg", bsn), "");
+                uprof->user_icon_path = cfg.get_value("user_icon", bsn);
                 uprof->set_rules_from_text(cfg.get_all_values("rule", bsn));
                 b->instances.push_back(uprof);
             }
@@ -311,19 +285,6 @@ namespace bt {
         }
 
         return r;
-    }
-
-    std::chrono::system_clock::time_point config::get_last_update_check_time() {
-        string s = cfg.get_value("last_update_check");
-        auto ll = str::to_long_long(s);
-        return std::chrono::system_clock::from_time_t(ll);
-    }
-
-    void config::set_last_update_check_time_to_now() {
-        auto tp = std::chrono::system_clock::now();
-        time_t tt = std::chrono::system_clock::to_time_t(tp);
-        string s = std::to_string(tt);
-        cfg.set_value("last_update_check", s);
     }
 
     string config::get_absolute_path() {

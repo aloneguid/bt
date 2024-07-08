@@ -1,16 +1,26 @@
-#include "picker.h"
+#include "picker_app.h"
 #include <memory>
 #include "../../globals.h"
 #include "../../res.inl"
 #include "fmt/core.h"
+#include "../common/win32/user.h"
 
 using namespace std;
 namespace w = grey::widgets;
 
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices) 
-        : url{url}, choices{choices}, title{"Pick"}, app{grey::app::make(title)}, wnd_main{ title, &is_open } {
+        : url{url}, choices{choices}, title{APP_LONG_NAME " - Pick"},
+        app{grey::app::make(title)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
+        app->load_icon_font = false;
+
+        // process URL with pipeline
+        {
+            url_payload up{url};
+            g_pipeline.process(up);
+            this->url = up.open_url;
+        }
 
         // get unique list of browsers
         for(auto& c : choices) {
@@ -31,13 +41,15 @@ namespace bt::ui {
             // for each browser, get instances
             int max_instances{0};
             for(auto& b : browsers) {
-                app->preload_texture(b.open_cmd, b.open_cmd);
+                string path = b.get_best_icon_path();
+                app->preload_texture(path, path);
                 for(auto& c : this->choices) {
                     if(b.id == c->b->id) {
                         b.instances.push_back(c);
                         // pre-load icon texture once
-                        if(!c->icon_path.empty()) {
-                            app->preload_texture(c->icon_path, c->icon_path);
+                        string path = c->get_best_icon_path();
+                        if(!path.empty()) {
+                            app->preload_texture(path, path);
                         }
                     }
                 }
@@ -55,7 +67,7 @@ namespace bt::ui {
                 style.WindowPadding.y * 2 / app->scale +
                 BrowserSquareSize +
                 //ProfileSquareSize +
-                25;
+                45;
             wnd_height_profiles = wnd_height_normal + ProfileSquareSize;
 
             // calculate lef pad so browsers look centered
@@ -63,7 +75,7 @@ namespace bt::ui {
 
             wnd_main
                 .size(wnd_width, wnd_height_normal)
-                .no_titlebar()
+                //.no_titlebar()
                 .no_resize()
                 //.no_border()
                 .no_scroll()
@@ -73,16 +85,29 @@ namespace bt::ui {
 
     }
 
-    picker_app::picker_app(const string& url) : picker_app::picker_app{url, browser::to_instances(browser::get_cache())} {
+    picker_app::picker_app(const string& url) : picker_app::picker_app{url, browser::to_instances(g_config.browsers)} {
     }
 
     picker_app::~picker_app() {
     }
 
-    void picker_app::run() {
+    std::shared_ptr<bt::browser_instance> picker_app::run() {
         app->run([this](const grey::app& app) {
             return run_frame();
         });
+
+        return decision;
+    }
+
+    bool picker_app::is_hotkey_down() {
+        bool k_shift = win32::user::is_kbd_shift_down();
+        bool k_ctrl = win32::user::is_kbd_ctrl_down();
+        bool k_alt = win32::user::is_kbd_alt_down();
+
+        return
+            (g_config.picker_on_key_as && (k_alt && k_shift)) ||
+            (g_config.picker_on_key_ca && (k_ctrl && k_alt)) ||
+            (g_config.picker_on_key_cs && (k_ctrl && k_shift));
     }
 
     bool picker_app::run_frame() {
@@ -90,12 +115,6 @@ namespace bt::ui {
         // inspiration: https://github.com/sonnyp/Junction
 
         w::guard gw{wnd_main};
-
-        if(w::button(ICON_MD_CLOSE, w::emphasis::none, true, true)) {
-            wnd_main.resize(100, 100);
-        }
-        w::sl();
-        w::button(ICON_MD_SETTINGS, w::emphasis::none, true, true);
 
         // URL editor
         ImGui::PushItemWidth(-1);
@@ -138,7 +157,7 @@ namespace bt::ui {
 
                 if(b.ui_is_hovered || idx == active_browser_idx) {
                     w::move_pos(pad, pad);
-                    w::image(*app, b.open_cmd, full_icon_size, full_icon_size);
+                    w::image(*app, b.get_best_icon_path(), full_icon_size, full_icon_size);
                 } else {
                     float pad1 = InactiveBrowserSquarePadding * app->scale;
                     float diff = pad1 - pad;
@@ -146,7 +165,7 @@ namespace bt::ui {
 
                     w::move_pos(pad1, pad1);
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, InactiveAlpha);
-                    w::image(*app, b.open_cmd, full_icon_size1, full_icon_size1);
+                    w::image(*app, b.get_best_icon_path(), full_icon_size1, full_icon_size1);
                     ImGui::PopStyleVar();
                 }
             }
@@ -198,6 +217,18 @@ namespace bt::ui {
                 have_bar = true;
                 w::move_pos(0, ProfileSquarePadding * app->scale);  // some distance
 
+                // find perfect position for profiles
+                float wnd_left = ImGui::GetWindowPos().x;
+                float wnd_width = ImGui::GetWindowWidth();
+                float browser_mid_x = active_browser_cb.min.x + BrowserSquareSize * app->scale / 2 - wnd_left;
+                float total_bar_width = ProfileSquareSize * b.instances.size() * app->scale;
+
+                float global_pad_left = browser_mid_x - total_bar_width / 2;
+                if(global_pad_left < 0)
+                    global_pad_left = 0;
+                else if(global_pad_left + total_bar_width > wnd_width)
+                    global_pad_left = wnd_width - total_bar_width;
+
                 float sq_size = ProfileSquareSize * app->scale;
                 float pad = ProfileSquarePadding * app->scale;
                 float pad1 = InactiveProfileSquarePadding * app->scale;
@@ -216,7 +247,7 @@ namespace bt::ui {
                         profiles_cb.resize(b.instances.size());
                     }
                     for(auto& c : b.instances) {
-                        float box_x_start = sq_size * idx + browser_bar_left_pad;
+                        float box_x_start = sq_size * idx + global_pad_left;
                         float box_y_start = y;
 
                         w::set_pos(box_x_start, box_y_start);
@@ -236,11 +267,8 @@ namespace bt::ui {
                             if(c->is_incognito) {
                                 w::image(*app, "incognito", isz, isz);
                             } else {
-                                if(c->icon_path.empty()) {
-                                    w::image(*app, c->b->open_cmd, isz, isz);
-                                } else {
-                                    w::rounded_image(*app, c->icon_path, isz, isz, isz / 2);
-                                }
+                                string path = c->get_best_icon_path();
+                                w::rounded_image(*app, path, isz, isz, isz / 2);
                             }
                         }
 
@@ -326,6 +354,7 @@ namespace bt::ui {
     }
 
     void picker_app::make_decision(std::shared_ptr<bt::browser_instance> decision) {
+        this->decision = decision;
         is_open = false;
     }
 }

@@ -10,8 +10,6 @@ set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-#find_package(cpr CONFIG REQUIRED)
-#find_package(CURL CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 
 file(GLOB core_src CONFIGURE_DEPENDS
@@ -20,7 +18,17 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "app/pipeline/*.cpp"
     "../common/*.cpp"
     "../common/ext/*.cpp"
-    "../common/win32/*.cpp"
+
+    "../common/win32/reg.cpp"
+    "../common/win32/http.cpp"
+    "../common/win32/shell.cpp"
+    "../common/win32/ole32.cpp"
+    "../common/win32/process.cpp"
+    "../common/win32/clipboard.cpp"
+    "../common/win32/sysinfo.cpp"
+    "../common/win32/user.cpp"
+    "../common/win32/window.cpp"
+
     "../common/config/config.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 

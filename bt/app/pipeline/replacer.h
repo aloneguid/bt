@@ -5,8 +5,8 @@
 
 namespace bt::pipeline {
 
-    enum class replacer_kind {
-        find_replace,
+    enum class replacer_kind : size_t {
+        find_replace = 0,
         regex
     };
 
@@ -20,6 +20,7 @@ namespace bt::pipeline {
         replacer(replacer_kind kind, const std::string& find, const std::string& replace);
         replacer(const std::string& rule);
 
+        std::string serialise();
 
         // Inherited via url_pipeline_step
         void process(url_payload& up) override;
