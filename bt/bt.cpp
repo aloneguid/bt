@@ -45,6 +45,14 @@ void open(bt::url_payload up, bool force_picker = false) {
             bt::rule_hit_log::i.write(up, matches[0].bi, matches[0].rule.to_line());
         }
     }
+
+    track_event("click");
+}
+
+void track_event(string name) {
+    t.track(map<string, string> {
+        {"event", name}
+    }, true);
 }
 
 string get_command(const string& data, string& command_data) {
@@ -72,8 +80,9 @@ void execute(const string& data) {
         // if data starts with argsplitter that means command line is empty
 
         bt::ui::config_app app;
-        //bt::ui::picker_app app{"https://github.com/sonnyp/Junction"};
         app.run();
+        track_event("config");
+
         return;
     }
 
