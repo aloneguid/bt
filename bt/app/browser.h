@@ -39,7 +39,6 @@ namespace bt {
 
         // UI helper properties
         bool ui_is_hovered{false};
-        bool ui_is_default{false};
         bool ui_test_url_matches;
 
         size_t get_total_rule_count() const;
@@ -47,6 +46,8 @@ namespace bt {
         bool get_supports_frameless_windows() const { return supports_frameless_windows; }
 
         std::string get_best_icon_path() const;
+
+        bool contains_profile_id(const std::string& long_id) const;
 
         friend bool operator==(const browser& b1, const browser& b2);
 
@@ -56,22 +57,30 @@ namespace bt {
             const std::vector<std::shared_ptr<browser>>& browsers,
             bool skip_hidden = true);
 
+        /**
+         * @brief Finds and returns profile by it's long id. If not found, returns the first profile or the first browser.
+         * @param browsers 
+         * @param long_sys_name 
+         * @param found 
+         * @return 
+         */
         static std::shared_ptr<browser_instance> find_profile_by_long_id(
             const std::vector<std::shared_ptr<browser>>& browsers, const std::string& long_sys_name, bool& found);
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
-            const url_payload& up);
+            const url_payload& up,
+            const std::string& default_profile_long_id);
 
-        static std::shared_ptr<browser_instance> get_default(const std::vector<std::shared_ptr<browser>>& browsers);
+        static std::shared_ptr<browser_instance> get_default(
+            const std::vector<std::shared_ptr<browser>>& browsers,
+            const std::string& default_profile_long_id);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,
             std::vector<std::shared_ptr<browser>> old_set);
 
         static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
-
-        static void set_default(std::vector<std::shared_ptr<browser>>& browsers, const std::string& profile_id);
 
     private:
 
@@ -139,7 +148,6 @@ namespace bt {
 
         // UI helpers
         bool ui_is_hovered{false};
-        bool ui_is_default{false};
         bool ui_test_url_matches;
 
         /**

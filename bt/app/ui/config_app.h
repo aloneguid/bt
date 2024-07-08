@@ -45,7 +45,7 @@ namespace bt::ui {
 
         // "About" window
         bool show_about{false};
-        float about_frame_time{5.0f};
+        float about_frame_time{60.0f};
         std::string about_fps;
         std::string about_fps_tooltip;
         std::string about_mem;
@@ -53,6 +53,7 @@ namespace bt::ui {
 
         // "Health Dashboard" popup
         std::vector<system_check> health_checks;
+        float health_frame_time{60.0f};
         size_t health_succeeded{0};
         size_t health_failed{0};
         void check_health();

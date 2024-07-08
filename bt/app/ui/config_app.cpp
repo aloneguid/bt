@@ -52,6 +52,12 @@ namespace bt::ui {
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
         };
 
+        // in case config is not set, explicitly set it to default
+        if(!g_config.browsers.empty()) {
+            g_config.default_profile_long_id =
+                browser::get_default(g_config.browsers, g_config.default_profile_long_id)->long_id();
+        }
+
         check_health();
     }
 
@@ -522,11 +528,18 @@ It super fast, extremely light on resources, completely free and open source.)",
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
 
-        if(health_failed > 0) {
-            ImVec2 pos = ImGui::GetItemRectMin();
-            pop_dash.open(pos.x, pos.y);
+        // re-open health dashboard periodically if there are issues
+        health_frame_time += ImGui::GetIO().DeltaTime;
+        if(health_frame_time >= 20.0f) {
+            health_frame_time = 0;
+
+            if(health_failed > 0) {
+                ImVec2 pos = ImGui::GetItemRectMin();
+                pop_dash.open(pos.x, pos.y);
+            }
         }
-        else if(w::is_leftclicked()) {
+
+        if(w::is_leftclicked()) {
             pop_dash.open();
         }
 
@@ -565,6 +578,21 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(w::is_leftclicked()) {
             url_opener::open(APP_BUYMEACOFFEE_URL);
         };
+
+        if(!g_config.browsers.empty()) {
+            w::sl(); w::label("|", 0, false);
+            const auto dbr = browser::get_default(g_config.browsers, g_config.default_profile_long_id);
+            w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
+            w::sl(); w::label(dbr->b->name, 0, false);
+            w::tooltip("Default browser");
+
+            if(dbr->b->is_system) {
+                w::sl(); w::label("|", 0, false);
+                w::sl(); w::label(ICON_MD_TAB, 0, false);
+                w::sl(); w::label(dbr->name, 0, false);
+                w::tooltip("Default profile");
+            }
+        }
     }
 
     void config_app::render_no_browsers() {
@@ -607,7 +635,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 render_card(br, i == selected_browser_idx);
 
                 // we can now react on click
-                if(ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                if(w::is_leftclicked()) {
                     selected_browser_idx = i;
                 }
             }
@@ -707,7 +735,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 w::tooltip("Hidden");
             }
 
-            if(b->ui_is_default) {
+            if(b->contains_profile_id(g_config.default_profile_long_id)) {
                 w::sl();
                 w::label(ICON_MD_FAVORITE, w::emphasis::primary);
                 w::tooltip("Default browser");
@@ -755,7 +783,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         } else {
             w::sl();
             if(w::button(ICON_MD_FAVORITE)) {
-                browser::set_default(g_config.browsers, b->instances[0]->long_id());
+                g_config.default_profile_long_id = b->instances[0]->long_id();
             }
             w::tooltip("Make this browser the default one");
 
@@ -807,11 +835,11 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         // mini toolbar
 
-                        if(bi->ui_is_default) {
+                        if(bi->long_id() == g_config.default_profile_long_id) {
                             w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
                         }
                         else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
-                            browser::set_default(g_config.browsers, bi->long_id());
+                            g_config.default_profile_long_id = bi->long_id();
                         }
                         w::tooltip("Make this browser the default one");
 

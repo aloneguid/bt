@@ -55,6 +55,13 @@ namespace bt {
         return open_cmd;
     }
 
+    bool browser::contains_profile_id(const std::string& long_id) const {
+        for(const auto i : instances) {
+            if(i->long_id() == long_id) return true;
+        }
+        return false;
+    }
+
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
         const std::vector<std::shared_ptr<browser>>& browsers,
         bool skip_hidden) {
@@ -89,7 +96,8 @@ namespace bt {
 
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
-        const url_payload& up) {
+        const url_payload& up,
+        const string& default_profile_long_id) {
         vector<browser_match_result> r;
 
         // which browser should we use?
@@ -105,7 +113,7 @@ namespace bt {
         if (r.empty() && !browsers.empty()) {
             match_rule fbr{"default"};
             fbr.is_fallback = true;
-            r.emplace_back(get_default(browsers), fbr);
+            r.emplace_back(get_default(browsers, default_profile_long_id), fbr);
         }
 
         // sort by priority, descending
@@ -118,11 +126,11 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_default(const std::vector<shared_ptr<browser>>& browsers) {
-        string lsn = g_config.default_browser;
-
+    shared_ptr<browser_instance> browser::get_default(
+        const std::vector<shared_ptr<browser>>& browsers,
+        const string& default_profile_long_id) {
         bool found;
-        auto bi = find_profile_by_long_id(browsers, lsn, found);
+        auto bi = find_profile_by_long_id(browsers, default_profile_long_id, found);
 
         return found ? bi : browsers[0]->instances[0];
     }
@@ -191,20 +199,6 @@ namespace bt {
         }
 
         return string::npos;
-    }
-
-    void browser::set_default(std::vector<std::shared_ptr<browser>>& browsers, const std::string& profile_id) {
-        for(auto b : browsers) {
-            b->ui_is_default = false;
-            for(auto i : b->instances) {
-                i->ui_is_default = false;
-                if(i->long_id() == profile_id) {
-                    g_config.default_browser = profile_id;
-                    i->ui_is_default = true;
-                    b->ui_is_default = true;
-                }
-            }
-        }
     }
 
     std::string browser::get_image_name(const std::string& open_cmd) {

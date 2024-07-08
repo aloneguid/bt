@@ -45,7 +45,7 @@ void open(bt::url_payload up, bool force_picker = false) {
             }
         }
     } else {
-        auto matches = bt::browser::match(g_config.browsers, up);
+        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
         bt::url_opener::open(matches[0].bi, up);
         if(g_config.log_rule_hits) {
             bt::rule_hit_log::i.write(up, matches[0].bi, matches[0].rule.to_line());

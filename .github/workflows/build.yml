@@ -103,7 +103,7 @@ jobs:
         PDB_FILE_NAME: pdb-${{ env.VERSION }}.zip
         MSI_FILE_NAME: bt-${{ env.VERSION }}.msi
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       name: collect binaries
       with:
         name: bin${{ matrix.config.suffix }}
@@ -128,25 +128,25 @@ jobs:
           path: artifacts/*.zip
           retention-days: 1
 
-  # wrs-deploy:
-  #   needs: wrs-build
-  #   if: github.ref == 'refs/heads/master'
-  #   runs-on: ubuntu-latest
-  #   name: 'Deploy Docs to GitHub Pages'
-  #   steps:
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: docs
-  #     - name: Unzip artifact
-  #       run: unzip -O UTF-8 -qq ${{ env.DOC_ARTIFACT }} -d dir
-  #     - name: Setup Pages
-  #       uses: actions/configure-pages@v2
-  #     - name: Upload artifact
-  #       uses: actions/upload-pages-artifact@v1
-  #       with:
-  #         path: dir
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v1
+  wrs-deploy:
+    needs: wrs-build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    name: 'Deploy Docs to GitHub Pages'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+      - name: Unzip artifact
+        run: unzip -O UTF-8 -qq ${{ env.DOC_ARTIFACT }} -d dir
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: dir
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 

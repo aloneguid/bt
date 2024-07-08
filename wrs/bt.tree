@@ -18,7 +18,6 @@
     <toc-element topic="rules.md"/>
     <toc-element topic="picker.md"/>
     <toc-element topic="url-pipeline.md">
-        <toc-element topic="url-processing.md"/>
     </toc-element>
     <toc-element topic="commandline.md"/>
     <toc-element topic="Browser-Extensions.md">

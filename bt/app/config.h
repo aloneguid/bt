@@ -29,7 +29,7 @@ namespace bt {
         bool log_rule_hits{true};
         firefox_container_mode firefox_mode{firefox_container_mode::off};
         // default browser long sys name
-        std::string default_browser;
+        std::string default_profile_long_id;
 
         // picker
         // ctrl + shift

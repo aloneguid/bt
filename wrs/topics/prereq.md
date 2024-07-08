@@ -1,6 +1,13 @@
 # Prerequisites
 
-Once launched, %product% will perform a quick self-check and warn you which actions need to be performed by you for links to be properly proxied by it.
+Once launched first time, %product% will display a message that you have no browsers configured. This is expected, as you need to set up at least one browser to start using the tool.
+
+![](no-browsers.png)
+
+Press "discover system browsers" to populate the list of browsers installed on your system. This will also set the first browser found as the default one.
+
+On every subsequent launch, %product% will
+perform a quick self-check and warn you which actions need to be performed by you for links to be properly proxied by it.
 
 <img alt="dashboard" height="150" src="dash-onered.png"/>
 

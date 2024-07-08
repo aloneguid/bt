@@ -10,4 +10,8 @@
         <description>Created after removal of "Reference" from Browser Tamer</description>
         <accepts>Reference.html</accepts>
     </rule>
+    <rule id="a0d5e62">
+        <description>Created after removal of "URL processing (legacy)" from Browser Tamer</description>
+        <accepts>url-processing.html</accepts>
+    </rule>
 </rules>

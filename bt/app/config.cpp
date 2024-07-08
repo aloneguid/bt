@@ -109,7 +109,7 @@ namespace bt {
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
         firefox_mode = to_firefox_container_mode(mode);
-        default_browser = cfg.get_value("default_browser");
+        default_profile_long_id = cfg.get_value("default_profile");
 
         // picker
         picker_on_key_cs = cfg.get_bool_value("on_key_cs", true, PickerSectionName);
@@ -132,7 +132,7 @@ namespace bt {
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
         cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
-        cfg.set_value("default_browser", default_browser);
+        cfg.set_value("default_profile", default_profile_long_id);
 
         // picker
         cfg.set_bool_value("on_key_cs", picker_on_key_cs, PickerSectionName);
