@@ -49,6 +49,7 @@ namespace bt::ui {
         w_right_panel = w::container{0, -padding_bottom}.border();
 
         app->on_initialised = [this]() {
+            app->preload_texture("logo", icon_png, icon_png_len);
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
             app->preload_texture("bt_chromium", chromium_icon_png, chromium_icon_png_len);
             app->preload_texture("bt_firefox", firefox_icon_png, firefox_icon_png_len);
@@ -681,14 +682,14 @@ It super fast, extremely light on resources, completely free and open source.)",
         // render icon and come back to starting position
         w::set_pos(0, -1);
         w::move_pos(padding, padding);
-        if(b->open_cmd.empty() || !std::filesystem::exists(b->open_cmd)) {
-            app->preload_texture("logo", icon_png, icon_png_len);
-            w::image(*app, "logo", icon_size, icon_size);
-        } else {
-            string path = b->get_best_icon_path();
-            app->preload_texture(path, path);
+
+        string path = b->get_best_icon_path();
+        if(app->preload_texture(path, path)) {
             w::image(*app, path, icon_size, icon_size);
+        } else {
+            w::image(*app, "logo", icon_size, icon_size);
         }
+
         w::set_pos(0, -1);
         w::move_pos(0, -(icon_size + padding));
 
@@ -863,8 +864,9 @@ It super fast, extremely light on resources, completely free and open source.)",
                             w::tooltip("test by opening a link as an app");
                         }
 
-                        w::sl();
                         if(!b->open_cmd.empty()) {
+                            w::sl();
+
                             if(b->is_firefox) {
 
                                 if(g_config.firefox_mode == firefox_container_mode::off) {
@@ -904,7 +906,11 @@ It super fast, extremely light on resources, completely free and open source.)",
                         {
                             w::group g;
                             g.render();
-                            w::input(bi->launch_arg, "arg", false);
+
+                            w::input(bi->b->open_cmd, "cmd", true, 0, true);;
+                            w::tooltip("Location");
+
+                            w::input(bi->launch_arg, "arg", true, 0, true);
                             w::tooltip("Discovered arguments (read-only)");
 
                             w::input(bi->user_arg, "extra arg");

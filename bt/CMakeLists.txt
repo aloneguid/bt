@@ -28,6 +28,7 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/win32/sysinfo.cpp"
     "../common/win32/user.cpp"
     "../common/win32/window.cpp"
+    "../common/win32/uwp.cpp"
 
     "../common/config/config.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)

@@ -166,6 +166,7 @@ namespace bt {
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
             cfg.set_bool_value("hidden", b->is_hidden, section);
+            cfg.set_value("icon", b->icon_path, section);
 
             string subtype;
             if(b->is_system) {
@@ -221,6 +222,7 @@ namespace bt {
             b->is_firefox = subtype == "firefox";
             b->is_chromium = subtype == "chromium";
             b->is_hidden = cfg.get_bool_value("hidden", false, bsn);
+            b->icon_path = cfg.get_value("icon", bsn);
 
             if(b->is_system) {
 

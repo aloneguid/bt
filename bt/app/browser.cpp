@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "win32/shell.h"
 #include "win32/process.h"
+#include "win32/uwp.h"
 #include "str.h"
 #include "../globals.h"
 #include <fmt/core.h>
@@ -14,6 +15,7 @@ using namespace std;
 
 namespace bt {
     const string lad = win32::shell::get_local_app_data_path();
+    const string UwpCmdPrefix = "uwp:";
 
     browser::browser(
         const std::string& id,
@@ -46,6 +48,9 @@ namespace bt {
     }
 
     std::string browser::get_best_icon_path() const {
+
+        if(!icon_path.empty()) return icon_path;
+
         if(!is_system) {
             if(!instances.empty()) {
                 return instances[0]->get_best_icon_path();
@@ -249,7 +254,15 @@ namespace bt {
 
         //win32::shell::exec(b->open_cmd, arg);
         //win32::process::start(b->open_cmd + " " + arg, false);
-        launch_win32_process_and_foreground(b->open_cmd + " " + arg);
+        
+        // if command starts with UWP prefix, launch this as UWP app
+        if(b->open_cmd.starts_with(UwpCmdPrefix)) {
+            string app_user_mode_id = b->open_cmd.substr(UwpCmdPrefix.size());
+            win32::uwp uwp;
+            uwp.start_app(str::to_wstr(app_user_mode_id), str::to_wstr(arg));
+        } else {
+            launch_win32_process_and_foreground(b->open_cmd + " " + arg);
+        }
     }
 
     bool browser_instance::is_match(const url_payload& up, match_rule& mr) const {

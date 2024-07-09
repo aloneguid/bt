@@ -35,7 +35,15 @@ namespace bt {
         */
         bool is_hidden{false};
 
+        /**
+         * @brief When provided, takes precedence over the default icon extracted from the executable.
+         */
+        std::string icon_path;
+
         std::vector<std::shared_ptr<browser_instance>> instances;
+
+        // instance id, non persistent, used in discovery process
+        std::string disco_instance_id;
 
         // UI helper properties
         bool ui_is_hovered{false};

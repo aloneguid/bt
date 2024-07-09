@@ -27,24 +27,84 @@ map<string, string> chromium_id_to_vdf {
     { "chrome", "Google\\Chrome\\User Data" },
     { "vivaldi", "Vivaldi\\User Data" },
     { "brave", "BraveSoftware\\Brave-Browser\\User Data" },
-    { "thorium", "Thorium\\User Data" }
+    { "thorium", "Thorium\\User Data" },
+    { "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "" }
 };
 
 map<string, string> firefox_id_to_vdf {
     { "firefox", "Mozilla\\Firefox" },
+    { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Windows Store version
     { "waterfox", "Waterfox" },
     { "librewolf", "Librewolf" }
 };
 
 namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
+    const string apps_root = "Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\PackageRepository\\Packages";
+    const string app_user_root = "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
     const string ad = win32::shell::get_app_data_folder();
     const string lad = win32::shell::get_local_app_data_path();
+    const string FirefoxInstancePrefix = "Firefox-";
 
     string get_id_from_open_cmd(const std::string& cmd) {
         fs::path p(cmd);
         p.replace_extension();
         return p.filename().string();
+    }
+
+    void discover_uwp_browsers(vector<shared_ptr<browser>>& browsers) {
+        // list packages under Computer\HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages
+
+        auto apps = win32::reg::enum_subkeys(hive::classes_root, apps_root);
+
+        for(const string& app : apps) {
+            // the first child, if present, is the "app user model id"
+            auto subkeys = win32::reg::enum_subkeys(hive::classes_root, apps_root + "\\" + app);
+            if(subkeys.empty()) continue;
+
+            string app_user_model_id = subkeys[0];
+
+            // check if there is "windows.protocol" subkey and whether there is http(s) association
+            string proto_key = apps_root + "\\" + app + "\\" + app_user_model_id + "\\windows.protocol";
+            bool is_browser{false};
+            string icon_path;
+
+            for(const string& proto : enum_subkeys(hive::classes_root, proto_key)) {
+
+                if(proto == "http" || proto == "https") {
+                    is_browser = true;
+                    icon_path = get_value(hive::classes_root, proto_key + "\\" + proto, "Logo");
+                    break;
+                    //string display_name = get_value(hive::classes_root, proto_key + "\\" + proto, "DisplayName");
+                    //
+                    //string acid = get_value(hive::classes_root, proto_key + "\\" + proto, "ACID");
+                }
+            }
+
+            if(is_browser) {
+                string id = app_user_model_id;
+
+                // find display name of the app
+                // Computer\HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\Mozilla.Firefox_127.0.2.0_x64__n80bbvh6b1yt2
+
+                string key = app_user_root + "\\" + app + "\\" + "";
+                string display_name = get_value(hive::current_user, key, "DisplayName");
+                string open_command = string{"uwp:"} + app_user_model_id;
+
+                auto b = make_shared<browser>(id, display_name, open_command);
+                b->icon_path = icon_path;
+                browsers.push_back(b);
+            }
+        }
+    }
+
+    string get_instance_id(const string& reg_value) {
+        // if this is Firefox, strip out the prefix to get instance ID
+        if(reg_value.starts_with(FirefoxInstancePrefix)) {
+            return reg_value.substr(FirefoxInstancePrefix.size());
+        }
+
+        return reg_value;
     }
 
     void discover_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
@@ -60,6 +120,7 @@ namespace bt {
             if (!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
                 string id = get_id_from_open_cmd(open_command);
                 auto b = make_shared<browser>(id, display_name, open_command);
+                b->disco_instance_id = get_instance_id(sub);
 
                 // check for duplicates (HKLM & HKCU can have the same browser registered)
                 // this is possible to to operator== on browser class
@@ -84,6 +145,7 @@ namespace bt {
 
         discover_registry_browsers(hive::local_machine, browsers, ignore_proto);
         discover_registry_browsers(hive::current_user, browsers, ignore_proto);
+        discover_uwp_browsers(browsers);
 
         // discover various profiles
         for (shared_ptr<bt::browser> b : browsers) {
@@ -187,21 +249,42 @@ namespace bt {
                 ini.LoadFile(ini_path.c_str());
                 list<CSimpleIniA::Entry> ir;
                 ini.GetAllSections(ir);
+
+                // find section with installation ID to extract default profile path for this Firefox installation
+                string section_name = "Install" + b->disco_instance_id;
+                string default_profile_path;
+                for(CSimpleIni::Entry& section : ir) {
+                    if(section_name == section.pItem) {
+                        const char* c_path = ini.GetValue(section.pItem, "Default");
+                        if(c_path) {
+                            default_profile_path = c_path;
+                        }
+                        break;
+                    }
+                }
+
+
                 for(auto& e : ir) {
-                    // a section is potentially a profile
+                    // a section is a profile if starts with "Profile".
+                    string section_name{e.pItem};
+                    if(!section_name.starts_with("Profile")) continue;
+
+                    // extract display name if possible
                     const char* c_name = ini.GetValue(e.pItem, "Name");
-                    if(!c_name) continue;
-                    string name = c_name;
+                    string display_name = c_name ? c_name : section_name;
 
                     // if is_relative is false, this is an absolute path (not like it matters anyway)
                     const char* c_is_relative = ini.GetValue(e.pItem, "IsRelative");
-                    bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
                     const char* c_path = ini.GetValue(e.pItem, "Path");
+                    bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
                     if(!c_path) continue;
+                    string path{c_path};
+
+                    bool is_default_profile = path == default_profile_path;
 
                     // We don't want "default" profile - in Firefox it's some kind of pre-release oddness.
                     // In Waterfox it's called something like "68-edition-default"
-                    if(name == "default" || name.ends_with("-edition-default")) continue;
+                    //if(display_name == "default" || display_name.ends_with("-edition-default")) continue;
 
                     string local_home = is_relative
                         ? (fs::path{lad} / vdf / c_path).string()
@@ -215,13 +298,17 @@ namespace bt {
                     if(container_mode == firefox_container_mode::off) {
 
                         // rename primary release profile to something more human-readable
-                        string profile_display_name = name == "default-release"
+                        string profile_display_name = is_default_profile
                             ? "Primary"
-                            : name;
+                            : display_name;
 
-                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
-                        auto bi = make_shared<browser_instance>(b, e.pItem, profile_display_name, arg, "");
-                        bi->order = b->instances.size();
+                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
+                        auto bi = make_shared<browser_instance>(b,
+                            e.pItem,
+                            profile_display_name,
+                            arg,
+                            "");
+                        bi->order = is_default_profile ? -1 : b->instances.size();
 
                         {
                             const char* c_default = ini.GetValue(e.pItem, "Default");
@@ -232,7 +319,7 @@ namespace bt {
                     } else {
 
                         // add "no container" profile
-                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, name);
+                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
                         auto bi = make_shared<browser_instance>(b, e.pItem, "No container", arg, "");
                         bi->order = 0;
                         b->instances.push_back(bi);
@@ -247,12 +334,12 @@ namespace bt {
                                 arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
                                     container.name,
                                     browser_instance::URL_ARG_NAME,
-                                    name);
+                                    display_name);
                             } else if(container_mode == firefox_container_mode::bt) {
                                 arg = fmt::format("\"ext+bt:container={}&url={}\" -P \"{}\"",
                                     container.name,
                                     browser_instance::URL_ARG_NAME,
-                                    name);
+                                    display_name);
                             } else {
                                 arg = fmt::format("unknown mode", config::firefox_container_mode_to_string(container_mode));
                             }
