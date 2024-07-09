@@ -20,7 +20,8 @@ using hive = win32::reg::hive;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-// mapping of vendors to vendor data folder
+// mapping of vendors to vendor data folder (relative to AppData\Local)
+// Arc stores data under AppData\Local\Packages\TheBrowserCompany.Arc_ttt1ap7aakyb4\LocalCache\Local\Arc\User Data
 
 map<string, string> chromium_id_to_vdf {
     { "msedge", "Microsoft\\Edge\\User Data" },
@@ -28,7 +29,7 @@ map<string, string> chromium_id_to_vdf {
     { "vivaldi", "Vivaldi\\User Data" },
     { "brave", "BraveSoftware\\Brave-Browser\\User Data" },
     { "thorium", "Thorium\\User Data" },
-    { "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "" }
+    { "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "Packages\\TheBrowserCompany.Arc_ttt1ap7aakyb4\\LocalCache\\Local\\Arc\\User Data" }
 };
 
 map<string, string> firefox_id_to_vdf {
@@ -173,10 +174,22 @@ namespace bt {
             if(j_p_ic.is_object()) {
                 for(auto& jp : j_p_ic.items()) {
                     string sys_name = jp.key();
-                    auto name_j = jp.value()["shortcut_name"];
                     auto profile_pic_j = jp.value()["gaia_picture_file_name"];
 
-                    string name = name_j.is_string() ? name_j.get<string>() : "";
+                    string name;
+                    {
+                        auto j = jp.value()["shortcut_name"];
+                        if(j.is_string()) {
+                            name = j.get<string>();
+                        }
+
+                        if(name.empty()) {
+                            j = jp.value()["name"];
+                            if(j.is_string()) {
+                                name = j.get<string>();
+                            }
+                        }
+                    }
 
                     // all the data is ready
                     string arg = fmt::format("\"{}\" \"--profile-directory={}\"",
