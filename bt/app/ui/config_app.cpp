@@ -50,6 +50,8 @@ namespace bt::ui {
 
         app->on_initialised = [this]() {
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
+            app->preload_texture("bt_chromium", chromium_icon_png, chromium_icon_png_len);
+            app->preload_texture("bt_firefox", firefox_icon_png, firefox_icon_png_len);
         };
 
         // in case config is not set, explicitly set it to default
@@ -711,11 +713,13 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                 if(b->is_chromium) {
                     w::sl();
-                    w::label(ICON_MD_TAB, 0, false);
+                    w::icon_image(*app, "bt_chromium");
+                    //w::label(ICON_MD_TAB, 0, false);
                     w::tooltip("Chromium-based");
                 } else if(b->is_firefox) {
                     w::sl();
-                    w::label(ICON_MD_WHATSHOT, 0, false);
+                    w::icon_image(*app, "bt_firefox");
+                    //w::label(ICON_MD_WHATSHOT, 0, false);
                     w::tooltip("Firefox-based");
                 }
             } else {

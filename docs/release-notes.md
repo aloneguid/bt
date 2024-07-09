@@ -1,3 +1,7 @@
+## 4.0.1
+
+- visual appeal: firefox/chromium autodetected browsers are now displayed with a different icon.
+
 ## 4.0.0
 
 - Multiple picker hotkeys can be configured, you can even turn them all on at the same time.
