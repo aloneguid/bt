@@ -11,6 +11,7 @@ set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
+find_package(tinyxml2 CONFIG REQUIRED)
 
 file(GLOB core_src CONFIGURE_DEPENDS
     "app/*.cpp"
@@ -50,6 +51,7 @@ target_link_libraries(bt
 	libgrey
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
+    tinyxml2::tinyxml2
 )
 target_include_directories(${APP_NAME} PRIVATE "../common" "../grey/grey" ${P_RANAV_CSV2_INCLUDE_DIRS})
 

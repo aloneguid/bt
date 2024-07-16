@@ -14,6 +14,7 @@
 #include <fmt/core.h>
 #include "../globals.h"
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
+#include <tinyxml2.h>
 
 using namespace std;
 using hive = win32::reg::hive;
@@ -28,13 +29,13 @@ map<string, string> chromium_id_to_vdf {
     { "chrome", "Google\\Chrome\\User Data" },
     { "vivaldi", "Vivaldi\\User Data" },
     { "brave", "BraveSoftware\\Brave-Browser\\User Data" },
-    { "thorium", "Thorium\\User Data" },
-    { "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "Packages\\TheBrowserCompany.Arc_ttt1ap7aakyb4\\LocalCache\\Local\\Arc\\User Data" }
+    { "thorium", "Thorium\\User Data" }
+    //{ "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "Packages\\TheBrowserCompany.Arc_ttt1ap7aakyb4\\LocalCache\\Local\\Arc\\User Data" }
 };
 
 map<string, string> firefox_id_to_vdf {
     { "firefox", "Mozilla\\Firefox" },
-    { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Windows Store version
+    { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Microsoft Store version
     { "waterfox", "Waterfox" },
     { "librewolf", "Librewolf" }
 };
@@ -53,46 +54,106 @@ namespace bt {
         return p.filename().string();
     }
 
-    void discover_uwp_browsers(vector<shared_ptr<browser>>& browsers) {
-        // list packages under Computer\HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages
+    bool is_msstore_browser(const string& package_name, string& app_path, string& app_user_model_id) {
 
-        auto apps = win32::reg::enum_subkeys(hive::classes_root, apps_root);
+        app_path = win32::reg::get_value(hive::classes_root, apps_root + "\\" + package_name, "Path");
 
-        for(const string& app : apps) {
-            // the first child, if present, is the "app user model id"
-            auto subkeys = win32::reg::enum_subkeys(hive::classes_root, apps_root + "\\" + app);
-            if(subkeys.empty()) continue;
+        // the first child, if present, is the "app user model id"
+        auto subkeys = win32::reg::enum_subkeys(hive::classes_root, apps_root + "\\" + package_name);
+        if(subkeys.empty()) return false;
 
-            string app_user_model_id = subkeys[0];
+        // the first child, if present, is the "app user model id"
+        app_user_model_id = subkeys[0];
 
-            // check if there is "windows.protocol" subkey and whether there is http(s) association
-            string proto_key = apps_root + "\\" + app + "\\" + app_user_model_id + "\\windows.protocol";
-            bool is_browser{false};
-            string icon_path;
+        // it's sufficient to check for the availability of the "https" key to make the decision
+        string https_key_path = fmt::format("{}\\{}\\{}\\windows.protocol\\https", apps_root, package_name, app_user_model_id);
+        return win32::reg::path_exists(hive::classes_root, https_key_path);
+    }
 
-            for(const string& proto : enum_subkeys(hive::classes_root, proto_key)) {
+    string get_appx_app_id(const string& package_name) {
+        string path = app_user_root + "\\" + package_name;
+        auto usubs = win32::reg::enum_subkeys(hive::current_user, path);
+        if(usubs.empty()) return "";
 
-                if(proto == "http" || proto == "https") {
-                    is_browser = true;
-                    icon_path = get_value(hive::classes_root, proto_key + "\\" + proto, "Logo");
-                    break;
-                    //string display_name = get_value(hive::classes_root, proto_key + "\\" + proto, "DisplayName");
-                    //
-                    //string acid = get_value(hive::classes_root, proto_key + "\\" + proto, "ACID");
+        string appx_id = win32::reg::get_value(hive::current_user,
+            fmt::format("{}\\{}\\Capabilities\\URLAssociations", path, usubs[0]),
+            "https");
+
+        return appx_id;
+    }
+
+    void read_appx_manifest(const string& app_folder, string& display_name, string& icon_path) {
+        string manifest_path = app_folder + "\\AppxManifest.xml";
+
+        tinyxml2::XMLDocument doc;
+        doc.LoadFile(manifest_path.c_str());
+
+        tinyxml2::XMLElement* x_root = doc.FirstChildElement("Package");
+        if(!x_root) return;
+
+        tinyxml2::XMLElement* x_properties = x_root->FirstChildElement("Properties");
+        if(!x_properties) return;
+
+        // try to get display name
+        tinyxml2::XMLElement* x_display_name = x_properties->FirstChildElement("DisplayName");
+        if(x_display_name) {
+            display_name = x_display_name->GetText();
+        }
+
+        // try to get icon path
+        tinyxml2::XMLElement* x_logo = x_properties->FirstChildElement("Logo");
+        if(x_logo) {
+            string logo = x_logo->GetText();
+            icon_path = app_folder + "\\" + logo;
+
+            // check if the file exists, and if not, try to find the best match
+            if(!fs::exists(icon_path)) {
+                // try to find the best match
+                fs::path p{icon_path};
+                icon_path.clear();  // clear result as it's not valid
+                string ext = p.extension().string();
+                string name = p.stem().string();
+                string dir = p.parent_path().string();
+
+                // try to find the best match
+                for(const string& candidate : {".scale-100", ".scale-125", ".scale-150", ".scale-200"}) {
+                    auto candidate_path = fs::path{dir} / (name + candidate + ext);
+                    if(fs::exists(candidate_path)) {
+                        icon_path = candidate_path.string();
+                        break;
+                    }
                 }
             }
+        }
+    }
 
-            if(is_browser) {
-                string id = app_user_model_id;
+    void discover_msstore_browsers(vector<shared_ptr<browser>>& browsers) {
 
-                // find display name of the app
-                // Computer\HKEY_CURRENT_USER\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages\Mozilla.Firefox_127.0.2.0_x64__n80bbvh6b1yt2
+        // hint: this might be easier for future HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Extensions\windows.protocol\https
 
-                string key = app_user_root + "\\" + app + "\\" + "";
-                string display_name = get_value(hive::current_user, key, "DisplayName");
-                string open_command = string{"uwp:"} + app_user_model_id;
+        // 1. List packages under HKCU\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages
 
-                auto b = make_shared<browser>(id, display_name, open_command);
+        auto package_names = win32::reg::enum_subkeys(hive::classes_root, apps_root);
+
+        for(const string& package_name : package_names) {
+
+            string app_folder;  // this is where the app is installed
+            string app_user_model_id;  // this is the app user model id
+
+            if(!is_msstore_browser(package_name, app_folder, app_user_model_id)) continue;
+            string appx_id = get_appx_app_id(package_name);
+
+            // get properties from manifest
+            string display_name, icon_path;
+            read_appx_manifest(app_folder, display_name, icon_path);
+
+            if(!appx_id.empty()) {
+                // go to HKCR/id to get shell/open/command
+                string open_command = win32::reg::get_value(hive::classes_root,
+                    fmt::format("{}\\shell\\open\\command", appx_id));
+
+                // this command can be used to set full path to executable (de-obfuscated in "browser" constructor)
+                auto b = make_shared<browser>(app_user_model_id, display_name, open_command);
                 b->icon_path = icon_path;
                 browsers.push_back(b);
             }
@@ -146,7 +207,7 @@ namespace bt {
 
         discover_registry_browsers(hive::local_machine, browsers, ignore_proto);
         discover_registry_browsers(hive::current_user, browsers, ignore_proto);
-        discover_uwp_browsers(browsers);
+        discover_msstore_browsers(browsers);
 
         // discover various profiles
         for (shared_ptr<bt::browser> b : browsers) {

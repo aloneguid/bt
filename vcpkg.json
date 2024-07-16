@@ -29,6 +29,7 @@
         "nlohmann-json",
         "simpleini",
         "p-ranav-csv2",
+        "tinyxml2",
         "gtest"
     ]
 }

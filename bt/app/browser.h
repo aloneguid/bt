@@ -13,6 +13,8 @@ namespace bt {
     class browser {
     public:
 
+        static const std::string UwpCmdPrefix;
+
         browser(
             const std::string& id,
             const std::string& name,
@@ -47,7 +49,7 @@ namespace bt {
 
         // UI helper properties
         bool ui_is_hovered{false};
-        bool ui_test_url_matches;
+        bool ui_test_url_matches{false};
 
         size_t get_total_rule_count() const;
 
@@ -95,6 +97,8 @@ namespace bt {
         const bool supports_frameless_windows;
 
         static std::string get_image_name(const std::string& open_cmd);
+
+        static std::string unmangle_open_cmd(const std::string& open_cmd);
     };
 
     class browser_instance {

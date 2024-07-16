@@ -865,8 +865,6 @@ It super fast, extremely light on resources, completely free and open source.)",
                         }
 
                         if(!b->open_cmd.empty()) {
-                            w::sl();
-
                             if(b->is_firefox) {
 
                                 if(g_config.firefox_mode == firefox_container_mode::off) {
@@ -962,15 +960,18 @@ special keyword - %url% which is replaced by opening url.)");
                 .render();
 
             float box_size = 40 * app->scale;
+            string final_path;
 
             if(is_incognito) {
                 if(!path_override.empty() && app->preload_texture(path_override, path_override)) {
                     w::rounded_image(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
+                    final_path = path_override;
                 } else {
                     w::rounded_image(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
                 }
             } else {
                 string path = path_override.empty() ? path_default : path_override;
+                final_path = path;
 
                 if(!path.empty() && app->preload_texture(path, path)) {
                     w::rounded_image(*app, path, box_size - 1, box_size - 1, box_size / 2);
@@ -981,8 +982,8 @@ special keyword - %url% which is replaced by opening url.)");
         }
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            w::tooltip("Click to override the built-in icon\nRight-click to reset to default");
         }
-        w::tooltip("Click to override the built-in icon\nRight-click to reset to default");
 
         if(w::is_leftclicked()) {
             string icon_path = win32::shell::file_open_dialog("PNG", "*.png");

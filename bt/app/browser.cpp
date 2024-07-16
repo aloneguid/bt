@@ -15,7 +15,7 @@ using namespace std;
 
 namespace bt {
     const string lad = win32::shell::get_local_app_data_path();
-    const string UwpCmdPrefix = "uwp:";
+    const string browser::UwpCmdPrefix = "msstore:";
 
     browser::browser(
         const std::string& id,
@@ -28,7 +28,7 @@ namespace bt {
         supports_frameless_windows{is_chromium}
     {
         str::trim(this->name);
-        str::trim(this->open_cmd, "\"");
+        this->open_cmd = unmangle_open_cmd(this->open_cmd);
     }
 
     bool match_rule::operator==(const match_rule& other) const {
@@ -211,6 +211,23 @@ namespace bt {
         return fs::path{open_cmd}.filename().replace_extension().string();
     }
 
+    std::string browser::unmangle_open_cmd(const std::string& open_cmd) {
+
+        string r = open_cmd;
+
+        // if open_cmd starts with quote ("), remove it, and substring up to first next quote
+        if(r.starts_with("\"")) {
+            r = r.substr(1);
+            
+            size_t pos = r.find("\"");
+            if(pos != string::npos) {
+               r = r.substr(0, pos);
+            }
+        }
+
+        return r;
+    }
+
     browser_instance::browser_instance(
         shared_ptr<browser> b,
         const std::string& id,
@@ -252,14 +269,15 @@ namespace bt {
             arg += user_arg;
         }
 
-        //win32::shell::exec(b->open_cmd, arg);
-        //win32::process::start(b->open_cmd + " " + arg, false);
-        
         // if command starts with UWP prefix, launch this as UWP app
-        if(b->open_cmd.starts_with(UwpCmdPrefix)) {
-            string app_user_mode_id = b->open_cmd.substr(UwpCmdPrefix.size());
+        if(b->open_cmd.starts_with(browser::UwpCmdPrefix)) {
+            string family_name = b->open_cmd.substr(browser::UwpCmdPrefix.size());
             win32::uwp uwp;
-            uwp.start_app(str::to_wstr(app_user_mode_id), str::to_wstr(arg));
+            uwp.launch_uri(family_name, arg);
+            //uwp.start_app(str::to_wstr(app_user_mode_id), str::to_wstr(arg));
+            //uwp.open_url(str::to_wstr(app_user_mode_id), L"https://one.plus");
+            //uwp.launch_uri();
+            //uwp.open_file(str::to_wstr(app_user_mode_id), L"C:\\Users\\alone\\Documents\\bt.pdf");
         } else {
             launch_win32_process_and_foreground(b->open_cmd + " " + arg);
         }
