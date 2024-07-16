@@ -18,6 +18,8 @@
   - Detection of browser profiles.
   - Support for [Firefox Containers](https://aloneguid.github.io/bt/firefox-containers.html).
   - Support for incognito mode / tor mode.
+- Supports Microsoft Store apps.
+- Special support for [Arc browser.](https://arc.net/)
 - Add your own, custom browser or application customised with any parameters you want.
 - Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
 - Rule-based redirect based on [window title and process name](https://aloneguid.github.io/bt/rules.html#matching-locations).
@@ -25,7 +27,7 @@
 - Supports [URL processing](https://aloneguid.github.io/bt/url-proc.html), which allows for custom URL pre-processing with
   - [URL un-shortening](https://aloneguid.github.io/bt/url-proc.html#un-shortening).
   - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping).
-  - [Find/replace](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping) functionality, including regular expression support.
+  - [Find/replace](http://localhost:63342/wrs/preview/url-proc.html#substitutions) functionality, including regular expression support.
 
 - **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox, LibreWolf etc.).
   [![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/oggcljknmiiomjekepdoindjcpnpglnd)](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd)  [![Mozilla Add-on Version](https://img.shields.io/amo/v/browser-tamer)](https://addons.mozilla.org/eu/firefox/addon/browser-tamer/)
