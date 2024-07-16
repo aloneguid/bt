@@ -22,10 +22,10 @@
 - Rule-based redirect based on matching inside entire URL, domain, or path. This can be a simple case-insensitive substring or a regular expression.
 - Rule-based redirect based on [window title and process name](https://aloneguid.github.io/bt/rules.html#matching-locations).
 - Assign rule priorities.
-- Supports [URL processing pipeline](https://aloneguid.github.io/bt/url-pipeline.html), which allows for custom URL pre-processing with
-  - [URL un-shortening](https://aloneguid.github.io/bt/url-pipeline.html#un-shortening).
-  - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-pipeline.html#office-365-link-unwrapping).
-  - [Find/replace](Find/replace) functionality, including regular expression support.
+- Supports [URL processing](https://aloneguid.github.io/bt/url-proc.html), which allows for custom URL pre-processing with
+  - [URL un-shortening](https://aloneguid.github.io/bt/url-proc.html#un-shortening).
+  - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping).
+  - [Find/replace](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping) functionality, including regular expression support.
 
 - **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox, LibreWolf etc.).
   [![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/oggcljknmiiomjekepdoindjcpnpglnd)](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd)  [![Mozilla Add-on Version](https://img.shields.io/amo/v/browser-tamer)](https://addons.mozilla.org/eu/firefox/addon/browser-tamer/)
