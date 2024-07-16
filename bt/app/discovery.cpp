@@ -155,6 +155,16 @@ namespace bt {
                 // this command can be used to set full path to executable (de-obfuscated in "browser" constructor)
                 auto b = make_shared<browser>(app_user_model_id, display_name, open_command);
                 b->icon_path = icon_path;
+
+                if(!b->is_wellknown()) {
+                    // not sure how to handle it, so we will use msstore open method
+
+                    // get app family id, which is model id without the "!" and everything after it
+                    string app_family_id = app_user_model_id.substr(0, app_user_model_id.find('!'));
+
+                    b->open_cmd = fmt::format("{}{}", browser::UwpCmdPrefix, app_family_id);
+                }
+
                 browsers.push_back(b);
             }
         }
@@ -521,17 +531,28 @@ namespace bt {
 
     void discovery::discover_other_profiles(shared_ptr<browser> b) {
 
-        if (!(b->is_system && b->instances.empty())) return;
+        if(!(b->is_system && b->instances.empty())) return;
 
-        string arg("\"");
-        arg += browser_instance::URL_ARG_NAME;
-        arg += "\"";
+        string icon_path = b->icon_path.empty() ? b->open_cmd : b->icon_path;
 
-        auto bi = make_shared<browser_instance>(b, "default", "Default",
-            arg,
-            b->open_cmd);
 
-        b->instances.push_back(bi);
+        if(b->is_msstore()) {
+            auto bi = make_shared<browser_instance>(b, "default", "Default",
+                browser_instance::URL_ARG_NAME,
+                icon_path);
+
+            b->instances.push_back(bi);
+        } else {
+            string arg("\"");
+            arg += browser_instance::URL_ARG_NAME;
+            arg += "\"";
+
+            auto bi = make_shared<browser_instance>(b, "default", "Default",
+                arg,
+                icon_path);
+
+            b->instances.push_back(bi);
+        }
     }
 
     bool discovery::is_default_browser(bool& http, bool& https, bool& xbt) {

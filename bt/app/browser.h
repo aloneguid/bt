@@ -55,6 +55,10 @@ namespace bt {
 
         bool get_supports_frameless_windows() const { return supports_frameless_windows; }
 
+        bool is_wellknown() const { return is_chromium || is_firefox; }
+
+        bool is_msstore() const { return open_cmd.starts_with(UwpCmdPrefix); }
+
         std::string get_best_icon_path() const;
 
         bool contains_profile_id(const std::string& long_id) const;

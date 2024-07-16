@@ -274,10 +274,6 @@ namespace bt {
             string family_name = b->open_cmd.substr(browser::UwpCmdPrefix.size());
             win32::uwp uwp;
             uwp.launch_uri(family_name, arg);
-            //uwp.start_app(str::to_wstr(app_user_mode_id), str::to_wstr(arg));
-            //uwp.open_url(str::to_wstr(app_user_mode_id), L"https://one.plus");
-            //uwp.launch_uri();
-            //uwp.open_file(str::to_wstr(app_user_mode_id), L"C:\\Users\\alone\\Documents\\bt.pdf");
         } else {
             launch_win32_process_and_foreground(b->open_cmd + " " + arg);
         }

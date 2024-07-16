@@ -911,8 +911,10 @@ It super fast, extremely light on resources, completely free and open source.)",
                             w::input(bi->launch_arg, "arg", true, 0, true);
                             w::tooltip("Discovered arguments (read-only)");
 
-                            w::input(bi->user_arg, "extra arg");
-                            w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                            if(!bi->b->is_msstore()) {
+                                w::input(bi->user_arg, "extra arg");
+                                w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                            }
                         }
 
                         w::spc();

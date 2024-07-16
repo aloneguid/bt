@@ -1,7 +1,7 @@
-## 4.1.0
+## 4.0.1
 
-- Browsers installed via Windows Store (Firefox, Arc) are automatically detected and added to the list.
-- Added support for launching UWP (Windows Store) apps.
+- Browsers installed via Windows Store (Firefox) are automatically detected and added to the list.
+- [Arc browser](https://arc.net/) is fully supported.
 - visual appeal: firefox/chromium autodetected browsers are now displayed with a different icon.
 
 ## 4.0.0
