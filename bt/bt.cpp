@@ -5,10 +5,10 @@
 #include "win32/process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
-#include "app/setup.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
+#include "app/systray.h"
 
 //ui
 #include "app/ui/config_app.h"
@@ -91,8 +91,13 @@ void execute(const string& data) {
     string command_data;
     string command = get_command(data, command_data);
     if(!command.empty()) {
-        // force-invoke the picker
-        if(command == "pick") {
+        if(command == "tray") {
+            // launch "systray" app
+            bt::systray systray;
+            systray.run();
+            return;
+        } else if(command == "pick") {
+            // force-invoke the picker
             force_picker = true;
             clean_data = command_data;
         }
