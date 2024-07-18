@@ -1,3 +1,6 @@
+## 4.0.2
+Fixed a bug where picker would not show up if it was configured to be shown on conflict or always. Thanks to @Mythrix in #40.
+
 ## 4.0.1
 
 - Browsers installed via Windows Store (Firefox) are automatically detected and added to the list.

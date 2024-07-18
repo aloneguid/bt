@@ -29,19 +29,37 @@ void track_event(string name) {
 
 void open(bt::url_payload up, bool force_picker = false) {
 
-    bool picker_hotkeyed =
-        g_config.picker_always || 
-        bt::ui::picker_app::is_hotkey_down();
-
     g_pipeline.process(up);
 
-    if(force_picker || picker_hotkeyed) {
+    // decision whether to show picker or not
+    bool show_picker{force_picker};
+    string pick_reason;
+    if(!show_picker) {
+        if(g_config.picker_always) {
+            show_picker = true;
+            pick_reason = "always";
+        } else if(bt::ui::picker_app::is_hotkey_down()) {
+            show_picker = true;
+            pick_reason = "hotkey";
+        } else if(g_config.picker_on_conflict || g_config.picker_on_no_rule) {
+            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+            if(g_config.picker_on_conflict && matches.size() > 1) {
+                show_picker = true;
+                pick_reason = "conflict";
+            } else if(g_config.picker_on_no_rule && matches[0].rule.is_fallback) {
+                show_picker = true;
+                pick_reason = "no rule";
+            }
+        }
+    }
+
+    if(show_picker) {
         bt::ui::picker_app app{up.url};
         auto bi = app.run();
         if(bi) {
             bt::url_opener::open(bi, up);
             if(g_config.log_rule_hits) {
-                bt::rule_hit_log::i.write(up, bi, "");
+                bt::rule_hit_log::i.write(up, bi, "picker:" + pick_reason);
             }
         }
     } else {
