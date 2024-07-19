@@ -211,9 +211,9 @@ namespace bt::ui {
 
             if(w::menu m{"Picker"}; m) {
                 w::sep("Manual invocation");
-                w::small_checkbox("Ctrl + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_cs);
-                w::small_checkbox("Ctrl + Alt   + " ICON_MD_MOUSE, g_config.picker_on_key_ca);
-                w::small_checkbox("Alt  + Shift + " ICON_MD_MOUSE, g_config.picker_on_key_as);
+                w::small_checkbox("Ctrl + Shift + Left Click", g_config.picker_on_key_cs);
+                w::small_checkbox("Ctrl + Alt    + Left Click", g_config.picker_on_key_ca);
+                w::small_checkbox("Alt  + Shift + Left Click", g_config.picker_on_key_as);
 
                 w::sep("Automatic invocation");
                 w::small_checkbox("Always", g_config.picker_always);

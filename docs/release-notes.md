@@ -1,4 +1,10 @@
+## 4.0.3
+
+Improvements:
+- UX: Picker menu makes it clear which mouse button to click (thanks to @rp1231 in discussion #85)
+
 ## 4.0.2
+
 Fixed a bug where picker would not show up if it was configured to be shown on conflict or always. Thanks to @Mythrix in #40.
 
 ## 4.0.1
