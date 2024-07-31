@@ -27,6 +27,7 @@ jobs:
 
       - name: 🔢 prep release notes
         run: |
+          envsubst < instructions.md > g.tmp && mv g.tmp instructions.md
           grep -m 2 -B 1000 '^## ' release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat instructions.md >> final_notes.md
           cat final_notes.md

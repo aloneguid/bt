@@ -1,11 +1,11 @@
 ﻿name: 'Build'
 
 env:
-  VERSION: 4.0.2
+  VERSION: 4.0.3
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: f61a294e765b257926ae9e9d85f96468a0af74e7
+  VCPKG_HASH: 1dc5ee30eb1032221d29f281f4a94b73f06b4284
   DOC_INSTANCE: wrs/bt
   DOC_ARTIFACT: webHelpBT2-all.zip
   DOC_ALGOLIA_ARTIFACT: algolia-indexes-BT.zip

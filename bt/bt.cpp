@@ -8,7 +8,7 @@
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
-#include "app/systray.h"
+//#include "app/systray.h"
 
 //ui
 #include "app/ui/config_app.h"
@@ -109,12 +109,12 @@ void execute(const string& data) {
     string command_data;
     string command = get_command(data, command_data);
     if(!command.empty()) {
-        if(command == "tray") {
+        /*if(command == "tray") {
             // launch "systray" app
             bt::systray systray;
             systray.run();
             return;
-        } else if(command == "pick") {
+        } else */if(command == "pick") {
             // force-invoke the picker
             force_picker = true;
             clean_data = command_data;

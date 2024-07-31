@@ -41,7 +41,8 @@ namespace bt {
                         ::PostQuitMessage(0);
                     } }
                     break;
-                case WM_CLIPBOARDUPDATE:
+                // this is for future, if we want to implement clipboard monitoring
+                /*case WM_CLIPBOARDUPDATE:
                     // get string placed into the clipboard
                     if (::OpenClipboard(app.get_hwnd())) {
                         HANDLE hData = ::GetClipboardData(CF_TEXT);
@@ -54,13 +55,13 @@ namespace bt {
                         }
                         ::CloseClipboard();
                     }
-                    break;
+                    break;*/
 
             }
             return 0;
         };
 
-        app.add_clipboard_listener();
+        //app.add_clipboard_listener();
 
         app.run();
     }

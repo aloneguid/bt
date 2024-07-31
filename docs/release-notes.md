@@ -1,7 +1,8 @@
 ## 4.0.3
 
 Improvements:
-- UX: Picker menu makes it clear which mouse button to click (thanks to @rp1231 in discussion #85)
+- UX: Picker menu makes it clear which mouse button to click (thanks to @rp1231 in discussion #85).
+- UX: Picker would not show in the taskbar (reported by @maddada in #88).
 
 ## 4.0.2
 
