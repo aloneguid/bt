@@ -32,10 +32,9 @@ namespace bt::ui {
         const float ProfileSquarePadding = 5.0f;
         const float InactiveProfileSquarePadding = 7.0f;
         const float WindowMinWidth = BrowserSquareSize * 6;
+        const float WindowHeight = BrowserSquareSize + ProfileSquareSize + 80;
         float wnd_width;
-        float wnd_height_normal;
-        float wnd_height_profiles;
-        bool wnd_height_is_normal{true};
+        bool has_bar{false};
 
         const float InactiveAlpha = 0.8;
 

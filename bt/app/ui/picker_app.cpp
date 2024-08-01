@@ -11,9 +11,11 @@ namespace w = grey::widgets;
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices) 
         : url{url}, choices{choices}, title{APP_LONG_NAME " - Pick"},
-        app{grey::app::make(title)}, wnd_main{ title, &is_open } {
+        app{grey::app::make(title, WindowMinWidth, WindowHeight)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
         app->load_icon_font = false;
+        app->win32_can_resize = false;
+        app->win32_center_on_screen = true;
 
         // process URL with pipeline
         {
@@ -63,24 +65,19 @@ namespace bt::ui {
             wnd_width = (BrowserSquareSize + style.WindowPadding.x * 2 / app->scale) * browsers.size() +
                 style.WindowPadding.x * 2 / app->scale;
             wnd_width = max(wnd_width, WindowMinWidth);
-            wnd_height_normal =
-                style.WindowPadding.y * 2 / app->scale +
-                BrowserSquareSize +
-                //ProfileSquareSize +
-                45;
-            wnd_height_profiles = wnd_height_normal + ProfileSquareSize;
 
             // calculate lef pad so browsers look centered
             browser_bar_left_pad = (wnd_width - (BrowserSquareSize * browsers.size())) / 2 * app->scale;
 
-            wnd_main
-                .size(wnd_width, wnd_height_normal)
-                //.no_titlebar()
-                .no_resize()
-                //.no_border()
-                .no_scroll()
-                .center();
+            app->resize_main_viewport(wnd_width, WindowHeight);
 
+            wnd_main
+                //.size(wnd_width, wnd_height_normal)
+                .no_titlebar()
+                .no_resize()
+                .no_border()
+                .fill_viewport()
+                .no_scroll();
         };
 
     }
@@ -145,6 +142,9 @@ namespace bt::ui {
             float box_x_start = sq_size * idx + browser_bar_left_pad;
             float box_y_start = y;
 
+            // pad a bit lower if there is no profile bar
+            if(!has_bar) box_y_start += ProfileSquareSize * app->scale / 2;
+
             w::set_pos(box_x_start, box_y_start);
             bool is_multiple_choice = b.instances.size() > 1;
 
@@ -208,13 +208,13 @@ namespace bt::ui {
 
     void picker_app::render_profile_bar() {
 
-        bool have_bar{false};
+        has_bar = false;
 
         // profiles if required
         if(active_browser_idx >= 0) {
             auto& b = browsers[active_browser_idx];
             if(b.instances.size() > 1) {
-                have_bar = true;
+                has_bar = true;
                 w::move_pos(0, ProfileSquarePadding * app->scale);  // some distance
 
                 // find perfect position for profiles
@@ -296,10 +296,11 @@ namespace bt::ui {
         }
     
         // resize window to fit profiles, or cut it back to normal
-        if(have_bar == wnd_height_is_normal) {
-            wnd_height_is_normal = !have_bar;
-            wnd_main.resize(wnd_width, wnd_height_is_normal ? wnd_height_normal : wnd_height_profiles);
-        }
+        //if(have_bar == wnd_height_is_normal) {
+        //    wnd_height_is_normal = !have_bar;
+        //    app->resize_main_viewport(wnd_width, wnd_height_is_normal ? wnd_height_normal : wnd_height_profiles);
+        //    //wnd_main.resize(wnd_width, wnd_height_is_normal ? wnd_height_normal : wnd_height_profiles);
+        //}
     }
 
     void picker_app::render_connection_box() {

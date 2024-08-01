@@ -25,14 +25,20 @@ namespace bt::ui {
         wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs} {
 
-        app = grey::app::make(title);
+        app = grey::app::make(title, 900, 450);
         app->initial_theme_id = g_config.theme_id;
+        app->win32_can_resize = false;
+        app->win32_center_on_screen = true;
 
         wnd_config
-            .size(900, 450)
+            //.size(900, 450)
             .has_menubar()
-            .center()
+            .no_titlebar()
+            //.center()
+            .no_border()
             .no_resize()
+            .no_collapse()
+            .fill_viewport()
             .no_scroll();
 
         wnd_about
@@ -194,7 +200,7 @@ namespace bt::ui {
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
                 w::mi_themes([this](const string& theme_id) {
-                    grey::themes::set_theme(theme_id, app->scale);
+                    app->set_theme(theme_id);
                     g_config.theme_id = theme_id;
                 });
                 w::sep("Firefox container mode");

@@ -1,8 +1,14 @@
 ## 4.0.3
 
+New features:
+- Browser Tamer now has AI. When you click on a link, it does predict which browser you want to open it in. This is based on what you have configued to open in the configuration window.
+- Browser tamer can now predict time using sophisticated AI algorithms. We know what time it will be in 5 minutes, and we can predict it with 100% accuracy. You don't need GPU or AI chip for this to work and BT still utilizes 0% of your CPU.
+
 Improvements:
 - UX: Picker menu makes it clear which mouse button to click (thanks to @rp1231 in discussion #85).
 - UX: Picker would not show in the taskbar (reported by @maddada in #88).
+- UX: Picker window will not resize itself, but rather ergonimically reposition browsers and profiles depending on selection. This is because jumping window size was annoying and caused some health issues for some users with epilepsy.
+- Brower Tamer will now use native Windows OS window chrome instead of custom ones. This is to make it more consistent with the rest of the system and to avoid some issues with other tools that rely on native window chrome. The chrome will also adopt to the Browser Tamer theme you have selected i.e. it will be dark or light depending on your theme prevalence.
 
 ## 4.0.2
 
