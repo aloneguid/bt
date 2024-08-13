@@ -5,8 +5,6 @@
 #include <map>
 #include "../browser.h"
 #include "../setup.h"
-#include "url.h"
-#include "../../globals.h"
 
 namespace bt::ui {
 
@@ -76,10 +74,11 @@ namespace bt::ui {
         size_t url_tester_payload_version{0};
         click_payload url_tester_up;
 
-        // Pipe tester window
+        // Pipe visualiser window
         bool show_pipe_tester{false};
+        bool layout_pipe_tester{true};
         grey::widgets::window wnd_pipe_tester;
-        click_payload pipe_tester_cp_in;
+        grey::widgets::node_editor pipe_tester_ned{true};
         click_payload pipe_tester_cp_out;
 
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };

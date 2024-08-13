@@ -21,12 +21,18 @@ namespace bt {
 
         virtual void process(click_payload& up) = 0;
 
+        std::string get_display_name() { return display_name; }
+
         /**
          * @brief Convert to human-readable string.
         */
         static std::string to_string(url_pipeline_step_type type);
 
     protected:
-        url_pipeline_step(url_pipeline_step_type type) : type{type} {}
+        url_pipeline_step(url_pipeline_step_type type, const std::string& display_name) 
+            : type{type}, display_name{display_name} {}
+
+    private:
+        std::string display_name;
     };
 }

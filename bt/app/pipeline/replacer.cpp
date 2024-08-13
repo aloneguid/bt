@@ -7,11 +7,11 @@ using namespace std;
 namespace bt::pipeline {
 
     replacer::replacer(replacer_kind kind, const std::string& find, const std::string& replace) :
-        url_pipeline_step{url_pipeline_step_type::find_replace},
+        url_pipeline_step{url_pipeline_step_type::find_replace, "Substitute"},
         kind{kind}, find{find}, replace{replace} {
     }
 
-    replacer::replacer(const std::string& rule) : url_pipeline_step(url_pipeline_step_type::find_replace) {
+    replacer::replacer(const std::string& rule) : url_pipeline_step(url_pipeline_step_type::find_replace, "Substitute") {
         // parse rules - each string contains 3 parts separated by a pipe
         // kind|match|replace
 

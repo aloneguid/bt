@@ -14,6 +14,7 @@
 #include "../url_opener.h"
 #include "../discovery.h"
 #include "../pipeline/replacer.h"
+#include "../../globals.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -58,7 +59,7 @@ namespace bt::ui {
             .no_scroll();
 
         wnd_pipe_tester
-            .size(600, 300)
+            .size(800, 500)
             .border(1)
             .center();
 
@@ -592,7 +593,112 @@ It super fast, extremely light on resources, completely free and open source.)",
     void config_app::render_pipe_tester_window() {
         w::guard gw{wnd_pipe_tester};
 
-        
+        bool i0 = w::input(g_config.pv_last_url, ICON_MD_LINK " URL");
+        bool i1 = w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window");
+        bool i2 = w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process");
+
+        if(w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
+            g_config.pv_last_url = g_config.pv_last_wt = g_config.pv_last_pn = "";
+        }
+        w::sl();
+        if(w::button("re-layout")) {
+            layout_pipe_tester = true;
+        }
+
+        if(i0 || i1 || i2) {
+            // todo: recalculate
+        }
+
+        {
+            w::guard gned{pipe_tester_ned};
+            w::node_editor& ned = pipe_tester_ned;
+
+            float NodeHeight = ImGui::GetTextLineHeightWithSpacing();
+            float NodeWidth = NodeHeight * 10.0;
+            float NodePadding = NodeHeight / 2.0;
+            float cx = NodePadding;
+            float w, h;
+
+            auto& pipeline_steps = g_pipeline.get_steps();
+            auto& browsers = g_config.browsers;
+            float browsers_height = browsers.size() * (NodeHeight + NodePadding);
+
+            // Input
+            {
+                auto n_input = ned.node(1);
+                w::label("Input");
+                w::sl();
+                ned.pin_out(1, ICON_MD_ARROW_RIGHT);
+
+                auto size = ed::GetNodeSize(0);
+            }
+
+            if(layout_pipe_tester)
+                ned.set_node_pos(1, cx, browsers_height / 2 - NodeHeight);
+            ned.get_node_size(1, w, h);
+            cx += w + NodePadding * 3;
+
+            // Pipeline
+            int prev_id = 1;
+            for(int nstep = 0; nstep < pipeline_steps.size(); nstep++) {
+                auto step = pipeline_steps[nstep];
+
+                int id = 1000 + (nstep + 1) * 2;
+
+                {
+                    auto n_step = ned.node(id);
+                    ned.pin_in(id, ICON_MD_ARROW_RIGHT);
+                    w::sl();
+                    w::label(step->get_display_name());
+                    w::sl();
+                    ned.pin_out(id + 1, ICON_MD_ARROW_RIGHT);
+                }
+
+                if(layout_pipe_tester)
+                    ned.set_node_pos(id,
+                        cx,
+                        browsers_height / 2 - NodeHeight);
+
+                ned.get_node_size(id, w, h);
+                cx += w + NodePadding * 3;
+
+                ned.link(id, prev_id, id, true);
+                prev_id = id + 1;
+            }
+
+            // browsers
+            for(int nb = 0; nb < g_config.browsers.size(); nb++) {
+                auto b = g_config.browsers[nb];
+
+                int id = 2000 + (nb + 1) * 2;
+
+                {
+                    auto n_browser = ned.node(id);
+                    ned.pin_in(id, ICON_MD_ARROW_RIGHT);
+                    w::sl();
+                    w::label(b->name);
+                    w::sl();
+                    ned.pin_out(id + 1, ICON_MD_ARROW_RIGHT);
+                }
+
+                if(layout_pipe_tester)
+                    ned.set_node_pos(id,
+                        cx,
+                        NodePadding + (NodePadding + NodeHeight) * nb);
+                ned.link(id, prev_id, id);
+            }
+        }
+
+        ed::NodeId* nodes = nullptr;
+
+        vector<ed::NodeId> selected_nodes;
+        selected_nodes.resize(ed::GetSelectedObjectCount());
+        int snc = ed::GetSelectedNodes(selected_nodes.data(), static_cast<int>(selected_nodes.size()));
+        if(snc > 0) {
+            selected_nodes.clear();
+        }
+
+        layout_pipe_tester = false;
     }
     
     void config_app::render_status_bar() {

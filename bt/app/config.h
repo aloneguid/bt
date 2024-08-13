@@ -48,6 +48,11 @@ namespace bt {
         bool pipeline_unshorten;
         std::vector<std::string> pipeline_substitutions;
 
+        // pipe visualiser
+        std::string pv_last_url;
+        std::string pv_last_wt;
+        std::string pv_last_pn;
+
         // browser collection
         std::vector<std::shared_ptr<browser>> browsers;
 

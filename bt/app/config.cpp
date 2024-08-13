@@ -24,6 +24,7 @@ namespace bt {
     const string PickerSectionName = "picker";
     const string PipelineSectionName = "pipeline";
     const string PipelineSubstKeyName = "subst";
+    const string PipeVisualiserSectionName = "pipevis";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
         migrate();
@@ -124,6 +125,11 @@ namespace bt {
         pipeline_unshorten = cfg.get_bool_value("unshorten", true, PipelineSectionName);
         pipeline_substitutions = cfg.get_all_values(PipelineSubstKeyName, PipelineSectionName);
 
+        // pipe visualiser
+        pv_last_url = cfg.get_value("last_url", PipeVisualiserSectionName);
+        pv_last_wt = cfg.get_value("last_wt", PipeVisualiserSectionName);
+        pv_last_pn = cfg.get_value("last_pn", PipeVisualiserSectionName);
+
         browsers = load_browsers();
     }
 
@@ -146,6 +152,11 @@ namespace bt {
         cfg.set_bool_value("unwrap_o365", pipeline_unwrap_o365, PipelineSectionName);
         cfg.set_bool_value("unshorten", pipeline_unshorten, PipelineSectionName);
         cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
+
+        // pipe visualiser
+        cfg.set_value("last_url", pv_last_url, PipeVisualiserSectionName);
+        cfg.set_value("last_wt", pv_last_wt, PipeVisualiserSectionName);
+        cfg.set_value("last_pn", pv_last_pn, PipeVisualiserSectionName);
 
         save_browsers(browsers);
 
