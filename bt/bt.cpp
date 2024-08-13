@@ -28,7 +28,7 @@ void track_event(string name) {
     }, true);
 }
 
-void open(bt::url_payload up, bool force_picker = false) {
+void open(bt::click_payload up, bool force_picker = false) {
 
     g_pipeline.process(up);
 
@@ -128,7 +128,7 @@ void execute(const string& data) {
     // 0 - url
     // 1 - HWND
     auto parts = str::split(clean_data, ArgSplitter, true);
-    bt::url_payload up{parts[0]};
+    bt::click_payload up{parts[0]};
 
     up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 

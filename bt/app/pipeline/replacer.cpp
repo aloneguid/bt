@@ -36,20 +36,17 @@ namespace bt::pipeline {
                         replace});
     }
 
-    void replacer::process(url_payload& up) {
-        string url = up.match_url.empty() ? up.url : up.match_url;
-
+    void replacer::process(click_payload& up) {
         if(kind == replacer_kind::find_replace) {
-            size_t idx = url.find(find);
+            size_t idx = up.url.find(find);
             if(idx != string::npos) {
-                str::replace_all(url, find, replace);
-                up.match_url = up.open_url = url;
+                str::replace_all(up.url, find, replace);
             }
         } else {
             // regex
             regex rgx{find, regex_constants::icase};
-            if(regex_search(url, rgx)) {
-                up.match_url = up.open_url = regex_replace(url, rgx, replace);
+            if(regex_search(up.url, rgx)) {
+                up.url = regex_replace(up.url, rgx, replace);
             }
         }
     }

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "url_payload.h"
+#include "click_payload.h"
 
 namespace bt {
     enum class match_scope : size_t {
@@ -21,7 +21,7 @@ namespace bt {
     public:
         explicit match_rule(const std::string& line);
 
-        bool is_match(const url_payload& up) const;
+        bool is_match(const click_payload& up) const;
         bool is_match(const std::string& url) const;
 
         std::string value;

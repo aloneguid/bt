@@ -18,7 +18,7 @@ end
 
     EXPECT_EQ(ss.get_error(), "");
 
-    url_payload up{"http://test.com"};
+    click_payload up{"http://test.com"};
     bool matches = ss.call_rule(up, "test1");
     EXPECT_TRUE(matches);
 }

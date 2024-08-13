@@ -24,7 +24,8 @@ namespace bt::ui {
         wnd_config{title, &is_open},
         wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs},
-        wnd_scripting{"Scripting", &show_scripting} {
+        wnd_scripting{"Scripting", &show_scripting},
+        wnd_pipe_tester{"Pipe tester", &show_pipe_tester} {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_config.theme_id;
@@ -55,6 +56,11 @@ namespace bt::ui {
             .size(600, 600)
             .border(1)
             .no_scroll();
+
+        wnd_pipe_tester
+            .size(600, 300)
+            .border(1)
+            .center();
 
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom};
@@ -133,6 +139,9 @@ namespace bt::ui {
         if(show_scripting)
             render_scripting_window();
 
+        if(show_pipe_tester)
+            render_pipe_tester_window();
+
         render_dashboard();
 
         w::notify_render_frame();
@@ -187,6 +196,9 @@ namespace bt::ui {
                 }
                 if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
+                }
+                if(w::mi("Pipe tester", true, ICON_MD_DIRECTIONS_RUN)) {
+                    show_pipe_tester = !show_pipe_tester;
                 }
                 if(w::menu m{"Troubleshooting", true}; m) {
                     if(w::mi("Re-register custom protocol")) {
@@ -400,7 +412,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::sep("Test");
         if(w::input(url_subs_up.url, ICON_MD_LOGIN)) recompute = true;
         w::tooltip("Input a value to test substitutions.");
-        if(w::input(url_subs_up.open_url, ICON_MD_LOGOUT, true, 0, true)) recompute = true;
+        if(w::input(url_subs_up.url, ICON_MD_LOGOUT, true, 0, true)) recompute = true;
         w::tooltip("Substitution result are populated here.");
 
         w::sep("Substitutions");
@@ -510,17 +522,18 @@ It super fast, extremely light on resources, completely free and open source.)",
         c.border();
         w::guard g{c};
 
-        bool different = url_tester_up.url != url_tester_up.open_url;
+        //bool different = url_tester_up.url != url_tester_up.open_url;
+        bool different = false;
         float i0w = (different ? 350 : 500) * app->scale;
 
         bool i0 = w::input(url_tester_up.url, ICON_MD_LINK " URL", true, i0w);
-        w::tooltip(fmt::format("match on: {}\nopen: {}", url_tester_up.match_url, url_tester_up.open_url));
+        //w::tooltip(fmt::format("match on: {}\nopen: {}", url_tester_up.match_url, url_tester_up.open_url));
 
-        if(different) {
-            w::sl();
-            w::input(url_tester_up.open_url, ICON_MD_OPEN_IN_NEW, true, 350 * app->scale, true);
-            w::tooltip("URL that will be opened in the browser");
-        }
+        //if(different) {
+        //    w::sl();
+        //    w::input(url_tester_up.open_url, ICON_MD_OPEN_IN_NEW, true, 350 * app->scale, true);
+        //    w::tooltip("URL that will be opened in the browser");
+        //}
 
         w::sl(800 * app->scale);
         if (w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
@@ -543,26 +556,43 @@ It super fast, extremely light on resources, completely free and open source.)",
     void config_app::render_scripting_window() {
         w::guard gw{wnd_scripting};
 
-        if(!script_initialised) {
-            script_editor.set_text(g_script.get_code());
-            script_initialised = true;
+        {
+            w::tab_bar tabs{"scriptTabs"};
+            if(tabs.next_tab("Pipeline step")) {
+                if(!script_initialised) {
+                    script_editor.set_text(g_script.get_code());
+                    script_initialised = true;
+                }
+
+                if(!g_script.get_error().empty()) {
+                    w::label(g_script.get_error(), w::emphasis::error);
+                }
+
+                if(w::accordion("Test")) {
+                    w::input(scripting_up.url, ICON_MD_LINK " URL", true);
+                    w::input(scripting_up.window_title, ICON_MD_WINDOW " window", true);
+                    w::input(scripting_up.process_name, ICON_MD_MEMORY " process", true);
+                }
+
+                if(w::button(ICON_MD_SAVE " save", w::emphasis::primary)) {
+                    g_script.set_code(script_editor.get_text());
+                }
+
+                script_editor.render();
+            }
+
+            if(tabs.next_tab("Rules")) {
+
+            }
         }
 
-        if(!g_script.get_error().empty()) {
-            w::label(g_script.get_error(), w::emphasis::error);
-        }
 
-        if(w::accordion("Test")) {
-            w::input(scripting_up.url, ICON_MD_LINK " URL", true);
-            w::input(scripting_up.window_title, ICON_MD_WINDOW " window", true);
-            w::input(scripting_up.process_name, ICON_MD_MEMORY " process", true);
-        }
+    }
 
-        if(w::button(ICON_MD_SAVE " save", w::emphasis::primary)) {
-            g_script.set_code(script_editor.get_text());
-        }
+    void config_app::render_pipe_tester_window() {
+        w::guard gw{wnd_pipe_tester};
 
-        script_editor.render();
+        
     }
     
     void config_app::render_status_bar() {
@@ -900,7 +930,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                         if(b->is_chromium) {
                             w::sl();
                             if(w::button(ICON_MD_TAB_UNSELECTED)) {
-                                url_payload up{APP_URL};
+                                click_payload up{APP_URL};
                                 up.app_mode = true;
                                 url_opener::open(bi, up);
                             }
@@ -1145,7 +1175,7 @@ special keyword - %url% which is replaced by opening url.)");
 
     void config_app::test_url() {
         url_tester_payload_version++;
-        url_tester_up.match_url = url_tester_up.open_url = "";
+        url_tester_up.url = "";
         g_pipeline.process(url_tester_up);
     }
 

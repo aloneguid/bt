@@ -101,7 +101,7 @@ namespace bt {
 
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
-        const url_payload& up,
+        const click_payload& up,
         const string& default_profile_long_id) {
         vector<browser_match_result> r;
 
@@ -245,8 +245,8 @@ namespace bt {
 
     browser_instance::~browser_instance() {}
 
-    void browser_instance::launch(url_payload up) const {
-        string url = up.open_url.empty() ? up.url : up.open_url;
+    void browser_instance::launch(click_payload up) const {
+        string url = up.url;
         string arg = launch_arg;
 
         if(arg.empty()) {
@@ -279,7 +279,7 @@ namespace bt {
         }
     }
 
-    bool browser_instance::is_match(const url_payload& up, match_rule& mr) const {
+    bool browser_instance::is_match(const click_payload& up, match_rule& mr) const {
         for (const auto& rule : rules) {
             if (rule->is_match(up)) {
                 mr = *rule;

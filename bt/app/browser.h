@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include "match_rule.h"
-#include "url_payload.h"
+#include "click_payload.h"
 
 namespace bt {
 
@@ -83,7 +83,7 @@ namespace bt {
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
-            const url_payload& up,
+            const click_payload& up,
             const std::string& default_profile_long_id);
 
         static std::shared_ptr<browser_instance> get_default(
@@ -123,9 +123,9 @@ namespace bt {
 
         ~browser_instance();
 
-        void launch(url_payload up) const;
+        void launch(click_payload up) const;
 
-        bool is_match(const url_payload& up, match_rule& mr) const;
+        bool is_match(const click_payload& up, match_rule& mr) const;
 
         /// <summary>
         /// Adds a rule from text. Does not persist.

@@ -65,11 +65,11 @@ namespace bt {
         reload();
     }
 
-    bool script_site::call_rule(url_payload& up, const string& function_name) {
+    bool script_site::call_rule(click_payload& up, const string& function_name) {
 
         // set global table "p" with 3 members: url, window_title, process_name
         lua_newtable(L);
-        lua_pushstring(L, up.match_url.c_str());
+        lua_pushstring(L, up.url.c_str());
         lua_setfield(L, -2, "url");
         lua_pushstring(L, up.window_title.c_str());
         lua_setfield(L, -2, "wt");

@@ -1,7 +1,7 @@
 #pragma once
 #include "lua.hpp"
 #include <string>
-#include "url_payload.h"
+#include "click_payload.h"
 
 namespace bt {
     class script_site {
@@ -19,7 +19,7 @@ namespace bt {
         void set_code(const std::string& code);
 
         // bt specific functions
-        bool call_rule(url_payload& up, const std::string& function_name);
+        bool call_rule(click_payload& up, const std::string& function_name);
 
 
     private:

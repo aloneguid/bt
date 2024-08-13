@@ -2,7 +2,6 @@
 #include "pipeline/unshortener.h"
 #include "pipeline/o365.h"
 #include "../globals.h"
-#include "str.h"
 
 using namespace std;
 
@@ -12,7 +11,7 @@ namespace bt {
         load();
     }
 
-    void url_pipeline::process(url_payload& up) {
+    void url_pipeline::process(click_payload& up) {
 
         // remove custom protocol prefix
         if(up.url.starts_with(CustomProtoName) && up.url.size() > CustomProtoName.size() + 3) {
@@ -31,12 +30,6 @@ namespace bt {
         for(auto& step : steps) {
             step->process(up);
         }
-
-        if(up.match_url.empty())
-            up.match_url = up.url;
-
-        if(up.open_url.empty())
-            up.open_url = up.url;
     }
 
     void url_pipeline::load() {

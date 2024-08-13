@@ -196,14 +196,14 @@ namespace bt {
         }
     }
 
-    bool match_rule::is_match(const url_payload& up) const {
+    bool match_rule::is_match(const click_payload& up) const {
 
         if(value.empty()) return false;
 
         string src;
         switch(loc) {
             case match_location::url:
-                src = up.match_url;
+                src = up.url;
                 break;
             case match_location::window_title:
                 src = up.window_title;
@@ -245,8 +245,7 @@ namespace bt {
     }
 
     bool match_rule::is_match(const string& url) const {
-        url_payload up{url};
-        up.match_url = url;
+        click_payload up{url};
         return is_match(up);
     }
 }

@@ -27,21 +27,19 @@ namespace bt::pipeline {
         "vrch.at"
     };
 
-    void unshortener::process(url_payload& up) {
+    void unshortener::process(click_payload& up) {
 
-        string url = up.match_url.empty() ? up.url : up.match_url;
-
-        if(!is_supported(url)) return;
+        if(!is_supported(up.url)) return;
 
         // example: https://bit.ly/47EZHSl -> https://github.com/aloneguid/bt
 
         map<string, string> headers;
-        int code = http.get_get_headers(url, headers);
+        int code = http.get_get_headers(up.url, headers);
 
         map<string, string>::const_iterator it_loc;
         if((code == 301 || code == 302) && (it_loc = headers.find(LocationHeaderName)) != headers.end()) {
             string new_url = it_loc->second;
-            up.match_url = up.open_url = new_url;
+            up.url = new_url;
         }
     }
 

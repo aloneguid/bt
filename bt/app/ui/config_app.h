@@ -62,19 +62,25 @@ namespace bt::ui {
         bool show_subs{false};
         grey::widgets::window wnd_subs;
         std::vector<std::string> replacer_kinds{"string", "regex"};
-        url_payload url_subs_up;
+        click_payload url_subs_up;
 
         // "Script" window
         bool show_scripting{false};
         bool script_initialised{false};
         grey::widgets::window wnd_scripting{"Scripting"};
         grey::widgets::text_editor script_editor;
-        url_payload scripting_up;
+        click_payload scripting_up;
 
         // URL Tester
         bool show_url_tester{false};
         size_t url_tester_payload_version{0};
-        url_payload url_tester_up;
+        click_payload url_tester_up;
+
+        // Pipe tester window
+        bool show_pipe_tester{false};
+        grey::widgets::window wnd_pipe_tester;
+        click_payload pipe_tester_cp_in;
+        click_payload pipe_tester_cp_out;
 
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
         std::vector<std::pair<std::string, std::string>> url_scopes{
@@ -94,6 +100,7 @@ namespace bt::ui {
         void render_dashboard();
         void render_url_tester_input();
         void render_scripting_window();
+        void render_pipe_tester_window();
 
         void render_status_bar();
         void render_no_browsers();

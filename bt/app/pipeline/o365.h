@@ -8,6 +8,6 @@ namespace bt::pipeline {
         o365() : url_pipeline_step(url_pipeline_step_type::o365) {}
 
         // Inherited via url_pipeline_step
-        void process(url_payload& up) override;
+        void process(click_payload& up) override;
     };
 }

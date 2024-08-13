@@ -26,7 +26,7 @@ namespace bt {
                 "browser_name",
                 "profile_name",
                 "url",
-                "match_url",
+                "n/a",
                 "open_url",
                 "rule",
                 "calling_process_name",
@@ -36,15 +36,15 @@ namespace bt {
         }
     }
 
-    void rule_hit_log::write(const bt::url_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule) {
+    void rule_hit_log::write(const bt::click_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
             bi->b->id,
             bi->b->name,
             bi->name,
             up.url,
-            up.match_url,
-            up.open_url,
+            "",
+            up.url,
             rule,
             up.process_name,
             up.window_title

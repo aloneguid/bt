@@ -23,7 +23,7 @@ namespace bt::pipeline {
         std::string serialise();
 
         // Inherited via url_pipeline_step
-        void process(url_payload& up) override;
+        void process(click_payload& up) override;
 
     private:
     };

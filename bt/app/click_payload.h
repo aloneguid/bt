@@ -5,8 +5,8 @@
 #endif
 
 namespace bt {
-    struct url_payload {
-        std::string url;    // very first, raw input URL
+    struct click_payload {
+        std::string url;
 
         bool app_mode{false};
 
@@ -20,10 +20,6 @@ namespace bt {
         std::string window_title;
         std::string process_name;
 
-        // the URLs below are optional, and if populated, extra handling is possible
-        std::string match_url;  // URL to match on
-        std::string open_url;   // final URL to open
-
         bool empty() const {
             return url.empty() && window_title.empty() && process_name.empty();
         }
@@ -34,8 +30,6 @@ namespace bt {
             }
             window_title.clear();
             process_name.clear();
-            match_url.clear();
-            open_url.clear();
         }
     };
 }

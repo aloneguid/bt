@@ -9,7 +9,7 @@ namespace bt::pipeline {
         unshortener() : url_pipeline_step(url_pipeline_step_type::unshortener) {}
 
         // Inherited via url_pipeline_step
-        void process(url_payload& up) override;
+        void process(click_payload& up) override;
 
     private:
         win32::http http;

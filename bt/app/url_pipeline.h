@@ -13,7 +13,7 @@ namespace bt {
     public:
         url_pipeline(config& cfg);
 
-        void process(url_payload& up);
+        void process(click_payload& up);
 
         /**
          * @brief Reloads pipeline from configuration file.

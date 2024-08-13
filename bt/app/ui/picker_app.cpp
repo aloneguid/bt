@@ -19,9 +19,9 @@ namespace bt::ui {
 
         // process URL with pipeline
         {
-            url_payload up{url};
+            click_payload up{url};
             g_pipeline.process(up);
-            this->url = up.open_url;
+            this->url = up.url;
         }
 
         // get unique list of browsers
