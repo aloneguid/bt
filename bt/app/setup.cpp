@@ -83,7 +83,7 @@ namespace bt
 
         //add capabilities
         set_value(hive::current_user, cap_root, APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, cap_root, AppDescription, "ApplicationDescription");
+        set_value(hive::current_user, cap_root, APP_REG_DESCRIPTION, "ApplicationDescription");
         set_value(hive::current_user, cap_root, app_path + ",0", "ApplicationIcon");
 
         //supported protocols
@@ -119,7 +119,7 @@ namespace bt
         set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " HTML Document");
         set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",0");
         set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, handler_path + "\\Application", AppDescription, "ApplicationDescription");
+        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
         set_value(hive::current_user, handler_path + "\\shell\\open\\command",
            string("\"") + app_path + "\" %1");
 
@@ -128,7 +128,7 @@ namespace bt
         set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " PDF Document");
         set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",1");
         set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, handler_path + "\\Application", AppDescription, "ApplicationDescription");
+        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
         set_value(hive::current_user, handler_path + "\\shell\\open\\command",
            string("\"") + app_path + "\" %1");
     }

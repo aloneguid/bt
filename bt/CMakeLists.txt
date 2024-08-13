@@ -49,6 +49,7 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_BROWSER_EXTENSIONS_DOCS_URL="https://aloneguid.github.io/bt/browser-extensions.html"
     APP_BUYMEACOFFEE_URL="https://www.buymeacoffee.com/alonecoffee"
     APP_CONTACT_URL="https://www.aloneguid.uk/about/#contact"
+    APP_REG_DESCRIPTION="Redirects open URLs to a browser of your choice."
 )
 
 target_link_libraries(bt

@@ -141,7 +141,7 @@ namespace bt::ui {
             render_scripting_window();
 
         if(show_pipe_tester)
-            render_pipe_tester_window();
+            render_pipe_visualiser_window();
 
         render_dashboard();
 
@@ -590,12 +590,13 @@ It super fast, extremely light on resources, completely free and open source.)",
 
     }
 
-    void config_app::render_pipe_tester_window() {
+    void config_app::render_pipe_visualiser_window() {
         w::guard gw{wnd_pipe_tester};
 
         bool i0 = w::input(g_config.pv_last_url, ICON_MD_LINK " URL");
-        bool i1 = w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window");
-        bool i2 = w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process");
+        bool i1 = w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true, 300.0f * app->scale);
+        w::sl();
+        bool i2 = w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true, 150.0f * app->scale);
 
         if(w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
             g_config.pv_last_url = g_config.pv_last_wt = g_config.pv_last_pn = "";
@@ -603,6 +604,12 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::sl();
         if(w::button("re-layout")) {
             layout_pipe_tester = true;
+        }
+        w::tooltip("Re-layout the nodes in the visualiser.");
+
+        if(pv_pipeline_steps.empty()) {
+            click_payload cp{g_config.pv_last_url};
+            pv_pipeline_steps = g_pipeline.process_debug(cp);
         }
 
         if(i0 || i1 || i2) {
@@ -630,6 +637,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 w::sl();
                 ned.pin_out(1, ICON_MD_ARROW_RIGHT);
 
+
                 auto size = ed::GetNodeSize(0);
             }
 
@@ -649,7 +657,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                     auto n_step = ned.node(id);
                     ned.pin_in(id, ICON_MD_ARROW_RIGHT);
                     w::sl();
-                    w::label(step->get_display_name());
+                    w::label(url_pipeline_step::to_string(step->type));
                     w::sl();
                     ned.pin_out(id + 1, ICON_MD_ARROW_RIGHT);
                 }
@@ -689,13 +697,18 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
         }
 
-        ed::NodeId* nodes = nullptr;
+        // tooltips can only be shown after the node editor has been rendered, because they conflict with editor geometry
+        int id = pipe_tester_ned.get_hovered_node_id();
+        if(id > 0) {
+            string value;
 
-        vector<ed::NodeId> selected_nodes;
-        selected_nodes.resize(ed::GetSelectedObjectCount());
-        int snc = ed::GetSelectedNodes(selected_nodes.data(), static_cast<int>(selected_nodes.size()));
-        if(snc > 0) {
-            selected_nodes.clear();
+            if(id == 1) {
+                value = g_config.pv_last_url;
+            }
+
+            if(!value.empty()) {
+                w::tooltip(value);
+            }
         }
 
         layout_pipe_tester = false;
@@ -1280,7 +1293,6 @@ special keyword - %url% which is replaced by opening url.)");
     }
 
     void config_app::test_url() {
-        url_tester_payload_version++;
         url_tester_up.url = "";
         g_pipeline.process(url_tester_up);
     }

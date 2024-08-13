@@ -6,6 +6,13 @@
 #include "pipeline/replacer.h"
 
 namespace bt {
+
+    struct url_pipeline_processing_step {
+        std::shared_ptr<url_pipeline_step> step;
+        click_payload before;
+        click_payload after;
+    };
+
     /**
      * @brief URL processing pipeline. Includes stuff like cleaning the URL, unshortening, find/replace etc.
     */
@@ -13,7 +20,12 @@ namespace bt {
     public:
         url_pipeline(config& cfg);
 
+        /**
+         * @brief Process payload in place and change it according to the pipeline steps.
+        */
         void process(click_payload& up);
+
+        std::vector<url_pipeline_processing_step> process_debug(click_payload& cp);
 
         /**
          * @brief Reloads pipeline from configuration file.
@@ -32,5 +44,7 @@ namespace bt {
     private:
         config& cfg;
         std::vector<std::shared_ptr<url_pipeline_step>> steps;
+
+        static void clean(std::string& s);
     };
 }

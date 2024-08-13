@@ -3,8 +3,10 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <vector>
 #include "../browser.h"
 #include "../setup.h"
+#include "../url_pipeline.h"
 
 namespace bt::ui {
 
@@ -71,7 +73,6 @@ namespace bt::ui {
 
         // URL Tester
         bool show_url_tester{false};
-        size_t url_tester_payload_version{0};
         click_payload url_tester_up;
 
         // Pipe visualiser window
@@ -79,7 +80,10 @@ namespace bt::ui {
         bool layout_pipe_tester{true};
         grey::widgets::window wnd_pipe_tester;
         grey::widgets::node_editor pipe_tester_ned{true};
+        std::vector<url_pipeline_processing_step> pv_pipeline_steps;
         click_payload pipe_tester_cp_out;
+        std::string pv_node_name;
+        std::string pv_node_value;
 
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
         std::vector<std::pair<std::string, std::string>> url_scopes{
@@ -99,7 +103,7 @@ namespace bt::ui {
         void render_dashboard();
         void render_url_tester_input();
         void render_scripting_window();
-        void render_pipe_tester_window();
+        void render_pipe_visualiser_window();
 
         void render_status_bar();
         void render_no_browsers();

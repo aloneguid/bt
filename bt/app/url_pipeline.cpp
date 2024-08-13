@@ -11,25 +11,43 @@ namespace bt {
         load();
     }
 
-    void url_pipeline::process(click_payload& up) {
-
+    void url_pipeline::clean(std::string& s) {
         // remove custom protocol prefix
-        if(up.url.starts_with(CustomProtoName) && up.url.size() > CustomProtoName.size() + 3) {
-            up.url = up.url.substr(CustomProtoName.size() + 3);
+        if(s.starts_with(CustomProtoName) && s.size() > CustomProtoName.size() + 3) {
+            s = s.substr(CustomProtoName.size() + 3);
         }
 
         // Firefox for some reason removes ':' when opening custom protocol links, so we need to add it back
-        size_t idx = up.url.find("://");
+        size_t idx = s.find("://");
         if(idx == string::npos) {
-            idx = up.url.find("//");
+            idx = s.find("//");
             if(idx != string::npos) {
-                up.url = up.url.substr(0, idx) + ":" + up.url.substr(idx);
+                s = s.substr(0, idx) + ":" + s.substr(idx);
             }
         }
+    }
+
+    void url_pipeline::process(click_payload& up) {
+        clean(up.url);
 
         for(auto& step : steps) {
             step->process(up);
         }
+    }
+
+    std::vector<url_pipeline_processing_step> url_pipeline::process_debug(click_payload& cp) {
+        
+        clean(cp.url);
+
+        vector<url_pipeline_processing_step> r;
+
+        for(auto& step : steps) {
+            click_payload before = cp;
+            step->process(cp);
+            r.push_back({step, before, cp});
+        }
+
+        return r;
     }
 
     void url_pipeline::load() {
@@ -61,4 +79,5 @@ namespace bt {
         }
         return std::shared_ptr<bt::pipeline::replacer>();   // empty pointer
     }
+
 }

@@ -5,8 +5,6 @@
 #include "app/script_site.h"
 #include "../common/ext/alg_tracker.h"
 
-const std::string AppDescription("Redirects open URLs to a browser of your choice.");
-
 const std::string ProtoName = "BrowserTamerHTM";
 
 const std::string PdfProtoName = "BrowserTamerPDF";
