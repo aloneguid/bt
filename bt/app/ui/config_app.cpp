@@ -23,19 +23,18 @@ namespace bt::ui {
         title{string{APP_LONG_NAME} + " " + APP_VERSION},
         wnd_config{title, &is_open},
         wnd_about{"About"},
-        wnd_subs{"Substitutions", &show_subs} {
+        wnd_subs{"Substitutions", &show_subs},
+        wnd_scripting{"Scripting", &show_scripting} {
 
-        app = grey::app::make(title, 900, 450);
+        app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_config.theme_id;
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
 
         wnd_config
-            //.size(900, 450)
             .has_menubar()
             .no_titlebar()
-            //.center()
-            .no_border()
+            .border(0)
             .no_resize()
             .no_collapse()
             .fill_viewport()
@@ -44,11 +43,18 @@ namespace bt::ui {
         wnd_about
             .size(310, 355)
             .center()
+            .border(1)
             .no_resize();
 
         wnd_subs
             .size(600, 300)
+            .border(1)
             .center();
+
+        wnd_scripting
+            .size(600, 600)
+            .border(1)
+            .no_scroll();
 
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom};
@@ -123,6 +129,9 @@ namespace bt::ui {
 
         if(show_subs)
             render_subs_window();
+
+        if(show_scripting)
+            render_scripting_window();
 
         render_dashboard();
 
@@ -238,6 +247,9 @@ namespace bt::ui {
                 }
                 if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
                     show_subs = !show_subs;
+                }
+                if(w::mi("Scripting...", true, ICON_MD_CODE)) {
+                    show_scripting = !show_scripting;
                 }
             }
 
@@ -510,7 +522,7 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::tooltip("URL that will be opened in the browser");
         }
 
-        w::sl(820 * app->scale);
+        w::sl(800 * app->scale);
         if (w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
             url_tester_up.clear();
         }
@@ -526,6 +538,31 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(i0 || i1 || i2) {
             test_url();
         }
+    }
+
+    void config_app::render_scripting_window() {
+        w::guard gw{wnd_scripting};
+
+        if(!script_initialised) {
+            script_editor.set_text(g_script.get_code());
+            script_initialised = true;
+        }
+
+        if(!g_script.get_error().empty()) {
+            w::label(g_script.get_error(), w::emphasis::error);
+        }
+
+        if(w::accordion("Test")) {
+            w::input(scripting_up.url, ICON_MD_LINK " URL", true);
+            w::input(scripting_up.window_title, ICON_MD_WINDOW " window", true);
+            w::input(scripting_up.process_name, ICON_MD_MEMORY " process", true);
+        }
+
+        if(w::button(ICON_MD_SAVE " save", w::emphasis::primary)) {
+            g_script.set_code(script_editor.get_text());
+        }
+
+        script_editor.render();
     }
     
     void config_app::render_status_bar() {

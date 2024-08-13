@@ -38,5 +38,6 @@ if(MSVC AND CMAKE_BUILD_TYPE MATCHES Release)
 endif()
 
 add_subdirectory(grey/grey)
+add_subdirectory(grey/demo/desktop)
 add_subdirectory(bt)
 add_subdirectory(test)

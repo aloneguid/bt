@@ -60,9 +60,16 @@ namespace bt::ui {
 
         // "Substitutions" window
         bool show_subs{false};
-        grey::widgets::window wnd_subs{"Substitutions"};
+        grey::widgets::window wnd_subs;
         std::vector<std::string> replacer_kinds{"string", "regex"};
         url_payload url_subs_up;
+
+        // "Script" window
+        bool show_scripting{false};
+        bool script_initialised{false};
+        grey::widgets::window wnd_scripting{"Scripting"};
+        grey::widgets::text_editor script_editor;
+        url_payload scripting_up;
 
         // URL Tester
         bool show_url_tester{false};
@@ -86,6 +93,7 @@ namespace bt::ui {
         void render_subs_window();
         void render_dashboard();
         void render_url_tester_input();
+        void render_scripting_window();
 
         void render_status_bar();
         void render_no_browsers();

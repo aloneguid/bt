@@ -75,7 +75,7 @@ namespace bt::ui {
                 //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
-                .no_border()
+                .border(0)
                 .fill_viewport()
                 .no_scroll();
         };

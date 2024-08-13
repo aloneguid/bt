@@ -2,6 +2,7 @@
 #include <string>
 #include "app/url_pipeline.h"
 #include "app/config.h"
+#include "app/script_site.h"
 #include "../common/ext/alg_tracker.h"
 
 const std::string AppDescription("Redirects open URLs to a browser of your choice.");
@@ -23,3 +24,5 @@ extern alg::tracker t;
 extern bt::config g_config;
 
 extern bt::url_pipeline g_pipeline;
+
+extern bt::script_site g_script;

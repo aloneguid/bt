@@ -6,6 +6,27 @@ The functionality is available from the **Pipeline** menu.
 
 <img src="url-pipeline-menu.png" height="120" alt="URL Pipeline menu"/>
 
+To understand how URL processing works, let's see how %product% processes URLs:
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    RP: Rule processor
+    B: Open browser
+    state Pipeline {
+        O365 --> Unshorten
+        Unshorten --> Substitute
+    }
+    [*] --> Pipeline
+    Pipeline --> RP
+    RP --> B
+    B --> [*]
+```
+
+Every time you click on a link, it first goes via a "Pipeline" that makes optional transformations on it. This includes unwrapping Office 365 links, un-shortening URLs, and applying substitutions, all described below.
+
+Rule processor then applies rules to the URL and opens the browser based on the rule.
+
 ## Un-shortening
 
 <warning>

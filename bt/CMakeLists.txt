@@ -12,6 +12,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 find_package(tinyxml2 CONFIG REQUIRED)
+find_package(Lua REQUIRED)
 
 file(GLOB core_src CONFIGURE_DEPENDS
     "app/*.cpp"
@@ -55,8 +56,13 @@ target_link_libraries(bt
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
     tinyxml2::tinyxml2
+    ${LUA_LIBRARIES}
 )
-target_include_directories(${APP_NAME} PRIVATE "../common" "../grey/grey" ${P_RANAV_CSV2_INCLUDE_DIRS})
+target_include_directories(${APP_NAME} PRIVATE
+    "../common"
+    "../grey/grey"
+    ${P_RANAV_CSV2_INCLUDE_DIRS}
+    ${LUA_INCLUDE_DIR})
 
 target_sources(bt PRIVATE dpi-aware.manifest)
 

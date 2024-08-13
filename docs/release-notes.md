@@ -1,3 +1,9 @@
+## 5.0.0
+
+### New features
+- BT can write log file (todo: docs)
+- Lua scripting.
+
 ## 4.0.3
 
 New features:
