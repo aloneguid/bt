@@ -1,9 +1,10 @@
 ## 5.0.0
 
 ### New features
-- **Pipe visualiser** is a very graphical representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
-- BT can write log file (todo: docs)
-- Lua scripting (todo)
+- Introducing **Pipe debugger** - a very detailed representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
+- todo: BT can write log file.
+- in progress: Lua scripting.
+- todo: Picker keyboard navigation.
 
 ### Improvements
 - More URL un-shorteners supported.

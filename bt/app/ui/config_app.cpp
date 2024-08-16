@@ -15,6 +15,7 @@
 #include "../discovery.h"
 #include "../pipeline/replacer.h"
 #include "../../globals.h"
+#include "../strings.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -26,7 +27,7 @@ namespace bt::ui {
         wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs},
         wnd_scripting{"Scripting", &show_scripting},
-        wnd_pipe_tester{"Pipe tester", &show_pipe_tester} {
+        wnd_pv{PipelineDebugger, &pv_show} {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_config.theme_id;
@@ -58,7 +59,7 @@ namespace bt::ui {
             .border(1)
             .no_scroll();
 
-        wnd_pipe_tester
+        wnd_pv
             .size(800, 500)
             .border(1)
             .center();
@@ -111,7 +112,6 @@ namespace bt::ui {
         w::guard gw{wnd_config};
 
         render_menu_bar();
-        recalculate_test_url_matches();
 
         if(g_config.browsers.empty()) {
             render_no_browsers();
@@ -140,7 +140,7 @@ namespace bt::ui {
         if(show_scripting)
             render_scripting_window();
 
-        if(show_pipe_tester)
+        if(pv_show)
             render_pipe_visualiser_window();
 
         render_dashboard();
@@ -198,8 +198,8 @@ namespace bt::ui {
                 if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
-                if(w::mi("Pipe tester", true, ICON_MD_DIRECTIONS_RUN)) {
-                    show_pipe_tester = !show_pipe_tester;
+                if(w::mi(PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
+                    pv_show = !pv_show;
                 }
                 if(w::menu m{"Troubleshooting", true}; m) {
                     if(w::mi("Re-register custom protocol")) {
@@ -587,11 +587,11 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
         }
 
-
+       
     }
 
     void config_app::render_pipe_visualiser_window() {
-        w::guard gw{wnd_pipe_tester};
+        w::guard gw{wnd_pv};
 
         bool i0 = w::input(g_config.pv_last_url, ICON_MD_LINK " URL");
         bool i1 = w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true, 300.0f * app->scale);
@@ -601,117 +601,139 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
             g_config.pv_last_url = g_config.pv_last_wt = g_config.pv_last_pn = "";
         }
+
         w::sl();
-        if(w::button("re-layout")) {
-            layout_pipe_tester = true;
+        bool refresh = w::button("refresh") || pv_pipeline_steps.size() != g_pipeline.get_steps().size();
+        w::tooltip("Refresh calculations");
+
+        w::sl();
+        w::checkbox("matching only", pv_only_matching);
+
+        if(pv_pipeline_steps.empty() || refresh || i0 || i1 || i2) {
+            pv_cp.clear();
+            pv_cp.url = g_config.pv_last_url;
+            pv_cp.window_title = g_config.pv_last_wt;
+            pv_cp.process_name = g_config.pv_last_pn;
+            pv_pipeline_steps = g_pipeline.process_debug(pv_cp);
+
         }
-        w::tooltip("Re-layout the nodes in the visualiser.");
 
-        if(pv_pipeline_steps.empty()) {
-            click_payload cp{g_config.pv_last_url};
-            pv_pipeline_steps = g_pipeline.process_debug(cp);
-        }
-
-        if(i0 || i1 || i2) {
-            // todo: recalculate
-        }
-
-        {
-            w::guard gned{pipe_tester_ned};
-            w::node_editor& ned = pipe_tester_ned;
-
-            float NodeHeight = ImGui::GetTextLineHeightWithSpacing();
-            float NodeWidth = NodeHeight * 10.0;
-            float NodePadding = NodeHeight / 2.0;
-            float cx = NodePadding;
-            float w, h;
-
-            auto& pipeline_steps = g_pipeline.get_steps();
-            auto& browsers = g_config.browsers;
-            float browsers_height = browsers.size() * (NodeHeight + NodePadding);
-
-            // Input
-            {
-                auto n_input = ned.node(1);
-                w::label("Input");
-                w::sl();
-                ned.pin_out(1, ICON_MD_ARROW_RIGHT);
+        // do it continuously
+        recalculate_test_url_matches(pv_cp);
 
 
-                auto size = ed::GetNodeSize(0);
-            }
+        if(ImGui::BeginTable("pv", 3,
+            ImGuiTableFlags_Borders |
+            ImGuiTableFlags_NoBordersInBodyUntilResize | 
+            ImGuiTableFlags_RowBg |
+            ImGuiTableFlags_HighlightHoveredColumn |
+            ImGuiTableFlags_Resizable |
+            ImGuiTableFlags_ScrollY)) {
 
-            if(layout_pipe_tester)
-                ned.set_node_pos(1, cx, browsers_height / 2 - NodeHeight);
-            ned.get_node_size(1, w, h);
-            cx += w + NodePadding * 3;
+            ImGui::TableSetupColumn("Key", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableHeadersRow();
 
-            // Pipeline
-            int prev_id = 1;
-            for(int nstep = 0; nstep < pipeline_steps.size(); nstep++) {
-                auto step = pipeline_steps[nstep];
+            // input row
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            w::label("URL");
+            ImGui::TableSetColumnIndex(1);
+            w::label(g_config.pv_last_url);
 
-                int id = 1000 + (nstep + 1) * 2;
+            // pipeline steps
+            if(!pv_pipeline_steps.empty()) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                bool open = ImGui::TreeNodeEx("Pipeline",
+                    ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen);
+                ImGui::TableSetColumnIndex(1);
+                ImGui::TextDisabled(" ");
 
-                {
-                    auto n_step = ned.node(id);
-                    ned.pin_in(id, ICON_MD_ARROW_RIGHT);
-                    w::sl();
-                    w::label(url_pipeline_step::to_string(step->type));
-                    w::sl();
-                    ned.pin_out(id + 1, ICON_MD_ARROW_RIGHT);
+                if(open) {
+                    for(auto& s : pv_pipeline_steps) {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        string text = url_pipeline_step::to_string(s.step->type);
+                        ImGui::TreeNodeEx(text.c_str(), ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+                        ImGui::TableSetColumnIndex(1);
+                        if(s.before.url == s.after.url) {
+                            w::label(ICON_MD_BRIGHTNESS_1);
+                            w::tooltip("no change");
+                        } else {
+                            w::label(ICON_MD_ADJUST, w::emphasis::primary);
+                            w::tooltip("URL was modified");
+                        }
+                        w::sl();
+                        w::label(s.after.url);
+                    }
+                    ImGui::TreePop();
                 }
-
-                if(layout_pipe_tester)
-                    ned.set_node_pos(id,
-                        cx,
-                        browsers_height / 2 - NodeHeight);
-
-                ned.get_node_size(id, w, h);
-                cx += w + NodePadding * 3;
-
-                ned.link(id, prev_id, id, true);
-                prev_id = id + 1;
             }
 
-            // browsers
-            for(int nb = 0; nb < g_config.browsers.size(); nb++) {
-                auto b = g_config.browsers[nb];
+            // browsers?
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            bool open = ImGui::TreeNodeEx("Browsers", ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen);
+            ImGui::TableSetColumnIndex(1);
+            ImGui::TextDisabled(" ");
+            if(open) {
+                for(auto b : g_config.browsers) {
+                    if(pv_only_matching && !b->ui_test_url_matches) continue;
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    bool b_open = w::tree_node(b->name,
+                        ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen,
+                        b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none);
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextDisabled(" ");
+                    if(b_open) {
 
-                int id = 2000 + (nb + 1) * 2;
+                        for(auto i : b->instances) {
+                            if(pv_only_matching && !i->ui_test_url_matches) continue;
+                            ImGui::TableNextRow();
+                            ImGui::TableSetColumnIndex(0);
+                            auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+                            bool i_open = w::tree_node(i->name,
+                                ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen, emp);
+                            ImGui::TableSetColumnIndex(1);
 
-                {
-                    auto n_browser = ned.node(id);
-                    ned.pin_in(id, ICON_MD_ARROW_RIGHT);
-                    w::sl();
-                    w::label(b->name);
-                    w::sl();
-                    ned.pin_out(id + 1, ICON_MD_ARROW_RIGHT);
+                            if(i->rules.empty()) {
+                                w::label("no rules", 0, false);
+                            } else {
+                                w::label(fmt::format("{} rule(s)", i->rules.size()), 0, false);
+                            }
+
+                            if(i_open) {
+
+                                // rules
+                                for(auto r : i->rules) {
+                                    if(pv_only_matching && !r->ui_test_url_matches) continue;
+                                    ImGui::TableNextRow();
+                                    ImGui::TableSetColumnIndex(0);
+                                    auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+                                    w::tree_node(
+                                        r->get_type_string(),
+                                        ImGuiTreeNodeFlags_SpanAllColumns |
+                                        ImGuiTreeNodeFlags_Leaf |
+                                        ImGuiTreeNodeFlags_NoTreePushOnOpen,
+                                        emp);
+                                    ImGui::TableSetColumnIndex(1);
+                                    w::label(r->to_string(false), emp);
+                                }
+
+
+                                ImGui::TreePop();
+                            }
+                        }
+
+                        ImGui::TreePop();
+                    }
                 }
-
-                if(layout_pipe_tester)
-                    ned.set_node_pos(id,
-                        cx,
-                        NodePadding + (NodePadding + NodeHeight) * nb);
-                ned.link(id, prev_id, id);
+                ImGui::TreePop();   // browsers
             }
+            ImGui::EndTable();
         }
-
-        // tooltips can only be shown after the node editor has been rendered, because they conflict with editor geometry
-        int id = pipe_tester_ned.get_hovered_node_id();
-        if(id > 0) {
-            string value;
-
-            if(id == 1) {
-                value = g_config.pv_last_url;
-            }
-
-            if(!value.empty()) {
-                w::tooltip(value);
-            }
-        }
-
-        layout_pipe_tester = false;
     }
     
     void config_app::render_status_bar() {
@@ -1297,17 +1319,18 @@ special keyword - %url% which is replaced by opening url.)");
         g_pipeline.process(url_tester_up);
     }
 
-    void config_app::recalculate_test_url_matches() {
+    void config_app::recalculate_test_url_matches(const click_payload& cp) {
         for(auto b : g_config.browsers) {
             b->ui_test_url_matches = false;
             for(auto bi : b->instances) {
                 bi->ui_test_url_matches = false;
 
                 for(auto r : bi->rules) {
-                    if(r->is_match(url_tester_up)) {
+                    r->ui_test_url_matches = false;
+                    if(r->is_match(cp)) {
+                        r->ui_test_url_matches = true;
                         bi->ui_test_url_matches = true;
                         b->ui_test_url_matches = true;
-                        break;
                     }
                 }
             }

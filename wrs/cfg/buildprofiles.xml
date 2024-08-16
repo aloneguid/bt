@@ -14,12 +14,14 @@
         <variables>
             <noindex-content>false</noindex-content>
             <analytics-head-script-file>pa.js</analytics-head-script-file>
+            <custom-favicons>favicon.ico</custom-favicons>
         </variables>
     </build-profile>
 
     <footer>
         <social type="blog" href="https://www.aloneguid.uk/projects/bt/"></social>
         <link href="https://github.com/aloneguid/bt">GitHub</link>
+        <copyright>2024 aloneguid</copyright>
     </footer>
 
 </buildprofiles>

@@ -32,10 +32,14 @@ namespace bt {
         bool app_mode{false};
         bool is_fallback{false};
 
+        // UI helpers
+        bool ui_test_url_matches;
+
         bool operator==(const match_rule& other) const;
 
-        std::string to_string() const;
+        std::string to_string(bool include_type = true) const;
         std::string to_line() const;
+        std::string get_type_string() const;
 
         static std::string to_string(match_scope s);
         static std::string to_string(match_location s);

@@ -50,13 +50,16 @@ namespace bt {
         }
     }
 
-    std::string match_rule::to_string() const {
+    std::string match_rule::to_string(bool include_type) const {
 
         if(is_fallback) return value;
 
-        string r = fmt::format("{} '{}' in ", 
-            is_regex ? "regular expression" : "substring",
-            value);
+        string r;
+        if(include_type) {
+            r = is_regex ? "regex " : "substring ";
+        }
+
+        r += fmt::format("'{}' in ", value);
 
         switch(loc) {
             case match_location::url:
@@ -115,6 +118,10 @@ namespace bt {
         parts.push_back(s);
 
         return str::join_with_pipe(parts);
+    }
+
+    std::string match_rule::get_type_string() const {
+        return is_regex ? "regex" : "substring";
     }
 
     std::string match_rule::to_string(match_scope s) {

@@ -76,14 +76,11 @@ namespace bt::ui {
         click_payload url_tester_up;
 
         // Pipe visualiser window
-        bool show_pipe_tester{false};
-        bool layout_pipe_tester{true};
-        grey::widgets::window wnd_pipe_tester;
-        grey::widgets::node_editor pipe_tester_ned{true};
+        bool pv_show{false};
+        grey::widgets::window wnd_pv;
         std::vector<url_pipeline_processing_step> pv_pipeline_steps;
-        click_payload pipe_tester_cp_out;
-        std::string pv_node_name;
-        std::string pv_node_value;
+        click_payload pv_cp;
+        bool pv_only_matching{false};
 
         std::vector<std::string> rule_locations { "URL", "Title", "Process" };
         std::vector<std::pair<std::string, std::string>> url_scopes{
@@ -124,7 +121,7 @@ namespace bt::ui {
         void add_custom_browser_by_asking();
         void test_url();
 
-        void recalculate_test_url_matches();
+        void recalculate_test_url_matches(const click_payload& cp);
 
         std::shared_ptr<bt::browser_instance> get_selected_browser_instance();
     };
