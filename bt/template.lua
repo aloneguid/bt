@@ -1,0 +1,1 @@
+-- Browser Tamer Lua scripting starter script

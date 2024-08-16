@@ -1,5 +1,6 @@
 #include "script_site.h"
 #include <fstream>
+#include <regex>
 
 using namespace std;
 
@@ -95,6 +96,20 @@ namespace bt {
         lua_getfield(L, -1, "url");
         //up.match_url = lua_tostring(L, -1);
         lua_pop(L, 1);
+
+        return r;
+    }
+
+    std::vector<std::string> script_site::list_function_names() {
+        vector<string> r;
+
+        // use regex to list function names
+        regex re{R"(function\s+(\w+))"};
+        sregex_iterator it{code.begin(), code.end(), re};
+        sregex_iterator end;
+        for(; it != end; ++it) {
+            r.push_back(it->str(1));
+        }
 
         return r;
     }

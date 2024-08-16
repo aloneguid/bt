@@ -1,6 +1,7 @@
 #pragma once
 #include "lua.hpp"
 #include <string>
+#include <vector>
 #include "click_payload.h"
 
 namespace bt {
@@ -20,6 +21,12 @@ namespace bt {
 
         // bt specific functions
         bool call_rule(click_payload& up, const std::string& function_name);
+
+        /**
+         * @brief Analyse the code and return a list of Lua function names
+         * @return 
+         */
+        std::vector<std::string> list_function_names();
 
 
     private:

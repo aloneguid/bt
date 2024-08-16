@@ -69,11 +69,9 @@ namespace bt::ui {
         bool script_initialised{false};
         grey::widgets::window wnd_scripting{"Scripting"};
         grey::widgets::text_editor script_editor;
-        click_payload scripting_up;
-
-        // URL Tester
-        bool show_url_tester{false};
-        click_payload url_tester_up;
+        std::vector<std::string> script_fns;
+        size_t script_fn_selected;
+        bool script_fn_result{false};
 
         // Pipe visualiser window
         bool pv_show{false};
@@ -98,7 +96,6 @@ namespace bt::ui {
         void render_about_window();
         void render_subs_window();
         void render_dashboard();
-        void render_url_tester_input();
         void render_scripting_window();
         void render_pipe_visualiser_window();
 
@@ -119,7 +116,6 @@ namespace bt::ui {
 
         void rediscover_browsers();
         void add_custom_browser_by_asking();
-        void test_url();
 
         void recalculate_test_url_matches(const click_payload& cp);
 
