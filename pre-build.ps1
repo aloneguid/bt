@@ -8,8 +8,8 @@ $v2 = $version + ".0"
 
 # update version in bt.rc
 (Get-Content .\bt\bt.rc) `
-    -replace "5,\d+,\d+,\d+", "$v1" |
+    -replace "4,\d+,\d+,\d+", "$v1" |
     Out-File .\bt\bt.rc
 (Get-Content .\bt\bt.rc) `
-    -replace "5\.\d+\.\d+\.\d+", "$v2" |
+    -replace "4\.\d+\.\d+\.\d+", "$v2" |
     Out-File .\bt\bt.rc

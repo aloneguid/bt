@@ -1,4 +1,4 @@
-## 5.0.0
+## 4.1.0
 
 ### New features
 - Introducing **Pipe debugger** - a very detailed representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
