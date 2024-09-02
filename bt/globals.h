@@ -15,7 +15,7 @@ const std::string ContributeUrl = "https://github.com/aloneguid/bt#contributing"
 
 const std::string ArgSplitter = "|";
 
-const std::string PortableMarkerName = ".portable";
+constexpr std::string_view PortableMarkerName = ".portable";
 
 extern alg::tracker t;
 

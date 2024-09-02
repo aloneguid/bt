@@ -7,6 +7,7 @@
 #include "app/url_pipeline.h"
 #include "win32/window.h"
 #include "app/rule_hit_log.h"
+#include "app/app_log.h"
 #include "app/url_opener.h"
 //#include "app/systray.h"
 
@@ -55,6 +56,11 @@ void open(bt::click_payload up, bool force_picker = false) {
     }
 
     if(show_picker) {
+
+        if(g_config.log_app) {
+            bt::app_log::i.write("showing rule picker for " + up.url);
+        }
+
         bt::ui::picker_app app{up.url};
         auto bi = app.run();
         if(bi) {
@@ -189,6 +195,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     debug_args_msgbox(argc, argv);
 
     string arg = parse_args(argc, argv);
+
+    if(g_config.log_app) {
+        bt::app_log::i.write("started with args: " + arg);
+    }
 
     execute(arg);
 

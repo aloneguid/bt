@@ -1,9 +1,5 @@
 #include "rule_hit_log.h"
 #include "config.h"
-#include <filesystem>
-#include "fss.h"
-#include "win32/shell.h"
-#include "../globals.h"
 #include <vector>
 #include "datetime.h"
 

@@ -2,12 +2,15 @@
 
 ### New features
 - Introducing **Pipe debugger** - a very detailed representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
-- todo: BT can write log file.
+- BT can write log file to "log.txt" in the same directory as `config.ini`. This is useful for debugging and understanding how BT processes URLs. Log file is off by default and can be enabled from the `General` menu.
 - in progress: Lua scripting.
 - todo: Picker keyboard navigation.
 
 ### Improvements
 - More URL un-shorteners supported.
+
+### Bugs fixed
+- in progress: bt.exe was hanging in the background with no picker UI shown.
 
 ## 4.0.3
 

@@ -27,6 +27,7 @@ namespace bt {
         bool show_hidden_browsers{true};
         std::string theme_id;
         bool log_rule_hits{true};
+        bool log_app{false};
         firefox_container_mode firefox_mode{firefox_container_mode::off};
         // default browser long sys name
         std::string default_profile_long_id;

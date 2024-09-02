@@ -18,6 +18,7 @@ namespace bt {
     const string BrowserPrefix = "browser";
     const string FirefoxContainerModeKey = "firefox_container_mode";
     const string LogRuleHitsKey = "log_rule_hits";
+    const string LogAppKey = "log_app";
     const string PersistPopularityKey = "persist_popularity";
     const string ShowHiddenBrowsersKey = "browsers_show_hidden";
     const string UnshortEnabledKey = "unshort_enabled";
@@ -108,6 +109,7 @@ namespace bt {
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
         theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
+        log_app = cfg.get_bool_value(LogAppKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
         firefox_mode = to_firefox_container_mode(mode);
         default_profile_long_id = cfg.get_value("default_profile");
@@ -137,6 +139,7 @@ namespace bt {
         cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
+        cfg.set_bool_value(LogAppKey, log_app);
         cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
         cfg.set_value("default_profile", default_profile_long_id);
 

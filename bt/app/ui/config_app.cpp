@@ -10,6 +10,7 @@
 #include "str.h"
 #include "stl.hpp"
 #include "../rule_hit_log.h"
+#include "../app_log.h"
 #include <filesystem>
 #include "../url_opener.h"
 #include "../discovery.h"
@@ -181,6 +182,16 @@ namespace bt::ui {
                     }
                 }
 
+                if(w::menu m_app_log{"log.txt", true, ICON_MD_BOOK}; m_app_log) {
+                    if(w::mi("Open")) {
+                        win32::shell::exec(app_log::i.get_absolute_path(), "");
+                    }
+                    if(w::mi("Copy path")) {
+                        win32::clipboard::set_ascii_text(app_log::i.get_absolute_path());
+                        w::notify_info("Path copied to clipboard.");
+                    }
+                }
+
                 w::sep();
                 if(w::mi("Exit", true, ICON_MD_LOGOUT)) {
                     is_open = false;
@@ -220,10 +231,13 @@ namespace bt::ui {
 
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
+                w::small_checkbox("Log application events to log.txt", g_config.log_app);
+
                 w::mi_themes([this](const string& theme_id) {
                     app->set_theme(theme_id);
                     g_config.theme_id = theme_id;
                 });
+
                 w::sep("Firefox container mode");
                 if(w::small_radio("Off (use legacy profiles)", g_config.firefox_mode == firefox_container_mode::off)) {
                     g_config.firefox_mode = firefox_container_mode::off;
