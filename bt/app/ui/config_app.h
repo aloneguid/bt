@@ -6,6 +6,7 @@
 #include <vector>
 #include "../browser.h"
 #include "../setup.h"
+#include "../strings.h"
 #include "../url_pipeline.h"
 
 namespace bt::ui {
@@ -69,7 +70,8 @@ namespace bt::ui {
         bool script_initialised{false};
         grey::widgets::window wnd_scripting{"Scripting"};
         grey::widgets::text_editor script_editor;
-        std::vector<std::string> script_fns;
+        std::string script_terminal;
+        bool script_terminal_autoscroll{true};
         size_t script_fn_selected;
         bool script_fn_result{false};
 
@@ -80,7 +82,8 @@ namespace bt::ui {
         click_payload pv_cp;
         bool pv_only_matching{false};
 
-        std::vector<std::string> rule_locations { "URL", "Title", "Process" };
+        std::vector<std::string> rule_lua_fns;
+        std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },
             { ICON_MD_GITE, "Match only in host name" },

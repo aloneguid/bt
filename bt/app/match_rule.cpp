@@ -2,6 +2,7 @@
 #include <str.h>
 #include <fmt/core.h>
 #include <regex>
+#include "strings.h"
 
 using namespace std;
 
@@ -14,6 +15,9 @@ namespace bt {
     const string AppKey = "app";
     const string TypeKey = "type";
     const string TypeRegexKey = "regex";
+    const string WindowTitleKey = "window_title";
+    const string ProcessNameKey = "process_name";
+    const string LuaScriptKey = "lua_script";
 
     match_rule::match_rule(const std::string& line) {
         string src = line;
@@ -54,6 +58,10 @@ namespace bt {
 
         if(is_fallback) return value;
 
+        if(loc == match_location::lua_script) {
+            return value;
+        }
+
         string r;
         if(include_type) {
             r = is_regex ? "regex " : "substring ";
@@ -82,6 +90,9 @@ namespace bt {
                 break;
             case match_location::process_name:
                 r += "process name";
+                break;
+            case match_location::lua_script:
+                r += strings::LuaScript;
                 break;
         }
 
@@ -121,6 +132,7 @@ namespace bt {
     }
 
     std::string match_rule::get_type_string() const {
+        if(loc == match_location::lua_script) return strings::LuaScript;
         return is_regex ? "regex" : "substring";
     }
 
@@ -142,9 +154,11 @@ namespace bt {
             case bt::match_location::url:
                 return "url";
             case bt::match_location::window_title:
-                return "window_title";
+                return WindowTitleKey;
             case bt::match_location::process_name:
-                return "process_name";
+                return ProcessNameKey;
+            case bt::match_location::lua_script:
+                return LuaScriptKey;
             default:
                 return "";
         }
@@ -157,8 +171,9 @@ namespace bt {
     }
 
     match_location match_rule::to_match_location(const std::string& s) {
-        if(s == "window_title") return match_location::window_title;
-        if(s == "process_name") return match_location::process_name;
+        if(s == WindowTitleKey) return match_location::window_title;
+        if(s == ProcessNameKey) return match_location::process_name;
+        if(s == LuaScriptKey) return match_location::lua_script;
         return match_location::url;
     }
 
@@ -201,6 +216,19 @@ namespace bt {
         } else {
             return str::contains_ic(input, value);
         }
+    }
+
+    bool match_rule::is_match(click_payload& up, script_site& script) const {
+        if(loc == match_location::lua_script) {
+            click_payload mup = up; // script can mutate the payload
+            bool ok = script.call_rule(mup, value);
+            if(ok) {
+                // only mutate url if the script result is satisfactory
+                up.url = mup.url;
+            }
+            return ok;
+        }
+        return is_match(up);
     }
 
     bool match_rule::is_match(const click_payload& up) const {
@@ -246,6 +274,8 @@ namespace bt {
                 return contains(src, value);
             case bt::match_location::process_name:
                 return contains(src, value);
+            case bt::match_location::lua_script:
+                return false;
         }
 
         return false;

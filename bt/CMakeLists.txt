@@ -46,6 +46,7 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_GITHUB_URL="${APP_GITHUB_URL}"
     APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
     APP_DOCS_URL="https://aloneguid.github.io/bt/home.html"
+    APP_HELP_BASE_URL="https://aloneguid.github.io/bt/"
     APP_BROWSER_EXTENSIONS_DOCS_URL="https://aloneguid.github.io/bt/browser-extensions.html"
     APP_BUYMEACOFFEE_URL="https://www.buymeacoffee.com/alonecoffee"
     APP_CONTACT_URL="https://www.aloneguid.uk/about/#contact"

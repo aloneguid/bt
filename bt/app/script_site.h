@@ -2,6 +2,7 @@
 #include "lua.hpp"
 #include <string>
 #include <vector>
+#include <functional>
 #include "click_payload.h"
 
 namespace bt {
@@ -9,6 +10,9 @@ namespace bt {
     public:
         script_site(const std::string& path_or_code, bool is_path);
         ~script_site();
+
+        std::string print_buffer;
+        std::function<void(const std::string&)> on_print;
 
         void reload();
 
@@ -28,6 +32,7 @@ namespace bt {
          */
         std::vector<std::string> list_function_names();
 
+        void handle_lua_print(const std::string& msg);
 
     private:
         bool is_path;

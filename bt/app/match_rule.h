@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include "script_site.h"
 #include "click_payload.h"
 
 namespace bt {
@@ -14,13 +14,15 @@ namespace bt {
     enum class match_location : size_t {
         url             = 0,
         window_title    = 1,
-        process_name    = 2
+        process_name    = 2,
+        lua_script      = 3
     };
 
     class match_rule {
     public:
         explicit match_rule(const std::string& line);
 
+        bool is_match(click_payload& up, script_site& script) const;
         bool is_match(const click_payload& up) const;
         bool is_match(const std::string& url) const;
 

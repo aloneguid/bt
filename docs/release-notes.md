@@ -8,9 +8,10 @@
 
 ### Improvements
 - More URL un-shorteners supported.
+- Some pleaces in the UI are getting "online help" hyperlink to a relevant documentation section.
 
 ### Bugs fixed
-- in progress: bt.exe was hanging in the background with no picker UI shown.
+- bt.exe was hanging in the background with no picker UI shown. First seen when invoking from Slack, but could happen in other apps too. Thanks to @maddada in #93.
 
 ## 4.0.3
 

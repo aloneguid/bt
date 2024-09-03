@@ -17,6 +17,7 @@
 #include "../pipeline/replacer.h"
 #include "../../globals.h"
 #include "../strings.h"
+#include "extra_widgets.hpp"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -27,8 +28,8 @@ namespace bt::ui {
         wnd_config{title, &is_open},
         wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs},
-        wnd_scripting{ScriptEditor, &show_scripting},
-        wnd_pv{PipelineDebugger, &pv_show} {
+        wnd_scripting{strings::ScriptEditor, &show_scripting},
+        wnd_pv{strings::PipelineDebugger, &pv_show} {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_config.theme_id;
@@ -198,17 +199,17 @@ namespace bt::ui {
                 }
             }
 
-            if(w::menu m_tools{MenuTools}; m_tools) {
+            if(w::menu m_tools{strings::MenuTools}; m_tools) {
                 if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
                     win32::shell::open_default_apps();
                 }
                 if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
-                if(w::mi(PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
+                if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
-                if(w::mi(ScriptEditor, true, ICON_MD_CODE)) {
+                if(w::mi(strings::ScriptEditor, true, ICON_MD_CODE)) {
                     show_scripting = !show_scripting;
                 }
                 if(w::menu m{"Troubleshooting", true}; m) {
@@ -419,6 +420,8 @@ It super fast, extremely light on resources, completely free and open source.)",
             recompute = true;
         }
 
+        w::sl(); ww::help_link("url-proc.html#substitutions");
+
         // testing stuff
         w::sep("Test");
         if(w::input(url_subs_up.url, ICON_MD_LOGIN)) recompute = true;
@@ -445,7 +448,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 w::combo("##kind" + suffix,
                     replacer_kinds,
                     (size_t&)replacer->kind,
-                    100 * app->scale);
+                    100);
 
                 w::sl(pad);
                 if(w::input(replacer->find, "find" + suffix, true, iw)) recompute = true;
@@ -532,7 +535,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         if(!script_initialised) {
             script_editor.set_text(g_script.get_code());
-            script_fns = g_script.list_function_names();
+            rule_lua_fns = g_script.list_function_names();
             script_initialised = true;
         }
 
@@ -547,7 +550,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true);
         w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true);
 
-        w::combo("##fn", script_fns, script_fn_selected, 150);
+        w::combo("##fn", rule_lua_fns, script_fn_selected, 150);
         w::tooltip("function to execute");
         w::sl();
         if(w::button(ICON_MD_PLAY_ARROW)) {
@@ -555,17 +558,27 @@ It super fast, extremely light on resources, completely free and open source.)",
             g_script.set_code(script_editor.get_text());
             if(g_script.get_error().empty()) {
                 // test it
+                string func_name = rule_lua_fns[script_fn_selected];
+                script_terminal += fmt::format("Executing function: {}\n", func_name);
+
                 click_payload up;
                 up.url = g_config.pv_last_url;
                 up.window_title = g_config.pv_last_wt;
                 up.process_name = g_config.pv_last_pn;
-                g_script.call_rule(up, script_fns[script_fn_selected]);
+                g_pipeline.process(up);
+                script_terminal += fmt::format("URL after pipeline execution: {}\n", up.url);
+
+                g_script.print_buffer.clear();
+                bool matched = g_script.call_rule(up, func_name);
+                script_terminal += g_script.print_buffer;
+                
+                script_terminal += fmt::format("Result\n  Matches: {}\n  URL: {}\n\n", matched, up.url);
             }
         }
         w::tooltip("run the selected function");
         w::sl();
         if(w::button(ICON_MD_REFRESH)) {
-            script_fns = g_script.list_function_names();
+            rule_lua_fns = g_script.list_function_names();
         }
         w::tooltip("refresh list of functions");
 
@@ -577,7 +590,20 @@ It super fast, extremely light on resources, completely free and open source.)",
             g_script.set_code(script_editor.get_text());
         }
 
-        script_editor.render();
+        float terminal_height = 400 * app->scale;
+
+        w::sep(strings::LuaScript);
+        script_editor.render(0, ImGui::GetWindowHeight() - terminal_height);
+
+        w::sep("Terminal");
+        if(w::button(ICON_MD_CLEAR_ALL, w::emphasis::error)) {
+            script_terminal.clear();
+        }
+        w::tooltip("clear");
+        w::sl();
+        w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
+        w::tooltip("auto-scroll");
+        w::input_ml("##script_terminal", script_terminal, -FLT_MIN, script_terminal_autoscroll);
     }
 
     void config_app::render_pipe_visualiser_window() {
@@ -910,11 +936,11 @@ It super fast, extremely light on resources, completely free and open source.)",
                 if(b->is_chromium) {
                     w::sl();
                     w::icon_image(*app, "bt_chromium");
-                    w::tooltip(ChromiumBased);
+                    w::tooltip(strings::ChromiumBased);
                 } else if(b->is_firefox) {
                     w::sl();
                     w::icon_image(*app, "bt_gecko");
-                    w::tooltip(GeckoBased);
+                    w::tooltip(strings::GeckoBased);
                 }
             } else {
                 w::label(ICON_MD_SUPPORT_AGENT, 0, false);
@@ -1204,6 +1230,8 @@ special keyword - %url% which is replaced by opening url.)");
             bi->rules.clear();
         }
 
+        w::sl(); ww::help_link("rules.html");
+
         // scrollable area with list of rules
         {
             w::container c{"rules"};
@@ -1214,11 +1242,34 @@ special keyword - %url% which is replaced by opening url.)");
 
                 // location
                 w::combo(string{"##loc"} + std::to_string(i), 
-                    rule_locations, (size_t&)rule->loc, 70 * app->scale);
+                    rule_locations, (size_t&)rule->loc, 90);
 
                 // value
                 w::sl();
-                w::input(rule->value, string{"##val"} + std::to_string(i), true, 250 * app->scale);
+                string val_label = string{"##val"} + std::to_string(i);
+                if(rule->loc == match_location::lua_script) {
+                    if(rule_lua_fns.empty()) {
+                        rule_lua_fns = g_script.list_function_names();
+                    }
+
+                    // get selected index
+                    size_t selected{0};
+                    for(size_t j = 0; j < rule_lua_fns.size(); j++) {
+                        if(rule_lua_fns[j] == rule->value) {
+                            selected = j;
+                            break;
+                        }
+                    }
+
+                    w::combo(val_label, rule_lua_fns, selected, 250);
+                    w::tooltip(strings::LuaScriptTooltip);
+
+                    // reassign value
+                    rule->value = rule_lua_fns[selected];
+
+                } else {
+                    w::input(rule->value, val_label, true, 250 * app->scale);
+                }
 
                 // up/down logic is very custom and is bound to the textbox itself
                 if(ImGui::IsItemFocused()) {
@@ -1229,10 +1280,12 @@ special keyword - %url% which is replaced by opening url.)");
                     }
                 }
 
-                // is regex checkbox
-                w::sl();
-                w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
-                w::tooltip("Rule is a Regular Expression (advanced)");
+                // is regex checkbox (not for Lua)
+                if(rule->loc != match_location::lua_script) {
+                    w::sl();
+                    w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
+                    w::tooltip(strings::RuleIsARegex);
+                }
 
                 // app mode
                 if(bi->b->is_chromium) {
@@ -1294,7 +1347,8 @@ special keyword - %url% which is replaced by opening url.)");
 
                 for(auto r : bi->rules) {
                     r->ui_test_url_matches = false;
-                    if(r->is_match(cp)) {
+                    click_payload mcp = cp;
+                    if(r->is_match(mcp, g_script)) {
                         r->ui_test_url_matches = true;
                         bi->ui_test_url_matches = true;
                         b->ui_test_url_matches = true;

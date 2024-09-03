@@ -19,8 +19,36 @@ namespace bt {
         }
     }
 
+    static int lua_print(lua_State* L) {
+        // Get the script_site instance from the Lua registry
+        script_site* instance = static_cast<script_site*>(lua_touserdata(L, lua_upvalueindex(1)));
+
+        // Get the number of arguments
+        int nargs = lua_gettop(L);
+
+        // Collect all arguments into a single string
+        std::string output;
+        for(int i = 1; i <= nargs; ++i) {
+            if(lua_isstring(L, i)) {
+                output += lua_tostring(L, i);
+            } else {
+                output += "<non-string>";
+            }
+            if(i < nargs) {
+                output += "\t";
+            }
+        }
+
+        // Call the member function
+        instance->handle_lua_print(output);
+
+        return 0; // Number of return values
+    }
+
+
     void script_site::reload() {
         error.clear();
+        print_buffer.clear();
 
         // reinintialise interpreter
         if(L) {
@@ -30,6 +58,11 @@ namespace bt {
 
         L = luaL_newstate();
         luaL_openlibs(L);
+
+        // Register the custom print function
+        lua_pushlightuserdata(L, this);
+        lua_pushcclosure(L, lua_print, 1);
+        lua_setglobal(L, "print");
 
         // load code into string
         {
@@ -112,5 +145,12 @@ namespace bt {
         }
 
         return r;
+    }
+
+    void script_site::handle_lua_print(const std::string& msg) {
+        print_buffer += msg + "\n";
+        if(on_print) {
+            on_print(msg);
+        }
     }
 }
