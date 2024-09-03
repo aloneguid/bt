@@ -17,6 +17,10 @@ const std::string ArgSplitter = "|";
 
 constexpr std::string_view PortableMarkerName = ".portable";
 
+constexpr std::string_view LuaRulePrefix = "rule_";
+
+constexpr std::string_view LuaPipelinePrefix = "ppl_";
+
 extern alg::tracker t;
 
 extern bt::config g_config;

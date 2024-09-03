@@ -22,7 +22,7 @@ namespace bt {
     public:
         explicit match_rule(const std::string& line);
 
-        bool is_match(click_payload& up, script_site& script) const;
+        bool is_match(const click_payload& up, script_site& script) const;
         bool is_match(const click_payload& up) const;
         bool is_match(const std::string& url) const;
 

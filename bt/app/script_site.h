@@ -24,10 +24,13 @@ namespace bt {
         void set_code(const std::string& code);
 
         // bt specific functions
-        bool call_rule(click_payload& up, const std::string& function_name);
+
+        bool call_rule(const click_payload& up, const std::string& function_name);
+
+        std::string call_ppl(const click_payload& up, const std::string& function_name);
 
         /**
-         * @brief Analyse the code and return a list of Lua function names
+         * @brief Analyse the code and return a list of Lua function names with supported prefixes
          * @return 
          */
         std::vector<std::string> list_function_names();
@@ -40,5 +43,7 @@ namespace bt {
         std::string code;
         std::string error;
         lua_State* L{nullptr};
+
+        void lua_push(const click_payload& up);
     };
 }

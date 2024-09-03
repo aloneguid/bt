@@ -1,6 +1,7 @@
 #include "script_site.h"
 #include <fstream>
 #include <regex>
+#include "../globals.h"
 
 using namespace std;
 
@@ -31,9 +32,18 @@ namespace bt {
         for(int i = 1; i <= nargs; ++i) {
             if(lua_isstring(L, i)) {
                 output += lua_tostring(L, i);
+            } else if(lua_isboolean(L, i)) {
+                output += lua_toboolean(L, i) ? "true" : "false";
+            } else if(lua_isnumber(L, i)) {
+                output += to_string(lua_tonumber(L, i));
+            } else if(lua_isnil(L, i)) {
+                output += "nil";
+            } else if(lua_isnone(L, i)) {
+                output += "<none>";
             } else {
-                output += "<non-string>";
+                output += "<?>";
             }
+
             if(i < nargs) {
                 output += "\t";
             }
@@ -99,17 +109,10 @@ namespace bt {
         reload();
     }
 
-    bool script_site::call_rule(click_payload& up, const string& function_name) {
+    bool script_site::call_rule(const click_payload& up, const string& function_name) {
 
         // set global table "p" with 3 members: url, window_title, process_name
-        lua_newtable(L);
-        lua_pushstring(L, up.url.c_str());
-        lua_setfield(L, -2, "url");
-        lua_pushstring(L, up.window_title.c_str());
-        lua_setfield(L, -2, "wt");
-        lua_pushstring(L, up.process_name.c_str());
-        lua_setfield(L, -2, "pn");
-        lua_setglobal(L, "p");
+        lua_push(up);
 
         // call function
         lua_getglobal(L, function_name.c_str());
@@ -125,11 +128,29 @@ namespace bt {
         lua_pop(L, 1);
 
         // read back "url" from global table "p" (in case it's changed)
-        lua_getglobal(L, "p");
-        lua_getfield(L, -1, "url");
+        //lua_getglobal(L, "p");
+        //lua_getfield(L, -1, "url");
         //up.match_url = lua_tostring(L, -1);
-        lua_pop(L, 1);
+        //lua_pop(L, 1);
 
+        return r;
+    }
+
+    std::string script_site::call_ppl(const click_payload& up, const std::string& function_name) {
+        lua_push(up);
+
+        // call function
+        lua_getglobal(L, function_name.c_str());
+        if(lua_pcall(L, 0, 1, 0)) {
+            // get error message from the stack
+            error = lua_tostring(L, -1);
+            lua_pop(L, 1);
+            return up.url;
+        }
+
+        // read return value
+        string r = lua_tostring(L, -1);
+        lua_pop(L, 1);
         return r;
     }
 
@@ -141,7 +162,11 @@ namespace bt {
         sregex_iterator it{code.begin(), code.end(), re};
         sregex_iterator end;
         for(; it != end; ++it) {
-            r.push_back(it->str(1));
+            string n = it->str(1);
+
+            if(n.starts_with(LuaRulePrefix) || n.starts_with(LuaPipelinePrefix)) {
+                r.push_back(n);
+            }
         }
 
         return r;
@@ -152,5 +177,16 @@ namespace bt {
         if(on_print) {
             on_print(msg);
         }
+    }
+    void script_site::lua_push(const click_payload& up) {
+        // set global table "p" with 3 members: url, window_title, process_name
+        lua_newtable(L);
+        lua_pushstring(L, up.url.c_str());
+        lua_setfield(L, -2, "url");
+        lua_pushstring(L, up.window_title.c_str());
+        lua_setfield(L, -2, "wt");
+        lua_pushstring(L, up.process_name.c_str());
+        lua_setfield(L, -2, "pn");
+        lua_setglobal(L, "p");
     }
 }

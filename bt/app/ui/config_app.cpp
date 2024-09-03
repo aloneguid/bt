@@ -18,6 +18,7 @@
 #include "../../globals.h"
 #include "../strings.h"
 #include "extra_widgets.hpp"
+#include "datetime.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -57,7 +58,7 @@ namespace bt::ui {
             .center();
 
         wnd_scripting
-            .size(600, 600)
+            .size(600, 800)
             .border(1)
             .no_scroll();
 
@@ -535,7 +536,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         if(!script_initialised) {
             script_editor.set_text(g_script.get_code());
-            rule_lua_fns = g_script.list_function_names();
+            lua_fns = g_script.list_function_names();
             script_initialised = true;
         }
 
@@ -546,48 +547,53 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::label(g_script.get_error(), w::emphasis::error);
         }
 
-        w::input(g_config.pv_last_url, ICON_MD_LINK " URL", true);
-        w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true);
-        w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true);
-
-        w::combo("##fn", rule_lua_fns, script_fn_selected, 150);
+        w::combo("##fn", lua_fns, script_fn_selected, 250);
+        string func_name = lua_fns.empty() ? "" : lua_fns[script_fn_selected];
+        bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
         w::tooltip("function to execute");
-        w::sl();
-        if(w::button(ICON_MD_PLAY_ARROW)) {
 
+        w::sl();
+        if(w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary)) {
             g_script.set_code(script_editor.get_text());
+            lua_fns = g_script.list_function_names();
+
             if(g_script.get_error().empty()) {
                 // test it
-                string func_name = rule_lua_fns[script_fn_selected];
-                script_terminal += fmt::format("Executing function: {}\n", func_name);
+                script_terminal += fmt::format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
 
                 click_payload up;
                 up.url = g_config.pv_last_url;
                 up.window_title = g_config.pv_last_wt;
                 up.process_name = g_config.pv_last_pn;
-                g_pipeline.process(up);
-                script_terminal += fmt::format("URL after pipeline execution: {}\n", up.url);
 
-                g_script.print_buffer.clear();
-                bool matched = g_script.call_rule(up, func_name);
-                script_terminal += g_script.print_buffer;
-                
-                script_terminal += fmt::format("Result\n  Matches: {}\n  URL: {}\n\n", matched, up.url);
+                if(is_ppl) {
+                    string out_url = g_script.call_ppl(up, func_name);
+                    script_terminal += g_script.print_buffer;
+                    script_terminal += fmt::format("result: {}\n------------\n", out_url);
+                } else {
+
+                    g_pipeline.process(up);
+                    if(up.url != g_config.pv_last_url) {
+                        script_terminal += fmt::format("pipeline changed URL to '{}'\n", up.url);
+                    }
+
+                    g_script.print_buffer.clear();
+                    bool matched = g_script.call_rule(up, func_name);
+                    script_terminal += g_script.print_buffer;
+
+                    script_terminal += fmt::format("rule match: {}\n------------\n", matched);
+                }
             }
         }
-        w::tooltip("run the selected function");
-        w::sl();
-        if(w::button(ICON_MD_REFRESH)) {
-            rule_lua_fns = g_script.list_function_names();
-        }
-        w::tooltip("refresh list of functions");
+        w::tooltip("save and run");
 
-        w::sl();
-        w::label("|", 0, false);
-
-        w::sl();
-        if(w::button(ICON_MD_SAVE " save", w::emphasis::primary)) {
-            g_script.set_code(script_editor.get_text());
+        // test input
+        if(!func_name.empty()) {
+            w::input(g_config.pv_last_url, ICON_MD_LINK " URL", true);
+            if(!is_ppl) {
+                w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true);
+                w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true);
+            }
         }
 
         float terminal_height = 400 * app->scale;
@@ -1248,24 +1254,26 @@ special keyword - %url% which is replaced by opening url.)");
                 w::sl();
                 string val_label = string{"##val"} + std::to_string(i);
                 if(rule->loc == match_location::lua_script) {
-                    if(rule_lua_fns.empty()) {
-                        rule_lua_fns = g_script.list_function_names();
+                    if(lua_fns.empty()) {
+                        lua_fns = g_script.list_function_names();
                     }
 
                     // get selected index
                     size_t selected{0};
-                    for(size_t j = 0; j < rule_lua_fns.size(); j++) {
-                        if(rule_lua_fns[j] == rule->value) {
+                    for(size_t j = 0; j < lua_fns.size(); j++) {
+                        if(lua_fns[j] == rule->value) {
                             selected = j;
                             break;
                         }
                     }
 
-                    w::combo(val_label, rule_lua_fns, selected, 250);
+                    w::combo(val_label, lua_fns, selected, 250);
                     w::tooltip(strings::LuaScriptTooltip);
 
                     // reassign value
-                    rule->value = rule_lua_fns[selected];
+                    if(!lua_fns.empty()) {
+                        rule->value = lua_fns[selected];
+                    }
 
                 } else {
                     w::input(rule->value, val_label, true, 250 * app->scale);
@@ -1347,8 +1355,7 @@ special keyword - %url% which is replaced by opening url.)");
 
                 for(auto r : bi->rules) {
                     r->ui_test_url_matches = false;
-                    click_payload mcp = cp;
-                    if(r->is_match(mcp, g_script)) {
+                    if(r->is_match(cp, g_script)) {
                         r->ui_test_url_matches = true;
                         bi->ui_test_url_matches = true;
                         b->ui_test_url_matches = true;
