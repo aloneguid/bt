@@ -1,6 +1,7 @@
 #include "url_pipeline.h"
 #include "pipeline/unshortener.h"
 #include "pipeline/o365.h"
+#include "pipeline/script.h"
 #include "../globals.h"
 
 using namespace std;
@@ -61,8 +62,16 @@ namespace bt {
             steps.push_back(make_shared<bt::pipeline::unshortener>());
         }
 
-        for(string s : cfg.pipeline_substitutions) {
-            steps.push_back(make_shared<bt::pipeline::replacer>(s));
+        if(cfg.pipeline_substitute) {
+            for(string s : cfg.pipeline_substitutions) {
+                steps.push_back(make_shared<bt::pipeline::replacer>(s));
+            }
+        }
+
+        if(cfg.pipeline_script) {
+            for(string fn : g_script.ppl_function_names) {
+                steps.push_back(make_shared<bt::pipeline::script>(fn));
+            }
         }
     }
 

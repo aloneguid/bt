@@ -16,10 +16,10 @@
     <toc-element topic="prereq.md"/>
     <toc-element topic="config-basic.md"/>
     <toc-element topic="rules.md"/>
+    <toc-element topic="url-proc.md"/>
+    <toc-element topic="debugger.md"/>
     <toc-element topic="picker.md"/>
-    <toc-element topic="url-proc.md">
-        <toc-element topic="url-proc-scripting.md"/>
-    </toc-element>
+    <toc-element topic="scripting.md"/>
     <toc-element topic="commandline.md"/>
     <toc-element topic="Browser-Extensions.md">
         <toc-element topic="mozilla-firefox.md">

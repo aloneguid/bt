@@ -18,8 +18,8 @@
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION};
 bt::config g_config;
+bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_config};
-bt::script_site g_script{bt::config::get_data_file_path("rules.lua"), true};
 
 using namespace std;
 

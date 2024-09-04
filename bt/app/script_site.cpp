@@ -7,8 +7,6 @@ using namespace std;
 
 namespace bt {
 
-    const string FileName = "rules.lua";
-
     script_site::script_site(const string& path_or_code, bool is_path) :
         path_or_code{path_or_code}, is_path{is_path} {
         reload();

@@ -25,6 +25,10 @@ namespace bt {
     const string PickerSectionName = "picker";
     const string PipelineSectionName = "pipeline";
     const string PipelineSubstKeyName = "subst";
+    const string PipelineUnwrapO365Key = "unwrap_o365";
+    const string PipelineUnshortenKey = "unshorten";
+    const string PipelineSubstituteKey = "substitute";
+    const string PipelineScriptKey = "script";
     const string PipeVisualiserSectionName = "pipevis";
 
     config::config() : cfg{config::get_data_file_path(FileName)} {
@@ -123,9 +127,11 @@ namespace bt {
         picker_always = cfg.get_bool_value("always", false, PickerSectionName);
 
         // pipeline
-        pipeline_unwrap_o365 = cfg.get_bool_value("unwrap_o365", true, PipelineSectionName);
-        pipeline_unshorten = cfg.get_bool_value("unshorten", true, PipelineSectionName);
+        pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
+        pipeline_unshorten = cfg.get_bool_value(PipelineUnshortenKey, true, PipelineSectionName);
+        pipeline_substitute = cfg.get_bool_value(PipelineSubstituteKey, true, PipelineSectionName);
         pipeline_substitutions = cfg.get_all_values(PipelineSubstKeyName, PipelineSectionName);
+        pipeline_script = cfg.get_bool_value(PipelineScriptKey, true, PipelineSectionName);
 
         // pipe visualiser
         pv_last_url = cfg.get_value("last_url", PipeVisualiserSectionName);
@@ -152,9 +158,11 @@ namespace bt {
         cfg.set_bool_value("always", picker_always, PickerSectionName);
 
         // pipeline
-        cfg.set_bool_value("unwrap_o365", pipeline_unwrap_o365, PipelineSectionName);
-        cfg.set_bool_value("unshorten", pipeline_unshorten, PipelineSectionName);
+        cfg.set_bool_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);
+        cfg.set_bool_value(PipelineUnshortenKey, pipeline_unshorten, PipelineSectionName);
+        cfg.set_bool_value(PipelineSubstituteKey, pipeline_substitute, PipelineSectionName);
         cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
+        cfg.set_bool_value(PipelineScriptKey, pipeline_script, PipelineSectionName);
 
         // pipe visualiser
         cfg.set_value("last_url", pv_last_url, PipeVisualiserSectionName);

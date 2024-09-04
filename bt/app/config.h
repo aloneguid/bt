@@ -47,6 +47,8 @@ namespace bt {
         // pipeline
         bool pipeline_unwrap_o365;
         bool pipeline_unshorten;
+        bool pipeline_substitute;
+        bool pipeline_script;
         std::vector<std::string> pipeline_substitutions;
 
         // pipe visualiser

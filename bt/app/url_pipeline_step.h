@@ -11,7 +11,8 @@ namespace bt {
         rule_matcher = 0,   // match a rule using the configured browser rules
         find_replace,
         o365,
-        unshortener
+        unshortener,
+        script
     };
 
     class url_pipeline_step {

@@ -8,6 +8,7 @@
 
 ### Improvements
 - More URL un-shorteners supported.
+- You can turn pipeline substitutions on and off without deleting substitutions. This is accessible from the "Pipeline" menu.
 - Some pleaces in the UI are getting "online help" hyperlink to a relevant documentation section.
 
 ### Bugs fixed

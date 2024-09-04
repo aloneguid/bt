@@ -273,6 +273,13 @@ namespace bt::ui {
                 if(w::small_checkbox("Unshorten links", g_config.pipeline_unshorten)) {
                     g_pipeline.load();
                 }
+                if(w::small_checkbox("Substitute substrings", g_config.pipeline_substitute)) {
+                    g_pipeline.load();
+                }
+                if(w::small_checkbox("Scripting", g_config.pipeline_script)) {
+                    g_pipeline.load();
+                }
+                w::sep();
                 if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
                     show_subs = !show_subs;
                 }
@@ -552,10 +559,18 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::tooltip("function to execute");
 
         w::sl();
-        if(w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary)) {
-            g_script.set_code(script_editor.get_text());
+        bool do_run = w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary);
+        w::tooltip("save and run");
+        w::sl();
+        bool do_save = w::button(ICON_MD_SAVE " save");
+        w::tooltip("save only");
 
-            if(g_script.get_error().empty()) {
+        if(do_run || do_save) {
+            g_script.set_code(script_editor.get_text());
+            g_pipeline.load();
+            script_terminal += "Code saved.\n";
+
+            if(do_run && g_script.get_error().empty()) {
                 // test it
                 script_terminal += fmt::format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
 
@@ -583,7 +598,6 @@ It super fast, extremely light on resources, completely free and open source.)",
                 }
             }
         }
-        w::tooltip("save and run");
 
         // test input
         if(!func_name.empty()) {

@@ -7,6 +7,7 @@ namespace bt {
             case url_pipeline_step_type::find_replace: return "Find/replace";
             case url_pipeline_step_type::o365: return "Unwrap Office 365";
             case url_pipeline_step_type::unshortener: return "Un-shorten";
+            case url_pipeline_step_type::script: return "Script";
             default: return "unknown";
         }
     }

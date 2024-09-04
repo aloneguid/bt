@@ -6,7 +6,7 @@ By default, %product% takes the first browser it finds and opens all the links i
 
 You can change the default browser by clicking the "heart" button on the tab of the profile you want to set as default. This will also be reflected in the browser list:
 
-<img height="100" src="default.png"/>
+<img height="200" src="default.png"/>
 
 Additionally, status bar will show the default browser:
 
@@ -24,11 +24,9 @@ Most browsers will not apply settings like <a href="https://peter.sh/experiments
 
 ## Auditing
 
-%product% can now optionally log rule hits to a `.csv` file. It can be enabled in **General** menu:
+%product% can now optionally log rule hits to a `.csv` file. It can be enabled by checking the **General -> Log clicks to hit_log.csv**.
 
-<img height="150" src="audit00.png"/>
-
-and the file path can be found in "File" menu.
+And the file path can be found in "File" menu.
 
 The file itself has all the information about the rule hit event:
 

@@ -16,6 +16,7 @@ stateDiagram-v2
     state Pipeline {
         O365 --> Unshorten
         Unshorten --> Substitute
+        Substitute --> Scripts
     }
     [*] --> Pipeline
     Pipeline --> RP
@@ -23,14 +24,14 @@ stateDiagram-v2
     B --> [*]
 ```
 
-Every time you click on a link, it first goes via a "Pipeline" that makes optional transformations on it. This includes unwrapping Office 365 links, un-shortening URLs, and applying substitutions, all described below.
+Every time you click on a link, it first goes via a "Pipeline" that makes optional transformations on it. This includes unwrapping Office 365 links, un-shortening URLs, and applying substitutions, all described below. Since v4.1.0 you can also [run custom scripts](scripting.md) on the URL.
 
 Rule processor then applies rules to the URL and opens the browser based on the rule.
 
 ## Un-shortening
 
 <warning>
-Internet access is required for this feature to work.
+Internet access is required for this feature to work. If internet is not available, shortened URLs will be opened as is.
 </warning>
 
 Since v3.5.0 URL un-shortening is enabled by default due to the fact shortened URLs mask target link and make it impossible to apply a rule to it.
@@ -67,6 +68,10 @@ For instance, if you want to replace `google.com` with `bing.com`, you would do 
 For more advanced scenarios, you can use regular expressions.
 
 To test substitutions, use the "Test" section on the top. It will show you the result of the substitution as you type in real time.
+
+## Scripts
+
+Since v4.1.0 you can run custom scripts on the URL. This is a powerful feature that allows you to manipulate the URL in any way you want. For instance, you can add a query parameter, remove a query parameter, or even change the domain name. The possibilities are endless. [Learn more](scripting.md) about scripting.
 
 
 
