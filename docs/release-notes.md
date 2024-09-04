@@ -1,10 +1,9 @@
 ## 4.1.0
 
 ### New features
-- Introducing **Pipe debugger** - a very detailed representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
+- Introducing [**Pipeline debugger**](https://aloneguid.github.io/bt/debugger.html) - a very detailed representation of how BT processes URLs that can be used to understand BT and test how rules and substitutions are applied. Accessible from the `Tools` menu.
 - BT can write log file to "log.txt" in the same directory as `config.ini`. This is useful for debugging and understanding how BT processes URLs. Log file is off by default and can be enabled from the `General` menu.
-- in progress: Lua scripting.
-- todo: Picker keyboard navigation.
+- [Lua scripting](https://aloneguid.github.io/bt/scripting.html) for more advanced url processing and rule matching. This is still a very new feature, therefore some bugs can be expected.
 
 ### Improvements
 - More URL un-shorteners supported.
