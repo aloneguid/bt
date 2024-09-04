@@ -86,6 +86,8 @@ namespace bt {
             }
         }
 
+        discover_function_names();
+
         // load code into interpreter
         if(luaL_loadstring(L, code.c_str()) || lua_pcall(L, 0, 0, 0)) {
             error = lua_tostring(L, -1);
@@ -154,30 +156,13 @@ namespace bt {
         return r;
     }
 
-    std::vector<std::string> script_site::list_function_names() {
-        vector<string> r;
-
-        // use regex to list function names
-        regex re{R"(function\s+(\w+))"};
-        sregex_iterator it{code.begin(), code.end(), re};
-        sregex_iterator end;
-        for(; it != end; ++it) {
-            string n = it->str(1);
-
-            if(n.starts_with(LuaRulePrefix) || n.starts_with(LuaPipelinePrefix)) {
-                r.push_back(n);
-            }
-        }
-
-        return r;
-    }
-
     void script_site::handle_lua_print(const std::string& msg) {
         print_buffer += msg + "\n";
         if(on_print) {
             on_print(msg);
         }
     }
+
     void script_site::lua_push(const click_payload& up) {
         // set global table "p" with 3 members: url, window_title, process_name
         lua_newtable(L);
@@ -188,5 +173,27 @@ namespace bt {
         lua_pushstring(L, up.process_name.c_str());
         lua_setfield(L, -2, "pn");
         lua_setglobal(L, "p");
+    }
+
+    void script_site::discover_function_names() {
+        all_function_names.clear();
+        bt_function_names.clear();
+        ppl_function_names.clear();
+        rule_function_names.clear();
+
+        // use regex to list function names
+        regex re{ R"(function\s+(\w+))" };
+        sregex_iterator it{ code.begin(), code.end(), re };
+        sregex_iterator end;
+        for (; it != end; ++it) {
+            string n = it->str(1);
+            bool is_rule = n.starts_with(LuaRulePrefix);
+            bool is_pipeline = n.starts_with(LuaPipelinePrefix);
+
+            all_function_names.push_back(n);
+            if (is_rule || is_pipeline) bt_function_names.push_back(n);
+            if (is_pipeline) ppl_function_names.push_back(n);
+            if (is_rule) rule_function_names.push_back(n);
+        }
     }
 }

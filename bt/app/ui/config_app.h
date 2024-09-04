@@ -73,7 +73,6 @@ namespace bt::ui {
         std::string script_terminal;
         bool script_terminal_autoscroll{true};
         size_t script_fn_selected{0};
-        bool script_fn_result{false};
 
         // Pipe visualiser window
         bool pv_show{false};
@@ -82,7 +81,6 @@ namespace bt::ui {
         click_payload pv_cp;
         bool pv_only_matching{false};
 
-        std::vector<std::string> lua_fns;
         std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },

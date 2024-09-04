@@ -536,7 +536,6 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         if(!script_initialised) {
             script_editor.set_text(g_script.get_code());
-            lua_fns = g_script.list_function_names();
             script_initialised = true;
         }
 
@@ -547,15 +546,14 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::label(g_script.get_error(), w::emphasis::error);
         }
 
-        w::combo("##fn", lua_fns, script_fn_selected, 250);
-        string func_name = lua_fns.empty() ? "" : lua_fns[script_fn_selected];
+        w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
+        string func_name = g_script.bt_function_names.empty() ? "" : g_script.bt_function_names[script_fn_selected];
         bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
         w::tooltip("function to execute");
 
         w::sl();
         if(w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary)) {
             g_script.set_code(script_editor.get_text());
-            lua_fns = g_script.list_function_names();
 
             if(g_script.get_error().empty()) {
                 // test it
@@ -1254,25 +1252,22 @@ special keyword - %url% which is replaced by opening url.)");
                 w::sl();
                 string val_label = string{"##val"} + std::to_string(i);
                 if(rule->loc == match_location::lua_script) {
-                    if(lua_fns.empty()) {
-                        lua_fns = g_script.list_function_names();
-                    }
 
                     // get selected index
                     size_t selected{0};
-                    for(size_t j = 0; j < lua_fns.size(); j++) {
-                        if(lua_fns[j] == rule->value) {
+                    for(size_t j = 0; j < g_script.rule_function_names.size(); j++) {
+                        if(g_script.rule_function_names[j] == rule->value) {
                             selected = j;
                             break;
                         }
                     }
 
-                    w::combo(val_label, lua_fns, selected, 250);
+                    w::combo(val_label, g_script.rule_function_names, selected, 250);
                     w::tooltip(strings::LuaScriptTooltip);
 
                     // reassign value
-                    if(!lua_fns.empty()) {
-                        rule->value = lua_fns[selected];
+                    if(!g_script.rule_function_names.empty()) {
+                        rule->value = g_script.rule_function_names[selected];
                     }
 
                 } else {

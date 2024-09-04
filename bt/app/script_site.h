@@ -14,6 +14,11 @@ namespace bt {
         std::string print_buffer;
         std::function<void(const std::string&)> on_print;
 
+        std::vector<std::string> all_function_names;    // all function names
+        std::vector<std::string> bt_function_names;     // all function names which in some way are relevant to business logic
+        std::vector<std::string> ppl_function_names;    // all function names which are relevant to pipeline processing
+        std::vector<std::string> rule_function_names;   // all function names which are relevant to rule processing
+
         void reload();
 
         std::string get_path() const { return is_path ? path_or_code : ""; }
@@ -29,12 +34,6 @@ namespace bt {
 
         std::string call_ppl(const click_payload& up, const std::string& function_name);
 
-        /**
-         * @brief Analyse the code and return a list of Lua function names with supported prefixes
-         * @return 
-         */
-        std::vector<std::string> list_function_names();
-
         void handle_lua_print(const std::string& msg);
 
     private:
@@ -45,5 +44,7 @@ namespace bt {
         lua_State* L{nullptr};
 
         void lua_push(const click_payload& up);
+
+        void discover_function_names();
     };
 }
