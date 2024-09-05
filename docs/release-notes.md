@@ -1,6 +1,6 @@
 ## 4.1.1
 
-⌨️ Keyboard is back, but it's even better now. Picker can be controlled with keyboaard keys.
+⌨️ Keyboard is back, but it's even better now. Picker can be [controlled with keyboaard keys](https://aloneguid.github.io/bt/picker.html#keyboard-navigation).
 
 ## 4.1.0
 
