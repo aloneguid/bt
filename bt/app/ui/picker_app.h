@@ -34,7 +34,8 @@ namespace bt::ui {
         const float WindowMinWidth = BrowserSquareSize * 6;
         const float WindowHeight = BrowserSquareSize + ProfileSquareSize + 80;
         float wnd_width;
-        bool has_bar{false};
+        bool has_profile_bar{false};
+        int keyboard_selection_idx{-1};
 
         const float InactiveAlpha = 0.8;
 
@@ -48,8 +49,8 @@ namespace bt::ui {
         std::vector<bt::browser> browsers;
         int active_browser_idx{-1};
         int active_profile_idx{-1};
-        connection_box active_browser_cb;
-        std::vector<connection_box> profiles_cb;
+        connection_box active_browser_cb;        // active browser coordinates
+        std::vector<connection_box> profiles_cb; // active profile coordinates
         float browser_bar_left_pad{0};
 
         grey::widgets::window wnd_main;

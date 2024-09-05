@@ -1,3 +1,7 @@
+## 4.1.1
+
+⌨️ Keyboard is back, but it's even better now. Picker can be controlled with keyboaard keys.
+
 ## 4.1.0
 
 ### New features

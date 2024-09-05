@@ -113,16 +113,40 @@ namespace bt::ui {
 
         w::guard gw{wnd_main};
 
+        keyboard_selection_idx = -1;
+        for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
+            if(ImGui::IsKeyPressed((ImGuiKey)key_index)) {
+                keyboard_selection_idx = key_index - ImGuiKey_1;
+                break;
+            }
+        }
+
         // URL editor
         ImGui::PushItemWidth(-1);
         w::sl();
-        w::input(url, "##url");
+        if(w::input(url, "##url")) {
+        }
         ImGui::PopItemWidth();
         w::tooltip("You can change this URL before making a decision to change which URL will be invoked");
 
         render_browser_bar();
         render_profile_bar();
         render_connection_box();
+
+        // close on Escape key
+        if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
+
+            if(active_profile_idx >= 0) {
+                // close profile bar if open
+                active_profile_idx = -1;
+            } else if(active_browser_idx >= 0) {
+                // close browser bar if open
+                active_browser_idx = -1;
+            } else {
+                // close the whole window
+                is_open = false;
+            }
+        }
 
         return is_open;
     }
@@ -143,7 +167,7 @@ namespace bt::ui {
             float box_y_start = y;
 
             // pad a bit lower if there is no profile bar
-            if(!has_bar) box_y_start += ProfileSquareSize * app->scale / 2;
+            if(!has_profile_bar) box_y_start += ProfileSquareSize * app->scale / 2;
 
             w::set_pos(box_x_start, box_y_start);
             bool is_multiple_choice = b.instances.size() > 1;
@@ -168,12 +192,21 @@ namespace bt::ui {
                     w::image(*app, b.get_best_icon_path(), full_icon_size1, full_icon_size1);
                     ImGui::PopStyleVar();
                 }
+
+                // draw a number overlay
+                //w::set_pos(box_x_start, box_y_start);
+                //w::label(fmt::format("{}", idx));
             }
 
             // move to bottom-right corner
             w::set_pos(sq_size * idx + pad, sq_size);
 
-            b.ui_is_hovered = w::is_hovered();
+            bool is_keyed = !has_profile_bar && keyboard_selection_idx == idx;
+            if(is_keyed) {
+                keyboard_selection_idx = -1;
+            }
+            bool is_moused = w::is_hovered();
+            b.ui_is_hovered = is_keyed || is_moused;
             if(b.ui_is_hovered) {
                 if(active_browser_idx != idx) {
                     active_profile_idx = -1;
@@ -183,7 +216,7 @@ namespace bt::ui {
                 active_browser_idx = idx;
                 if(!is_multiple_choice) {
                     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-                    if(w::is_leftclicked()) {
+                    if(w::is_leftclicked() || is_keyed) {
                         make_decision(b.instances[0]);
                     }
                 }
@@ -208,13 +241,13 @@ namespace bt::ui {
 
     void picker_app::render_profile_bar() {
 
-        has_bar = false;
+        has_profile_bar = false;
 
         // profiles if required
         if(active_browser_idx >= 0) {
             auto& b = browsers[active_browser_idx];
             if(b.instances.size() > 1) {
-                has_bar = true;
+                has_profile_bar = true;
                 w::move_pos(0, ProfileSquarePadding * app->scale);  // some distance
 
                 // find perfect position for profiles
@@ -279,7 +312,9 @@ namespace bt::ui {
                             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
                         }
                         w::tooltip(c->name);
-                        if(w::is_leftclicked()) {
+                        bool is_keyed = keyboard_selection_idx == idx;
+                        bool is_moused = w::is_leftclicked();
+                        if(is_moused || is_keyed) {
                             make_decision(c);
                         }
 
@@ -304,7 +339,7 @@ namespace bt::ui {
     }
 
     void picker_app::render_connection_box() {
-        if(active_browser_cb.min.x == 0) return;
+        if(active_browser_cb.min.x == 0 || active_browser_idx == -1) return;
 
         ImDrawList* dl = ImGui::GetWindowDrawList();
         //ImDrawList* dl = ImGui::GetBackgroundDrawList();
