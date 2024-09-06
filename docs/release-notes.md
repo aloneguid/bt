@@ -1,3 +1,7 @@
+## 4.1.2
+
+"Close on focus loss" option was not working properly. Thanks to @rp1231.
+
 ## 4.1.1
 
 ### Improvements
