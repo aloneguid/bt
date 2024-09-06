@@ -14,8 +14,9 @@ namespace bt {
 
     void url_pipeline::clean(std::string& s) {
         // remove custom protocol prefix
-        if(s.starts_with(CustomProtoName) && s.size() > CustomProtoName.size() + 3) {
-            s = s.substr(CustomProtoName.size() + 3);
+        size_t sz = string(CustomProtoName).size();
+        if(s.starts_with(CustomProtoName) && s.size() > sz + 3) {
+            s = s.substr(sz + 3);
         }
 
         // Firefox for some reason removes ':' when opening custom protocol links, so we need to add it back

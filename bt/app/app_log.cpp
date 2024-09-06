@@ -7,11 +7,11 @@ namespace fs = std::filesystem;
 
 namespace bt {
 
-    const string FileName = "log.txt";
+    const string AppLogFileName = "log.txt";
     app_log app_log::i;
 
     app_log::app_log() :
-        path{config::get_data_file_path(FileName)},
+        path{config::get_data_file_path(AppLogFileName)},
         stream(path, ofstream::out | ofstream::app | ofstream::ate) {
     }
 

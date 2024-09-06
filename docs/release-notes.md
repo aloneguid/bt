@@ -1,6 +1,9 @@
 ## 4.1.1
 
-⌨️ Keyboard is back, but it's even better now. Picker can be [controlled with keyboaard keys](https://aloneguid.github.io/bt/picker.html#keyboard-navigation).
+### Improvements
+- ⌨️ Keyboard is back, but it's even better now. Picker can be [controlled with keyboaard keys](https://aloneguid.github.io/bt/picker.html#keyboard-navigation). Thanks to @aaronransley.
+- Picker window can be optionally dismissed on focus loss, the option is off by default and can be enabled from the `Picker` menu. Thanks to @rp1231 in #86.
+
 
 ## 4.1.0
 

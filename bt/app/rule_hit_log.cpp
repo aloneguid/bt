@@ -8,11 +8,11 @@ namespace fs = std::filesystem;
 
 namespace bt {
 
-    const string FileName = "hit_log.csv";
+    const string HitLogFileName = "hit_log.csv";
     rule_hit_log rule_hit_log::i;
 
     rule_hit_log::rule_hit_log() : 
-        path{config::get_data_file_path(FileName)},
+        path{config::get_data_file_path(HitLogFileName)},
         stream(path, ofstream::out | ofstream::app | ofstream::ate),
         writer(stream) {
         if(stream.tellp() == 0) {

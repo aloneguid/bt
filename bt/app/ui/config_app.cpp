@@ -253,6 +253,8 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Picker"}; m) {
+                w::small_checkbox("Close on focus loss", g_config.picker_close_on_focus_loss);
+
                 w::sep("Manual invocation");
                 w::small_checkbox("Ctrl + Shift + Left Click", g_config.picker_on_key_cs);
                 w::small_checkbox("Ctrl + Alt    + Left Click", g_config.picker_on_key_ca);

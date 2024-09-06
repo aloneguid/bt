@@ -43,6 +43,7 @@ namespace bt {
         bool picker_on_no_rule;
         // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
         bool picker_always;
+        bool picker_close_on_focus_loss;
 
         // pipeline
         bool pipeline_unwrap_o365;

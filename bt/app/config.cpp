@@ -12,26 +12,30 @@ using namespace std;
 namespace fs = std::filesystem;
 
 namespace bt {
-    const string FileName = "config.ini";
-    const string settings_root = string("SOFTWARE\\") + APP_LONG_NAME;
-    const string IIDKeyName = "iid";
-    const string BrowserPrefix = "browser";
-    const string FirefoxContainerModeKey = "firefox_container_mode";
-    const string LogRuleHitsKey = "log_rule_hits";
-    const string LogAppKey = "log_app";
-    const string PersistPopularityKey = "persist_popularity";
-    const string ShowHiddenBrowsersKey = "browsers_show_hidden";
-    const string UnshortEnabledKey = "unshort_enabled";
-    const string PickerSectionName = "picker";
-    const string PipelineSectionName = "pipeline";
-    const string PipelineSubstKeyName = "subst";
-    const string PipelineUnwrapO365Key = "unwrap_o365";
-    const string PipelineUnshortenKey = "unshorten";
-    const string PipelineSubstituteKey = "substitute";
-    const string PipelineScriptKey = "script";
-    const string PipeVisualiserSectionName = "pipevis";
+    #define ConfigFileName "config.ini"
+    #define settings_root "SOFTWARE\\" APP_LONG_NAME
+    #define IIDKeyName "iid"
+    #define BrowserPrefix "browser"
+    #define FirefoxContainerModeKey "firefox_container_mode"
+    #define LogRuleHitsKey "log_rule_hits"
+    #define LogAppKey "log_app"
+    #define PersistPopularityKey "persist_popularity"
+    #define ShowHiddenBrowsersKey "browsers_show_hidden"
+    #define UnshortEnabledKey "unshort_enabled"
+    #define PickerSectionName "picker"
+    #define PickerOnKeyCS "on_key_cs"
+    #define PickerOnKeyCA "on_key_ca"
+    #define PickerOnKeyAS "on_key_as"
+    #define PickerCloseOnFocusLoss "close_on_focus_loss"
+    #define PipelineSectionName "pipeline"
+    #define PipelineSubstKeyName "subst"
+    #define PipelineUnwrapO365Key "unwrap_o365"
+    #define PipelineUnshortenKey "unshorten"
+    #define PipelineSubstituteKey "substitute"
+    #define PipelineScriptKey "script"
+    #define PipeVisualiserSectionName "pipevis"
 
-    config::config() : cfg{config::get_data_file_path(FileName)} {
+    config::config() : cfg{config::get_data_file_path(ConfigFileName)} {
         migrate();
         ensure_instance_id();
         load();
@@ -119,12 +123,13 @@ namespace bt {
         default_profile_long_id = cfg.get_value("default_profile");
 
         // picker
-        picker_on_key_cs = cfg.get_bool_value("on_key_cs", true, PickerSectionName);
-        picker_on_key_ca = cfg.get_bool_value("on_key_ca", false, PickerSectionName);
-        picker_on_key_as = cfg.get_bool_value("on_key_as", false, PickerSectionName);
+        picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
+        picker_on_key_ca = cfg.get_bool_value(PickerOnKeyCA, false, PickerSectionName);
+        picker_on_key_as = cfg.get_bool_value(PickerOnKeyAS, false, PickerSectionName);
         picker_on_conflict = cfg.get_bool_value("on_conflict", true, PickerSectionName);
         picker_on_no_rule = cfg.get_bool_value("on_no_rule", false, PickerSectionName);
         picker_always = cfg.get_bool_value("always", false, PickerSectionName);
+        picker_close_on_focus_loss = cfg.get_bool_value(PickerCloseOnFocusLoss, false, PickerSectionName);
 
         // pipeline
         pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
@@ -150,12 +155,13 @@ namespace bt {
         cfg.set_value("default_profile", default_profile_long_id);
 
         // picker
-        cfg.set_bool_value("on_key_cs", picker_on_key_cs, PickerSectionName);
-        cfg.set_bool_value("on_key_ca", picker_on_key_ca, PickerSectionName);
-        cfg.set_bool_value("on_key_as", picker_on_key_as, PickerSectionName);
+        cfg.set_bool_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
+        cfg.set_bool_value(PickerOnKeyCA, picker_on_key_ca, PickerSectionName);
+        cfg.set_bool_value(PickerOnKeyAS, picker_on_key_as, PickerSectionName);
         cfg.set_bool_value("on_conflict", picker_on_conflict, PickerSectionName);
         cfg.set_bool_value("on_no_rule", picker_on_no_rule, PickerSectionName);
         cfg.set_bool_value("always", picker_always, PickerSectionName);
+        cfg.set_bool_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
 
         // pipeline
         cfg.set_bool_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);

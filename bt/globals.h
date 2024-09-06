@@ -1,25 +1,24 @@
 #pragma once
-#include <string>
 #include "app/url_pipeline.h"
 #include "app/config.h"
 #include "app/script_site.h"
 #include "../common/ext/alg_tracker.h"
 
-const std::string ProtoName = "BrowserTamerHTM";
+#define ProtoName "BrowserTamerHTM"
 
-const std::string PdfProtoName = "BrowserTamerPDF";
+#define PdfProtoName "BrowserTamerPDF"
 
-const std::string CustomProtoName = "x-bt";
+#define CustomProtoName "x-bt"
 
-const std::string ContributeUrl = "https://github.com/aloneguid/bt#contributing";
+#define ContributeUrl "https://github.com/aloneguid/bt#contributing"
 
-const std::string ArgSplitter = "|";
+#define ArgSplitter "|"
 
-constexpr std::string_view PortableMarkerName = ".portable";
+#define PortableMarkerName ".portable"
 
-constexpr std::string_view LuaRulePrefix = "rule_";
+#define LuaRulePrefix "rule_"
 
-constexpr std::string_view LuaPipelinePrefix = "ppl_";
+#define LuaPipelinePrefix "ppl_"
 
 extern alg::tracker t;
 
