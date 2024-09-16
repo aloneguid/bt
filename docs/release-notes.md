@@ -1,3 +1,8 @@
+## 4.1.3
+
+### New features:
+- Ability to hide profiles, in addition to the browsers (#71). Thanks to @ilapro53 for the idea.
+
 ## 4.1.2
 
 "Close on focus loss" option was not working properly. Thanks to @rp1231.

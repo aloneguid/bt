@@ -6,6 +6,9 @@ namespace bt::strings {
     const std::string ChromiumBased{"Chromium based"};
     const std::string GeckoBased{"Gecko based"};
 
+    const std::string ShowThisProfile{"Show this profile in the profile list"};
+    const std::string HideThisProfile{"Hide this profile from the profile list"};
+
     const std::string MenuTools{"Tools"};
     const std::string ScriptEditor{"Script editor"};
 

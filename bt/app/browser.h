@@ -136,7 +136,7 @@ namespace bt {
 
         void delete_rule(const std::string& rule_text);
 
-        std::shared_ptr<browser> b;
+        std::shared_ptr<browser> b;     // browser it belongs to
 
         const std::string id;
         std::string name;               // how it's called by the user
@@ -149,6 +149,11 @@ namespace bt {
         std::string user_arg;
 
         std::vector<std::shared_ptr<match_rule>> rules;
+
+        /**
+         * @brief Whether to hide this profile from UI.
+        */
+        bool is_hidden{false};
 
         /**
          * @brief Optionally sets a custom profile icon if known.

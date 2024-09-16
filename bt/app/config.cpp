@@ -16,6 +16,7 @@ namespace bt {
     #define settings_root "SOFTWARE\\" APP_LONG_NAME
     #define IIDKeyName "iid"
     #define BrowserPrefix "browser"
+    #define IsHidden "hidden"
     #define FirefoxContainerModeKey "firefox_container_mode"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
@@ -193,7 +194,7 @@ namespace bt {
             string section = fmt::format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
-            cfg.set_bool_value("hidden", b->is_hidden, section);
+            cfg.set_bool_value(IsHidden, b->is_hidden, section);
             cfg.set_value("icon", b->icon_path, section);
 
             string subtype;
@@ -221,6 +222,7 @@ namespace bt {
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("user_icon", bi->user_icon_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
+                    cfg.set_bool_value(IsHidden, bi->is_hidden, section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
                     if(bi->order != 0) cfg.set_value("order", to_string(bi->order), section);
                 }
@@ -249,7 +251,7 @@ namespace bt {
 
             b->is_firefox = subtype == "firefox";
             b->is_chromium = subtype == "chromium";
-            b->is_hidden = cfg.get_bool_value("hidden", false, bsn);
+            b->is_hidden = cfg.get_bool_value(IsHidden, false, bsn);
             b->icon_path = cfg.get_value("icon", bsn);
 
             if(b->is_system) {
@@ -272,6 +274,7 @@ namespace bt {
                     bi->user_icon_path = cfg.get_value("user_icon", ssn);
                     bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
+                    bi->is_hidden = cfg.get_bool_value(IsHidden, false, ssn);
                     string s_order = cfg.get_value("order", ssn);
                     if(!s_order.empty()) bi->order = str::to_int(s_order);
 

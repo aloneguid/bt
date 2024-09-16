@@ -1065,6 +1065,13 @@ It super fast, extremely light on resources, completely free and open source.)",
 
             int idx{0};
             for(shared_ptr<browser_instance> bi : b->instances) {
+
+                if(!g_config.show_hidden_browsers && bi->is_hidden) {
+                    idx++;
+                    continue;
+                }
+
+
                 string tab_icon;
                 if(bi->is_incognito) {
                     tab_icon = fmt::format("{} ", ICON_MD_SECURITY);
@@ -1086,6 +1093,20 @@ It super fast, extremely light on resources, completely free and open source.)",
                             g_config.default_profile_long_id = bi->long_id();
                         }
                         w::tooltip("Make this browser the default one");
+
+                        // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
+                        w::sl();
+                        if(bi->is_hidden) {
+                            if(w::button(ICON_MD_VISIBILITY)) {
+                                bi->is_hidden = false;
+                            }
+                            w::tooltip(strings::ShowThisProfile);
+                        } else {
+                            if(w::button(ICON_MD_VISIBILITY_OFF)) {
+                                bi->is_hidden = true;
+                            }
+                            w::tooltip(strings::HideThisProfile);
+                        }
 
                         w::sl();
                         if(w::button(ICON_MD_LAUNCH)) {
@@ -1159,8 +1180,8 @@ It super fast, extremely light on resources, completely free and open source.)",
                         w::spc();
                         render_rules(bi);
                     }
-                    idx++;
                 }
+                idx++;
             }
         } else {
             shared_ptr<browser_instance> bi = b->instances[0];

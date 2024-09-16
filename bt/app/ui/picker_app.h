@@ -15,7 +15,6 @@ namespace bt::ui {
         };
 
 
-        picker_app(const std::string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices);
         picker_app(const std::string& url);
         ~picker_app();
 
@@ -43,7 +42,6 @@ namespace bt::ui {
         std::string title;
         std::unique_ptr<grey::app> app;
         bool is_open{true};
-        std::vector<std::shared_ptr<bt::browser_instance>> choices;
 
         // calculated
         std::vector<bt::browser> browsers;

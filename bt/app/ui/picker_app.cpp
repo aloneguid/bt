@@ -9,8 +9,8 @@ using namespace std;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    picker_app::picker_app(const string& url, std::vector<std::shared_ptr<bt::browser_instance>> choices) 
-        : url{url}, choices{choices}, title{APP_LONG_NAME " - Pick"},
+    picker_app::picker_app(const string& url) 
+        : url{url}, title{APP_LONG_NAME " - Pick"},
         app{grey::app::make(title, WindowMinWidth, WindowHeight)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
         app->load_icon_font = false;
@@ -25,17 +25,32 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        // get unique list of browsers
-        for(auto& c : choices) {
-            if(find_if(
-                browsers.begin(),
-                browsers.end(), [&c](const auto& b) { return b.id == c->b->id; }) == browsers.end()) {
+        // copy visible browsers and profiles
+        for(const shared_ptr<browser> b : g_config.browsers) {
+            if(b->is_hidden) continue;
 
-                browser copy = *(c->b);
-                copy.instances.clear();
-                browsers.push_back(copy);
+            // count number of instances that are not hidden
+            int visible_instances{0};
+            for(const auto c : b->instances) {
+                if(!c->is_hidden) {
+                    visible_instances++;
+                }
             }
+
+            // skip browser if no visible instances
+            if(visible_instances == 0) continue;
+
+
+            browser bc = *b;
+            bc.instances.clear();
+            for(const auto bi : b->instances) {
+                if(!bi->is_hidden) {
+                    bc.instances.push_back(make_shared<browser_instance>(*bi));
+                }
+            }
+            browsers.push_back(bc);
         }
+
 
         app->on_initialised = [this]() {
 
@@ -46,16 +61,12 @@ namespace bt::ui {
             for(auto& b : browsers) {
                 string path = b.get_best_icon_path();
                 app->preload_texture(path, path);
-                for(auto& c : this->choices) {
-                    if(b.id == c->b->id) {
-                        b.instances.push_back(c);
-                        // pre-load icon texture once
-                        string path = c->get_best_icon_path();
-                        if(!path.empty()) {
-                            app->preload_texture(path, path);
-                        }
-                    }
+
+                for(auto bi : b.instances) {
+                    string path = bi->get_best_icon_path();
+                    app->preload_texture(path, path);
                 }
+
                 if(b.instances.size() > max_instances) {
                     max_instances = b.instances.size();
                 }
@@ -81,9 +92,6 @@ namespace bt::ui {
                 .no_scroll();
         };
 
-    }
-
-    picker_app::picker_app(const string& url) : picker_app::picker_app{url, browser::to_instances(g_config.browsers)} {
     }
 
     picker_app::~picker_app() {
