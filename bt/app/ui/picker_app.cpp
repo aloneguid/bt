@@ -17,6 +17,7 @@ namespace bt::ui {
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
+        app->win32_always_on_top = g_config.picker_always_on_top;
 
         // process URL with pipeline
         {
