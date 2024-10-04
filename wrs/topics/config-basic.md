@@ -14,7 +14,7 @@ Additionally, status bar will show the default browser:
 
 ## Custom arguments
 
-Both user-defined and system (autodetected) browsers have an additional argument added. This is "extra arg". %product% does **not** allow modifying `arg` to avoid breaking basic functionality.
+Both user-defined and system (auto-detected) browsers have an additional argument added. This is "extra arg". %product% does **not** allow modifying `arg` to avoid breaking basic functionality.
 
 <warning>
 Most browsers will not apply settings like <a href="https://peter.sh/experiments/chromium-command-line-switches/">chromium flags</a> until you restart the browser completely.
