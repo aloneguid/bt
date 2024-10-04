@@ -5,7 +5,8 @@
 ### New features:
 
 - Ability to hide profiles, in addition to the browsers (#71). Thanks to @ilapro53 for the idea.
-- New picker option "always on top" will make sure picker always shows on top of other windows (off by default).
+- Picker option "always on top" will make sure picker always shows on top of other windows (off by default).
+- Added configuration option to manually invoke Picker when `CAPS LOCKS` is on.
 - todo: copy to clipboard & close in picker
 
 ## 4.1.2

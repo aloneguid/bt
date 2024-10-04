@@ -27,6 +27,8 @@ namespace bt {
     #define PickerOnKeyCS "on_key_cs"
     #define PickerOnKeyCA "on_key_ca"
     #define PickerOnKeyAS "on_key_as"
+    #define PickerOnKeyCL "on_key_cl"
+    #define PickerOnConflict "on_conflict"
     #define PickerCloseOnFocusLoss "close_on_focus_loss"
     #define PickerAlwaysOnTop "always_on_top"
     #define PipelineSectionName "pipeline"
@@ -128,7 +130,8 @@ namespace bt {
         picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
         picker_on_key_ca = cfg.get_bool_value(PickerOnKeyCA, false, PickerSectionName);
         picker_on_key_as = cfg.get_bool_value(PickerOnKeyAS, false, PickerSectionName);
-        picker_on_conflict = cfg.get_bool_value("on_conflict", true, PickerSectionName);
+        picker_on_key_cl = cfg.get_bool_value(PickerOnKeyCL, false, PickerSectionName);
+        picker_on_conflict = cfg.get_bool_value(PickerOnConflict, true, PickerSectionName);
         picker_on_no_rule = cfg.get_bool_value("on_no_rule", false, PickerSectionName);
         picker_always = cfg.get_bool_value("always", false, PickerSectionName);
         picker_close_on_focus_loss = cfg.get_bool_value(PickerCloseOnFocusLoss, false, PickerSectionName);
@@ -161,7 +164,8 @@ namespace bt {
         cfg.set_bool_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
         cfg.set_bool_value(PickerOnKeyCA, picker_on_key_ca, PickerSectionName);
         cfg.set_bool_value(PickerOnKeyAS, picker_on_key_as, PickerSectionName);
-        cfg.set_bool_value("on_conflict", picker_on_conflict, PickerSectionName);
+        cfg.set_bool_value(PickerOnKeyCL, picker_on_key_cl, PickerSectionName);
+        cfg.set_bool_value(PickerOnConflict, picker_on_conflict, PickerSectionName);
         cfg.set_bool_value("on_no_rule", picker_on_no_rule, PickerSectionName);
         cfg.set_bool_value("always", picker_always, PickerSectionName);
         cfg.set_bool_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);

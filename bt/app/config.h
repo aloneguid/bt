@@ -37,6 +37,7 @@ namespace bt {
         bool picker_on_key_cs;
         bool picker_on_key_ca;
         bool picker_on_key_as;
+        bool picker_on_key_cl; // CAPS LOCKS
         // whether to show picker on conflict (more than one browser/profile match)
         bool picker_on_conflict;
         // whether to show picker if none of the rules match at all

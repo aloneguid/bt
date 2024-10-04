@@ -110,11 +110,13 @@ namespace bt::ui {
         bool k_shift = win32::user::is_kbd_shift_down();
         bool k_ctrl = win32::user::is_kbd_ctrl_down();
         bool k_alt = win32::user::is_kbd_alt_down();
+        bool k_caps = win32::user::is_kbd_caps_locks_on();
 
         return
             (g_config.picker_on_key_as && (k_alt && k_shift)) ||
             (g_config.picker_on_key_ca && (k_ctrl && k_alt)) ||
-            (g_config.picker_on_key_cs && (k_ctrl && k_shift));
+            (g_config.picker_on_key_cs && (k_ctrl && k_shift)) ||
+            (g_config.picker_on_key_cl && k_caps);
     }
 
     bool picker_app::run_frame() {

@@ -260,6 +260,7 @@ namespace bt::ui {
                 w::small_checkbox("Ctrl + Shift + Left Click", g_config.picker_on_key_cs);
                 w::small_checkbox("Ctrl + Alt    + Left Click", g_config.picker_on_key_ca);
                 w::small_checkbox("Alt  + Shift + Left Click", g_config.picker_on_key_as);
+                w::small_checkbox("CAPS LOCKS", g_config.picker_on_key_cl);
 
                 w::sep("Automatic invocation");
                 w::small_checkbox("Always", g_config.picker_always);
