@@ -4,6 +4,11 @@
 #include "../../res.inl"
 #include "fmt/core.h"
 #include "../common/win32/user.h"
+#include "../strings.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include "../../common/win32/clipboard.h"
+#include "../../common/win32/shell.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -13,7 +18,7 @@ namespace bt::ui {
         : url{url}, title{APP_LONG_NAME " - Pick"},
         app{grey::app::make(title, WindowMinWidth, WindowHeight)}, wnd_main{ title, &is_open } {
         app->initial_theme_id = g_config.theme_id;
-        app->load_icon_font = false;
+        //app->load_icon_font = false;
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
@@ -56,6 +61,7 @@ namespace bt::ui {
         app->on_initialised = [this]() {
 
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
+            app->preload_texture("more", picker_more_icon_png, picker_more_icon_png_len);
 
             // for each browser, get instances
             int max_instances{0};
@@ -136,10 +142,9 @@ namespace bt::ui {
         // URL editor
         ImGui::PushItemWidth(-1);
         w::sl();
-        if(w::input(url, "##url")) {
-        }
+        w::input(url, "##url");
         ImGui::PopItemWidth();
-        w::tooltip("You can change this URL before making a decision to change which URL will be invoked");
+        w::tooltip(bt::strings::PickerUrlTooltip);
 
         render_browser_bar();
         render_profile_bar();
@@ -161,6 +166,84 @@ namespace bt::ui {
         }
 
         return is_open;
+    }
+
+    // Function to get the coordinates of a point on a circle
+    void get_point_on_circle(float x_center, float y_center, float radius, float angle, float& x, float& y) {
+        x = x_center + radius * std::cos(angle);
+        y = y_center + radius * std::sin(angle);
+    }
+
+    void picker_app::render_action_menu(float x, float y) {
+
+        if(!has_profile_bar) y += ProfileSquareSize * app->scale / 2;
+        float sq_size = BrowserSquareSize * app->scale;
+        ImVec2 wp = ImGui::GetWindowViewport()->WorkPos;
+        float tlh = ImGui::GetTextLineHeight();
+        float cx = x + sq_size / 2;
+        float cy = y + sq_size / 2;
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+
+        // occupy entire space
+        w::set_pos(x, y);
+        ImGui::Dummy(ImVec2(sq_size, sq_size));
+        action_menu_hovered = w::is_hovered();
+
+        // find center in absolute coordinates
+        //auto img_rect_min = ImGui::GetItemRectMin();
+        //auto img_rect_max = ImGui::GetItemRectMax();
+        //float center_x = (img_rect_max.x + img_rect_min.x) / 2;
+        //float center_y = (img_rect_max.y + img_rect_min.y) / 2;
+
+        if(action_menu_hovered) {
+            ImU32 col_bg = w::imcol32(ImGuiCol_MenuBarBg);
+            //dl->AddCircleFilled(ImVec2(cx + wp.x, cy + wp.y), sq_size / 2, col_bg);
+            //dl->PathArcTo(ImVec2(cx + wp.x, cy + wp.y), sq_size / 2 - 2, 0, M_PI);
+        }
+
+        // draw collapsed "action"
+        {
+            float x1 = x + sq_size / 2 - tlh / 2;
+            float y1 = y + sq_size / 2 - tlh / 2;
+            w::set_pos(x1, y1);
+            w::label(ICON_MD_ADD_CIRCLE, 0, action_menu_hovered);
+            if(w::is_hovered())
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
+        // draw menu items in a circle
+        if(action_menu_hovered) {
+            ImU32 col_dot = w::imcol32(ImGuiCol_Text);
+            
+            float angle = 0; // PI is half a circle
+
+            for(action_menu_item& mi : action_menu_items) {
+                if(mi.angle_final == 0) mi.angle_final = angle;
+
+                if(mi.angle < mi.angle_final || mi.x == 0 || mi.y == 0) {
+                    mi.angle += 0.1;
+                    get_point_on_circle(cx, cy, sq_size / 4, mi.angle, mi.x, mi.y);
+                }
+
+                w::set_pos(mi.x, mi.y);
+                w::label(mi.icon, w::emphasis::primary, 0);
+                if(w::is_hovered())
+                    ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                w::tooltip(mi.tooltip);
+                if(w::is_leftclicked()) {
+                    menu_item_clicked(mi.id);
+                }
+
+                //dl->AddCircleFilled(ImVec2(x2 + wp.x, y2 + wp.y), 2, col_dot);
+
+                angle += M_PI / action_menu_items.size();
+            }
+        } else {
+            for(action_menu_item& mi : action_menu_items) {
+                mi.angle = 0;
+                mi.angle_final = 0;
+            }
+        }
     }
 
     void picker_app::render_browser_bar() {
@@ -247,6 +330,9 @@ namespace bt::ui {
 
             idx++;
         }
+
+        // "extra actions" area
+        render_action_menu(sq_size * idx + browser_bar_left_pad, y);
 
         w::set_pos(0, y + BrowserSquareSize * app->scale);
     }
@@ -404,5 +490,16 @@ namespace bt::ui {
     void picker_app::make_decision(std::shared_ptr<bt::browser_instance> decision) {
         this->decision = decision;
         is_open = false;
+    }
+
+    void picker_app::menu_item_clicked(const std::string& id) {
+        if(id == "copy") {
+            win32::clipboard::set_ascii_text(url);
+            is_open = false;
+        } else if(id == "email") {
+            win32::clipboard::set_ascii_text(url);
+            win32::shell::exec(fmt::format("mailto:?body={}", url), "");
+            is_open = false;
+        }
     }
 }

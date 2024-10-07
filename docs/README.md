@@ -8,9 +8,8 @@
 ## 📦Features at a Glance
 
 - Extremely lightweight on memory and resources, written in safe modern C++.
-  - Self-contained single `.exe` under 2 Mb in size with no dependencies.
-  - Available as `.msi` [installer](https://aloneguid.github.io/bt/install-msi.html).
-  - [Portable mode](https://aloneguid.github.io/bt/portable-mode.html) supported.
+  - Self-contained single `.exe` under 3 Mb in size with no dependencies.
+  - Available as `.msi` [installer](https://aloneguid.github.io/bt/install-msi.html), plain zip archive, with optional [portable mode](https://aloneguid.github.io/bt/portable-mode.html).
   - Fits on a floppy disk if you can find it in 2023! 💾
 - Completely free and [open-source](https://github.com/aloneguid/bt).
 - Intelligent detection of the most popular browsers.
@@ -18,6 +17,7 @@
   - Detection of browser profiles.
   - Support for [Firefox Containers](https://aloneguid.github.io/bt/firefox-containers.html).
   - Support for incognito mode / tor mode.
+- [Command line support](https://aloneguid.github.io/bt/commandline.html).
 - Supports Microsoft Store apps.
 - Special support for [Arc browser.](https://arc.net/)
 - Add your own, custom browser or application customised with any parameters you want.
@@ -29,6 +29,7 @@
   - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping).
   - [Find/replace](http://localhost:63342/wrs/preview/url-proc.html#substitutions) functionality, including regular expression support.
 - [Custom scripting](https://aloneguid.github.io/bt/scripting.html) for URL processing and rule matching using [Lua](https://www.lua.org/) programming language.
+- [Pipeline debugger](https://aloneguid.github.io/bt/debugger.html) brings clarity to complicated rules and pipelines.
 - **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox, LibreWolf etc.).
   [![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/oggcljknmiiomjekepdoindjcpnpglnd)](https://chrome.google.com/webstore/detail/browser-tamer/oggcljknmiiomjekepdoindjcpnpglnd)  [![Mozilla Add-on Version](https://img.shields.io/amo/v/browser-tamer)](https://addons.mozilla.org/eu/firefox/addon/browser-tamer/)
 - Open links in ["chromeless (frameless)" window](https://aloneguid.github.io/bt/rules.html#frameless-windows).
@@ -45,7 +46,7 @@ Feel free to [raise an issue here](https://github.com/aloneguid/bt/issues/new) o
 
 ## Contributing
 
-I value your interest in this open-source project. While **I don't accept pull requests** (there is no way to turn them off in GitHub), your support through coffee donations directly contributes to the project's development and sustainability, allowing me to invest more resources into refining, addressing issues, and implementing new features. Your involvement, in any form, is greatly appreciated. Thank you for being a part of our journey!
+I value your interest in this open-source project, and your support through coffee donations directly contributes to the project's development and sustainability, allowing me to invest more resources into refining, addressing issues, and implementing new features. Your involvement, in any form, is greatly appreciated. Thank you for being a part of our journey!
 
 <a href="https://www.buymeacoffee.com/alonecoffee" target="_blank"><img height="50" src="bmc-button.svg" /></a>
 

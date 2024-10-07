@@ -17,4 +17,6 @@ namespace bt::strings {
     const std::string LuaScript{"Lua script"};
     const std::string LuaScriptTooltip{"function name to execute"};
     const std::string RuleIsARegex{"Rule is a Regular Expression (advanced)"};
+
+    const std::string PickerUrlTooltip{"Editable before opening"};
 }
