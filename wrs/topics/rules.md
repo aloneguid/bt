@@ -70,7 +70,7 @@ By default, rules are matched based on input URL. However, since v3.6.0 you can 
 
 <img height="100" src="rule-loc.png"/>
 
-When selecting title or process, you can, just like URL matching, use regular expressions or plain substring. Note that scoping is only applicable to URL matching.
+When selecting title or process (a good example [here](rules-process-name.md)), you can, just like URL matching, use regular expressions or plain substring. Note that scoping is only applicable to URL matching.
 
 "Lua script" is a special case and is covered in [Scripting](scripting.md) topic.
 
