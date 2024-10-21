@@ -2,7 +2,10 @@
 
 ### Improvements
 
-- todo: For process rule, pick from running processes.
+- Rule editor now has a helper function to list currently running processes when working with "Process" rule.
+
+![image](https://github.com/user-attachments/assets/e0dc1a97-da66-470c-9a64-d6a8173ec7c0)
+
 
 ## 4.2.0
 
