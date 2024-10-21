@@ -2,13 +2,13 @@
 #include <filesystem>
 #include <algorithm>
 #include "win32/shell.h"
-#include "win32/process.h"
+#include "win32/kernel.h"
 #include "win32/uwp.h"
+#include "win32/user.h"
 #include "str.h"
-#include "../globals.h"
 #include <fmt/core.h>
-#include "config.h"
 #include "discovery.h"
+#include "strings.h"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -370,6 +370,9 @@ namespace bt {
 
             ::CloseHandle(pi.hProcess);
             ::CloseHandle(pi.hThread);
+        } else {
+            string error = win32::kernel::get_last_error_text();
+            win32::user::message_box("Browser launch error", fmt::format("Command line: {}.\r\nError: {}", cmdline, error));
         }
     }
 }

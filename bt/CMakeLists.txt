@@ -29,6 +29,7 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/win32/clipboard.cpp"
     "../common/win32/sysinfo.cpp"
     "../common/win32/user.cpp"
+    "../common/win32/kernel.cpp"
     "../common/win32/window.cpp"
     "../common/win32/uwp.cpp"
     "../common/win32/app.cpp"
