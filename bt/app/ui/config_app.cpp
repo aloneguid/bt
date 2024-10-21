@@ -19,6 +19,8 @@
 #include "../strings.h"
 #include "extra_widgets.hpp"
 #include "datetime.h"
+#include <ranges>
+#include <algorithm>
 
 using namespace std;
 namespace w = grey::widgets;
@@ -1344,6 +1346,35 @@ special keyword - %url% which is replaced by opening url.)");
                     w::icon_list(url_scopes, (size_t&)rule->scope);
                 }
 
+                // process name selection helper (for "process" rules)
+                if(rule->loc == match_location::process_name) {
+                    w::sl();
+                    if(w::button(ICON_MD_DEVELOPER_BOARD)) {
+                        refresh_pop_proc_names_items();
+                        pop_dash.open();
+                    }
+                    w::tooltip(strings::RulePickProcessName);
+
+                    {
+                        w::guard gpop{pop_dash};
+                        if(pop_dash) {
+                            if(w::input(pop_proc_names_filter, "##proc_filter")) {
+                                pop_proc_names_selected = 0;
+                                pop_proc_names_items_filtered.clear();
+                                for(auto& p : pop_proc_names_items) {
+                                    if(str::contains_ic(p, pop_proc_names_filter)) {
+                                        pop_proc_names_items_filtered.push_back(p);
+                                    }
+                                }
+                            }
+                            w::tooltip("Filter process names");
+                            if(w::list("##proc", pop_proc_names_items_filtered, pop_proc_names_selected)) {
+                                rule->value = pop_proc_names_items_filtered[pop_proc_names_selected];
+                            }
+                        }
+                    }
+                }
+
                 w::sl();
                 if(w::button(string{ICON_MD_DELETE} + "##" + to_string(i), w::emphasis::error)) {
                     bi->delete_rule(rule->value);
@@ -1351,6 +1382,25 @@ special keyword - %url% which is replaced by opening url.)");
                 w::tooltip("Delete rule");
             }
         }
+    }
+
+    void config_app::refresh_pop_proc_names_items() {
+        auto procs = win32::process::enumerate();
+        pop_proc_names_items.clear();
+        for(auto& p : procs) {
+            if(!p.get_name().empty()) {
+                pop_proc_names_items.push_back(p.get_name());
+            }
+        }
+
+        // deduplicate
+        std::ranges::sort(pop_proc_names_items);
+        pop_proc_names_items.erase(
+            std::unique(pop_proc_names_items.begin(), pop_proc_names_items.end()),
+            pop_proc_names_items.end());
+
+        pop_proc_names_items_filtered = pop_proc_names_items;
+        pop_proc_names_filter.clear();
     }
 
     void config_app::rediscover_browsers() {

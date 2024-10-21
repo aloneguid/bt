@@ -8,6 +8,7 @@
 #include "../setup.h"
 #include "../strings.h"
 #include "../url_pipeline.h"
+#include "win32/process.h"
 
 namespace bt::ui {
 
@@ -32,6 +33,11 @@ namespace bt::ui {
         std::string title;
         grey::widgets::window wnd_config;
         grey::widgets::popup pop_dash{"pop_dash"};
+        grey::widgets::popup pop_proc_names{"pop_proc_names"};
+        std::vector<std::string> pop_proc_names_items;
+        std::string pop_proc_names_filter;
+        std::vector<std::string> pop_proc_names_items_filtered;
+        size_t pop_proc_names_selected{0};
         grey::widgets::window wnd_about;
         bool is_open{true};
         std::map<std::string, rule_match_status> id_to_rule_match_status;
@@ -114,6 +120,7 @@ namespace bt::ui {
          */
         void render_icon(const std::string& path_default, bool is_incognito, std::string& path_override);
         void render_rules(std::shared_ptr<browser_instance> bi);
+        void refresh_pop_proc_names_items();
 
         void rediscover_browsers();
         void add_custom_browser_by_asking();
