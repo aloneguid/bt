@@ -6,6 +6,10 @@
 
 ![image](https://github.com/user-attachments/assets/e0dc1a97-da66-470c-9a64-d6a8173ec7c0)
 
+- If a browser could not be launched, a system error message is shown with details (#98).
+
+![image](https://github.com/user-attachments/assets/c556f23d-8a3c-43d0-923b-af2715b9ca27)
+
 
 ## 4.2.0
 
