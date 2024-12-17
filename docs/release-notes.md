@@ -2,7 +2,7 @@
 
 ### New
 
-- Zen browser is now automatically detected as Gecko-based browser. Thanks to @vhick in #111.
+- [Zen browser](https://zen-browser.app/) is now automatically detected as Gecko-based browser. Thanks to @vhick in #111.
 
 ### Improvements
 
@@ -10,7 +10,7 @@
 
 ![image](https://github.com/user-attachments/assets/e0dc1a97-da66-470c-9a64-d6a8173ec7c0)
 
-- For people who have a lot of profiles, tab list is now scrollable, and we have a tab list as well:
+- For people who have a lot of profiles (like @AJolly in #109), tab list is now scrollable, and we have a tab list as well:
 
 ![image](https://github.com/user-attachments/assets/1028259e-6b6f-44e3-8772-9a616c60d160)
 

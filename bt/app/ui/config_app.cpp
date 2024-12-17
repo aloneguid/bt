@@ -1065,7 +1065,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         // --- profiles start
 
         if(b->is_system) {
-            w::tab_bar tabs{b->id};
+            w::tab_bar tabs{b->id, true, true};
 
             int idx{0};
             for(shared_ptr<browser_instance> bi : b->instances) {
