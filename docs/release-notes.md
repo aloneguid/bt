@@ -1,5 +1,9 @@
 ## 4.2.1
 
+### New
+
+- Zen browser is now automatically detected as Gecko-based browser. Thanks to @vhick in #111.
+
 ### Improvements
 
 - Rule editor now has a helper function to list currently running processes when working with "Process" rule.

@@ -37,7 +37,8 @@ map<string, string> firefox_id_to_vdf {
     { "firefox", "Mozilla\\Firefox" },
     { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Microsoft Store version
     { "waterfox", "Waterfox" },
-    { "librewolf", "Librewolf" }
+    { "librewolf", "Librewolf" },
+    { "zen", "zen" }
 };
 
 namespace bt {

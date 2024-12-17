@@ -151,7 +151,7 @@ namespace bt::ui {
         render_connection_box();
 
         // close on Escape key
-        if(ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape))) {
+        if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
 
             if(active_profile_idx >= 0) {
                 // close profile bar if open
