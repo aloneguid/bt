@@ -1,9 +1,12 @@
 {
     "name": "Browser Tamer",
-    "version": "1.2.1",
+    "version": "1.4",
     "manifest_version": 2,
-    "description": "Integrates Browser Tamer with Firefox. Windows only.",
+    "description": "Integrates Browser Tamer with Gecko compatible browsers (like Firefox).",
     "icons": {
+        "16":  "icons/icon16x16.png",
+        "48":  "icons/icon48x48.png",
+        "128": "icons/icon128x128.png",
         "192": "icons/icon192x192.png",
         "256": "icons/icon256x256.png"
     },
