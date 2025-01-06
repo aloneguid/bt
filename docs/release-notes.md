@@ -7,6 +7,7 @@
 ### Bugs fixed
 
 - "Launch in chromeless window" was not working for some time.
+- "Message from dear IMGUI" error fixed in process picker and dashboard warning.
 
 ## 4.2.1
 

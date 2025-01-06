@@ -506,6 +506,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(!pop_dash) return;
 
         bool recheck{false};
+        int i = 0;
         for(auto& sc : health_checks) {
             string tooltip = sc.description;
             {
@@ -518,7 +519,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                 if(!sc.is_ok) {
                     w::sl(250 * app->scale);
-                    if(w::button("fix", w::emphasis::error, true, true)) {
+                    if(w::button(fmt::format("fix##{}", i++), w::emphasis::error, true, true)) {
                         sc.fix();
                         recheck = true;
                     }
@@ -1284,14 +1285,15 @@ special keyword - %url% which is replaced by opening url.)");
 
             for(int i = 0; i < bi->rules.size(); i++) {
                 auto rule = bi->rules[i];
+                string si = std::to_string(i);
 
                 // location
-                w::combo(string{"##loc"} + std::to_string(i), 
+                w::combo(string{"##loc"} + si, 
                     rule_locations, (size_t&)rule->loc, 90);
 
                 // value
                 w::sl();
-                string val_label = string{"##val"} + std::to_string(i);
+                string val_label = string{"##val"} + si;
                 if(rule->loc == match_location::lua_script) {
 
                     // get selected index
@@ -1349,7 +1351,7 @@ special keyword - %url% which is replaced by opening url.)");
                 // process name selection helper (for "process" rules)
                 if(rule->loc == match_location::process_name) {
                     w::sl();
-                    if(w::button(ICON_MD_DEVELOPER_BOARD)) {
+                    if(w::button(fmt::format("{}##{}", ICON_MD_DEVELOPER_BOARD, si))) {
                         refresh_pop_proc_names_items();
                         pop_dash.open();
                     }
