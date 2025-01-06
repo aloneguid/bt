@@ -1,3 +1,13 @@
+## 4.2.2
+
+### Improvements
+
+- Main configuration window can be maximised.
+
+### Bugs fixed
+
+- "Launch in chromeless window" was not working for some time.
+
 ## 4.2.1
 
 ### New

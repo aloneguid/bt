@@ -34,6 +34,12 @@ namespace bt {
         bool app_mode{false};
         bool is_fallback{false};
 
+        /**
+         * @brief If this rule has extra actions configured (such as opening in a container) you should apply them to the payload.
+         * @param up payload to modify
+         */
+        void apply_to(click_payload& up) const;
+
         // UI helpers
         bool ui_test_url_matches;
 

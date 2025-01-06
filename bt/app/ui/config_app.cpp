@@ -36,7 +36,7 @@ namespace bt::ui {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_config.theme_id;
-        app->win32_can_resize = false;
+        app->win32_can_resize = true;
         app->win32_center_on_screen = true;
 
         wnd_config
@@ -1334,7 +1334,7 @@ special keyword - %url% which is replaced by opening url.)");
                 // app mode
                 if(bi->b->is_chromium) {
                     w::sl();
-                    rule->app_mode = w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule->app_mode);
+                    w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule->app_mode);
                     w::tooltip("Open in chromeless window");
                 }
 

@@ -1,3 +1,4 @@
+#include "match_rule.h"
 #include "browser.h"
 #include <filesystem>
 #include <algorithm>
@@ -29,10 +30,6 @@ namespace bt {
     {
         str::trim(this->name);
         this->open_cmd = unmangle_open_cmd(this->open_cmd);
-    }
-
-    bool match_rule::operator==(const match_rule& other) const {
-        return value == other.value && scope == other.scope;
     }
 
     bool operator==(const browser& b1, const browser& b2) {

@@ -54,6 +54,14 @@ namespace bt {
         }
     }
 
+    void match_rule::apply_to(click_payload& up) const {
+        up.app_mode = app_mode;
+    }
+
+    bool match_rule::operator==(const match_rule& other) const {
+        return value == other.value && scope == other.scope;
+    }
+
     std::string match_rule::to_string(bool include_type) const {
 
         if(is_fallback) return value;
