@@ -38,7 +38,13 @@
 
 ## Statistics
 
-In 2023, Browser Tamer was installed by **5150 people** and in December 2023 it had **561 regular users** (using BT constantly for more than 7 days in a row)! This is all I can expose, as only very basic anonymous stats are reported (the fact that you have launched BT).
+![stats](yearly_stats.png)
+
+In 2024, BT was installed by **15'540 people** and had **3'185 regular users**.
+
+In 2023, Browser Tamer was installed by **5'150 people** and had **561 regular users**.
+
+This is all I can expose, as only very basic anonymous stats are reported (the fact that you have launched BT).
 
 ## Raising an Issue
 
