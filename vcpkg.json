@@ -7,7 +7,8 @@
             "features": [
                 "win32-binding",
                 "dx11-binding",
-                "docking-experimental"
+                "docking-experimental",
+                "freetype"
             ],
             "platform": "windows"
         },

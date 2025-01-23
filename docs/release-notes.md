@@ -1,3 +1,10 @@
+## 4.2.3
+
+This release does not change or improve any core functionality and only touches the configuration utility in the following ways:
+- Configuration utility now uses built-in system font "Segoe UI".
+- Lua script editor uses monospaced font "Consolas".
+- Fonts are rendered with "FreeType" rendered which is more accurate and looks better.
+
 ## 4.2.2
 
 ### Improvements
