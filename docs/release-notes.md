@@ -1,3 +1,9 @@
+## 4.2.4
+
+### Improvements
+
+- Prevent config and picker window from flickering white when first shown.
+
 ## 4.2.3
 
 This release does not change or improve any core functionality and only touches the configuration utility in the following ways:
