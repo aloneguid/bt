@@ -9,6 +9,14 @@
 - Eliminate ImGui warnings in Pipeline debugger. No more ugly warning messages. Our debugger is now as pristine as a freshly cleaned whiteboard.
 - Set application test page to a dedicated web page. Finally, the test page gets its own room.
 
+Due to the increasing popularity of Browser Tamer, we now have an official rock ballad you can listen to:
+
+
+
+
+https://github.com/user-attachments/assets/75aafa13-d605-410d-a2eb-308c2cde22b6
+
+
 ## 4.2.3
 
 This release does not change or improve any core functionality and only touches the configuration utility in the following ways:
