@@ -70,7 +70,7 @@ namespace bt::ui {
             .center();
 
         float padding_bottom = 20 * app->scale;
-        w_left_panel = w::container{250 * app->scale, -padding_bottom};
+        w_left_panel = w::container{250 * app->scale, -padding_bottom}.resize_x();
         w_right_panel = w::container{0, -padding_bottom}.border();
 
         app->on_initialised = [this]() {
@@ -748,13 +748,14 @@ It super fast, extremely light on resources, completely free and open source.)",
                             if(i_open) {
 
                                 // rules
+                                int idx = 0;
                                 for(auto r : i->rules) {
                                     if(pv_only_matching && !r->ui_test_url_matches) continue;
                                     ImGui::TableNextRow();
                                     ImGui::TableSetColumnIndex(0);
                                     auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
                                     w::tree_node(
-                                        r->get_type_string(),
+                                        fmt::format("{}##{}", r->get_type_string(), idx++),
                                         ImGuiTreeNodeFlags_SpanAllColumns |
                                         ImGuiTreeNodeFlags_Leaf |
                                         ImGuiTreeNodeFlags_NoTreePushOnOpen,
@@ -1038,7 +1039,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
             w::sl();
             if(w::button(ICON_MD_LAUNCH)) {
-                url_opener::open(b->instances[0], APP_URL);
+                url_opener::open(b->instances[0], APP_TEST_URL);
             }
             w::tooltip("test by opening a link");
 
@@ -1115,14 +1116,14 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         w::sl();
                         if(w::button(ICON_MD_LAUNCH)) {
-                            url_opener::open(bi, APP_URL);
+                            url_opener::open(bi, APP_TEST_URL);
                         }
                         w::tooltip("test by opening a link");
 
                         if(b->is_chromium) {
                             w::sl();
                             if(w::button(ICON_MD_TAB_UNSELECTED)) {
-                                click_payload up{APP_URL};
+                                click_payload up{APP_TEST_URL};
                                 up.app_mode = true;
                                 url_opener::open(bi, up);
                             }

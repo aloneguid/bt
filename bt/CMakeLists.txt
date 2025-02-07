@@ -44,6 +44,7 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_LONG_NAME="${APP_LONG_NAME}"
     APP_VERSION="${PROJECT_VERSION}"
     APP_URL="${APP_URL}"
+    APP_TEST_URL="https://www.aloneguid.uk/other/bt-test-page/"
     APP_GITHUB_URL="${APP_GITHUB_URL}"
     APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
     APP_DOCS_URL="https://aloneguid.github.io/bt/home.html"

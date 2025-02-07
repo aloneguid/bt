@@ -3,6 +3,8 @@
 ### Improvements
 
 - Prevent config and picker window from flickering white when first shown.
+- Eliminate ImGui warnings in Pipeline debugger .
+- Set application test page to a dedicated web page.
 
 ## 4.2.3
 
