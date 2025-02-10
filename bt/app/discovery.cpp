@@ -48,6 +48,8 @@ namespace bt {
     const string ad = win32::shell::get_app_data_folder();
     const string lad = win32::shell::get_local_app_data_path();
     const string FirefoxInstancePrefix = "Firefox-";
+    // any parameters to add to Chromium-based browsers
+    const string ChromiumExtraArgs = " --no-default-browser-check";
 
     string get_id_from_open_cmd(const std::string& cmd) {
         fs::path p(cmd);
@@ -264,8 +266,9 @@ namespace bt {
                     }
 
                     // all the data is ready
-                    string arg = fmt::format("\"{}\" \"--profile-directory={}\"",
-                        browser_instance::URL_ARG_NAME, sys_name);
+                    string arg = fmt::format("\"{}\" \"--profile-directory={}\"{}",
+                        browser_instance::URL_ARG_NAME, sys_name,
+                        ChromiumExtraArgs);
 
                     auto bi = make_shared<browser_instance>(
                         b,

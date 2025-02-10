@@ -2,6 +2,7 @@
 
 ### Improvements
 
+- Chromium-based browsers will receive "--no-default-browser-check" parameter when launched. This will prevent the browser from asking to be the default browser, because we all know Browser Tamer is the default browser. We don't need to be reminded of this every time we open a link. Running re-discovery is required for this to be added in. I was listening to you, @oscarorange in #103.
 - Prevent config and picker window from flickering in annoying white when first shown. Say goodbye to unintentional light shows! Your eyes will no longer be subjected to the AI's attempt at being a strobe light. Consider this our peace offering.
 
 ### Cosmetic changes
