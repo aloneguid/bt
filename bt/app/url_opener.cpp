@@ -13,7 +13,7 @@ namespace bt {
     }
 
     void url_opener::open(click_payload up) {
-        auto matches = browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+        auto matches = browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
         browser_match_result& first_match = matches[0];
         up.app_mode = first_match.rule.app_mode;
         open(first_match.bi, up);

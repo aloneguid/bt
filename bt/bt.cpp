@@ -31,6 +31,8 @@ void track_event(string name) {
 
 void open(bt::click_payload up, bool force_picker = false) {
 
+    //::MessageBox(nullptr, L"open-up", L"Command Line Debugger", MB_OK);
+
     g_pipeline.process(up);
 
     // decision whether to show picker or not
@@ -44,7 +46,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             show_picker = true;
             pick_reason = "hotkey";
         } else if(g_config.picker_on_conflict || g_config.picker_on_no_rule) {
-            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
             if(g_config.picker_on_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
@@ -70,7 +72,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             }
         }
     } else {
-        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
         bt::browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);

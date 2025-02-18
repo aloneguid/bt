@@ -84,7 +84,8 @@ namespace bt {
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
             const click_payload& up,
-            const std::string& default_profile_long_id);
+            const std::string& default_profile_long_id,
+            const script_site& script);
 
         static std::shared_ptr<browser_instance> get_default(
             const std::vector<std::shared_ptr<browser>>& browsers,
@@ -126,6 +127,8 @@ namespace bt {
         void launch(click_payload up) const;
 
         bool is_match(const click_payload& up, match_rule& mr) const;
+
+        bool is_match(const click_payload& up, const script_site& ss, match_rule& mr) const;
 
         /// <summary>
         /// Adds a rule from text. Does not persist.
