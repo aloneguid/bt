@@ -4,6 +4,7 @@
 
 - If pipeline processing function written in Lua was not returning any value, BT would stop processing the rules.
 - Lua scripts for rule checks were not invoked at all for external links.
+- Watch a [YouTube video](https://youtu.be/15Uf8DsL6VU) on Lua scripting.
 
 
 ## 4.2.4
