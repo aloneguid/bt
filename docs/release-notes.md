@@ -1,6 +1,6 @@
 ## 4.2.5
 
-## Bugs fixed
+### Bugs fixed
 
 - If pipeline processing function written in Lua was not returning any value, BT would stop processing the rules.
 - Lua scripts for rule checks were not invoked at all for external links.
