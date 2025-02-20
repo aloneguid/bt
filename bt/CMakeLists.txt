@@ -15,6 +15,7 @@ find_package(tinyxml2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 
 file(GLOB core_src CONFIGURE_DEPENDS
+    "cmdline.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
     "app/pipeline/*.cpp"

@@ -1,3 +1,7 @@
+## 4.3.0
+
+This version enhances command line support, specifically allowing you to use terminal to list browsers and profiles comfigured in Browser Tamer, get default browser and set default browser. This is useful for scripting and automation. Read more in the documentation.
+
 ## 4.2.5
 
 ### Bugs fixed

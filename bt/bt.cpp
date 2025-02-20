@@ -9,6 +9,7 @@
 #include "app/rule_hit_log.h"
 #include "app/app_log.h"
 #include "app/url_opener.h"
+#include "cmdline.h"
 //#include "app/systray.h"
 
 //ui
@@ -120,15 +121,14 @@ void execute(const string& data) {
     string command_data;
     string command = get_command(data, command_data);
     if(!command.empty()) {
-        /*if(command == "tray") {
-            // launch "systray" app
-            bt::systray systray;
-            systray.run();
-            return;
-        } else */if(command == "pick") {
+        if(command == "pick") {
             // force-invoke the picker
             force_picker = true;
             clean_data = command_data;
+        } else if(command == "browser") {
+            cmdline c;
+            c.exec(command, command_data);
+            return;
         }
     }
 
