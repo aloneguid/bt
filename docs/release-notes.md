@@ -1,6 +1,19 @@
 ## 4.3.0
 
-This version enhances command line support, specifically allowing you to use terminal to list browsers and profiles comfigured in Browser Tamer, get default browser and set default browser. This is useful for scripting and automation. Read more in the documentation.
+This version enhances command line support, specifically allowing you to use terminal to list browsers and profiles comfigured in Browser Tamer, get default browser and set default browser. This is useful for scripting and automation. Read more [in the documentation](https://aloneguid.github.io/bt/commandline.html#terminal-commands).
+
+Listing:
+![image](https://github.com/user-attachments/assets/d3a77075-c88c-4193-b8af-aaf1cdb9d0c1)
+
+Getting default browser:
+
+![image](https://github.com/user-attachments/assets/cb5cdac4-4048-4e2a-9337-9b1d2c5575bf)
+
+Setting default browser:
+
+![image](https://github.com/user-attachments/assets/26e923d8-4a87-46ec-a268-983db55f24fa)
+
+
 
 ## 4.2.5
 
