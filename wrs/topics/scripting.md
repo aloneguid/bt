@@ -7,6 +7,10 @@ For total flexibility, %product% supports user scripting. Scripting allows you t
 
 Scripts are written in [Lua](https://www.lua.org/), a lightweight, high-level, multi-paradigm programming language designed primarily for embedded use in applications. Lua is very fast, very low overhead language, and is very easy to learn. The sections below explain how to write scripts for %product%.
 
+Watch a YouTube overview showing a demo on how Lua scripting is integrated:
+
+<video src="https://youtu.be/15Uf8DsL6VU" preview-src="script-video-preview.png"/>
+
 To write and test scripts, you should first open the Script editor from the **Tools** menu:
 
 ![](script-start.png)

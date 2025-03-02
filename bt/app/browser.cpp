@@ -1,3 +1,4 @@
+#include "browser.h"
 #include "match_rule.h"
 #include "browser.h"
 #include <filesystem>
@@ -99,14 +100,15 @@ namespace bt {
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
         const click_payload& up,
-        const string& default_profile_long_id) {
+        const string& default_profile_long_id,
+        const script_site& script) {
         vector<browser_match_result> r;
 
         // which browser should we use?
         for (auto b : browsers) {
             for (auto i : b->instances) {
                 match_rule mr{ "" };
-                if (i->is_match(up, mr)) {
+                if (i->is_match(up, script, mr)) {
                     r.emplace_back(i, mr);
                 }
             }
@@ -279,6 +281,17 @@ namespace bt {
     bool browser_instance::is_match(const click_payload& up, match_rule& mr) const {
         for (const auto& rule : rules) {
             if (rule->is_match(up)) {
+                mr = *rule;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool browser_instance::is_match(const click_payload& up, const script_site& ss, match_rule& mr) const {
+        for(const auto& rule : rules) {
+            if(rule->is_match(up, ss)) {
                 mr = *rule;
                 return true;
             }

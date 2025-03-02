@@ -148,6 +148,12 @@ namespace bt {
             return up.url;
         }
 
+        // check if function call returned any values
+        if(lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            return up.url;
+        }
+
         // read return value
         string r = lua_tostring(L, -1);
         lua_pop(L, 1);

@@ -9,6 +9,7 @@
 #include "app/rule_hit_log.h"
 #include "app/app_log.h"
 #include "app/url_opener.h"
+#include "cmdline.h"
 //#include "app/systray.h"
 
 //ui
@@ -31,6 +32,8 @@ void track_event(string name) {
 
 void open(bt::click_payload up, bool force_picker = false) {
 
+    //::MessageBox(nullptr, L"open-up", L"Command Line Debugger", MB_OK);
+
     g_pipeline.process(up);
 
     // decision whether to show picker or not
@@ -44,7 +47,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             show_picker = true;
             pick_reason = "hotkey";
         } else if(g_config.picker_on_conflict || g_config.picker_on_no_rule) {
-            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
             if(g_config.picker_on_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
@@ -70,7 +73,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             }
         }
     } else {
-        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id);
+        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
         bt::browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);
@@ -118,15 +121,14 @@ void execute(const string& data) {
     string command_data;
     string command = get_command(data, command_data);
     if(!command.empty()) {
-        /*if(command == "tray") {
-            // launch "systray" app
-            bt::systray systray;
-            systray.run();
-            return;
-        } else */if(command == "pick") {
+        if(command == "pick") {
             // force-invoke the picker
             force_picker = true;
             clean_data = command_data;
+        } else if(command == "browser") {
+            cmdline c;
+            c.exec(command, command_data);
+            return;
         }
     }
 

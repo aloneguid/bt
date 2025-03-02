@@ -1,3 +1,20 @@
+## 4.3.0
+
+This version enhances command line support, specifically allowing you to use terminal to list browsers and profiles comfigured in Browser Tamer, get default browser and set default browser. This is useful for scripting and automation. Read more [in the documentation](https://aloneguid.github.io/bt/commandline.html#terminal-commands).
+
+Overview on YouTube:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/XsTvOQBAmzo/0.jpg)](https://www.youtube.com/watch?v=XsTvOQBAmzo)
+
+## 4.2.5
+
+### Bugs fixed
+
+- If pipeline processing function written in Lua was not returning any value, BT would stop processing the rules.
+- Lua scripts for rule checks were not invoked at all for external links.
+- Watch a [YouTube video](https://youtu.be/15Uf8DsL6VU) on Lua scripting.
+
+
 ## 4.2.4
 
 ### Improvements

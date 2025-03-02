@@ -37,6 +37,10 @@ If yes, then you need %product%! It's a smart and powerful tool that acts as a b
 - Optional [audit](https://aloneguid.github.io/bt/config-basic.html#audit) of rule hits to a csv file.
 - Beautiful UI based on [ImGui](https://github.com/ocornut/imgui) (GPU-accelerated UI engine used in games) with support for themes.
 
+Some technical details on how %product% works:
+
+<video src="https://youtu.be/S9aVpDSSOWM" preview-src="intro-video-preview.png"/>
+
 ## Feedback and support
 Please report any issues, usability improvements, or feature requests to my 
 <a href="https://github.com/aloneguid/bt">GitHub project</a> (you need to have a GitHub account).

@@ -226,9 +226,9 @@ namespace bt {
         }
     }
 
-    bool match_rule::is_match(const click_payload& up, script_site& script) const {
+    bool match_rule::is_match(const click_payload& up, const script_site& script) const {
         if(loc == match_location::lua_script) {
-            return script.call_rule(up, value);
+            return const_cast<script_site&>(script).call_rule(up, value);
         }
         return is_match(up);
     }
