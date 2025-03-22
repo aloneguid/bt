@@ -27,7 +27,7 @@
 - Supports [URL processing](https://aloneguid.github.io/bt/url-proc.html), which allows for custom URL pre-processing with
   - [URL un-shortening](https://aloneguid.github.io/bt/url-proc.html#un-shortening).
   - [Office 365 URL unwrapping](https://aloneguid.github.io/bt/url-proc.html#office-365-link-unwrapping).
-  - [Find/replace](http://localhost:63342/wrs/preview/url-proc.html#substitutions) functionality, including regular expression support.
+  - [Find/replace](https://aloneguid.github.io/bt/url-proc.html#substitutions) functionality, including regular expression support.
 - [Custom scripting](https://aloneguid.github.io/bt/scripting.html) for URL processing and rule matching using [Lua](https://www.lua.org/) programming language.
 - [Pipeline debugger](https://aloneguid.github.io/bt/debugger.html) brings clarity to complicated rules and pipelines.
 - **[Extensions](https://aloneguid.github.io/bt/browser-extensions.html)** to integrate with Chrome, Edge, Firefox, or any Chromium-based or Firefox-based browser (Opera, Vivaldi, Brave, Waterfox, LibreWolf etc.).
