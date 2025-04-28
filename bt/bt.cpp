@@ -30,6 +30,14 @@ void track_event(string name) {
     }, true);
 }
 
+void track_click(bt::click_payload up) {
+    t.track(map<string, string> {
+        {"event", "click"},
+        {"process_name", up.process_name},
+        {"app_mode", up.app_mode ? "y" : "n"}
+    }, true);
+}
+
 void open(bt::click_payload up, bool force_picker = false) {
 
     //::MessageBox(nullptr, L"open-up", L"Command Line Debugger", MB_OK);
@@ -82,7 +90,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         }
     }
 
-    track_event("click");
+    track_click(up);
 }
 
 string get_command(const string& data, string& command_data) {
