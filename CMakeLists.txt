@@ -9,8 +9,6 @@ endif()
 
 project ("btu" VERSION ${GLOBAL_VERSION})
 
-add_definitions(-DUNICODE -D_UNICODE)
-
 add_compile_definitions(UNICODE) # required for WIN32 API to use correct versions
 
 # statically link MSVC runtime in thrift to being fully self-contained.
