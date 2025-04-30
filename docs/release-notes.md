@@ -1,7 +1,6 @@
 ## 4.3.1
 
-in progress...
-
+- new feature: relative folder path
 - usage statistics improvements
 
 ## 4.3.0

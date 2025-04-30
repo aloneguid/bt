@@ -9,6 +9,7 @@
 #include "win32/clipboard.h"
 #include "str.h"
 #include "stl.hpp"
+#include "fss.h"
 #include "../rule_hit_log.h"
 #include "../app_log.h"
 #include <filesystem>
@@ -937,7 +938,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::move_pos(padding, padding);
 
         string path = b->get_best_icon_path();
-        if(app->preload_texture(path, path)) {
+        if(app->preload_texture(path, fss::get_full_path(path))) {
             w::image(*app, path, icon_size, icon_size);
         } else {
             w::image(*app, "logo", icon_size, icon_size);
@@ -1228,20 +1229,17 @@ special keyword - %url% which is replaced by opening url.)");
                 .render();
 
             float box_size = 40 * app->scale;
-            string final_path;
 
             if(is_incognito) {
-                if(!path_override.empty() && app->preload_texture(path_override, path_override)) {
+                if(!path_override.empty() && app->preload_texture(path_override, fss::get_full_path(path_override))) {
                     w::rounded_image(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
-                    final_path = path_override;
                 } else {
                     w::rounded_image(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
                 }
             } else {
                 string path = path_override.empty() ? path_default : path_override;
-                final_path = path;
 
-                if(!path.empty() && app->preload_texture(path, path)) {
+                if(!path.empty() && app->preload_texture(path, fss::get_full_path(path))) {
                     w::rounded_image(*app, path, box_size - 1, box_size - 1, box_size / 2);
                 } else {
                     ImGui::Dummy(ImVec2(box_size, box_size));

@@ -1,5 +1,6 @@
 #include "picker_app.h"
 #include <memory>
+#include "fss.h"
 #include "../../globals.h"
 #include "../../res.inl"
 #include "fmt/core.h"
@@ -67,11 +68,11 @@ namespace bt::ui {
             int max_instances{0};
             for(auto& b : browsers) {
                 string path = b.get_best_icon_path();
-                app->preload_texture(path, path);
+                app->preload_texture(path, fss::get_full_path(path));
 
                 for(auto bi : b.instances) {
                     string path = bi->get_best_icon_path();
-                    app->preload_texture(path, path);
+                    app->preload_texture(path, fss::get_full_path(path));
                 }
 
                 if(b.instances.size() > max_instances) {
