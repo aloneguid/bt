@@ -1,7 +1,8 @@
 ## 4.3.1
 
-- new feature: relative folder path
-- usage statistics improvements
+- new feature: relative folder path in portable config mode, thanks to @jerome-breton
+ in #121
+- general security/stability maintenance
 
 ## 4.3.0
 
