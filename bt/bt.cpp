@@ -30,12 +30,22 @@ void track_event(string name) {
     }, true);
 }
 
-void track_click(bt::click_payload up) {
-    t.track(map<string, string> {
+void track_click(bt::click_payload up, const string& pick_reason) {
+
+    map<string, string> data{
         {"event", "click"},
-        {"process_name", up.process_name},
-        {"app_mode", up.app_mode ? "y" : "n"}
-    }, true);
+        {"process_name", up.process_name}
+    };
+
+    if(up.app_mode) {
+        data["app_mode"] = "y";
+    }
+
+    if(!pick_reason.empty()) {
+        data["pick_reason"] = pick_reason;
+    }
+
+    t.track(data, true);
 }
 
 void open(bt::click_payload up, bool force_picker = false) {
@@ -90,7 +100,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         }
     }
 
-    track_click(up);
+    track_click(up, pick_reason);
 }
 
 string get_command(const string& data, string& command_data) {
