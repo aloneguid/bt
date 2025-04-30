@@ -34,3 +34,13 @@ You can create `.portable` file either manually in any editor, or using the foll
 ```bash
 New-Item .portable -Type File
 ```
+
+## Using portable paths
+When editing `config.ini` manually (which is not recommended), you can use relative paths in the `icon` property for both browser icon and/or profile icon like so:
+
+```ini
+[browser:...]
+icon = ./logos/my_browser.png
+```
+
+This will cause %product% to look for `logos/my_browser.png` in the same folder as `bt.exe` is located. This is useful if you want to keep all your icons in the same folder as the application.
