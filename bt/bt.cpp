@@ -17,7 +17,7 @@
 #include "app/ui/picker_app.h"
 
 // globals.h
-alg::tracker t{APP_SHORT_NAME, APP_VERSION};
+alg::tracker t{APP_SHORT_NAME, APP_VERSION, bt::config::get_data_file_path("t.cache"), 24};
 bt::config g_config;
 bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_config};
@@ -27,7 +27,7 @@ using namespace std;
 void track_event(string name) {
     t.track(map<string, string> {
         {"event", name}
-    }, true);
+    });
 }
 
 void track_click(bt::click_payload up, const string& pick_reason) {
@@ -45,7 +45,7 @@ void track_click(bt::click_payload up, const string& pick_reason) {
         data["pick_reason"] = pick_reason;
     }
 
-    t.track(data, true);
+    t.track(data);
 }
 
 void open(bt::click_payload up, bool force_picker = false) {

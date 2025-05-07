@@ -1,3 +1,9 @@
+## 4.3.2
+
+in development
+
+- usage statistics are submitted daily, rather than on every interaction with BT.
+
 ## 4.3.1
 
 - new feature: relative folder path in portable config mode, thanks to @jerome-breton
