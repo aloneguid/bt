@@ -218,6 +218,10 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     debug_args_msgbox(argc, argv);
 
+    t.add_constant("iid", g_config.get_iid());
+    t.add_constant("browser_count", std::to_string(g_config.browsers.size()));
+    t.add_constant("theme_id", g_config.theme_id);
+
     string arg = parse_args(argc, argv);
 
     if(g_config.log_app) {
