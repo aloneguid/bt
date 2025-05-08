@@ -34,7 +34,8 @@ void track_click(bt::click_payload up, const string& pick_reason) {
 
     map<string, string> data{
         {"event", "click"},
-        {"process_name", up.process_name}
+        {"process_name", up.process_name},
+        {"process_description", up.process_description}
     };
 
     if(up.app_mode) {
@@ -165,6 +166,7 @@ void execute(const string& data) {
 
     win32::process proc{win.get_pid()};
     up.process_name = proc.get_name();
+    up.process_description = proc.get_description();
 
     open(up, force_picker);   // open-up hahaha
 }
