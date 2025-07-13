@@ -86,9 +86,10 @@ void open(bt::click_payload up, bool force_picker = false) {
         bt::ui::picker_app app{up.url};
         auto bi = app.run();
         if(bi) {
-            bt::url_opener::open(bi, up);
+            up.url = bi.url;
+            bt::url_opener::open(bi.decision, up);
             if(g_config.log_rule_hits) {
-                bt::rule_hit_log::i.write(up, bi, "picker:" + pick_reason);
+                bt::rule_hit_log::i.write(up, bi.decision, "picker:" + pick_reason);
             }
         }
     } else {
@@ -219,8 +220,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     debug_args_msgbox(argc, argv);
 
     t.add_constant("iid", g_config.get_iid());
-    t.add_constant("browser_count", std::to_string(g_config.browsers.size()));
-    t.add_constant("theme_id", g_config.theme_id);
+    track_event("open");
 
     string arg = parse_args(argc, argv);
 
@@ -229,6 +229,12 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     }
 
     execute(arg);
+
+    t.track(map<string, string> {
+        {"event", "close"},
+        {"browser_count", std::to_string(g_config.browsers.size())},
+        {"theme_id", g_config.theme_id}
+    });
 
     return 0;
 }

@@ -1,6 +1,12 @@
-## 4.3.2
+## 5.0.0
 
-in development
+This release introduces completely new and rewritten Picker UI and fixed a couple of important bugs.
+
+
+
+### Bugs fixed
+
+- Change in URL in the picker was ignored (#130)
 
 - usage statistics are submitted daily, rather than on every interaction with BT.
 

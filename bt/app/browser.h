@@ -48,8 +48,8 @@ namespace bt {
         std::string disco_instance_id;
 
         // UI helper properties
-        bool ui_is_hovered{false};
         bool ui_test_url_matches{false};
+        float ui_icon_size_anim{0.0f};
 
         size_t get_total_rule_count() const;
 
@@ -173,6 +173,8 @@ namespace bt {
         // UI helpers
         bool ui_is_hovered{false};
         bool ui_test_url_matches;
+        float ui_icon_size_anim{0.0f};
+        float ui_icon2_size_anim{0.0f};
 
         /**
          * @brief Optional sort order

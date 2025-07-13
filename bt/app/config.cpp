@@ -153,30 +153,30 @@ namespace bt {
     }
 
     void config::commit() {
-        cfg.set_bool_value(ShowHiddenBrowsersKey, show_hidden_browsers);
+        cfg.set_value(ShowHiddenBrowsersKey, show_hidden_browsers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
-        cfg.set_bool_value(LogRuleHitsKey, log_rule_hits);
-        cfg.set_bool_value(LogAppKey, log_app);
+        cfg.set_value(LogRuleHitsKey, log_rule_hits);
+        cfg.set_value(LogAppKey, log_app);
         cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
         cfg.set_value("default_profile", default_profile_long_id);
 
         // picker
-        cfg.set_bool_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
-        cfg.set_bool_value(PickerOnKeyCA, picker_on_key_ca, PickerSectionName);
-        cfg.set_bool_value(PickerOnKeyAS, picker_on_key_as, PickerSectionName);
-        cfg.set_bool_value(PickerOnKeyCL, picker_on_key_cl, PickerSectionName);
-        cfg.set_bool_value(PickerOnConflict, picker_on_conflict, PickerSectionName);
-        cfg.set_bool_value("on_no_rule", picker_on_no_rule, PickerSectionName);
-        cfg.set_bool_value("always", picker_always, PickerSectionName);
-        cfg.set_bool_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
-        cfg.set_bool_value(PickerAlwaysOnTop, picker_always_on_top, PickerSectionName);
+        cfg.set_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
+        cfg.set_value(PickerOnKeyCA, picker_on_key_ca, PickerSectionName);
+        cfg.set_value(PickerOnKeyAS, picker_on_key_as, PickerSectionName);
+        cfg.set_value(PickerOnKeyCL, picker_on_key_cl, PickerSectionName);
+        cfg.set_value(PickerOnConflict, picker_on_conflict, PickerSectionName);
+        cfg.set_value("on_no_rule", picker_on_no_rule, PickerSectionName);
+        cfg.set_value("always", picker_always, PickerSectionName);
+        cfg.set_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
+        cfg.set_value(PickerAlwaysOnTop, picker_always_on_top, PickerSectionName);
 
         // pipeline
-        cfg.set_bool_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);
-        cfg.set_bool_value(PipelineUnshortenKey, pipeline_unshorten, PipelineSectionName);
-        cfg.set_bool_value(PipelineSubstituteKey, pipeline_substitute, PipelineSectionName);
+        cfg.set_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);
+        cfg.set_value(PipelineUnshortenKey, pipeline_unshorten, PipelineSectionName);
+        cfg.set_value(PipelineSubstituteKey, pipeline_substitute, PipelineSectionName);
         cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
-        cfg.set_bool_value(PipelineScriptKey, pipeline_script, PipelineSectionName);
+        cfg.set_value(PipelineScriptKey, pipeline_script, PipelineSectionName);
 
         // pipe visualiser
         cfg.set_value("last_url", pv_last_url, PipeVisualiserSectionName);
@@ -201,7 +201,7 @@ namespace bt {
             string section = fmt::format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
-            cfg.set_bool_value(IsHidden, b->is_hidden, section);
+            cfg.set_value(IsHidden, b->is_hidden, section);
             cfg.set_value("icon", b->icon_path, section);
 
             string subtype;
@@ -229,7 +229,7 @@ namespace bt {
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("user_icon", bi->user_icon_path, section);
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
-                    cfg.set_bool_value(IsHidden, bi->is_hidden, section);
+                    cfg.set_value(IsHidden, bi->is_hidden, section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
                     if(bi->order != 0) cfg.set_value("order", to_string(bi->order), section);
                 }
