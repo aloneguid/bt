@@ -34,11 +34,12 @@ namespace bt::ui {
         }
 
         choices = browser::to_instances(g_config.browsers, true);
+
         menu_radius = get_circle_radius_for_icons(
             static_cast<int>(choices.size()),
             (IconRadius + IconPadding) * app->scale);
-        inner_radius = menu_radius - (IconRadius * 2 * app->scale);
-        outer_radius = menu_radius + (IconRadius * 2 * app->scale);
+        inner_radius = menu_radius - (IconRadius * app->scale);
+        outer_radius = menu_radius + (IconRadius * app->scale);
         action_menu_radius = get_circle_radius_for_icons(
             static_cast<int>(action_menu_items.size()),
             (IconRadius + IconPadding) * app->scale);
@@ -59,6 +60,9 @@ namespace bt::ui {
                     app->preload_texture(path, fss::get_full_path(path));
                 }
             }
+
+            float max_size = menu_radius + IconRadius * 4 * app->scale;
+            app->resize_main_viewport(max_size, max_size);
 
             wnd_main
                 //.size(wnd_width, wnd_height_normal)
@@ -185,7 +189,7 @@ namespace bt::ui {
         float active_icon_size = ActiveIconRadius * 2.0f * app->scale;
 
         ImU32 col_dot = w::imcol32(ImGuiCol_Text);
-        ImU32 col_bg = w::imcol32(ImGuiCol_MenuBarBg);
+        ImU32 col_bg = w::imcol32(ImGuiCol_TitleBg);
 
         float angle = 0; // PI is half a circle
         float angle_step = M_PI * 2 / (choices.size() + 1);
@@ -193,8 +197,7 @@ namespace bt::ui {
         animate(inner_radius, inner_radius_anim);
         animate(outer_radius, outer_radius_anim);
 
-        float midpoint = (inner_radius_anim + outer_radius_anim) / 2;
-        dl->AddCircle(c, midpoint, col_bg, 0, midpoint);
+        dl->AddCircle(c, menu_radius, col_bg, 0, icon_size + IconPadding * 2 * app->scale);
        
         //dl->AddCircleFilled(c, dot_radius, col_dot);
 

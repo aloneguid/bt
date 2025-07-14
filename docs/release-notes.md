@@ -1,3 +1,7 @@
+## 5.0.1
+
+First set of fixes for radial menu with too many items.
+
 ## 5.0.0
 
 This release introduces completely new and rewritten Picker UI which addresses a lot of general complaints, and fixed a couple of important bugs related to the picker.
