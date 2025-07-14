@@ -1,3 +1,7 @@
+## 5.0.2
+
+More fixes for radial menu.
+
 ## 5.0.1
 
 First set of fixes for radial menu with too many items.

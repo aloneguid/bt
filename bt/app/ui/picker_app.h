@@ -39,7 +39,7 @@ namespace bt::ui {
         const float ActiveIconRadius{22.0f};
         const float IconPadding{15.0f};
         const float DotRadius{3.0f};
-        const float AnimationSpeed{10.0f};
+        const float AnimationSpeed{7.0f};
         const float InactiveAlpha{0.8f};
 
         std::string url;

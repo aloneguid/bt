@@ -61,7 +61,10 @@ namespace bt::ui {
                 }
             }
 
-            float max_size = menu_radius + IconRadius * 4 * app->scale;
+            float max_size = 
+                menu_radius * 2 +
+                IconRadius * 2 * app->scale +
+                IconPadding * 2 * app->scale;
             app->resize_main_viewport(max_size, max_size);
 
             wnd_main
@@ -155,7 +158,10 @@ namespace bt::ui {
         //    restart_anim();
         //}
         //w::sl();
-        w::input(url, "##url", true, -1);
+        //w::cur_set(
+        //    c.x - menu_radius,
+        //    c.y - menu_radius - IconRadius * 4 * app->scale);
+        //w::input(url, "##url", true, menu_radius * 2);
 
         if(show_extra_menu)
             render_action_menu();
