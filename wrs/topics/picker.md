@@ -1,6 +1,6 @@
 # Picker
 
-Picker is a visual prompt that asks which browser you want to open a link in specifically, instead of matching a rule. It's invoked in the following situations.
+Picker is a visual prompt that asks which browser you want to open a link in specifically, instead of matching a rule.
 
 It can be invoked either manually or automatically, or both. To set this behavior, invoke the "Picker" menu from the main window:
 
@@ -27,21 +27,26 @@ You can also invoke picker from the <a href="commandline.md">command line</a>.
 
 ## Making a choice
 
-The picker interface is dead simple - it display address bar and the list of browsers you can choose from:
+The picker interface is dead simple - it's a radial menu that displays all the browsers and profiles you have configured in %product%, excluding the ones you have hidden explicitly.
 
-<img height="150" src="picker.png"/>
+You can make a selection by clicking on the profile you want the current link to be opened in. 
 
-If a browser has multiple profiles, the picker window will display a list of profiles as well:
+<img height="300" src="picker.png"/>
+
+Before making the choice, you can also change the URL that will be opened by the browser. This is useful if you want to open a different URL than the one you clicked on, or if you want to modify the URL in some way. To change the URL, simply modify it in the input field above the radial menu.
+
+There are also a couple of "micro apps" available when clicking on the "9 dots" icon to the right top of the menu:
 
 <img height="200" src="picker2.png"/>
 
+Currently the options are:
+- **Back** - go back to the browser selection menu.
+- **Copy** - copy the URL to the clipboard and close the picker dialog.
+- **Email** - open the default email client with the URL in the body of the email.
+
 ## Keyboard navigation
 
-You can dismiss the picker dialog after it has opened by pressing <shortcut>Esc</shortcut>. This will only work when you haven't selected a browser or profile yet.
-
-In addition to that, you can select the first `9` browsers and `9` profiles using the keyboard. For instance, pressing <shortcut>1</shortcut> will select the first browser, pressing <shortcut>2</shortcut> will select the second browser, and so on. The same applies to profiles. For instance, to select the second profile or the third browser, presss <shortcut>3 2</shortcut>.
-
-If you have selected a browser with multiple profiles, but then changed your mind, you can press <shortcut>Esc</shortcut> to go back to the browser selection and choose another browser. Pressing <shortcut>Esc Esc</shortcut> will close the picker dialog.
+Coming soon...
 
 ## Other customisations
 

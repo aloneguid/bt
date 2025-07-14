@@ -1,14 +1,8 @@
 ## 5.0.0
 
-This release introduces completely new and rewritten Picker UI and fixed a couple of important bugs.
+This release introduces completely new and rewritten Picker UI which addresses a lot of general complaints, and fixed a couple of important bugs related to the picker.
 
-
-
-### Bugs fixed
-
-- Change in URL in the picker was ignored (#130)
-
-- usage statistics are submitted daily, rather than on every interaction with BT.
+Picker is now using a radial UI, which allows to fit more choices more natually.
 
 ## 4.3.1
 
