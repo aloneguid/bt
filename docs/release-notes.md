@@ -2,7 +2,10 @@
 
 This release introduces completely new and rewritten Picker UI which addresses a lot of general complaints, and fixed a couple of important bugs related to the picker.
 
-Picker is now using a radial UI, which allows to fit more choices more natually.
+Picker is now using a [radial UI](https://aloneguid.github.io/bt/picker.html#making-a-choice), which allows to fit more choices more natually.
+
+<img height="400" alt="Screenshot 2025-07-14 115431" src="https://github.com/user-attachments/assets/976e5456-ea4b-4a68-a9a8-c7a85e0b70fa" />
+
 
 ## 4.3.1
 
