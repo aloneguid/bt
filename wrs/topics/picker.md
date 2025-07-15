@@ -33,20 +33,21 @@ You can make a selection by clicking on the profile you want the current link to
 
 <img height="300" src="picker.png"/>
 
-Before making the choice, you can also change the URL that will be opened by the browser. This is useful if you want to open a different URL than the one you clicked on, or if you want to modify the URL in some way. To change the URL, simply modify it in the input field above the radial menu.
+Before making the choice, you can also change the URL that will be opened by the browser. This is useful if you want to open a different URL than the one you clicked on, or if you want to modify the URL in some way. To change the URL, simply modify it in the input field above the radial menu. URL display can be turned off in main window's options.
 
-There are also a couple of "micro apps" available when clicking on the "9 dots" icon to the right top of the menu:
-
-<img height="200" src="picker2.png"/>
+There are also a couple of "micro apps" always available, which are displayed as smaller icons:
 
 Currently the options are:
-- **Back** - go back to the browser selection menu.
 - **Copy** - copy the URL to the clipboard and close the picker dialog.
 - **Email** - open the default email client with the URL in the body of the email.
 
 ## Keyboard navigation
 
-Coming soon...
+You can navigate the wheel using the keyboard. The following keys are supported:
+- <shortcut>Esc</shortcut> - close the picker dialog without making a choice.
+- <shortcut>Left arrow</shortcut> - move the selection to the right.
+- <shortcut>Right arrow</shortcut> - move the selection to the left.
+- <shortcut>Enter</shortcut> - make the selection and close the picker dialog.
 
 ## Other customisations
 
