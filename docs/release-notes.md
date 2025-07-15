@@ -1,6 +1,7 @@
 ## 5.0.4
 
 - Picker was showing hidden browser profiles (#138 by @krmr)
+- Picker was cut off on low resolution displays (#139 by @CoreParadox)
 
 ## 5.0.3
 
