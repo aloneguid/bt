@@ -72,6 +72,7 @@ namespace bt {
         for(const auto b : browsers) {
             if(skip_hidden && b->is_hidden) continue;
             for(const auto& bi : b->instances) {
+                if(skip_hidden && bi->is_hidden) continue;
                 r.push_back(bi);
             }
         }

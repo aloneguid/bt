@@ -1,3 +1,7 @@
+## 5.0.4
+
+- Picker was showing hidden browser profiles (#138 by @krmr)
+
 ## 5.0.3
 
 - Radial picker menu is much simpler, with everything fit in the same wheel.
