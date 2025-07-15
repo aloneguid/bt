@@ -5,7 +5,7 @@
 - You can optionally turn off URL visualisation in the picker.
 - Added [keyboard navigation](https://aloneguid.github.io/bt/picker.html#keyboard-navigation)!
 
-[![YouTube Video](https://img.youtube.com/vi/y2_EbfWi6xc/0.jpg)](https://www.youtube.com/watch?v=y2_EbfWi6xc)
+[![YouTube Video](https://img.youtube.com/vi/y2_EbfWi6xc/maxresdefault.jpg)](https://www.youtube.com/watch?v=y2_EbfWi6xc)
 
 ## 5.0.2
 
