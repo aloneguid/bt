@@ -42,6 +42,7 @@ namespace bt::ui {
         const float DotRadius{3.0f};
         const float AnimationSpeed{7.0f};
         const float InactiveAlpha{0.8f};
+        const float InactiveAlphaUrl{0.5f};
 
         std::string url;
         std::string title;
@@ -64,6 +65,7 @@ namespace bt::ui {
         float inner_radius_anim{0.0f};
         float outer_radius_anim{0.0f};
         ImU32 clear_color;
+        bool url_hovered{false};
 
 
         std::shared_ptr<bt::browser_instance> decision;

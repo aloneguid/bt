@@ -60,11 +60,8 @@ namespace bt::ui {
                 }
             }
 
-            float max_size = 
-                menu_radius * 2 +
-                IconRadius * 2 * app->scale +
-                IconPadding * 2 * app->scale;
-            app->resize_main_viewport(max_size, max_size);
+            float window_size_unscaled = outer_radius * 4.0f / app->scale;  // unscaled double diameter
+            app->resize_main_viewport(window_size_unscaled, window_size_unscaled);
 
             wnd_main
                 //.size(wnd_width, wnd_height_normal)
@@ -158,10 +155,14 @@ namespace bt::ui {
         //}
         //w::sl();
         if(g_config.picker_show_url) {
+            bool h = url_hovered;
+            if(!h) ImGui::PushStyleVar(ImGuiStyleVar_Alpha, InactiveAlphaUrl);
             w::cur_set(
-                c.x - menu_radius,
+                c.x - outer_radius,
                 c.y - menu_radius - IconRadius * 4 * app->scale);
-            w::input(url, "##url", true, menu_radius * 2);
+            w::input(url, "##url", true, outer_radius * 2);
+            url_hovered = w::is_hovered();
+            if(!h) ImGui::PopStyleVar();
         }
 
         render_choice_menu();
