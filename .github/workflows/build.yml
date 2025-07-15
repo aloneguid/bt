@@ -1,7 +1,7 @@
 ﻿name: 'Build'
 
 env:
-  VERSION: 5.0.2
+  VERSION: 5.0.3
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release

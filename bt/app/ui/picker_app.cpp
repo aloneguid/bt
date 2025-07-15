@@ -5,7 +5,6 @@
 #include "../../res.inl"
 #include "fmt/core.h"
 #include "../common/win32/user.h"
-#include "../strings.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "../../common/win32/clipboard.h"
@@ -17,7 +16,7 @@ namespace w = grey::widgets;
 namespace bt::ui {
     picker_app::picker_app(const string& url) 
         : url{url}, title{APP_LONG_NAME " - Pick"},
-        app{grey::app::make(title, WindowSize, WindowSize)}, wnd_main{ title, &is_open } {
+        app{grey::app::make(title, WindowSize, WindowSize)}, wnd_main{title, &is_open} {
         app->initial_theme_id = g_config.theme_id;
         //app->load_icon_font = false;
         app->win32_can_resize = false;
@@ -25,6 +24,9 @@ namespace bt::ui {
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
         app->win32_always_on_top = g_config.picker_always_on_top;
         app->win32_transparent = true;
+        auto cc = app->get_clear_color();
+        ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
+        clear_color = cc1;
 
         // process URL with pipeline
         {
@@ -35,14 +37,11 @@ namespace bt::ui {
 
         choices = browser::to_instances(g_config.browsers, true);
 
-        menu_radius = get_circle_radius_for_icons(
-            static_cast<int>(choices.size()),
-            (IconRadius + IconPadding) * app->scale);
+        min_choices = choices.size() + action_menu_items.size();
+        if(min_choices < MinChoices) min_choices = MinChoices; // minimum 5 choices to show
+        menu_radius = get_circle_radius_for_icons(min_choices, (IconRadius + IconPadding) * app->scale);
         inner_radius = menu_radius - (IconRadius * app->scale);
         outer_radius = menu_radius + (IconRadius * app->scale);
-        action_menu_radius = get_circle_radius_for_icons(
-            static_cast<int>(action_menu_items.size()),
-            (IconRadius + IconPadding) * app->scale);
         
         app->on_initialised = [this]() {
 
@@ -158,22 +157,43 @@ namespace bt::ui {
         //    restart_anim();
         //}
         //w::sl();
-        //w::cur_set(
-        //    c.x - menu_radius,
-        //    c.y - menu_radius - IconRadius * 4 * app->scale);
-        //w::input(url, "##url", true, menu_radius * 2);
+        if(g_config.picker_show_url) {
+            w::cur_set(
+                c.x - menu_radius,
+                c.y - menu_radius - IconRadius * 4 * app->scale);
+            w::input(url, "##url", true, menu_radius * 2);
+        }
 
-        if(show_extra_menu)
-            render_action_menu();
-        else
-            render_choice_menu();
+        render_choice_menu();
 
         // close on Escape key
         if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-            if(show_extra_menu) {
-                show_extra_menu = false;
-            } else {
+            is_open = false;
+        }
+
+        // move selections with arrow keys
+        int max = choices.size() + action_menu_items.size();
+        if(ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+            if(active_idx >= 0) {
+                active_idx--;
+                if(active_idx < 0) active_idx = max - 1;
+            }
+        } else if(ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+            if(active_idx <= max) {
+                active_idx++;
+                if(active_idx > max) active_idx = 0;
+            }
+        }
+
+        // invoke action on Enter
+        if(ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+            if(active_idx >= 0 && active_idx < choices.size()) {
+                decision = choices[active_idx];
                 is_open = false;
+            } else if(active_idx >= choices.size() && active_idx < max) {
+                // action menu
+                auto& item = action_menu_items[active_idx - choices.size()];
+                menu_item_clicked(item.id);
             }
         }
 
@@ -192,27 +212,41 @@ namespace bt::ui {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         float dot_radius = DotRadius * app->scale;
         float icon_size = IconRadius * 2.0f * app->scale;
+        float icon_padding = IconPadding * app->scale;
         float active_icon_size = ActiveIconRadius * 2.0f * app->scale;
 
         ImU32 col_dot = w::imcol32(ImGuiCol_Text);
-        ImU32 col_bg = w::imcol32(ImGuiCol_TitleBg);
+        ImU32 col_bg = w::imcol32(ImGuiCol_ScrollbarBg);
+        ImU32 col_bg1 = w::imcol32(ImGuiCol_ScrollbarGrab);
 
         float angle = 0; // PI is half a circle
-        float angle_step = M_PI * 2 / (choices.size() + 1);
+        float angle_step = M_PI * 2 / min_choices;
         animate(menu_radius, menu_radius_anim);
         animate(inner_radius, inner_radius_anim);
         animate(outer_radius, outer_radius_anim);
 
-        dl->AddCircle(c, menu_radius, col_bg, 0, icon_size + IconPadding * 2 * app->scale);
+        // background ring and main ring on top
+        dl->AddCircle(c, menu_radius + icon_padding, col_bg1, 0, icon_size + icon_padding * 2);
+        dl->AddCircle(c, menu_radius, col_bg, 0, icon_size + icon_padding * 2);
+
+        // segmentation divider lines
+        //float line_angle = angle_step / 2; // start from the middle of the first segment
+        //for(int i = 0; i < min_choices; i++, line_angle += angle_step) {
+        //    ImVec2 to;
+        //    get_point_on_circle(c, outer_radius_anim * 2, line_angle, to.x, to.y);
+        //    dl->AddLine(c, to, clear_color, 2 * app->scale);
+        //}
        
         //dl->AddCircleFilled(c, dot_radius, col_dot);
 
-        // browsers
+        // choices
 
+        int idx = 0;
         for(auto& p : choices) {
             ImVec2 mid_pos;
             get_point_on_circle(c, menu_radius_anim, angle, mid_pos.x, mid_pos.y);
-            ImVec2 b_pos = p->ui_is_hovered
+            bool is_active = (active_idx == idx);
+            ImVec2 b_pos = is_active
                 ? ImVec2{mid_pos.x - active_icon_size / 2, mid_pos.y - active_icon_size / 2}
                 : ImVec2{mid_pos.x - icon_size / 2, mid_pos.y - icon_size / 2};
 
@@ -220,12 +254,24 @@ namespace bt::ui {
             {
                 w::group g;
                 g.render();
-                if(!p->ui_is_hovered) {
+                if(!is_active) {
                     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, InactiveAlpha);
+                } else {
+                    //float angle_from = angle - angle_step / 2;
+                    //float angle_to = angle + angle_step / 2;
+                    //// draw selected segment in different background
+                    //dl->PathArcTo(c, outer_radius_anim,
+                    //    angle_from,
+                    //    angle_to);
+                    //dl->PathLineTo(c);
+                    //ImVec2 to;
+                    //get_point_on_circle(c, outer_radius_anim, angle_from, to.x, to.y);
+                    //dl->PathLineTo(to);
+                    //dl->PathStroke(clear_color, 0, 2 * app->scale);
                 }
 
                 w::cur_set(b_pos);
-                float& isz = p->ui_is_hovered ? active_icon_size : p->ui_icon_size_anim;
+                float& isz = is_active ? active_icon_size : p->ui_icon_size_anim;
                 w::rounded_image(*app, p->b->get_best_icon_path(), isz, isz, isz / 2);
                 bool is_hovered = w::is_hovered();
                 bool is_leftclicked = w::is_leftclicked();
@@ -255,13 +301,13 @@ namespace bt::ui {
                 // draw debug dot
                 //dl->AddCircleFilled(mid_pos, dot_radius, col_dot);
 
-                if(!p->ui_is_hovered) {
+                if(!is_active) {
                     ImGui::PopStyleVar();
                 }
 
-                p->ui_is_hovered = is_hovered;
                 if(is_hovered) {
                     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                    active_idx = idx;
                     if(is_leftclicked) {
                         decision = p;
                         is_open = false;
@@ -270,38 +316,18 @@ namespace bt::ui {
             }
 
             angle += angle_step;
+            idx++;
         }
 
-        // menu after angle
-        ImVec2 mid_pos;
-        get_point_on_circle(c, menu_radius_anim, angle, mid_pos.x, mid_pos.y);
-        w::cur_set(mid_pos);
-        w::label(ICON_MD_APPS);
-        if(w::is_hovered()) {
-            w::tooltip("More actions");
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            if(w::is_leftclicked()) {
-                show_extra_menu = !show_extra_menu;
-                restart_anim();
-            }
-        }
-    }
-
-    void picker_app::render_action_menu() {
-        ImDrawList* dl = ImGui::GetWindowDrawList();
-        float angle = 0; // PI is half a circle
-        float angle_step = M_PI * 2 / (action_menu_items.size());
-        ImU32 col_bg = w::imcol32(ImGuiCol_MenuBarBg);
-        dl->AddCircle(c, action_menu_radius_anim, col_bg, 0, 40.0f * app->scale);
-        animate(action_menu_radius, action_menu_radius_anim);
-
+        idx = choices.size();
         for(auto& item : action_menu_items) {
+            bool is_active = (active_idx == idx);
             ImVec2 mid_pos;
-            get_point_on_circle(c, action_menu_radius_anim, angle, mid_pos.x, mid_pos.y);
+            get_point_on_circle(c, menu_radius_anim, angle, mid_pos.x, mid_pos.y);
 
             ImVec2 wsz = ImGui::CalcTextSize(item.icon.c_str());
             w::cur_set(mid_pos.x - wsz.x / 2, mid_pos.y - wsz.y / 2);
-            w::label(item.icon);
+            w::label(item.icon, is_active ? w::emphasis::primary : w::emphasis::none);
             if(w::is_hovered()) {
                 w::tooltip(item.tooltip);
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -312,14 +338,13 @@ namespace bt::ui {
 
             // draw tooltip
             angle += angle_step;
+            idx++;
         }
     }
 
+
     void picker_app::menu_item_clicked(const std::string& id) {
-        if(id == "back") {
-            show_extra_menu = !show_extra_menu;
-            restart_anim();
-        } else if(id == "copy") {
+        if(id == "copy") {
             win32::clipboard::set_ascii_text(url);
             is_open = false;
         } else if(id == "email") {
@@ -340,6 +365,12 @@ namespace bt::ui {
         menu_radius_anim = 0;
         inner_radius_anim = 0;
         outer_radius_anim = 0;
-        action_menu_radius_anim = 0;
+    }
+
+    void picker_app::select(std::shared_ptr<bt::browser_instance> bi) {
+        decision = bi;
+        for(auto& c : choices) {
+            //c->ui_is_selected = (c == bi);
+        }
     }
 }

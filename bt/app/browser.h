@@ -171,7 +171,8 @@ namespace bt {
         int popularity{ 0 };
 
         // UI helpers
-        bool ui_is_hovered{false};
+        //bool ui_is_hovered{false};
+        //bool ui_is_selected{false};
         bool ui_test_url_matches;
         float ui_icon_size_anim{0.0f};
         float ui_icon2_size_anim{0.0f};

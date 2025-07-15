@@ -31,6 +31,7 @@ namespace bt {
     #define PickerOnConflict "on_conflict"
     #define PickerCloseOnFocusLoss "close_on_focus_loss"
     #define PickerAlwaysOnTop "always_on_top"
+    #define PickerShowUrl "show_url"
     #define PipelineSectionName "pipeline"
     #define PipelineSubstKeyName "subst"
     #define PipelineUnwrapO365Key "unwrap_o365"
@@ -136,6 +137,7 @@ namespace bt {
         picker_always = cfg.get_bool_value("always", false, PickerSectionName);
         picker_close_on_focus_loss = cfg.get_bool_value(PickerCloseOnFocusLoss, false, PickerSectionName);
         picker_always_on_top = cfg.get_bool_value(PickerAlwaysOnTop, false, PickerSectionName);
+        picker_show_url = cfg.get_bool_value(PickerShowUrl, true, PickerSectionName);
 
         // pipeline
         pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
@@ -170,6 +172,7 @@ namespace bt {
         cfg.set_value("always", picker_always, PickerSectionName);
         cfg.set_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
         cfg.set_value(PickerAlwaysOnTop, picker_always_on_top, PickerSectionName);
+        cfg.set_value(PickerShowUrl, picker_show_url, PickerSectionName);
 
         // pipeline
         cfg.set_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);

@@ -46,6 +46,7 @@ namespace bt {
         bool picker_always;
         bool picker_close_on_focus_loss;
         bool picker_always_on_top;
+        bool picker_show_url;
 
         // pipeline
         bool pipeline_unwrap_o365;
