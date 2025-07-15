@@ -1,24 +1,49 @@
-const BtProtoPrefix = "x-bt://";
+const ProtocolPage = browser.runtime.getURL("protocol_page.html");
+const TabReturnDict = new Map();
 
-async function openInBT(url) {
-    const destUrl = BtProtoPrefix + url;
-    const newTab = await browser.tabs.create({ url: destUrl });
-    // Gecko will no close x-bt:// tabs automatically
-    await browser.tabs.remove(newTab.id);
+async function openInBT(url, returnTab) {
+    const destUrl = `${ProtocolPage}#${url}`;
+    const newTab = await browser.tabs.create({ url: destUrl, active: true, windowId: returnTab.windowId });
+
+    if (returnTab) {
+        TabReturnDict.set(newTab.id, {
+            returnTo: returnTab.id,
+            tabCount: (await browser.tabs.query({
+                windowId: returnTab.windowId
+            })).length - 1
+        });
+    }
 }
 
-// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/onClicked#addlistener_syntax
-browser.browserAction.onClicked.addListener((activeTab) => {
-    const url = activeTab.url;
-    // as we are sending the url to BT, we can close the current tab
-    browser.tabs.remove(activeTab.id);
+browser.tabs.onRemoved.addListener(async (tabId, _) => {
+    if (TabReturnDict.has(tabId)) {
+        const returnTabId = TabReturnDict.get(tabId).returnTo;
+        const returnTab = await browser.tabs.get(returnTabId);
 
-    openInBT(url);
+        const currentTabs = (await browser.tabs.query({
+            windowId: returnTab.windowId
+        })).length;
+
+        if (currentTabs === TabReturnDict.get(tabId).tabCount) {
+            // If no new tab was opened, return to the original tab
+            await browser.tabs.update(TabReturnDict.get(tabId).returnTo, { active: true });
+        }
+        TabReturnDict.delete(tabId);
+    }
 });
 
-browser.contextMenus.onClicked.addListener((info, tab) => {
+// https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/browserAction/onClicked#addlistener_syntax
+browser.browserAction.onClicked.addListener(async (activeTab) => {
+    const url = activeTab.url;
+    // as we are sending the url to BT, we can close the current tab
+    await browser.tabs.remove(activeTab.id);
+
+    await openInBT(url);
+});
+
+browser.contextMenus.onClicked.addListener(async(info, tab) => {
     const url = info.linkUrl;
-    openInBT(url);
+    await openInBT(url, tab);
 });
 
 // install context menu (
