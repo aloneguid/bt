@@ -3,7 +3,7 @@
 - Radial picker menu is much simpler, with everything fit in the same wheel.
 - Outer ring makes it more pleasant.
 - You can optionally turn off URL visualisation in the picker.
-- Added keyboard navigation!
+- Added [keyboard navigation](https://aloneguid.github.io/bt/picker.html#keyboard-navigation)!
 
 ## 5.0.2
 
