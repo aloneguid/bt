@@ -582,7 +582,17 @@ namespace bt {
     }
 
     string discovery::get_shell_url_association_progid(const string& protocol_name) {
-        string prog_id = win32::reg::get_value(
+        string prog_id;
+
+        // Since some version of Windows 11, UserChoiceLatest is used instead of UserChoice
+        prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
+            "ProgId");
+
+        if(!prog_id.empty()) return prog_id;
+
+        prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
             fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
             "ProgId");

@@ -1,3 +1,7 @@
+## 5.0.5
+
+- Fix protocol detection in latest Windows 11 (breaking change by MS) (#134 by @CoreParadox)
+
 ## 5.0.4
 
 - Picker was showing hidden browser profiles (#138 by @krmr)
