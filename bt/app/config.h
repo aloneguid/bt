@@ -47,6 +47,10 @@ namespace bt {
         bool picker_close_on_focus_loss;
         bool picker_always_on_top;
         bool picker_show_url;
+        
+        // experimental features
+        float picker_icon_size{32.0f};
+        float picker_item_padding{10.0f};
 
         // pipeline
         bool pipeline_unwrap_o365;
