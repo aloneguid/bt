@@ -1,4 +1,5 @@
 #include "browser.h"
+#include "browser.h"
 #include "match_rule.h"
 #include "browser.h"
 #include <filesystem>
@@ -157,6 +158,7 @@ namespace bt {
 
                 // merge user data
                 b_new->is_hidden = b_old->is_hidden;
+                b_new->sort_order = b_old->sort_order;
 
                 // profiles
 
@@ -190,6 +192,8 @@ namespace bt {
             r.push_back(b_custom);
         }
 
+        browser::sort(r);
+
         return r;
     }
 
@@ -204,6 +208,21 @@ namespace bt {
         }
 
         return string::npos;
+    }
+
+    void browser::sort(std::vector<std::shared_ptr<browser>>& browsers) {
+        std::sort(browsers.begin(), browsers.end(), [](const shared_ptr<browser>& a, const shared_ptr<browser>& b) {
+            return a->sort_order < b->sort_order;
+        });
+
+        // sort instances by order field
+        for(auto& b : browsers) {
+            std::sort(b->instances.begin(), b->instances.end(),
+                [](const shared_ptr<browser_instance>& a, const shared_ptr<browser_instance>& b) {
+
+                return a->order < b->order;
+            });
+        }
     }
 
     std::string browser::get_image_name(const std::string& open_cmd) {

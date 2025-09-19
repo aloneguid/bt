@@ -20,4 +20,8 @@ namespace bt::strings {
     const std::string RulePickProcessName{"List currently running processes"};
 
     const std::string PickerUrlTooltip{"Editable before opening"};
+
+    const std::string BrowserMoveUpTooltip{"Move up in the list.\nThis position also affect where browser is displayed in the picker dialog."};
+
+    const std::string BrowserMoveDownTooltip{"Move down in the list.\nThis position also affect where browser is displayed in the picker dialog."};
 }

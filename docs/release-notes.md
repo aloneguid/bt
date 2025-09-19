@@ -1,3 +1,13 @@
+## 5.1.0
+
+### New features
+
+- Browser list can be sorted from the UI. This affects both configuration and the picker dialogs.
+
+### Bugs fixed
+
+- When re-discovering browsers, existing order is kept intact.
+
 ## 5.0.5
 
 - Fix protocol detection in latest Windows 11 (breaking change by MS) (#134 by @CoreParadox)

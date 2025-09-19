@@ -17,6 +17,7 @@ namespace bt {
     #define IIDKeyName "iid"
     #define BrowserPrefix "browser"
     #define IsHidden "hidden"
+    #define ItemSortOrder "sort_order"
     #define FirefoxContainerModeKey "firefox_container_mode"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
@@ -200,12 +201,15 @@ namespace bt {
                 cfg.delete_section(osn);
         }
 
+        int order = 0;
         for(auto& b : browsers) {
+            b->sort_order = order++;
             string section = fmt::format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
             cfg.set_value(IsHidden, b->is_hidden, section);
             cfg.set_value("icon", b->icon_path, section);
+            cfg.set_value(ItemSortOrder, b->sort_order, section);
 
             string subtype;
             if(b->is_system) {
@@ -263,6 +267,7 @@ namespace bt {
             b->is_chromium = subtype == "chromium";
             b->is_hidden = cfg.get_bool_value(IsHidden, false, bsn);
             b->icon_path = cfg.get_value("icon", bsn);
+            b->sort_order = cfg.get_int_value(ItemSortOrder, 0, bsn);
 
             if(b->is_system) {
 
@@ -306,26 +311,7 @@ namespace bt {
             }
         }
 
-        // sort by browser name alphabetically
-        std::sort(r.begin(), r.end(), [](const shared_ptr<browser>& a, const shared_ptr<browser>& b) {
-
-            string sa = a->name;
-            string sb = b->name;
-            if(!a->is_system) sa = "z" + sa;
-            if(!b->is_system) sb = "z" + sb;
-            str::lower(sa);
-            str::lower(sb);
-            return sa < sb;
-        });
-
-        // sort instances by order field
-        for(auto& b : r) {
-            std::sort(b->instances.begin(), b->instances.end(),
-                [](const shared_ptr<browser_instance>& a, const shared_ptr<browser_instance>& b) {
-
-                return a->order < b->order;
-            });
-        }
+        browser::sort(r);
 
         return r;
     }

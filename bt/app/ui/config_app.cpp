@@ -1020,6 +1020,32 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::tooltip("Hide this browser from the browser list");
         }
 
+        bool can_move_up = b->id != (*g_config.browsers.begin())->id;
+        bool can_move_down = b->id != (*g_config.browsers.rbegin())->id;
+
+        w::sl();
+        if(w::button(ICON_MD_ARROW_UPWARD, w::emphasis::none, can_move_up)) {
+            // move up one position inside g_config.browsers
+            size_t idx = browser::index_of(g_config.browsers, b);
+            if(idx != string::npos && idx > 0) {
+                std::swap(g_config.browsers[idx], g_config.browsers[idx - 1]);
+                selected_browser_idx = idx - 1;
+                return;
+            }
+        }
+        w::tooltip(strings::BrowserMoveUpTooltip);
+
+        w::sl();
+        if(w::button(ICON_MD_ARROW_DOWNWARD, w::emphasis::none, can_move_down)) {
+            // move down one position inside g_config.browsers
+            size_t idx = browser::index_of(g_config.browsers, b);
+            if(idx != string::npos && idx < g_config.browsers.size() - 1) {
+                std::swap(g_config.browsers[idx], g_config.browsers[idx + 1]);
+                selected_browser_idx = idx + 1;
+            }
+        }
+        w::tooltip(strings::BrowserMoveDownTooltip);
+
         if(!b->open_cmd.empty()) {
             w::sl();
             if(w::button(ICON_MD_FOLDER)) {

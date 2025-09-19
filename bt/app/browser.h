@@ -26,6 +26,7 @@ namespace bt {
         std::string open_cmd;
         bool is_chromium;
         bool is_firefox;
+        int sort_order{0};
 
         /**
          * @brief when true, this browser is part of the system i.e not a user defined one.
@@ -96,6 +97,12 @@ namespace bt {
             std::vector<std::shared_ptr<browser>> old_set);
 
         static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
+
+        /**
+         * @brief Sort browsers and profiles inside them by sort order.
+         * @param browsers 
+         */
+        static void sort(std::vector<std::shared_ptr<browser>>& browsers);
 
     private:
 
