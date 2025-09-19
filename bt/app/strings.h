@@ -8,6 +8,9 @@ namespace bt::strings {
 
     const std::string ShowThisProfile{"Show this profile in the profile list"};
     const std::string HideThisProfile{"Hide this profile from the profile list"};
+    const std::string ProfileMoveUpTooltip{"Move left (affects the picker)"};
+    const std::string ProfileMoveDownTooltip{"Move right (affects the picker)"};
+    const std::string ProfileTestLink{"test by opening a link as an app"};
 
     const std::string MenuTools{"Tools"};
     const std::string ScriptEditor{"Script editor"};
@@ -21,7 +24,7 @@ namespace bt::strings {
 
     const std::string PickerUrlTooltip{"Editable before opening"};
 
-    const std::string BrowserMoveUpTooltip{"Move up in the list.\nThis position also affect where browser is displayed in the picker dialog."};
+    const std::string BrowserMoveUpTooltip{"Move up (affects the picker)"};
 
-    const std::string BrowserMoveDownTooltip{"Move down in the list.\nThis position also affect where browser is displayed in the picker dialog."};
+    const std::string BrowserMoveDownTooltip{"Move down (affects the picker)"};
 }

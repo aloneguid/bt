@@ -1149,20 +1149,22 @@ It super fast, extremely light on resources, completely free and open source.)",
                         bool can_move_right = idx != b->instances.size() - 1;
 
                         w::sl();
-                        if(w::button(ICON_MD_ARROW_LEFT, w::emphasis::none, can_move_left)) {
+                        if(w::button(ICON_MD_WEST, w::emphasis::none, can_move_left)) {
                             // move up one position inside b->instances
                             std::swap(b->instances[idx], b->instances[idx - 1]);
                             set_selected_profile_idx = idx - 1;
                             return;
                         }
+                        w::tooltip(strings::ProfileMoveUpTooltip);
 
                         w::sl();
-                        if(w::button(ICON_MD_ARROW_RIGHT, w::emphasis::none, can_move_right)) {
+                        if(w::button(ICON_MD_EAST, w::emphasis::none, can_move_right)) {
                             // move down one position inside b->instances
                             std::swap(b->instances[idx], b->instances[idx + 1]);
                             set_selected_profile_idx = idx + 1;
                             return;
                         }
+                        w::tooltip(strings::ProfileMoveDownTooltip);
 
                         w::sl();
                         if(w::button(ICON_MD_LAUNCH)) {
@@ -1177,7 +1179,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 up.app_mode = true;
                                 url_opener::open(bi, up);
                             }
-                            w::tooltip("test by opening a link as an app");
+                            w::tooltip(strings::ProfileTestLink);
                         }
 
                         if(!b->open_cmd.empty()) {
