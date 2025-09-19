@@ -220,7 +220,7 @@ namespace bt {
             std::sort(b->instances.begin(), b->instances.end(),
                 [](const shared_ptr<browser_instance>& a, const shared_ptr<browser_instance>& b) {
 
-                return a->order < b->order;
+                return a->sort_order < b->sort_order;
             });
         }
     }

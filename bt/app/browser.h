@@ -187,7 +187,7 @@ namespace bt {
         /**
          * @brief Optional sort order
         */
-        int order{0};
+        int sort_order{0};
 
         bool is_incognito{false};
 

@@ -1113,7 +1113,10 @@ It super fast, extremely light on resources, completely free and open source.)",
                 string tab_title = fmt::format(" {}{} ", tab_icon, bi->name);
 
                 {
-                    auto t = tabs.next_tab(tab_title);
+                    auto t = tabs.next_tab(tab_title, false,
+                        set_selected_profile_idx == -1
+                        ? false
+                        : idx == set_selected_profile_idx);
                     if(t) {
                         selected_profile_idx = idx;
                         w::spc();
@@ -1140,6 +1143,25 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 bi->is_hidden = true;
                             }
                             w::tooltip(strings::HideThisProfile);
+                        }
+
+                        bool can_move_left = idx != 0;
+                        bool can_move_right = idx != b->instances.size() - 1;
+
+                        w::sl();
+                        if(w::button(ICON_MD_ARROW_LEFT, w::emphasis::none, can_move_left)) {
+                            // move up one position inside b->instances
+                            std::swap(b->instances[idx], b->instances[idx - 1]);
+                            set_selected_profile_idx = idx - 1;
+                            return;
+                        }
+
+                        w::sl();
+                        if(w::button(ICON_MD_ARROW_RIGHT, w::emphasis::none, can_move_right)) {
+                            // move down one position inside b->instances
+                            std::swap(b->instances[idx], b->instances[idx + 1]);
+                            set_selected_profile_idx = idx + 1;
+                            return;
                         }
 
                         w::sl();
@@ -1217,6 +1239,8 @@ It super fast, extremely light on resources, completely free and open source.)",
                 }
                 idx++;
             }
+
+            set_selected_profile_idx = -1;
         } else {
             shared_ptr<browser_instance> bi = b->instances[0];
 

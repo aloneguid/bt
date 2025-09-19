@@ -228,7 +228,9 @@ namespace bt {
                 cfg.set_value("user_icon", instance->user_icon_path, section);
             } else {
                 // instances
+                int sort_order = 0;
                 for(auto& bi : b->instances) {
+                    bi->sort_order = sort_order++;
                     string section = fmt::format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
@@ -238,7 +240,7 @@ namespace bt {
                     cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
                     cfg.set_value(IsHidden, bi->is_hidden, section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
-                    if(bi->order != 0) cfg.set_value("order", to_string(bi->order), section);
+                    cfg.set_value(ItemSortOrder, bi->sort_order, section);
                 }
             }
         }
@@ -290,8 +292,7 @@ namespace bt {
                     bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
                     bi->is_hidden = cfg.get_bool_value(IsHidden, false, ssn);
-                    string s_order = cfg.get_value("order", ssn);
-                    if(!s_order.empty()) bi->order = str::to_int(s_order);
+                    bi->sort_order = cfg.get_int_value(ItemSortOrder, 0, ssn);
 
                     // rules, if any
                     bi->set_rules_from_text(cfg.get_all_values("rule", ssn));

@@ -277,7 +277,7 @@ namespace bt {
                         arg,
                         ""
                     );
-                    bi->order = b->instances.size();
+                    bi->sort_order = b->instances.size();
                     if(profile_pic_j.is_string()) {
                         bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                     }
@@ -294,7 +294,7 @@ namespace bt {
                     fmt::format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
                     "");
                 inprivate->is_incognito = true;
-                inprivate->order = b->instances.size();
+                inprivate->sort_order = b->instances.size();
                 b->instances.push_back(inprivate);
             } else {
                 auto inprivate = make_shared<browser_instance>(
@@ -302,7 +302,7 @@ namespace bt {
                 fmt::format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
                 "");
                 inprivate->is_incognito = true;
-                inprivate->order = b->instances.size();
+                inprivate->sort_order = b->instances.size();
                 b->instances.push_back(inprivate);
             }
         }
@@ -315,7 +315,7 @@ namespace bt {
                 ""
             );
             tor->is_incognito = true;
-            tor->order = b->instances.size();
+            tor->sort_order = b->instances.size();
             b->instances.push_back(tor);
         }
     }
@@ -396,7 +396,7 @@ namespace bt {
                             profile_display_name,
                             arg,
                             "");
-                        bi->order = is_default_profile ? -1 : b->instances.size();
+                        bi->sort_order = is_default_profile ? -1 : b->instances.size();
 
                         {
                             const char* c_default = ini.GetValue(e.pItem, "Default");
@@ -409,7 +409,7 @@ namespace bt {
                         // add "no container" profile
                         string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
                         auto bi = make_shared<browser_instance>(b, e.pItem, "No container", arg, "");
-                        bi->order = 0;
+                        bi->sort_order = 0;
                         b->instances.push_back(bi);
 
                         // add profile for each container
@@ -434,7 +434,7 @@ namespace bt {
 
                             string id = fmt::format("{}+c_{}", e.pItem, container.id);
                             auto bi = make_shared<browser_instance>(b, id, container.name, arg, "");
-                            bi->order = b->instances.size();
+                            bi->sort_order = b->instances.size();
                             b->instances.push_back(bi);
                         }
                     }
@@ -453,7 +453,7 @@ namespace bt {
             fmt::format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
             b->open_cmd);
         private_bi->is_incognito = true;
-        private_bi->order = b->instances.size();
+        private_bi->sort_order = b->instances.size();
 
         b->instances.push_back(private_bi);
     }
