@@ -34,12 +34,21 @@ namespace bt::ui {
 
     private:
 
-        const float WindowSize{400.f};
+        ImVec2 mon_work_pos;
+        ImVec2 mon_work_size;
+
+        // flexi sizing
+        float padding;
+        float icon_size;
+        float box_size;
+        float pre_menu_height{0.0f};
+        ImVec2 window_size;
 
         std::string url;
         std::string title;
         std::unique_ptr<grey::app> app;
         bool is_open{true};
+        bool is_settings_open{false};
 
         std::vector<action_menu_item> action_menu_items{
             action_menu_item{"copy", ICON_MD_CONTENT_COPY, "Copy to clipboard & close"},
@@ -49,14 +58,15 @@ namespace bt::ui {
         grey::widgets::window wnd_main;
         grey::widgets::window wnd_settings;
         grey::widgets::container cnt_blist;
+        grey::widgets::container cnt_top;
         std::vector<std::shared_ptr<bt::browser_instance>> choices;
         ImU32 clear_color;
 
         std::shared_ptr<bt::browser_instance> decision;
         int active_idx{0};
-        bool settings_open{true};
 
         bool run_frame();
+        void recalc();
         void render_action_menu();
         void render_list();
         void render_settings();

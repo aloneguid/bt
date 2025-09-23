@@ -3,6 +3,8 @@
 ### New features
 
 - Browser list can be sorted from the UI. This affects both configuration and the picker dialogs.
+- By popular demands, picker is redesigned again to have a more traditional look and feel with some modern twist. Although v5 picker was *wheely* cool, it was slightly impractical to use.
+- **bt** can be installed and upgraded via *winget* - `winget install aloneguid.bt`. `5.0.5` is already available but it may take a few days for `5.1.0` to catch up with this release.
 
 ### Bugs fixed
 
