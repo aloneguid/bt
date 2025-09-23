@@ -64,6 +64,7 @@ namespace bt::ui {
 
         std::shared_ptr<bt::browser_instance> decision;
         int active_idx{0};
+        bool url_focused{false};
 
         bool run_frame();
         void recalc();

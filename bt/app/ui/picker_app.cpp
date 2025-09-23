@@ -160,34 +160,37 @@ namespace bt::ui {
             render_settings();
         }
 
-        // close on Escape key
-        if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-            is_open = false;
-        }
+        if(!url_focused) {
 
-        // left or up key moves active_idx down
-        if(ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
-            if(!choices.empty()) {
-                active_idx--;
-                if(active_idx < 0) active_idx = (int)choices.size() - 1;
-            }
-        }
-
-        // right or down key moves active_idx up
-        if(ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
-            if(!choices.empty()) {
-                active_idx++;
-                if(active_idx >= (int)choices.size()) active_idx = 0;
-            }
-        }
-
-        // number keys 1-9 change active_idx
-        for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
-            if(ImGui::IsKeyPressed((ImGuiKey)key_index)) {
-                active_idx = key_index - ImGuiKey_1;
-                decision = choices[active_idx];
+            // close on Escape key
+            if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
                 is_open = false;
-                break;
+            }
+
+            // left or up key moves active_idx down
+            if(ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+                if(!choices.empty()) {
+                    active_idx--;
+                    if(active_idx < 0) active_idx = (int)choices.size() - 1;
+                }
+            }
+
+            // right or down key moves active_idx up
+            if(ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+                if(!choices.empty()) {
+                    active_idx++;
+                    if(active_idx >= (int)choices.size()) active_idx = 0;
+                }
+            }
+
+            // number keys 1-9 change active_idx
+            for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
+                if(ImGui::IsKeyPressed((ImGuiKey)key_index)) {
+                    active_idx = key_index - ImGuiKey_1;
+                    decision = choices[active_idx];
+                    is_open = false;
+                    break;
+                }
             }
         }
 
@@ -236,6 +239,7 @@ namespace bt::ui {
 
         w::sl();
         w::input(url, "##url", true, -FLT_MIN);
+        url_focused = ImGui::IsItemFocused();
     }
 
     void picker_app::render_list() {
@@ -340,14 +344,14 @@ namespace bt::ui {
             g_config.picker_show_key_hints = true;
         }
 
-#if _DEBUG
-        w::sl();
-        if(w::button("double items")) {
-            const size_t c = choices.size();                  // snapshot current count
-            choices.reserve(choices.size() + c);              // avoid reallocation (keeps iterators valid)
-            choices.insert(choices.end(), choices.begin(), choices.begin() + c); // append first c items
-        }
-#endif
+//#if _DEBUG
+//        w::sl();
+//        if(w::button("double items")) {
+//            const size_t c = choices.size();                  // snapshot current count
+//            choices.reserve(choices.size() + c);              // avoid reallocation (keeps iterators valid)
+//            choices.insert(choices.end(), choices.begin(), choices.begin() + c); // append first c items
+//        }
+//#endif
 
     }
 
