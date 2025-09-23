@@ -27,11 +27,11 @@ You can also invoke picker from the <a href="commandline.md">command line</a>.
 
 ## Making a choice
 
-The picker interface is dead simple - it's a radial menu that displays all the browsers and profiles you have configured in %product%, excluding the ones you have hidden explicitly.
+The picker interface is dead simple - it's a menu with a list of browsers and profiles you have configured in %product%, excluding the ones you have hidden explicitly.
 
 You can make a selection by clicking on the profile you want the current link to be opened in. 
 
-<img height="300" src="picker.png"/>
+<img height="200" src="picker.png"/>
 
 Before making the choice, you can also change the URL that will be opened by the browser. This is useful if you want to open a different URL than the one you clicked on, or if you want to modify the URL in some way. To change the URL, simply modify it in the input field above the radial menu. URL display can be turned off in main window's options.
 
@@ -45,9 +45,10 @@ Currently the options are:
 
 You can navigate the wheel using the keyboard. The following keys are supported:
 - <shortcut>Esc</shortcut> - close the picker dialog without making a choice.
-- <shortcut>Left arrow</shortcut> - move the selection to the right.
-- <shortcut>Right arrow</shortcut> - move the selection to the left.
+- <shortcut>Left arrow</shortcut> or <shortcut>Up arrow</shortcut> - move the selection to the right.
+- <shortcut>Right arrow</shortcut> or <shortcut>Down arrow</shortcut> - move the selection to the left.
 - <shortcut>Enter</shortcut> - make the selection and close the picker dialog.
+- <shortcut>1-9</shortcut> - make the selection corresponding to the number pressed and close the picker dialog.
 
 ## Other customisations
 
@@ -58,7 +59,6 @@ Close on focus loss
 
 Always on top
 : If enabled, the picker dialog will always be on top of other windows, regardless which application is active. This is useful if some of your applications prevent Picker from being on top.
-
 
 
 

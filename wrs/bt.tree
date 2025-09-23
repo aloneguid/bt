@@ -8,10 +8,10 @@
 
     <toc-element topic="home.md"/>
     <toc-element topic="Installing.md">
-        <toc-element topic="install-msi.md"/>
+        <toc-element topic="install-apt.md"/>
         <toc-element topic="install-zip.md"/>
         <toc-element topic="portable-mode.md"/>
-        <toc-element topic="install-apt.md"/>
+        <toc-element topic="install-msi.md"/>
     </toc-element>
     <toc-element topic="prereq.md"/>
     <toc-element topic="config-basic.md"/>
