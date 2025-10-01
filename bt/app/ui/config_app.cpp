@@ -30,6 +30,7 @@ namespace bt::ui {
     config_app::config_app() :
         title{string{APP_LONG_NAME} + " " + APP_VERSION},
         wnd_config{title, &is_open},
+        wnd_health_dash{"Health"},
         wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs},
         wnd_scripting{strings::ScriptEditor, &show_scripting},
@@ -47,6 +48,12 @@ namespace bt::ui {
             .no_resize()
             .no_collapse()
             .fill_viewport()
+            .no_scroll();
+
+        wnd_health_dash
+            .border(1)
+            .no_collapse()
+            .center()
             .no_scroll();
 
         wnd_about
@@ -237,6 +244,7 @@ namespace bt::ui {
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
                 w::small_checkbox("Log application events to log.txt", g_config.log_app);
+                w::small_checkbox("Show toast notifications on link open", g_config.toast_on_open);
 
                 w::mi_themes([this](const string& theme_id) {
                     app->set_theme(theme_id);
@@ -504,8 +512,9 @@ It super fast, extremely light on resources, completely free and open source.)",
 
     void config_app::render_dashboard() {
 
-        w::guard gpop{pop_dash};
-        if(!pop_dash) return;
+        if(health_failed == 0) return;
+
+        w::guard gpop{wnd_health_dash};
 
         bool recheck{false};
         int i = 0;
@@ -529,17 +538,6 @@ It super fast, extremely light on resources, completely free and open source.)",
             }
             w::tooltip(tooltip);
         }
-
-        w::spc();
-
-        if(health_failed == 0) {
-            w::label("all checks succeeded");
-        } else {
-            w::label(fmt::format("{} checks failed out of {}", health_failed, health_succeeded + health_failed));
-        }
-
-        w::sep();
-        w::spc();
 
         if(w::button("recheck", w::emphasis::primary) || recheck) {
             check_health();
@@ -783,25 +781,17 @@ It super fast, extremely light on resources, completely free and open source.)",
     void config_app::render_status_bar() {
         w::status_bar sb;
 
-        w::label(ICON_MD_HEALTH_AND_SAFETY, health_failed > 0 ? w::emphasis::error : w::emphasis::primary);
-        w::tooltip("Shows if there are any issues preventing " APP_SHORT_NAME " from working properly");
-        if(ImGui::IsItemHovered()) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        // re-open health dashboard periodically if there are issues
-        health_frame_time += ImGui::GetIO().DeltaTime;
-        if(health_frame_time >= 20.0f) {
-            health_frame_time = 0;
-
-            if(health_failed > 0) {
-                ImVec2 pos = ImGui::GetItemRectMin();
-                pop_dash.open(pos.x, pos.y);
+        if(health_failed > 0) {
+            health_blink_time += ImGui::GetIO().DeltaTime;
+            w::label(ICON_MD_HEALTH_AND_SAFETY, health_blink_time < .5f ? w::emphasis::error : w::emphasis::none);
+            if(health_blink_time >= 1.0f) health_blink_time = 0;
+            if(ImGui::IsItemHovered()) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
-        }
-
-        if(w::is_leftclicked()) {
-            pop_dash.open();
+            w::tooltip("Health issues detected, " APP_LONG_NAME " won't be able to intercept URLs until fixed.");
+        } else {
+            w::label(ICON_MD_HEALTH_AND_SAFETY, w::emphasis::primary);
+            w::tooltip("All health checks passed.");
         }
 
         size_t ipc{0};
@@ -1405,13 +1395,13 @@ special keyword - %url% which is replaced by opening url.)");
                     w::sl();
                     if(w::button(fmt::format("{}##{}", ICON_MD_DEVELOPER_BOARD, si))) {
                         refresh_pop_proc_names_items();
-                        pop_dash.open();
+                        pop_proc_names.open();
                     }
                     w::tooltip(strings::RulePickProcessName);
 
                     {
-                        w::guard gpop{pop_dash};
-                        if(pop_dash) {
+                        w::guard gpop{pop_proc_names};
+                        if(pop_proc_names) {
                             if(w::input(pop_proc_names_filter, "##proc_filter")) {
                                 pop_proc_names_selected = 0;
                                 pop_proc_names_items_filtered.clear();

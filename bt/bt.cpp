@@ -15,6 +15,7 @@
 //ui
 #include "app/ui/config_app.h"
 #include "app/ui/picker_app.h"
+#include "app/ui/toast_app.h"
 
 // globals.h
 alg::tracker t{APP_SHORT_NAME, APP_VERSION, bt::config::get_data_file_path("t.cache"), 4};
@@ -100,6 +101,11 @@ void open(bt::click_payload up, bool force_picker = false) {
         if(g_config.log_rule_hits) {
             bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
         }
+
+        if(g_config.toast_on_open) {
+            bt::ui::toast_app app{up.url};
+            app.run();
+        }
     }
 
     track_click(up, pick_reason);
@@ -148,6 +154,10 @@ void execute(const string& data) {
         } else if(command == "browser") {
             cmdline c;
             c.exec(command, command_data);
+            return;
+        } else if(command == "toast") {
+            bt::ui::toast_app app{command_data};
+            app.run();
             return;
         }
     }

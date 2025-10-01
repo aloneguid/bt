@@ -31,6 +31,7 @@ namespace bt {
         firefox_container_mode firefox_mode{firefox_container_mode::off};
         // default browser long sys name
         std::string default_profile_long_id;
+        bool toast_on_open{true};
 
         // picker
         // ctrl + shift
@@ -47,8 +48,6 @@ namespace bt {
         bool picker_close_on_focus_loss;
         bool picker_always_on_top;
         bool picker_show_url;
-        
-        // experimental features
         float picker_icon_size;
         float picker_item_padding;
         float picker_inactive_item_alpha;

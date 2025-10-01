@@ -64,7 +64,7 @@ namespace bt::ui {
                 .no_resize()
                 .border(0)
                 .fill_viewport()
-                .no_background()
+                //.no_background()
                 .no_scroll();
 
             cnt_top

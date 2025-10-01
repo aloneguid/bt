@@ -32,7 +32,7 @@ namespace bt::ui {
         std::unique_ptr<grey::app> app;
         std::string title;
         grey::widgets::window wnd_config;
-        grey::widgets::popup pop_dash{"pop_dash"};
+        grey::widgets::window wnd_health_dash;
         grey::widgets::popup pop_proc_names{"pop_proc_names"};
         std::vector<std::string> pop_proc_names_items;
         std::string pop_proc_names_filter;
@@ -61,7 +61,7 @@ namespace bt::ui {
 
         // "Health Dashboard" popup
         std::vector<system_check> health_checks;
-        float health_frame_time{60.0f};
+        float health_blink_time{0.0f};
         size_t health_succeeded{0};
         size_t health_failed{0};
         void check_health();

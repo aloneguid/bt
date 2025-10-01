@@ -19,6 +19,8 @@ namespace bt {
     #define IsHidden "hidden"
     #define ItemSortOrder "sort_order"
     #define FirefoxContainerModeKey "firefox_container_mode"
+    #define DefaultProfileKey "default_profile"
+    #define ToastOnOpenKey "toast_on_open"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
     #define PersistPopularityKey "persist_popularity"
@@ -130,7 +132,8 @@ namespace bt {
         log_app = cfg.get_bool_value(LogAppKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
         firefox_mode = to_firefox_container_mode(mode);
-        default_profile_long_id = cfg.get_value("default_profile");
+        default_profile_long_id = cfg.get_value(DefaultProfileKey);
+        toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
 
         // picker
         picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
@@ -169,7 +172,8 @@ namespace bt {
         cfg.set_value(LogRuleHitsKey, log_rule_hits);
         cfg.set_value(LogAppKey, log_app);
         cfg.set_value(FirefoxContainerModeKey, firefox_container_mode_to_string(firefox_mode));
-        cfg.set_value("default_profile", default_profile_long_id);
+        cfg.set_value(DefaultProfileKey, default_profile_long_id);
+        cfg.set_value(ToastOnOpenKey, toast_on_open);
 
         // picker
         cfg.set_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);

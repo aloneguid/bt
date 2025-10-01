@@ -8,6 +8,8 @@
 
 #define PdfProtoName "BrowserTamerPDF"
 
+#define SSHProtoName "BrowserTamerSSH"
+
 #define CustomProtoName "x-bt"
 
 #define ContributeUrl "https://github.com/aloneguid/bt#contributing"
