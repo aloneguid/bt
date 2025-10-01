@@ -1,6 +1,7 @@
 ## 5.1.1
 
 - Option to show toast notification when BT handles links.
+- Office 365 link unwrapper supports links from Microsoft Teams ("https://statics.teams.cdn.office.net").
 - If any issues are detected, health icon will flash and health dashboard will stay open as a window. Previously you had an annoying popup opening every minute or so.
 
 ## 5.1.0

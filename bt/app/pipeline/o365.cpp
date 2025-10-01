@@ -8,7 +8,8 @@ namespace bt::pipeline {
     void o365::process(click_payload& up) {
         url u{up.url};
 
-        if(u.host.ends_with(".safelinks.protection.outlook.com")) {
+        if(u.host.ends_with(".safelinks.protection.outlook.com") ||
+            u.host == "statics.teams.cdn.office.net") {
             for(const auto& p : u.parameters) {
                 if(p.first == "url") {
                     string url = p.second;
