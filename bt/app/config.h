@@ -47,7 +47,6 @@ namespace bt {
         bool picker_always;
         bool picker_close_on_focus_loss;
         bool picker_always_on_top;
-        bool picker_show_url;
         float picker_icon_size;
         float picker_item_padding;
         float picker_inactive_item_alpha;

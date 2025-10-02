@@ -34,7 +34,6 @@ namespace bt {
     #define PickerOnConflict "on_conflict"
     #define PickerCloseOnFocusLoss "close_on_focus_loss"
     #define PickerAlwaysOnTop "always_on_top"
-    #define PickerShowUrl "show_url"
     #define PickerIconSize "icon_size"
     #define PickerItemPadding "item_padding"
     #define PickerInactiveItemAlpha "inactive_item_alpha"
@@ -147,7 +146,6 @@ namespace bt {
         picker_always = cfg.get_bool_value("always", false, PickerSectionName);
         picker_close_on_focus_loss = cfg.get_bool_value(PickerCloseOnFocusLoss, false, PickerSectionName);
         picker_always_on_top = cfg.get_bool_value(PickerAlwaysOnTop, false, PickerSectionName);
-        picker_show_url = cfg.get_bool_value(PickerShowUrl, true, PickerSectionName);
         picker_icon_size = cfg.get_float_value(PickerIconSize, 32.0f, PickerSectionName);
         picker_item_padding = cfg.get_float_value(PickerItemPadding, 10.0f, PickerSectionName);
         picker_inactive_item_alpha = cfg.get_float_value(PickerInactiveItemAlpha, 0.4f, PickerSectionName);
@@ -189,7 +187,6 @@ namespace bt {
         cfg.set_value("always", picker_always, PickerSectionName);
         cfg.set_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
         cfg.set_value(PickerAlwaysOnTop, picker_always_on_top, PickerSectionName);
-        cfg.set_value(PickerShowUrl, picker_show_url, PickerSectionName);
         cfg.set_value(PickerIconSize, picker_icon_size, PickerSectionName);
         cfg.set_value(PickerItemPadding, picker_item_padding, PickerSectionName);
         cfg.set_value(PickerInactiveItemAlpha, picker_inactive_item_alpha, PickerSectionName);

@@ -3,6 +3,7 @@
 - Picker: added option to customise window border width (previously there was no border, now will default to 1).
 - Picker: mouse cursor changes to "hand" on browser icon hover.
 - Picker: option to draw native Windows chrome (off by default).
+- Picker: "Show URL" configuration option removed from UI as it was doing nothing (probably deprecated since an old version).
 
 ## 5.1.1
 

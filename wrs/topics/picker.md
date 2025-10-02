@@ -50,7 +50,7 @@ You can navigate the wheel using the keyboard. The following keys are supported:
 - <shortcut>Enter</shortcut> - make the selection and close the picker dialog.
 - <shortcut>1-9</shortcut> - make the selection corresponding to the number pressed and close the picker dialog.
 
-## Other customisations
+## Other options
 
 The top of the Picker menu has more customisation options that are worth mentioning:
 
@@ -60,7 +60,6 @@ Close on focus loss
 Always on top
 : If enabled, the picker dialog will always be on top of other windows, regardless which application is active. This is useful if some of your applications prevent Picker from being on top.
 
+More visual customisation options are available when picker is shown by pressing the gear icon in the top row. Most of these options are self-explanatory and interactively apply when changed:
 
-
-
-
+<img height="300" src="picker-settings.png"/>

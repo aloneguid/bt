@@ -49,7 +49,7 @@ For instance pressing [https://bit.ly/47EZHSl](https://bit.ly/47EZHSl) will actu
 will apply rules to `http://www.google.com` but still open the original URL.
 
 <tip>
-Link unwrapping is applied to any URL of which domain name ends with <code>.safelinks.protection.outlook.com</code>.
+Link unwrapping is applied to any URL of which domain name ends with <code>.safelinks.protection.outlook.com</code> or equals to <code>statics.teams.cdn.office.net</code> (MS Teams links).
 </tip>
 
 ## Substitutions
@@ -71,7 +71,7 @@ To test substitutions, use the "Test" section on the top. It will show you the r
 
 ## Scripts
 
-Since v4.1.0 you can run custom scripts on the URL. This is a powerful feature that allows you to manipulate the URL in any way you want. For instance, you can add a query parameter, remove a query parameter, or even change the domain name. The possibilities are endless. [Learn more](scripting.md) about scripting.
+Since v4.1.0 %product% can run custom scripts on the URL. This is a powerful feature that allows you to manipulate the URL in any way you want. For instance, you can add a query parameter, remove a query parameter, or even change the domain name. The possibilities are endless. [Learn more](scripting.md) about scripting.
 
 
 

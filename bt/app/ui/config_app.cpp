@@ -266,7 +266,6 @@ namespace bt::ui {
             if(w::menu m{"Picker"}; m) {
                 w::small_checkbox("Close on focus loss", g_config.picker_close_on_focus_loss);
                 w::small_checkbox("Always on top", g_config.picker_always_on_top);
-                w::small_checkbox("Show URL", g_config.picker_show_url);
 
                 w::sep("Manual invocation");
                 w::small_checkbox("Ctrl + Shift + Left Click", g_config.picker_on_key_cs);
