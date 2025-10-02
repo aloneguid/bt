@@ -49,7 +49,7 @@ For instance pressing [https://bit.ly/47EZHSl](https://bit.ly/47EZHSl) will actu
 will apply rules to `http://www.google.com` but still open the original URL.
 
 <tip>
-Link unwrapping is applied to any URL of which domain name ends with <code>.safelinks.protection.outlook.com</code> or equals to <code>statics.teams.cdn.office.net</code> (MS Teams links).
+Link unwrapping is applied to any URL whose domain name ends with <code>.safelinks.protection.outlook.com</code> or equals to <code>statics.teams.cdn.office.net</code> (MS Teams links).
 </tip>
 
 ## Substitutions
