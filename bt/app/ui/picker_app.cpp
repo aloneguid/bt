@@ -25,7 +25,7 @@ namespace bt::ui {
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
         app->win32_always_on_top = g_config.picker_always_on_top;
-        app->win32_transparent = true;
+        app->win32_transparent = !g_config.picker_show_native_chrome;
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
         clear_color = cc1;
@@ -62,7 +62,7 @@ namespace bt::ui {
                 //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
-                .border(0)
+                .border(g_config.picker_border_width)
                 .fill_viewport()
                 //.no_background()
                 .no_scroll();
@@ -308,6 +308,7 @@ namespace bt::ui {
 
             if(w::is_hovered()) {
                 active_idx = (int)i;
+                w::mouse_cursor(w::mouse_cursor_type::hand);
             }
 
             if(w::is_leftclicked()) {
@@ -336,12 +337,19 @@ namespace bt::ui {
         w::slider(g_config.picker_item_padding, 0, 100, "padding");
         w::slider(g_config.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
         w::checkbox("show key hints (1-9)", g_config.picker_show_key_hints);
+        if(w::slider(g_config.picker_border_width, 0, 5, "border width")) {
+            wnd_main.border(g_config.picker_border_width);
+        }
+        w::checkbox("show native window chrome", g_config.picker_show_native_chrome);
+        w::tooltip("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         if(w::button("reset", w::emphasis::error)) {
             g_config.picker_icon_size = 32;
             g_config.picker_item_padding = 10;
             g_config.picker_inactive_item_alpha = 0.4f;
             g_config.picker_show_key_hints = true;
+            g_config.picker_border_width = 1;
+            g_config.picker_show_native_chrome = false;
         }
 
 //#if _DEBUG

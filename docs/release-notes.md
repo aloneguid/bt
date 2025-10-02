@@ -1,3 +1,9 @@
+## 5.2.0
+
+- Picker: added option to customise window border width (previously there was no border, now will default to 1).
+- Picker: mouse cursor changes to "hand" on browser icon hover.
+- Picker: option to draw native Windows chrome (off by default).
+
 ## 5.1.1
 
 - Option to show toast notification when BT handles links.

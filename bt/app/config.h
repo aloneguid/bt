@@ -52,6 +52,8 @@ namespace bt {
         float picker_item_padding;
         float picker_inactive_item_alpha;
         bool picker_show_key_hints;
+        int picker_border_width;
+        bool picker_show_native_chrome;
 
         // pipeline
         bool pipeline_unwrap_o365;

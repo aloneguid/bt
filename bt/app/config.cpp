@@ -39,6 +39,8 @@ namespace bt {
     #define PickerItemPadding "item_padding"
     #define PickerInactiveItemAlpha "inactive_item_alpha"
     #define PickerShowKeyHints "show_key_hints"
+    #define PickerBorderWidth "border_width"
+    #define PickerShowNativeChrome "show_native_chrome"
     #define PipelineSectionName "pipeline"
     #define PipelineSubstKeyName "subst"
     #define PipelineUnwrapO365Key "unwrap_o365"
@@ -150,6 +152,8 @@ namespace bt {
         picker_item_padding = cfg.get_float_value(PickerItemPadding, 10.0f, PickerSectionName);
         picker_inactive_item_alpha = cfg.get_float_value(PickerInactiveItemAlpha, 0.4f, PickerSectionName);
         picker_show_key_hints = cfg.get_bool_value(PickerShowKeyHints, true, PickerSectionName);
+        picker_border_width = cfg.get_int_value(PickerBorderWidth, 1, PickerSectionName);
+        picker_show_native_chrome = cfg.get_bool_value(PickerShowNativeChrome, false, PickerSectionName);
 
         // pipeline
         pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
@@ -190,6 +194,8 @@ namespace bt {
         cfg.set_value(PickerItemPadding, picker_item_padding, PickerSectionName);
         cfg.set_value(PickerInactiveItemAlpha, picker_inactive_item_alpha, PickerSectionName);
         cfg.set_value(PickerShowKeyHints, picker_show_key_hints, PickerSectionName);
+        cfg.set_value(PickerBorderWidth, picker_border_width, PickerSectionName);
+        cfg.set_value(PickerShowNativeChrome, picker_show_native_chrome, PickerSectionName);
 
         // pipeline
         cfg.set_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);
