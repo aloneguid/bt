@@ -175,7 +175,7 @@ namespace bt {
          */
         std::string user_icon_path;
 
-        int popularity{ 0 };
+        bool launch_hide_ui{false};
 
         // UI helpers
         //bool ui_is_hovered{false};

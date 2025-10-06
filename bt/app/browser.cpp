@@ -378,15 +378,25 @@ namespace bt {
 
     void browser_instance::launch_win32_process_and_foreground(const std::string& cmdline) const {
         STARTUPINFO si{};
+        si.cb = sizeof(si);
+        if(launch_hide_ui) {
+            si.dwFlags |= STARTF_USESHOWWINDOW;
+            si.wShowWindow = SW_HIDE;
+        }
         PROCESS_INFORMATION pi{};
         DWORD pid{0};
+
+        DWORD creation_flags = 0;
+        if(launch_hide_ui) {
+            creation_flags |= CREATE_NO_WINDOW;
+        }
 
         if(::CreateProcess(nullptr,
             const_cast<wchar_t*>(str::to_wstr(cmdline).c_str()),
             nullptr,
             nullptr,
             false,
-            0,
+            creation_flags,
             nullptr,
             nullptr,
             &si,

@@ -1258,6 +1258,10 @@ It super fast, extremely light on resources, completely free and open source.)",
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
 special keyword - %url% which is replaced by opening url.)");
+
+                w::checkbox("hide user interface", bi->launch_hide_ui);
+                w::tooltip(R"(When using terminal commands or utilities,
+terminal window will be hidden.)");
             }
 
             // rules

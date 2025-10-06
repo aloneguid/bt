@@ -256,6 +256,7 @@ namespace bt {
                     string section = fmt::format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
+                    cfg.set_value("hide_ui", bi->launch_hide_ui, section);
                     cfg.set_value("user_arg", bi->user_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("user_icon", bi->user_icon_path, section);
@@ -310,6 +311,7 @@ namespace bt {
                         cfg.get_value("name", ssn),
                         cfg.get_value("arg", ssn),
                         cfg.get_value("icon", ssn));
+                    bi->launch_hide_ui = cfg.get_bool_value("hide_ui", false, ssn);
                     bi->user_icon_path = cfg.get_value("user_icon", ssn);
                     bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
