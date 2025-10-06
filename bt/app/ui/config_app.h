@@ -73,6 +73,7 @@ namespace bt::ui {
         click_payload url_subs_up;
 
         // "Script" window
+        grey::widgets::container w_script_top_panel;
         bool show_scripting{false};
         bool script_initialised{false};
         grey::widgets::window wnd_scripting{"Scripting"};

@@ -7,6 +7,8 @@
 - Picker: mouse cursor changes to "hand" on browser icon hover.
 - Picker: option to draw native Windows chrome (off by default).
 - Picker: "Show URL" configuration option removed from UI as it was doing nothing (probably deprecated since an old version).
+- Scripting: added splitter to Script Editor window between Lua code and terminal.
+- Scripting: added help link to scripting documentation.
 
 ## 5.1.1
 

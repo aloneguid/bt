@@ -175,14 +175,13 @@ namespace bt {
          */
         std::string user_icon_path;
 
+        /**
+         * @brief When true, terminal window will be hidden when launching this profile.
+         */
         bool launch_hide_ui{false};
 
         // UI helpers
-        //bool ui_is_hovered{false};
-        //bool ui_is_selected{false};
         bool ui_test_url_matches;
-        float ui_icon_size_anim{0.0f};
-        float ui_icon2_size_anim{0.0f};
 
         /**
          * @brief Optional sort order

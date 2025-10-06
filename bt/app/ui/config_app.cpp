@@ -68,7 +68,7 @@ namespace bt::ui {
             .center();
 
         wnd_scripting
-            .size(600, 800)
+            .size(600, 600)
             .border(1)
             .no_scroll();
 
@@ -80,6 +80,8 @@ namespace bt::ui {
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom}.resize_x();
         w_right_panel = w::container{0, -padding_bottom}.border();
+
+        w_script_top_panel = w::container{0, 250 * app->scale}.resize_y();
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
@@ -551,87 +553,94 @@ It super fast, extremely light on resources, completely free and open source.)",
     void config_app::render_scripting_window() {
         w::guard gw{wnd_scripting};
 
-        if(!script_initialised) {
-            script_editor.set_text(g_script.get_code());
-            script_initialised = true;
-        }
+        {
+            w::guard g{w_script_top_panel};
 
-        if(!g_script.get_error().empty()) {
-            w::container c{"err", 0, 0};
-            c.border().auto_size_y();
-            w::guard g{c};
-            w::label(g_script.get_error(), w::emphasis::error);
-        }
 
-        w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
-        string func_name = g_script.bt_function_names.empty() ? "" : g_script.bt_function_names[script_fn_selected];
-        bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
-        w::tooltip("function to execute");
+            if(!script_initialised) {
+                script_editor.set_text(g_script.get_code());
+                script_initialised = true;
+            }
 
-        w::sl();
-        bool do_run = w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary);
-        w::tooltip("save and run");
-        w::sl();
-        bool do_save = w::button(ICON_MD_SAVE " save");
-        w::tooltip("save only");
+            if(!g_script.get_error().empty()) {
+                w::container c{"err", 0, 0};
+                c.border().auto_size_y();
+                w::guard g{c};
+                w::label(g_script.get_error(), w::emphasis::error);
+            }
 
-        if(do_run || do_save) {
-            g_script.set_code(script_editor.get_text());
-            g_pipeline.load();
-            script_terminal += "Code saved.\n";
+            w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
+            string func_name = g_script.bt_function_names.empty() ? "" : g_script.bt_function_names[script_fn_selected];
+            bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
+            w::tooltip("function to execute");
 
-            if(do_run && g_script.get_error().empty()) {
-                // test it
-                script_terminal += fmt::format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
+            w::sl();
+            bool do_run = w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary);
+            w::tooltip("save and run");
+            w::sl();
+            bool do_save = w::button(ICON_MD_SAVE " save");
+            w::tooltip("save only");
+            w::sl();
+            w::hyperlink("?", "https://aloneguid.github.io/bt/scripting.html");
 
-                click_payload up;
-                up.url = g_config.pv_last_url;
-                up.window_title = g_config.pv_last_wt;
-                up.process_name = g_config.pv_last_pn;
+            if(do_run || do_save) {
+                g_script.set_code(script_editor.get_text());
+                g_pipeline.load();
+                script_terminal += "Code saved.\n";
 
-                if(is_ppl) {
-                    string out_url = g_script.call_ppl(up, func_name);
-                    script_terminal += g_script.print_buffer;
-                    script_terminal += fmt::format("result: {}\n------------\n", out_url);
-                } else {
+                if(do_run && g_script.get_error().empty()) {
+                    // test it
+                    script_terminal += fmt::format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
 
-                    g_pipeline.process(up);
-                    if(up.url != g_config.pv_last_url) {
-                        script_terminal += fmt::format("pipeline changed URL to '{}'\n", up.url);
+                    click_payload up;
+                    up.url = g_config.pv_last_url;
+                    up.window_title = g_config.pv_last_wt;
+                    up.process_name = g_config.pv_last_pn;
+
+                    if(is_ppl) {
+                        string out_url = g_script.call_ppl(up, func_name);
+                        script_terminal += g_script.print_buffer;
+                        script_terminal += fmt::format("result: {}\n------------\n", out_url);
+                    } else {
+
+                        g_pipeline.process(up);
+                        if(up.url != g_config.pv_last_url) {
+                            script_terminal += fmt::format("pipeline changed URL to '{}'\n", up.url);
+                        }
+
+                        g_script.print_buffer.clear();
+                        bool matched = g_script.call_rule(up, func_name);
+                        script_terminal += g_script.print_buffer;
+
+                        script_terminal += fmt::format("rule match: {}\n------------\n", matched);
                     }
-
-                    g_script.print_buffer.clear();
-                    bool matched = g_script.call_rule(up, func_name);
-                    script_terminal += g_script.print_buffer;
-
-                    script_terminal += fmt::format("rule match: {}\n------------\n", matched);
                 }
             }
-        }
 
-        // test input
-        if(!func_name.empty()) {
-            w::input(g_config.pv_last_url, ICON_MD_LINK " URL", true);
-            if(!is_ppl) {
-                w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true);
-                w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true);
+            // test input
+            if(!func_name.empty()) {
+                w::input(g_config.pv_last_url, ICON_MD_LINK " URL", true);
+                if(!is_ppl) {
+                    w::input(g_config.pv_last_wt, ICON_MD_WINDOW " window", true);
+                    w::input(g_config.pv_last_pn, ICON_MD_MEMORY " process", true);
+                }
             }
+
+            w::sep(strings::LuaScript);
+            script_editor.render();
         }
-
-        float terminal_height = 400 * app->scale;
-
-        w::sep(strings::LuaScript);
-        script_editor.render(0, ImGui::GetWindowHeight() - terminal_height);
 
         w::sep("Terminal");
-        if(w::button(ICON_MD_CLEAR_ALL, w::emphasis::error)) {
-            script_terminal.clear();
+        {
+            if(w::button(ICON_MD_CLEAR_ALL, w::emphasis::error)) {
+                script_terminal.clear();
+            }
+            w::tooltip("clear");
+            w::sl();
+            w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
+            w::tooltip("auto-scroll");
+            w::input_ml("##script_terminal", script_terminal, -FLT_MIN, script_terminal_autoscroll);
         }
-        w::tooltip("clear");
-        w::sl();
-        w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
-        w::tooltip("auto-scroll");
-        w::input_ml("##script_terminal", script_terminal, -FLT_MIN, script_terminal_autoscroll);
     }
 
     void config_app::render_pipe_visualiser_window() {
