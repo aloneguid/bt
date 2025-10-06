@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "grey.h"
+#include "../browser.h"
 
 namespace bt::ui {
 
@@ -15,17 +16,17 @@ namespace bt::ui {
             exit
         };
 
-        toast_app(const std::string& text);
+        toast_app(const std::string& text, std::shared_ptr<bt::browser_instance> bi);
 
         void run();
 
     private:
         //const float EdgePadding = 10.0f;
         const float AnimSpeed = 0.2f; // between 0 and 1,
-        const float ShowDuration = 2.0f; // seconds
 
         anim_stage stage{anim_stage::init};
         std::string text;
+        std::shared_ptr<bt::browser_instance> bi;
         ImVec2 wnd_size{0, 0};
         ImVec2 wnd_size_anim{0, 0};
         ImVec2 mon_mid{0, 0};

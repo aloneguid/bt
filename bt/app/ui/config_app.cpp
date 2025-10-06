@@ -244,7 +244,11 @@ namespace bt::ui {
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
                 w::small_checkbox("Log application events to log.txt", g_config.log_app);
-                w::small_checkbox("Show toast notifications on link open", g_config.toast_on_open);
+
+                if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
+                    w::small_checkbox("Show on link open", g_config.toast_on_open);
+                    w::slider(g_config.toast_visible_secs, 0, 30, "stays visible (seconds)");
+                }
 
                 w::mi_themes([this](const string& theme_id) {
                     app->set_theme(theme_id);

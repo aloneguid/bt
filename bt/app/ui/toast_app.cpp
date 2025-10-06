@@ -1,13 +1,14 @@
 #include "toast_app.h"
 #include "../../globals.h"
 #include "../../res.inl"
+#include "btwidgets.h"
 
 using namespace std;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    toast_app::toast_app(const std::string& text) :
-        text{text},
+    toast_app::toast_app(const std::string& text, std::shared_ptr<bt::browser_instance> bi) :
+        text{text}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_config.theme_id;
@@ -27,6 +28,7 @@ namespace bt::ui {
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
+            btw_on_app_initialised(*app);
         };
 
     }
@@ -81,14 +83,14 @@ namespace bt::ui {
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
-            if(show_timer >= ShowDuration) {
+            if(show_timer >= g_config.toast_visible_secs) {
                 stage = toast_app::anim_stage::shrink;
             }
         }
     }
 
     void toast_app::render_content() {
-        w::image(*app, "logo", icon_size, icon_size);
+        btw_icon(*app, bi, 0, icon_size, true);
 
         w::sl();
         w::label(text);

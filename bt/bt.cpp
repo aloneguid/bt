@@ -103,7 +103,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         }
 
         if(g_config.toast_on_open) {
-            bt::ui::toast_app app{up.url};
+            bt::ui::toast_app app{up.url, first_match.bi};
             app.run();
         }
     }
@@ -156,7 +156,7 @@ void execute(const string& data) {
             c.exec(command, command_data);
             return;
         } else if(command == "toast") {
-            bt::ui::toast_app app{command_data};
+            bt::ui::toast_app app{command_data, g_config.browsers[0]->instances[0]};
             app.run();
             return;
         }

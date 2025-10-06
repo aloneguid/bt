@@ -32,6 +32,7 @@ namespace bt {
         // default browser long sys name
         std::string default_profile_long_id;
         bool toast_on_open{true};
+        int toast_visible_secs{3};
 
         // picker
         // ctrl + shift
