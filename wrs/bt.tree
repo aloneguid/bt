@@ -21,6 +21,7 @@
     <toc-element topic="url-proc.md"/>
     <toc-element topic="debugger.md"/>
     <toc-element topic="picker.md"/>
+    <toc-element topic="toast.md"/>
     <toc-element topic="scripting.md"/>
     <toc-element topic="commandline.md"/>
     <toc-element topic="Browser-Extensions.md">
