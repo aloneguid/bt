@@ -1,15 +1,15 @@
 ## 5.2.0
 
-- General: UI can be hidden when launching a custom browser (useful for terminal commands).
-- Toast: notification shows browser icon instead of BT logo.
-- Toast: visibility interval is configurable in settings.
-- Toast: border width is configurable in settings.
-- Picker: added option to customise window border width (previously there was no border, now will default to 1).
-- Picker: mouse cursor changes to "hand" on browser icon hover.
-- Picker: option to draw native Windows chrome (off by default).
-- Picker: "Show URL" configuration option removed from UI as it was doing nothing (probably deprecated since an old version).
-- Scripting: added splitter to Script Editor window between Lua code and terminal.
-- Scripting: added help link to scripting documentation.
+- General: UI [can be hidden](https://aloneguid.github.io/bt/config-basic.html#bring-your-own-browser) when launching a custom browser (useful for terminal commands).
+- [Toast](https://aloneguid.github.io/bt/toast.html): notification shows browser icon instead of BT logo.
+- [Toast](https://aloneguid.github.io/bt/toast.html): visibility interval is configurable in settings.
+- [Toast](https://aloneguid.github.io/bt/toast.html): border width is configurable in settings.
+- [Picker](https://aloneguid.github.io/bt/picker.html): added option to customise window border width (previously there was no border, now will default to 1).
+- [Picker](https://aloneguid.github.io/bt/picker.html): mouse cursor changes to "hand" on browser icon hover.
+- [Picker](https://aloneguid.github.io/bt/picker.html): option to draw native Windows chrome (off by default).
+- [Picker](https://aloneguid.github.io/bt/picker.html): "Show URL" configuration option removed from UI as it was doing nothing (probably deprecated since an old version).
+- [Scripting](https://aloneguid.github.io/bt/scripting.html): added splitter to Script Editor window between Lua code and terminal.
+- [Scripting](https://aloneguid.github.io/bt/scripting.html): added help link to scripting documentation.
 
 ## 5.1.1
 
