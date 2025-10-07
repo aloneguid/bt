@@ -5,13 +5,13 @@
 #include "click_payload.h"
 
 namespace bt {
-    enum class match_scope : size_t {
+    enum class match_scope : unsigned int {
         any     = 0,
         domain  = 1,
         path    = 2
     };
 
-    enum class match_location : size_t {
+    enum class match_location : unsigned int {
         url             = 0,
         window_title    = 1,
         process_name    = 2,

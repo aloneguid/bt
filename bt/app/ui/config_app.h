@@ -37,7 +37,7 @@ namespace bt::ui {
         std::vector<std::string> pop_proc_names_items;
         std::string pop_proc_names_filter;
         std::vector<std::string> pop_proc_names_items_filtered;
-        size_t pop_proc_names_selected{0};
+        unsigned int pop_proc_names_selected{0};
         grey::widgets::window wnd_about;
         bool is_open{true};
         std::map<std::string, rule_match_status> id_to_rule_match_status;
@@ -80,7 +80,7 @@ namespace bt::ui {
         grey::widgets::text_editor script_editor;
         std::string script_terminal;
         bool script_terminal_autoscroll{true};
-        size_t script_fn_selected{0};
+        unsigned int script_fn_selected{0};
 
         // Pipe visualiser window
         bool pv_show{false};

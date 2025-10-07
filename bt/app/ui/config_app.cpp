@@ -250,6 +250,7 @@ namespace bt::ui {
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
                     w::small_checkbox("Show on link open", g_config.toast_on_open);
                     w::slider(g_config.toast_visible_secs, 0, 30, "stays visible (seconds)");
+                    w::slider(g_config.toast_border_width, 0, 6, "border width");
                 }
 
                 w::mi_themes([this](const string& theme_id) {
@@ -476,7 +477,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                 w::combo("##kind" + suffix,
                     replacer_kinds,
-                    (size_t&)replacer->kind,
+                    (unsigned int&)replacer->kind,
                     100);
 
                 w::sl(pad);
@@ -1347,7 +1348,7 @@ terminal window will be hidden.)");
 
                 // location
                 w::combo(string{"##loc"} + si, 
-                    rule_locations, (size_t&)rule->loc, 90);
+                    rule_locations, (unsigned int&)rule->loc, 90);
 
                 // value
                 w::sl();
@@ -1355,8 +1356,8 @@ terminal window will be hidden.)");
                 if(rule->loc == match_location::lua_script) {
 
                     // get selected index
-                    size_t selected{0};
-                    for(size_t j = 0; j < g_script.rule_function_names.size(); j++) {
+                    unsigned int selected{0};
+                    for(unsigned int j = 0; j < g_script.rule_function_names.size(); j++) {
                         if(g_script.rule_function_names[j] == rule->value) {
                             selected = j;
                             break;

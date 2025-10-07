@@ -20,7 +20,7 @@ namespace bt::ui {
         wnd_main
             .no_titlebar()
             .no_resize()
-            .border(0)
+            .border(g_config.toast_border_width)
             .no_collapse()
             .fill_viewport()
             //.no_background()

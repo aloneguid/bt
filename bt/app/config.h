@@ -33,6 +33,7 @@ namespace bt {
         std::string default_profile_long_id;
         bool toast_on_open{true};
         int toast_visible_secs{3};
+        int toast_border_width{1};
 
         // picker
         // ctrl + shift

@@ -5,7 +5,7 @@
 
 namespace bt::pipeline {
 
-    enum class replacer_kind : size_t {
+    enum class replacer_kind : unsigned int {
         find_replace = 0,
         regex
     };

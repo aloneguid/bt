@@ -22,6 +22,7 @@ namespace bt {
     #define DefaultProfileKey "default_profile"
     #define ToastOnOpenKey "toast_on_open"
     #define ToastVisibleSecsKey "toast_visible_secs"
+    #define ToastBorderWidthKey "toast_border_width"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
     #define PersistPopularityKey "persist_popularity"
@@ -137,6 +138,7 @@ namespace bt {
         default_profile_long_id = cfg.get_value(DefaultProfileKey);
         toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
         toast_visible_secs = cfg.get_int_value(ToastVisibleSecsKey, 3);
+        toast_border_width = cfg.get_int_value(ToastBorderWidthKey, 1);
 
         // picker
         picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
@@ -179,6 +181,7 @@ namespace bt {
         cfg.set_value(DefaultProfileKey, default_profile_long_id);
         cfg.set_value(ToastOnOpenKey, toast_on_open);
         cfg.set_value(ToastVisibleSecsKey, toast_visible_secs);
+        cfg.set_value(ToastBorderWidthKey, toast_border_width);
 
         // picker
         cfg.set_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
