@@ -2,6 +2,7 @@
 
 - new: you can use ".ico" for custom icons.
 - bug: picker did not display custom icon overrides.
+- bug: "hide ui" was not persisted across restarts.
 
 ## 5.2.0
 

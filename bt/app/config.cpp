@@ -251,6 +251,7 @@ namespace bt {
                 cfg.set_value("arg", instance->launch_arg, section);
                 cfg.set_value("rule", instance->get_rules_as_text_clean(), section);
                 cfg.set_value("user_icon", instance->user_icon_path, section);
+                cfg.set_value("hide_ui", instance->launch_hide_ui, section);
             } else {
                 // instances
                 int sort_order = 0;
@@ -259,7 +260,6 @@ namespace bt {
                     string section = fmt::format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
-                    cfg.set_value("hide_ui", bi->launch_hide_ui, section);
                     cfg.set_value("user_arg", bi->user_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("user_icon", bi->user_icon_path, section);
@@ -314,7 +314,7 @@ namespace bt {
                         cfg.get_value("name", ssn),
                         cfg.get_value("arg", ssn),
                         cfg.get_value("icon", ssn));
-                    bi->launch_hide_ui = cfg.get_bool_value("hide_ui", false, ssn);
+                    
                     bi->user_icon_path = cfg.get_value("user_icon", ssn);
                     bi->user_arg = cfg.get_value("user_arg", ssn);
                     bi->is_incognito = p_subtype == "incognito";
@@ -330,6 +330,7 @@ namespace bt {
                 auto uprof = make_shared<browser_instance>(b, "default", b->name, cfg.get_value("arg", bsn), "");
                 uprof->user_icon_path = cfg.get_value("user_icon", bsn);
                 uprof->set_rules_from_text(cfg.get_all_values("rule", bsn));
+                uprof->launch_hide_ui = cfg.get_bool_value("hide_ui", false, bsn);
                 b->instances.push_back(uprof);
             }
 
