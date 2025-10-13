@@ -1,3 +1,8 @@
+## 5.2.1
+
+- new: you can use ".ico" for custom icons.
+- bug: picker did not display custom icon overrides.
+
 ## 5.2.0
 
 - General: UI [can be hidden](https://aloneguid.github.io/bt/config-basic.html#bring-your-own-browser) when launching a custom browser (useful for terminal commands).

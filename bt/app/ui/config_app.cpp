@@ -1312,7 +1312,7 @@ terminal window will be hidden.)");
         }
 
         if(w::is_leftclicked()) {
-            string icon_path = win32::shell::file_open_dialog("PNG", "*.png");
+            string icon_path = win32::shell::file_open_dialog("Icon", "*.png;*.ico");
             if(!icon_path.empty()) {
                 path_override = icon_path;
             }

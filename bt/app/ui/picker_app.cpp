@@ -9,6 +9,7 @@
 #include <math.h>
 #include "../../common/win32/clipboard.h"
 #include "../../common/win32/shell.h"
+#include "btwidgets.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -40,23 +41,7 @@ namespace bt::ui {
         choices = browser::to_instances(g_config.browsers, true);
 
         app->on_initialised = [this]() {
-            app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
-            app->preload_texture("more", picker_more_icon_png, picker_more_icon_png_len);
-
-            // preload browser icons
-            for(auto& b : g_config.browsers) {
-                string path = b->get_best_icon_path();
-                app->preload_texture(path, fss::get_full_path(path));
-
-                // preload browser instances
-                for(auto& bi : b->instances) {
-                    string path = bi->get_best_icon_path();
-                    app->preload_texture(path, fss::get_full_path(path));
-                }
-            }
-
-            //float window_size_unscaled = outer_radius * 4.0f / app->scale;  // unscaled double diameter
-            //app->resize_main_viewport(window_size_unscaled, window_size_unscaled);
+            btw_on_app_initialised(*app);
 
             wnd_main
                 //.size(wnd_width, wnd_height_normal)
@@ -267,25 +252,7 @@ namespace bt::ui {
                 float x0, y0;
                 w::cur_get(x0, y0);
 
-                // dummy
-                ImGui::Dummy(ImVec2{box_size, box_size});
-
-                w::cur_set(x0 + padding, y0 + padding);
-
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_config.picker_inactive_item_alpha);
-
-                w::rounded_image(*app, p->b->get_best_icon_path(), icon_size, icon_size, icon_size / 2);
-
-                // if required, draw profile icon
-                if(!p->is_singular()) {
-                    w::cur_set(x0 + padding + icon_size / 2, y0 + padding + icon_size / 2);
-                    float isz = icon_size / 2;
-                    if(p->is_incognito) {
-                        w::image(*app, "incognito", isz, isz);
-                    } else {
-                        w::rounded_image(*app, p->get_best_icon_path(), isz, isz, isz);
-                    }
-                }
+                btw_icon(*app, p, padding, icon_size, is_active);
 
                 // draw key highlight
                 if(g_config.picker_show_key_hints && i < 10) {
@@ -297,7 +264,7 @@ namespace bt::ui {
                     w::label(label.c_str());
                 }
 
-                ImGui::PopStyleVar();
+                //ImGui::PopStyleVar();
 
                 // draw label
                 //w::cur_set(x0 + icon_size + padding * 3, y0 + padding + icon_size / 2 - ImGui::GetTextLineHeight() / 2);

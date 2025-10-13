@@ -47,7 +47,7 @@ namespace bt::ui {
         if(!bi->is_singular()) {
             w::cur_set(x0 + padding + icon_size / 2, y0 + padding + icon_size / 2);
             float isz = icon_size / 2;
-            if(bi->is_incognito) {
+            if(bi->is_incognito && bi->user_icon_path.empty()) {
                 w::image(app, "incognito", isz, isz);
             } else {
                 w::rounded_image(app, bi->get_best_icon_path(), isz, isz, isz);
