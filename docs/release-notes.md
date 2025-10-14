@@ -1,3 +1,13 @@
+## 5.2.2
+
+- bug: picker key hint was displaying counts up to "10" which had no corresponding key.
+- fix: picker renders icons in high quality.
+- new: you can now select between 4 different styles of icon rendering in the picker:
+  - profile on browser (default)
+  - browser on profile
+  - browser only
+  - profile only
+
 ## 5.2.1
 
 - new: you can use ".ico" for custom icons.

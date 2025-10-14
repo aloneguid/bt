@@ -21,6 +21,13 @@ namespace bt {
         ouic = 2
     };
 
+    enum class icon_overlay_mode : unsigned int {
+        profile_on_browser  = 0,
+        browser_on_profile  = 1,
+        browser_only        = 2,
+        profile_only        = 3
+    };
+
     class config {
     public:
         // whether to show hidden browsers in the configuration list
@@ -34,6 +41,7 @@ namespace bt {
         bool toast_on_open{true};
         int toast_visible_secs{3};
         int toast_border_width{1};
+        icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
 
         // picker
         // ctrl + shift
@@ -84,6 +92,8 @@ namespace bt {
         // conversion functions
         static std::string firefox_container_mode_to_string(firefox_container_mode mode);
         static firefox_container_mode to_firefox_container_mode(const std::string& name);
+        static std::string icon_overlay_mode_to_string(icon_overlay_mode mode);
+        static icon_overlay_mode to_icon_overlay_mode(const std::string& name);
 
         static std::string get_data_file_path(const std::string& name);
 

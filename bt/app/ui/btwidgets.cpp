@@ -39,19 +39,36 @@ namespace bt::ui {
 
         w::cur_set(x0 + padding, y0 + padding);
 
+        string icon1 = bi->b->get_best_icon_path();
+        string icon2 = bi->is_singular()
+            ? ""
+            : (bi->is_incognito && bi->user_icon_path.empty()) ? "incognito" : bi->get_best_icon_path();
+
+        switch(g_config.icon_overlay) {
+            case icon_overlay_mode::browser_only:
+                icon2 = "";
+                break;
+            case icon_overlay_mode::profile_only:
+                icon1 = icon2.empty() ? icon1 : icon2;
+                icon2.clear();
+                break;
+            case icon_overlay_mode::browser_on_profile:
+                if(!icon2.empty())
+                    std::swap(icon1, icon2);
+                break;
+        }
+        if(icon2 == icon1)
+            icon2.clear();
+
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_config.picker_inactive_item_alpha);
 
-        w::rounded_image(app, bi->b->get_best_icon_path(), icon_size, icon_size, icon_size / 2);
+        w::rounded_image(app, icon1, icon_size, icon_size, icon_size / 2);
 
-        // if required, draw profile icon
-        if(!bi->is_singular()) {
+        // if required, draw overlay icon
+        if(!icon2.empty()) {
             w::cur_set(x0 + padding + icon_size / 2, y0 + padding + icon_size / 2);
             float isz = icon_size / 2;
-            if(bi->is_incognito && bi->user_icon_path.empty()) {
-                w::image(app, "incognito", isz, isz);
-            } else {
-                w::rounded_image(app, bi->get_best_icon_path(), isz, isz, isz);
-            }
+            w::rounded_image(app, icon2, isz, isz, isz);
         }
 
         ImGui::PopStyleVar();

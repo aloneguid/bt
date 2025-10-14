@@ -1,4 +1,6 @@
 #include "config.h"
+#include "config.h"
+#include "config.h"
 #include "../globals.h"
 #include "win32/reg.h"
 #include "win32/ole32.h"
@@ -23,6 +25,7 @@ namespace bt {
     #define ToastOnOpenKey "toast_on_open"
     #define ToastVisibleSecsKey "toast_visible_secs"
     #define ToastBorderWidthKey "toast_border_width"
+    #define IconOverlayKey "icon_overlay"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
     #define PersistPopularityKey "persist_popularity"
@@ -139,6 +142,7 @@ namespace bt {
         toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
         toast_visible_secs = cfg.get_int_value(ToastVisibleSecsKey, 3);
         toast_border_width = cfg.get_int_value(ToastBorderWidthKey, 1);
+        icon_overlay = to_icon_overlay_mode(cfg.get_value(IconOverlayKey, icon_overlay_mode_to_string(icon_overlay_mode::profile_on_browser)));
 
         // picker
         picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
@@ -182,6 +186,7 @@ namespace bt {
         cfg.set_value(ToastOnOpenKey, toast_on_open);
         cfg.set_value(ToastVisibleSecsKey, toast_visible_secs);
         cfg.set_value(ToastBorderWidthKey, toast_border_width);
+        cfg.set_value(IconOverlayKey, icon_overlay_mode_to_string(icon_overlay));
 
         // picker
         cfg.set_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
@@ -366,4 +371,22 @@ namespace bt {
 
         return firefox_container_mode::off;
     }
+    std::string bt::config::icon_overlay_mode_to_string(icon_overlay_mode mode) {
+        switch(mode) {
+            case icon_overlay_mode::profile_on_browser:     return "profile_on_browser";
+            case icon_overlay_mode::browser_on_profile:     return "browser_on_profile";
+            case icon_overlay_mode::browser_only:           return "browser_only";
+            case icon_overlay_mode::profile_only:           return "profile_only";
+            default:                                        return "profile_on_browser";
+        }
+    }
+
+    icon_overlay_mode config::to_icon_overlay_mode(const std::string& name) {
+        if(name == "profile_on_browser")   return icon_overlay_mode::profile_on_browser;
+        if(name == "browser_on_profile")   return icon_overlay_mode::browser_on_profile;
+        if(name == "browser_only")         return icon_overlay_mode::browser_only;
+        if(name == "profile_only")         return icon_overlay_mode::profile_only;
+        return icon_overlay_mode::profile_on_browser;
+    }
+
 }

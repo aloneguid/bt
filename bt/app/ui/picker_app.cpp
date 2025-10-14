@@ -255,7 +255,7 @@ namespace bt::ui {
                 btw_icon(*app, p, padding, icon_size, is_active);
 
                 // draw key highlight
-                if(g_config.picker_show_key_hints && i < 10) {
+                if(g_config.picker_show_key_hints && i < 9) {
                     string label = fmt::format("{}", i + 1);
                     ImVec2 wsz = ImGui::CalcTextSize(label.c_str());
 
@@ -300,6 +300,13 @@ namespace bt::ui {
         //w::label(fmt::format("cursor pos: {}x{}", pos.x, pos.y));
         //w::label(fmt::format("box size: {}, pmh: {}", box_size, pre_menu_height));
 
+        w::combo("icon drawing",
+        {
+            "profile on top of browser",
+            "browser on top of profile",
+            "browser only",
+            "profile only"},
+            (unsigned int&)g_config.icon_overlay);
         w::slider(g_config.picker_icon_size, 5, 256, "icon size");
         w::slider(g_config.picker_item_padding, 0, 100, "padding");
         w::slider(g_config.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
@@ -317,6 +324,7 @@ namespace bt::ui {
             g_config.picker_show_key_hints = true;
             g_config.picker_border_width = 1;
             g_config.picker_show_native_chrome = false;
+            g_config.icon_overlay = icon_overlay_mode::profile_on_browser;
         }
 
 //#if _DEBUG
