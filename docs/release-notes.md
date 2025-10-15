@@ -7,6 +7,9 @@
   - browser on profile
   - browser only
   - profile only
+ 
+https://github.com/user-attachments/assets/50ee09a0-ad91-4fee-b672-a6ee8e9420e1
+
 
 ## 5.2.1
 
