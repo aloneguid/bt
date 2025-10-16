@@ -1,3 +1,7 @@
+## 5.2.3
+
+- improvement: BT will now use high resolution icons extracted from `.ico` files.
+
 ## 5.2.2
 
 - bug: picker key hint was displaying counts up to "10" which had no corresponding key.
