@@ -2,6 +2,7 @@
 
 - improvement: BT will now use high resolution icons extracted from `.ico` files.
 - improvement: health checks display more information on why exactly health check has failed. For instance, when "default proxy check" is failing, the tooltip displays what BT was looking for and what was actually found.
+- firefox extension: Fix Gecko extension not handling protocol confirmation, by @JustMrPhoenix in #122.
 
 ## 5.2.2
 
