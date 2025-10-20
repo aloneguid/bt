@@ -1,6 +1,7 @@
 ## 5.2.3
 
 - improvement: BT will now use high resolution icons extracted from `.ico` files.
+- improvement: health checks display more information on why exactly health check has failed. For instance, when "default proxy check" is failing, the tooltip displays what BT was looking for and what was actually found.
 
 ## 5.2.2
 
@@ -11,7 +12,7 @@
   - browser on profile
   - browser only
   - profile only
- 
+
 https://github.com/user-attachments/assets/50ee09a0-ad91-4fee-b672-a6ee8e9420e1
 
 

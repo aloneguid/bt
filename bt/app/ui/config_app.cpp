@@ -367,7 +367,7 @@ namespace bt::ui {
         w::guard gw{wnd_about};
 
         float icon_size = 50 * app->scale;
-        w::set_pos(width * app->scale / 2 - icon_size / 2, 40 * app->scale);
+        w::cur_set(width * app->scale / 2 - icon_size / 2, 40 * app->scale);
         w::image(*app, "logo", icon_size, icon_size);
         w::spc(3);
 
@@ -539,6 +539,10 @@ It super fast, extremely light on resources, completely free and open source.)",
                     if(w::button(fmt::format("fix##{}", i++), w::emphasis::error, true, true)) {
                         sc.fix();
                         recheck = true;
+                    }
+                    if(!sc.error_message.empty()) {
+                        tooltip += "\n\n";
+                        tooltip += sc.error_message;
                     }
                 }
             }
@@ -938,8 +942,8 @@ It super fast, extremely light on resources, completely free and open source.)",
         float left_pad = icon_size + padding * 2;
 
         // render icon and come back to starting position
-        w::set_pos(0, -1);
-        w::move_pos(padding, padding);
+        auto pos = w::cur_get();
+        w::cur_set(pos.x + padding, pos.y + padding);
 
         string path = b->get_best_icon_path();
         if(app->preload_texture(path, fss::get_full_path(path))) {
@@ -948,15 +952,14 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::image(*app, "logo", icon_size, icon_size);
         }
 
-        w::set_pos(0, -1);
-        w::move_pos(0, -(icon_size + padding));
-
         // elements
-        w::set_pos(0, -1);
-        w::move_pos(left_pad, 0);
+        w::cur_set(pos.x + left_pad, pos.y + padding);
         w::label(b->name);
 
-        w::move_pos(left_pad, 0);
+        //w::spc();
+        auto pos2 = w::cur_get();
+        w::cur_set(pos2.x + left_pad, pos2.y);
+        //w::move_pos(left_pad, 0);
 
         if(b->instances.size() > 0) {
             if(b->is_system) {
@@ -1002,7 +1005,7 @@ It super fast, extremely light on resources, completely free and open source.)",
         }
 
         w::spc();
-        w::set_pos(0, -1);
+        w::cur_set(pos);
     }
 
     void config_app::render_detail(std::shared_ptr<bt::browser> b) {

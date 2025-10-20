@@ -9,7 +9,7 @@ namespace bt
     public:
         system_check(const std::string& id, const std::string& name,
             const std::string& description,
-            std::function<bool()> perform_check,
+            std::function<bool(std::string& error)> perform_check,
             std::function<bool()> mitigate)
             : id{id}, name{name}, description{description},
             perform_check{perform_check},
@@ -21,13 +21,21 @@ namespace bt
         const std::string name;
         const std::string description;
 
+        /**
+         * @brief Whether the check is currently passing
+         */
         bool is_ok{false};
 
-        void recheck() { is_ok = perform_check(); }
+        /**
+         * @brief Error message if the check is not passing (if available)
+         */
+        std::string error_message;
+
+        void recheck() { is_ok = perform_check(error_message); }
         void fix() { mitigate(); }
 
     private:
-        std::function<bool()> perform_check;
+        std::function<bool(std::string& error_message)> perform_check;
         std::function<bool()> mitigate;
     };
 
@@ -53,7 +61,7 @@ namespace bt
 
     private:
 
-        static bool is_installed_as_browser(const std::string& name);
+        static bool is_installed_as_browser(const std::string& name, std::string& error_message);
 
         static void uninstall_as_browser(
             const std::string& proto_name,

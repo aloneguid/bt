@@ -10,21 +10,22 @@
 using namespace std;
 using namespace win32::reg;
 
-namespace bt
-{
+namespace bt {
     std::vector<system_check> setup::get_checks() {
         return vector<system_check> {
             system_check{
                 "sys_browser", "Register as proxy browser",
                 fmt::format("{} needs to be registered as a browser in Windows in order to become a proxy.", APP_LONG_NAME),
-                []() { return setup::is_installed_as_browser(APP_LONG_NAME); },
+                [](string& error_message) {
+                    return setup::is_installed_as_browser(APP_LONG_NAME, error_message);
+                },
                 []() { setup::register_as_browser_and_custom_protocol(); return true; }},
 
                 system_check{
                     "proto_http",
                     "Set as HTTP protocol handler",
                     fmt::format("{} needs to be set as HTTP protocol handler so that Windows starts forwarding HTTP links to it.", APP_LONG_NAME),
-                    []() {
+                    [](string& error_message) {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
                         return is_http;
@@ -39,7 +40,7 @@ namespace bt
                     "proto_https",
                     "Set as HTTPS protocol handler",
                     fmt::format("{} needs to be set as HTTPS protocol handler so that Windows starts forwarding HTTPS links to it.", APP_LONG_NAME),
-                    []() {
+                    [](string& error_message) {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
                         return is_https;
@@ -161,13 +162,19 @@ namespace bt
         delete_key(hive::current_user, handler_path);
     }
 
-    bool setup::is_installed_as_browser(const std::string& name) {
+    bool setup::is_installed_as_browser(const std::string& name, string& error_message) {
         string root = "Software\\Clients\\StartMenuInternet";
         string app_root = root + "\\" + name;
         string soc = app_root + "\\shell\\open\\command";
 
         string app_path = fmt::format("\"{}\"", fss::get_current_exec_path());
         string reg_app_path = get_value(hive::current_user, soc);
-        return app_path == reg_app_path;
+        bool installed = app_path == reg_app_path;
+        if(installed) {
+            error_message.clear();
+        } else {
+            error_message = fmt::format("expected: {}\nregistered: {}", app_path, reg_app_path);
+        }
+        return installed;
     }
 }
