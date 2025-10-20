@@ -8,23 +8,26 @@
 
 const BtProtoPrefix = "x-bt://";
 
-async function openInBT(url) {
+async function openInBT(tabId, url) {
     const destUrl = BtProtoPrefix + url;
-    await chrome.tabs.create({ url: destUrl });
+    await chrome.tabs.update(tabId, { url: destUrl });
 }
 
 chrome.action.onClicked.addListener((activeTab) => {
     const url = activeTab.url;
     // as we are sending the url to BT, we can close the current tab
-    chrome.tabs.remove(activeTab.id);
-
-    openInBT(url);
+    openInBT(activeTab.id, url).then(() => {
+        // using a timeout because I can't find a reliable way to wait for the custom protocol to be handled
+        setTimeout(() => {
+            chrome.tabs.remove(activeTab.id);
+        }, 250);
+    });
 });
 
 // context menu item click handler
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     const url = info.linkUrl;
-    openInBT(url);
+    openInBT(tab.id, url);
 });
 
 // add context menu item for a hyperlink (contexts: link)
