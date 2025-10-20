@@ -103,7 +103,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         }
 
         if(g_config.toast_on_open) {
-            bt::ui::toast_app app{up.url, first_match.bi};
+            bt::ui::toast_app app{up, first_match.bi};
             app.run();
         }
     }
@@ -155,10 +155,6 @@ void execute(const string& data) {
             cmdline c;
             c.exec(command, command_data);
             return;
-        } else if(command == "toast") {
-            bt::ui::toast_app app{command_data, g_config.browsers[0]->instances[0]};
-            app.run();
-            return;
         }
     }
 
@@ -176,8 +172,17 @@ void execute(const string& data) {
     up.window_title = win.get_text();
 
     win32::process proc{win.get_pid()};
+    up.process_path = proc.get_module_filename();
     up.process_name = proc.get_name();
     up.process_description = proc.get_description();
+
+#if _DEBUG
+    if(command == "toast") {
+        bt::ui::toast_app app{up, g_config.browsers[0]->instances[0]};
+        app.run();
+        return;
+    }
+#endif
 
     open(up, force_picker);   // open-up hahaha
 }

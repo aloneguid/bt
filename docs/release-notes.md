@@ -1,6 +1,7 @@
 ## 5.2.3
 
 - improvement: BT will now use high resolution icons extracted from `.ico` files.
+- improvement: toast notification also displays source application that made the call to open a link - useful to detect "ghost" clicks.
 - improvement: health checks display more information on why exactly health check has failed. For instance, when "default proxy check" is failing, the tooltip displays what BT was looking for and what was actually found.
 - firefox extension: Fix Gecko extension not handling protocol confirmation, by @JustMrPhoenix in #122.
 

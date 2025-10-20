@@ -18,6 +18,7 @@ namespace bt {
 
         // everything below is populated from HWND
         std::string window_title;
+        std::string process_path;
         std::string process_name;
         std::string process_description;
 

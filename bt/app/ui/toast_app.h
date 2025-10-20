@@ -2,6 +2,7 @@
 #include <memory>
 #include "grey.h"
 #include "../browser.h"
+#include "../click_payload.h"
 
 namespace bt::ui {
 
@@ -16,7 +17,7 @@ namespace bt::ui {
             exit
         };
 
-        toast_app(const std::string& text, std::shared_ptr<bt::browser_instance> bi);
+        toast_app(const click_payload& cp, std::shared_ptr<bt::browser_instance> bi);
 
         void run();
 
@@ -25,7 +26,8 @@ namespace bt::ui {
         const float AnimSpeed = 0.2f; // between 0 and 1,
 
         anim_stage stage{anim_stage::init};
-        std::string text;
+        const click_payload& cp;
+        std::string line1;
         std::shared_ptr<bt::browser_instance> bi;
         ImVec2 wnd_size{0, 0};
         ImVec2 wnd_size_anim{0, 0};

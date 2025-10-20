@@ -7,8 +7,8 @@ using namespace std;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    toast_app::toast_app(const std::string& text, std::shared_ptr<bt::browser_instance> bi) :
-        text{text}, bi{bi},
+    toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_instance> bi) :
+        cp{cpp}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_config.theme_id;
@@ -29,18 +29,22 @@ namespace bt::ui {
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
             btw_on_app_initialised(*app);
+
+            if(!cp.process_path.empty()) {
+                app->preload_texture("app_icon", cp.process_path);
+            }
         };
 
     }
 
     void toast_app::size_to_fit() {
         if(stage == toast_app::anim_stage::init) {
-            ImVec2 ts = ImGui::CalcTextSize(text.c_str());
+            ImVec2 ts = ImGui::CalcTextSize(cp.url.c_str());
             ImVec2 wpad = ImGui::GetStyle().WindowPadding;
             icon_size = ts.y;
             wnd_size = ImVec2{
                 wpad.x * 2 + ts.x + icon_size * app->scale,
-                wpad.y * 2 + ts.y};
+                wpad.y * 2 + ts.y * 2};
             wnd_size_anim = ImVec2{0, wnd_size.y};  // only animate X
 
             int mon_idx = app->find_monitor_for_main_viewport();
@@ -90,10 +94,29 @@ namespace bt::ui {
     }
 
     void toast_app::render_content() {
-        btw_icon(*app, bi, 0, icon_size, true);
-
+        // line 1
+        if(cp.process_path.empty()) {
+            w::image(*app, "logo", icon_size, icon_size);
+        } else {
+            w::image(*app, "app_icon", icon_size, icon_size);
+        }
         w::sl();
-        w::label(text);
+        if(!cp.process_description.empty()) {
+            w::label(cp.process_description);
+            if(!cp.process_name.empty()) {
+                w::sl();
+                w::label("(" + cp.process_name + ")");
+            }
+        } else if(!cp.process_name.empty()) {
+            w::label(cp.process_name);
+        } else {
+            w::label("unknown", w::emphasis::error);
+        }
+
+        // line 2
+        btw_icon(*app, bi, 0, icon_size, true);
+        w::sl();
+        w::label(cp.url);
     }
 
     void toast_app::run() {
