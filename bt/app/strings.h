@@ -27,4 +27,6 @@ namespace bt::strings {
     const std::string BrowserMoveUpTooltip{"Move up (affects the picker)"};
 
     const std::string BrowserMoveDownTooltip{"Move down (affects the picker)"};
+
+    const std::string APP_BROWSER_EXTENSIONS_DOCS_URL = "https://www.aloneguid.uk/projects/bt/#browser-extensions";
 }

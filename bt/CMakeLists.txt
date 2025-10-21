@@ -40,6 +40,7 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/config/config.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 
+# todo: move these to strings.h
 target_compile_definitions(${APP_NAME} PRIVATE
     APP_SHORT_NAME="${APP_NAME}"
     APP_LONG_NAME="${APP_LONG_NAME}"
@@ -50,7 +51,6 @@ target_compile_definitions(${APP_NAME} PRIVATE
     APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
     APP_DOCS_URL="https://www.aloneguid.uk/projects/bt/"
     APP_HELP_BASE_URL="https://www.aloneguid.uk/projects/bt/"
-    APP_BROWSER_EXTENSIONS_DOCS_URL="https://www.aloneguid.uk/projects/bt/#browser-extensions"
     APP_BUYMEACOFFEE_URL="https://www.buymeacoffee.com/alonecoffee"
     APP_CONTACT_URL="https://www.aloneguid.uk/about/#contact"
     APP_REG_DESCRIPTION="Redirects open URLs to a browser of your choice."

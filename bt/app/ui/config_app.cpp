@@ -309,7 +309,7 @@ namespace bt::ui {
 
             if(w::menu m{"Help"}; m) {
                 if(w::mi("Extensions", true, ICON_MD_OPEN_IN_NEW)) {
-                    url_opener::open(APP_BROWSER_EXTENSIONS_DOCS_URL);
+                    url_opener::open(strings::APP_BROWSER_EXTENSIONS_DOCS_URL);
                 }
                 if(w::mi("Contact", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open("https://www.aloneguid.uk/about/#contact");
@@ -362,12 +362,12 @@ namespace bt::ui {
     }
 
     void config_app::render_about_window() {
-        const int width = 310;
-        app->preload_texture("logo", icon_png, icon_png_len);
         w::guard gw{wnd_about};
+        float width = w::avail_x();
 
-        float icon_size = 50 * app->scale;
-        w::cur_set(width * app->scale / 2 - icon_size / 2, 40 * app->scale);
+        float icon_size = 80 * app->scale;
+        auto pos = w::cur_get();
+        w::cur_set(pos.x + width / 2 - icon_size / 2, pos.y + 10 * app->scale);
         w::image(*app, "logo", icon_size, icon_size);
         w::spc(3);
 
@@ -1206,6 +1206,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 } else {
                                     w::sl();
                                     if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
+                                        // todo: move to strings.h
                                         url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                     }
                                     w::tooltip("download required extension");
@@ -1214,7 +1215,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 w::sl();
                                 if(w::button(ICON_MD_EXTENSION)) {
                                     // extenstion page needs to be opened in the correct profile
-                                    url_opener::open(bi, APP_BROWSER_EXTENSIONS_DOCS_URL);
+                                    url_opener::open(bi, strings::APP_BROWSER_EXTENSIONS_DOCS_URL);
                                 }
                                 w::tooltip("download optional integration extension");
                             }
