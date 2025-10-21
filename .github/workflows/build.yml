@@ -1,15 +1,11 @@
 ﻿name: 'Build'
 
 env:
-  VERSION: 5.2.3
+  VERSION: 5.3.0
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
   VCPKG_HASH: 9824d05f8d9548720ba3331f4baba3e2d6c1693b
-  DOC_INSTANCE: wrs/bt
-  DOC_ARTIFACT: webHelpBT2-all.zip
-  DOC_ALGOLIA_ARTIFACT: algolia-indexes-BT.zip
-  DOC_DOCKER_VERSION: 232.10275
 
 on: [push, workflow_dispatch]
 
@@ -32,7 +28,7 @@ jobs:
 
     steps:
       
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -109,44 +105,4 @@ jobs:
         name: bin${{ matrix.config.suffix }}
         path: atf/*
 
-  wrs-build:
-    runs-on: ubuntu-latest
-    name: 'Build Docs'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Build docs
-        uses: JetBrains/writerside-github-action@v4
-        with:
-          instance: ${{ env.DOC_INSTANCE }}
-          artifact: ${{ env.DOC_INSTANCE }}
-          docker-version: ${{ env.DOC_DOCKER_VERSION }}
-      - name: Upload documentation
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs
-          path: artifacts/*.zip
-          retention-days: 1
-
-  wrs-deploy:
-    needs: wrs-build
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    name: 'Deploy Docs to GitHub Pages'
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docs
-      - name: Unzip artifact
-        run: unzip -O UTF-8 -qq ${{ env.DOC_ARTIFACT }} -d dir
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dir
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
 

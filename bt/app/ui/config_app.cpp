@@ -586,7 +586,7 @@ It super fast, extremely light on resources, completely free and open source.)",
             bool do_save = w::button(ICON_MD_SAVE " save");
             w::tooltip("save only");
             w::sl();
-            w::hyperlink("?", "https://aloneguid.github.io/bt/scripting.html");
+            w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#scripting");
 
             if(do_run || do_save) {
                 g_script.set_code(script_editor.get_text());
@@ -1206,7 +1206,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 } else {
                                     w::sl();
                                     if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
-                                        url_opener::open("https://aloneguid.github.io/bt/firefox-containers.html");
+                                        url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                     }
                                     w::tooltip("download required extension");
                                 }

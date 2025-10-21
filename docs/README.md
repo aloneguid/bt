@@ -1,6 +1,6 @@
 # Browser Tamer ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/aloneguid/bt/total)
 
-[Home](https://www.aloneguid.uk/projects/bt/) | [Documentation](https://aloneguid.github.io/bt/home.html)
+[Home + Documentation](https://www.aloneguid.uk/projects/bt/) 👈
 
 [![](https://www.aloneguid.uk/projects/bt/one.png)](https://www.aloneguid.uk/projects/bt/)
 

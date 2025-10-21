@@ -1,9 +1,10 @@
-## 5.2.3
+## 5.3.0
 
 - improvement: BT will now use high resolution icons extracted from `.ico` files.
-- improvement: toast notification also displays source application that made the call to open a link - useful to detect "ghost" clicks.
-- improvement: health checks display more information on why exactly health check has failed. For instance, when "default proxy check" is failing, the tooltip displays what BT was looking for and what was actually found.
-- firefox extension: Fix Gecko extension not handling protocol confirmation, by @JustMrPhoenix in #122.
+- improvement: toast notification also displays the source application that made the call to open a link - useful to detect "ghost" clicks.
+- improvement: health checks display more information on why exactly a health check has failed. For instance, when the "default proxy check" is failing, the tooltip displays what BT was looking for and what was actually found.
+- firefox extension: fix Gecko extension not handling protocol confirmation, by @JustMrPhoenix in #122.
+- docs: documentation has moved from [GitHub Pages](https://aloneguid.github.io/bt/home.html) to [Project page](https://www.aloneguid.uk/projects/bt/) due to a risky situation with [Writerside](https://www.jetbrains.com/writerside/) which was hosting the pages but is now being sunsetted. Most links have been updated accordingly, however old release notes still point to GitHub Pages. I will keep the GitHub Pages online for the time being, but it will not be updated anymore.
 
 ## 5.2.2
 
