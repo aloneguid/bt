@@ -331,8 +331,6 @@ namespace bt {
 
             fs::path ini_path = fs::path{ad} / vdf / "profiles.ini";
             if(fs::exists(ini_path)) {
-                firefox_container_mode container_mode = g_config.firefox_mode;
-
                 CSimpleIniA ini;
                 ini.LoadFile(ini_path.c_str());
                 list<CSimpleIniA::Entry> ir;
@@ -350,7 +348,6 @@ namespace bt {
                         break;
                     }
                 }
-
 
                 for(auto& e : ir) {
                     // a section is a profile if starts with "Profile".
@@ -382,63 +379,44 @@ namespace bt {
                         ? (fs::path{ad} / vdf / c_path).string()
                         : c_path;
 
+                    string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
+                    auto bi = make_shared<browser_instance>(b,
+                        e.pItem,
+                        display_name,
+                        arg,
+                        "");
+                    bi->sort_order = is_default_profile ? -1 : b->instances.size();
 
-                    if(container_mode == firefox_container_mode::off) {
+                    {
+                        const char* c_default = ini.GetValue(e.pItem, "Default");
+                        bi->is_default = c_default != nullptr && string{c_default} == "1";
+                    }
 
-                        // rename primary release profile to something more human-readable
-                        string profile_display_name = is_default_profile
-                            ? "Primary"
-                            : display_name;
+                    b->instances.push_back(bi);
 
-                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
-                        auto bi = make_shared<browser_instance>(b,
-                            e.pItem,
-                            profile_display_name,
-                            arg,
-                            "");
-                        bi->sort_order = is_default_profile ? -1 : b->instances.size();
-
-                        {
-                            const char* c_default = ini.GetValue(e.pItem, "Default");
-                            bi->is_default = c_default != nullptr && string{c_default} == "1";
-                        }
-
-                        b->instances.push_back(bi);
-                    } else {
-
-                        // add "no container" profile
-                        string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
-                        auto bi = make_shared<browser_instance>(b, e.pItem, "No container", arg, "");
-                        bi->sort_order = 0;
-                        b->instances.push_back(bi);
+                    if(g_config.discover_firefox_containers) {
+                        // for each container, add a profile
+                        // Leave the "no container" profile as is.
 
                         // add profile for each container
                         vector<firefox_container> containers = discover_firefox_containers(roaming_home);
                         for(const auto& container : containers) {
 
-                            string arg;
+                            string profile_name = fmt::format("{}::{}", display_name, container.name);
 
-                            if(container_mode == firefox_container_mode::ouic) {
-                                arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
-                                    container.name,
-                                    browser_instance::URL_ARG_NAME,
-                                    display_name);
-                            } else if(container_mode == firefox_container_mode::bt) {
-                                arg = fmt::format("\"ext+bt:container={}&url={}\" -P \"{}\"",
-                                    container.name,
-                                    browser_instance::URL_ARG_NAME,
-                                    display_name);
-                            } else {
-                                arg = fmt::format("unknown mode", config::firefox_container_mode_to_string(container_mode));
-                            }
+                            string arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
+                                container.name,
+                                browser_instance::URL_ARG_NAME,
+                                display_name);
+
 
                             string id = fmt::format("{}+c_{}", e.pItem, container.id);
-                            auto bi = make_shared<browser_instance>(b, id, container.name, arg, "");
+                            auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
                             bi->sort_order = b->instances.size();
                             b->instances.push_back(bi);
                         }
-                    }
 
+                    }
                 }
             }
         }
@@ -479,7 +457,11 @@ namespace bt {
 
                     auto j_name = identity["name"];
                     auto j_l10nID = identity["l10nID"];
-                    if(!(j_name.is_string() || j_l10nID.is_string())) continue;
+                    auto j_l10nId = identity["l10nId"];
+                    //string t0 = j_name.type_name();
+                    //string t1 = j_l10nID.type_name();
+
+                    if(!(j_name.is_string() || j_l10nID.is_string() || j_l10nId.is_string())) continue;
 
                     int id = j_id.get<int>();
                     string name;
@@ -489,14 +471,14 @@ namespace bt {
                         // there are 4 default containers - Personal, Work, Banking, Shopping.
                         // They can be deleted, or renamed (in which case they will get "name" property set)
 
-                        string lid = j_l10nID.get<string>();
-                        if(lid == "userContextPersonal.label") {
+                        string lid = j_l10nID.is_string() ? j_l10nID.get<string>() : j_l10nId.get<string>();
+                        if(lid == "userContextPersonal.label" || lid == "user-context-personal") {
                             name = "Personal";
-                        } else if(lid == "userContextWork.label") {
+                        } else if(lid == "userContextWork.label" || lid == "user-context-work") {
                             name = "Work";
-                        } else if(lid == "userContextBanking.label") {
+                        } else if(lid == "userContextBanking.label" || lid == "user-context-banking") {
                             name = "Banking";
-                        } else if(lid == "userContextShopping.label") {
+                        } else if(lid == "userContextShopping.label" || lid == "user-context-shopping") {
                             name = "Shopping";
                         } else {
                             name = lid;

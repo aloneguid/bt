@@ -1,3 +1,8 @@
+## 5.4.0
+
+- new: new approach to handling Firefox profiles and containers. BT can now discover all profiles and all containers at once, so you don't have to choose between profiles and containers anymore. Each profile and container is listed separately in the picker. This makes Firefox handling much more ergonomic, especially with new Firefox release promoting containers heavily.
+- improvement: Firefox has changed containers implementation whcih broke discovery. This is now fixed.
+
 ## 5.3.0
 
 - improvement: BT will now use high resolution icons extracted from `.ico` files.

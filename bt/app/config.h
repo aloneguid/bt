@@ -15,12 +15,6 @@ namespace bt {
         std::string arg;
     };
 
-    enum class firefox_container_mode {
-        off = 0,
-        bt = 1,
-        ouic = 2
-    };
-
     enum class icon_overlay_mode : unsigned int {
         profile_on_browser  = 0,
         browser_on_profile  = 1,
@@ -32,10 +26,10 @@ namespace bt {
     public:
         // whether to show hidden browsers in the configuration list
         bool show_hidden_browsers{true};
+        bool discover_firefox_containers{true};
         std::string theme_id;
         bool log_rule_hits{true};
         bool log_app{false};
-        firefox_container_mode firefox_mode{firefox_container_mode::off};
         // default browser long sys name
         std::string default_profile_long_id;
         bool toast_on_open{true};
@@ -90,8 +84,6 @@ namespace bt {
         std::string get_flag(const std::string& name);
 
         // conversion functions
-        static std::string firefox_container_mode_to_string(firefox_container_mode mode);
-        static firefox_container_mode to_firefox_container_mode(const std::string& name);
         static std::string icon_overlay_mode_to_string(icon_overlay_mode mode);
         static icon_overlay_mode to_icon_overlay_mode(const std::string& name);
 

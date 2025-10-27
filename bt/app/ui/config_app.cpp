@@ -258,16 +258,7 @@ namespace bt::ui {
                     g_config.theme_id = theme_id;
                 });
 
-                w::sep("Firefox container mode");
-                if(w::small_radio("Off (use legacy profiles)", g_config.firefox_mode == firefox_container_mode::off)) {
-                    g_config.firefox_mode = firefox_container_mode::off;
-                }
-                if(w::small_radio(APP_LONG_NAME, g_config.firefox_mode == firefox_container_mode::bt)) {
-                    g_config.firefox_mode = firefox_container_mode::bt;
-                }
-                if(w::small_radio("open-url-in-container", g_config.firefox_mode == firefox_container_mode::ouic)) {
-                    g_config.firefox_mode = firefox_container_mode::ouic;
-                }
+                w::small_checkbox("Discover firefox containers", g_config.discover_firefox_containers);
             }
 
             if(w::menu m{"Picker"}; m) {
@@ -1063,7 +1054,20 @@ It super fast, extremely light on resources, completely free and open source.)",
         }
 
         if(b->is_system) {
-            // anything?
+            if(b->is_firefox) {
+                w::sl();
+                if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
+                    win32::shell::exec(b->open_cmd, "-P");
+                }
+                w::tooltip("open Firefox Profile Manager (-P flag)");
+
+                w::sl();
+                if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
+                    win32::shell::exec(b->open_cmd, "about:profiles");
+                }
+                w::tooltip("open Firefox Profile Manager in Firefox itself");
+
+            }
         } else {
             w::sl();
             if(w::button(ICON_MD_FAVORITE)) {
@@ -1190,27 +1194,12 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         if(!b->open_cmd.empty()) {
                             if(b->is_firefox) {
-
-                                if(g_config.firefox_mode == firefox_container_mode::off) {
-                                    w::sl();
-                                    if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-                                        win32::shell::exec(b->open_cmd, "-P");
-                                    }
-                                    w::tooltip("open Firefox Profile Manager (-P flag)");
-
-                                    w::sl();
-                                    if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-                                        win32::shell::exec(b->open_cmd, "about:profiles");
-                                    }
-                                    w::tooltip("open Firefox Profile Manager in Firefox itself");
-                                } else {
-                                    w::sl();
-                                    if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
-                                        // todo: move to strings.h
-                                        url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
-                                    }
-                                    w::tooltip("download required extension");
+                                w::sl();
+                                if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
+                                    // todo: move to strings.h
+                                    url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                 }
+                                w::tooltip("download required extension");
                             } else if(b->is_chromium) {
                                 w::sl();
                                 if(w::button(ICON_MD_EXTENSION)) {
