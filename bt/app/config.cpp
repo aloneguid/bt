@@ -134,7 +134,7 @@ namespace bt {
         string v;
 
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
-        discover_firefox_containers = cfg.get_bool_value(DiscoverFirefoxContainersKey, true);
+        discover_firefox_containers = cfg.get_bool_value(DiscoverFirefoxContainersKey, false);
 
         theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);

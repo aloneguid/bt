@@ -1191,12 +1191,10 @@ It super fast, extremely light on resources, completely free and open source.)",
 
                         if(!b->open_cmd.empty()) {
                             if(b->is_firefox) {
-                                w::sl();
-                                if(w::button(ICON_MD_EXTENSION, w::emphasis::error)) {
-                                    // todo: move to strings.h
-                                    url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
+                                if(g_config.discover_firefox_containers) {
+                                    w::sl();
+                                    w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                 }
-                                w::tooltip("download extension for containers support");
                             }
                         }
 

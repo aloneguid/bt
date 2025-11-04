@@ -26,7 +26,7 @@ namespace bt {
     public:
         // whether to show hidden browsers in the configuration list
         bool show_hidden_browsers{true};
-        bool discover_firefox_containers{true};
+        bool discover_firefox_containers{false};
         std::string theme_id;
         bool log_rule_hits{true};
         bool log_app{false};
