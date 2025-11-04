@@ -299,9 +299,6 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Help"}; m) {
-                if(w::mi("Extensions", true, ICON_MD_OPEN_IN_NEW)) {
-                    url_opener::open(strings::APP_BROWSER_EXTENSIONS_DOCS_URL);
-                }
                 if(w::mi("Contact", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open("https://www.aloneguid.uk/about/#contact");
                 }
@@ -1199,14 +1196,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                     // todo: move to strings.h
                                     url_opener::open("https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                 }
-                                w::tooltip("download required extension");
-                            } else if(b->is_chromium) {
-                                w::sl();
-                                if(w::button(ICON_MD_EXTENSION)) {
-                                    // extenstion page needs to be opened in the correct profile
-                                    url_opener::open(bi, strings::APP_BROWSER_EXTENSIONS_DOCS_URL);
-                                }
-                                w::tooltip("download optional integration extension");
+                                w::tooltip("download extension for containers support");
                             }
                         }
 
