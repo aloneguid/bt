@@ -667,120 +667,130 @@ It super fast, extremely light on resources, completely free and open source.)",
         // do it continuously
         recalculate_test_url_matches(pv_cp);
 
-
-        if(ImGui::BeginTable("pv", 3,
-            ImGuiTableFlags_Borders |
-            ImGuiTableFlags_NoBordersInBodyUntilResize | 
-            ImGuiTableFlags_RowBg |
-            ImGuiTableFlags_HighlightHoveredColumn |
-            ImGuiTableFlags_Resizable |
-            ImGuiTableFlags_ScrollY)) {
-
-            ImGui::TableSetupColumn("Key", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableHeadersRow();
-
+        if(w::table pv{"pv", {"Key", "Value"}, .0f, .0f, true}; pv) {
             // input row
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
+            pv.begin_row();
             w::label("URL");
-            ImGui::TableSetColumnIndex(1);
+            pv.next_column();
             w::label(g_config.pv_last_url);
 
             // pipeline steps
             if(!pv_pipeline_steps.empty()) {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                bool open = ImGui::TreeNodeEx("Pipeline",
-                    ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen);
-                ImGui::TableSetColumnIndex(1);
-                ImGui::TextDisabled(" ");
-
-                if(open) {
-                    for(auto& s : pv_pipeline_steps) {
-                        ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0);
-                        string text = url_pipeline_step::to_string(s.step->type);
-                        ImGui::TreeNodeEx(text.c_str(), ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen);
-                        ImGui::TableSetColumnIndex(1);
-                        if(s.before.url == s.after.url) {
-                            w::label(ICON_MD_BRIGHTNESS_1);
-                            w::tooltip("no change");
-                        } else {
-                            w::label(ICON_MD_ADJUST, w::emphasis::primary);
-                            w::tooltip("URL was modified");
+                pv.begin_row();
+                {
+                    w::tree_node node_pipeline{"Pipeline", true, false, true};
+                    pv.next_column();
+                    w::label(" ");
+                    if(node_pipeline) {
+                        for(auto& s : pv_pipeline_steps) {
+                            pv.begin_row();
+                            string text = url_pipeline_step::to_string(s.step->type);
+                            {
+                                w::tree_node step_node{text, true, true, true};
+                                pv.next_column();
+                                if(s.before.url == s.after.url) {
+                                    w::label(ICON_MD_BRIGHTNESS_1);
+                                    w::tooltip("no change");
+                                } else {
+                                    w::label(ICON_MD_ADJUST, w::emphasis::primary);
+                                    w::tooltip("URL was modified");
+                                }
+                                w::sl();
+                                w::label(s.after.url);
+                            }   // step_node
                         }
-                        w::sl();
-                        w::label(s.after.url);
                     }
-                    ImGui::TreePop();
-                }
+                } // node_pipeline
             }
 
-            // browsers?
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            bool open = ImGui::TreeNodeEx("Browsers", ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen);
-            ImGui::TableSetColumnIndex(1);
-            ImGui::TextDisabled(" ");
-            if(open) {
+            // browsers
+            pv.begin_row();
+            if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
                 for(auto b : g_config.browsers) {
                     if(pv_only_matching && !b->ui_test_url_matches) continue;
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    bool b_open = w::tree_node(b->name,
-                        ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen,
-                        b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none);
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::TextDisabled(" ");
-                    if(b_open) {
 
+                    pv.begin_row();
+                    auto emp = b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+                    if(w::tree_node node_browser{b->name, true, false, true, emp}; node_browser) {
                         for(auto i : b->instances) {
                             if(pv_only_matching && !i->ui_test_url_matches) continue;
-                            ImGui::TableNextRow();
-                            ImGui::TableSetColumnIndex(0);
-                            auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
-                            bool i_open = w::tree_node(i->name,
-                                ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_DefaultOpen, emp);
-                            ImGui::TableSetColumnIndex(1);
 
+                            pv.begin_row();
+                            auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+                            w::tree_node node_profile(i->name, true, false, true, emp);
+                            pv.next_column();
                             if(i->rules.empty()) {
                                 w::label("no rules", 0, false);
                             } else {
                                 w::label(fmt::format("{} rule(s)", i->rules.size()), 0, false);
                             }
 
-                            if(i_open) {
-
-                                // rules
+                            // rules
+                            if(node_profile) {
                                 int idx = 0;
                                 for(auto r : i->rules) {
                                     if(pv_only_matching && !r->ui_test_url_matches) continue;
-                                    ImGui::TableNextRow();
-                                    ImGui::TableSetColumnIndex(0);
+                                    pv.begin_row();
                                     auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
-                                    w::tree_node(
+                                    w::tree_node node_rule{
                                         fmt::format("{}##{}", r->get_type_string(), idx++),
-                                        ImGuiTreeNodeFlags_SpanAllColumns |
-                                        ImGuiTreeNodeFlags_Leaf |
-                                        ImGuiTreeNodeFlags_NoTreePushOnOpen,
-                                        emp);
-                                    ImGui::TableSetColumnIndex(1);
+                                        false, true, true, emp};
+                                    pv.next_column();
                                     w::label(r->to_string(false), emp);
                                 }
-
-
-                                ImGui::TreePop();
                             }
                         }
-
-                        ImGui::TreePop();
                     }
                 }
-                ImGui::TreePop();   // browsers
             }
-            ImGui::EndTable();
         }
+
+
+            //    for(auto b : g_config.browsers) {
+            //        if(pv_only_matching && !b->ui_test_url_matches) continue;
+            //        ImGui::TableNextRow();
+            //        ImGui::TableSetColumnIndex(0);
+            //        {
+            //        w::tree_node b_node(b->name, true, false, true, b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none);
+            //        ImGui::TableSetColumnIndex(1);
+            //        ImGui::TextDisabled(" ");
+            //        if(b_node) {
+            //            for(auto i : b->instances) {
+            //                if(pv_only_matching && !i->ui_test_url_matches) continue;
+            //                ImGui::TableNextRow();
+            //                ImGui::TableSetColumnIndex(0);
+            //                auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+            //                bool i_open = w::tree_node(i->name, true, false, true, emp);
+            //                ImGui::TableSetColumnIndex(1);
+
+            //                if(i->rules.empty()) {
+            //                    w::label("no rules", 0, false);
+            //                } else {
+            //                    w::label(fmt::format("{} rule(s)", i->rules.size()), 0, false);
+            //                }
+
+            //                if(i_open) {
+
+            //                    // rules
+            //                    int idx = 0;
+            //                    for(auto r : i->rules) {
+            //                        if(pv_only_matching && !r->ui_test_url_matches) continue;
+            //                        ImGui::TableNextRow();
+            //                        ImGui::TableSetColumnIndex(0);
+            //                        auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+            //                        w::tree_node(
+            //                            fmt::format("{}##{}", r->get_type_string(), idx++),
+            //                            false, true, true, emp);
+            //                        ImGui::TableSetColumnIndex(1);
+            //                        w::label(r->to_string(false), emp);
+            //                    }
+            //                }
+            //            }
+
+            //            ImGui::TreePop();
+            //        }
+            //        }
+            //    }
     }
     
     void config_app::render_status_bar() {
