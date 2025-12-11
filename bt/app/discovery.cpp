@@ -1,16 +1,12 @@
 #include "discovery.h"
 #include "fss.h"
 #include "config.h"
-#include "glob.hpp"
 #include "str.h"
 #include "win32/shell.h"
 #include "win32/reg.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 #include <fmt/core.h>
 #include "../globals.h"
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
@@ -24,16 +20,54 @@ using json = nlohmann::json;
 // mapping of vendors to vendor data folder (relative to AppData\Local)
 // Arc stores data under AppData\Local\Packages\TheBrowserCompany.Arc_ttt1ap7aakyb4\LocalCache\Local\Arc\User Data
 
-map<string, string> chromium_id_to_vdf {
-    { "msedge", "Microsoft\\Edge\\User Data" },
-    { "chrome", "Google\\Chrome\\User Data" },
-    { "vivaldi", "Vivaldi\\User Data" },
-    { "brave", "BraveSoftware\\Brave-Browser\\User Data" },
-    { "thorium", "Thorium\\User Data" }
-    //{ "TheBrowserCompany.Arc_ttt1ap7aakyb4!Arc", "Packages\\TheBrowserCompany.Arc_ttt1ap7aakyb4\\LocalCache\\Local\\Arc\\User Data" }
+struct browser_info_entry {
+    // Vendor Data Folder, relative to AppData\Local
+    string vdf;
+
+    // Optional path substring to help identify identical IDs
+    string path_substr;
 };
 
-map<string, string> firefox_id_to_vdf {
+struct browser_info {
+    vector<browser_info_entry> entries;
+
+    browser_info_entry& get_best_entry(const string& open_cmd) {
+        for(auto& entry : entries) {
+            if(!entry.path_substr.empty() && str::contains_ic(open_cmd, entry.path_substr)) {
+                return entry;
+            }
+        }
+        return entries[0];
+    }
+};
+
+map<string, browser_info> chromium_id_to_bi{
+    { "msedge", browser_info {
+            { browser_info_entry{"Microsoft\\Edge\\User Data"} }
+        }
+    },
+    { "chrome", browser_info {
+            {
+                browser_info_entry{"Google\\Chrome\\User Data"},
+                browser_info_entry{"imput\\Helium\\User Data", "\\Helium\\" }
+            }
+        }
+    },
+    { "vivaldi", browser_info {
+            { browser_info_entry{"Vivaldi\\User Data"} }
+        }
+    },
+    { "brave", browser_info {
+            { browser_info_entry{"BraveSoftware\\Brave-Browser\\User Data"} }
+        }
+    },
+    { "thorium", browser_info {
+            { browser_info_entry{"Thorium\\User Data"} }
+        }
+    }
+};
+
+map<string, string> firefox_id_to_vdf{
     { "firefox", "Mozilla\\Firefox" },
     { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Microsoft Store version
     { "waterfox", "Waterfox" },
@@ -235,9 +269,12 @@ namespace bt {
     void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
         if (!(b->is_system && b->is_chromium)) return;
 
-        if(!chromium_id_to_vdf.contains(b->id)) return;
+        if(!chromium_id_to_bi.contains(b->id)) return;
 
-        fs::path root = fs::path{lad} / chromium_id_to_vdf[b->id];
+        auto bi = chromium_id_to_bi[b->id];
+        auto bie = bi.get_best_entry(b->open_cmd);
+
+        fs::path root = fs::path{lad} / bie.vdf;
         fs::path lsjf = root / "Local State";
 
         // faster method to discover
@@ -556,7 +593,7 @@ namespace bt {
     }
 
     bool discovery::is_chromium_id(const std::string& system_id) {
-        return chromium_id_to_vdf.find(system_id) != chromium_id_to_vdf.end();
+        return chromium_id_to_bi.find(system_id) != chromium_id_to_bi.end();
     }
 
     bool discovery::is_firefox_id(const std::string& system_id) {
