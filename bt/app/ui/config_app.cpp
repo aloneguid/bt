@@ -403,13 +403,13 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::spc();
 
         w::label(about_fps);
-        w::tooltip(about_fps_tooltip);
+        w::tt(about_fps_tooltip);
 
         w::label(about_mem);
-        w::tooltip("Process memory usage (when this dialog is closed, usage goes down massively)");
+        w::tt("Process memory usage (when this dialog is closed, usage goes down massively)");
 
         w::label(about_cpu);
-        w::tooltip("Current CPU load of your entire system (not this application) in percentages.");
+        w::tt("Current CPU load of your entire system (not this application) in percentages.");
 
         w::sep();
         w::spc();
@@ -443,9 +443,9 @@ It super fast, extremely light on resources, completely free and open source.)",
         // testing stuff
         w::sep("Test");
         if(w::input(url_subs_up.url, ICON_MD_LOGIN)) recompute = true;
-        w::tooltip("Input a value to test substitutions.");
+        w::tt("Input a value to test substitutions.");
         if(w::input(url_subs_up.url, ICON_MD_LOGOUT, true, 0, true)) recompute = true;
-        w::tooltip("Substitution result are populated here.");
+        w::tt("Substitution result are populated here.");
 
         w::sep("Substitutions");
         // scrollable container of subs
@@ -534,7 +534,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                     }
                 }
             }
-            w::tooltip(tooltip);
+            w::tt(tooltip);
         }
 
         if(w::button("recheck", w::emphasis::primary) || recheck) {
@@ -565,14 +565,14 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
             string func_name = g_script.bt_function_names.empty() ? "" : g_script.bt_function_names[script_fn_selected];
             bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
-            w::tooltip("function to execute");
+            w::tt("function to execute");
 
             w::sl();
             bool do_run = w::button(ICON_MD_PLAY_ARROW, w::emphasis::primary);
-            w::tooltip("save and run");
+            w::tt("save and run");
             w::sl();
             bool do_save = w::button(ICON_MD_SAVE " save");
-            w::tooltip("save only");
+            w::tt("save only");
             w::sl();
             w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#scripting");
 
@@ -628,10 +628,10 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(w::button(ICON_MD_CLEAR_ALL, w::emphasis::error)) {
                 script_terminal.clear();
             }
-            w::tooltip("clear");
+            w::tt("clear");
             w::sl();
             w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
-            w::tooltip("auto-scroll");
+            w::tt("auto-scroll");
             w::input_ml("##script_terminal", script_terminal, -FLT_MIN, script_terminal_autoscroll);
         }
     }
@@ -650,7 +650,7 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         w::sl();
         bool refresh = w::button("refresh") || pv_pipeline_steps.size() != g_pipeline.get_steps().size();
-        w::tooltip("Refresh calculations");
+        w::tt("Refresh calculations");
 
         w::sl();
         w::checkbox("matching only", pv_only_matching);
@@ -690,10 +690,10 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 pv.next_column();
                                 if(s.before.url == s.after.url) {
                                     w::label(ICON_MD_BRIGHTNESS_1);
-                                    w::tooltip("no change");
+                                    w::tt("no change");
                                 } else {
                                     w::label(ICON_MD_ADJUST, w::emphasis::primary);
-                                    w::tooltip("URL was modified");
+                                    w::tt("URL was modified");
                                 }
                                 w::sl();
                                 w::label(s.after.url);
@@ -803,10 +803,10 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(ImGui::IsItemHovered()) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
-            w::tooltip("Health issues detected, " APP_LONG_NAME " won't be able to intercept URLs until fixed.");
+            w::tt("Health issues detected, " APP_LONG_NAME " won't be able to intercept URLs until fixed.");
         } else {
             w::label(ICON_MD_HEALTH_AND_SAFETY, w::emphasis::primary);
-            w::tooltip("All health checks passed.");
+            w::tt("All health checks passed.");
         }
 
         size_t ipc{0};
@@ -822,22 +822,22 @@ It super fast, extremely light on resources, completely free and open source.)",
         w::label("|", 0, false);
         w::sl();
         w::label(fmt::format("{} {}", ICON_MD_WEB, g_config.browsers.size()), 0, false);
-        w::tooltip("Browser count");
+        w::tt("Browser count");
 
         w::sl();
         w::label(fmt::format("{} {}", ICON_MD_PERSON, ipc), 0, false);
-        w::tooltip("Profile count");
+        w::tt("Profile count");
 
         w::sl();
         w::label(fmt::format("{} {}", ICON_MD_RULE, irc), 0, false);
-        w::tooltip("Configured rule count");
+        w::tt("Configured rule count");
 
         w::sl();
         w::label("|", 0, false);
 
         w::sl();
         w::label(ICON_MD_COFFEE, 0, false);
-        w::tooltip("Support this app, buy me a coffee!");
+        w::tt("Support this app, buy me a coffee!");
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
@@ -850,13 +850,13 @@ It super fast, extremely light on resources, completely free and open source.)",
             const auto dbr = browser::get_default(g_config.browsers, g_config.default_profile_long_id);
             w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
             w::sl(); w::label(dbr->b->name, 0, false);
-            w::tooltip("Default browser");
+            w::tt("Default browser");
 
             if(dbr->b->is_system) {
                 w::sl(); w::label("|", 0, false);
                 w::sl(); w::label(ICON_MD_TAB, 0, false);
                 w::sl(); w::label(dbr->name, 0, false);
-                w::tooltip("Default profile");
+                w::tt("Default profile");
             }
         }
     }
@@ -884,10 +884,10 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(w::button(ICON_MD_ADD_CIRCLE " Add", w::emphasis::primary)) {
                 add_custom_browser_by_asking();
             }
-            w::tooltip("Add custom browser definition");
+            w::tt("Add custom browser definition");
             w::sl();
             w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
-            w::tooltip("Show hidden browsers");
+            w::tt("Show hidden browsers");
 
             for(int i = 0; i < g_config.browsers.size(); i++) {
                 auto br = g_config.browsers[i];
@@ -962,44 +962,44 @@ It super fast, extremely light on resources, completely free and open source.)",
         if(b->instances.size() > 0) {
             if(b->is_system) {
                 w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
-                w::tooltip(str::humanise(b->instances.size(), "profile", "profiles"));
+                w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
                 //i_where->is_enabled = false;
 
                 if(b->is_chromium) {
                     w::sl();
                     w::icon_image(*app, "bt_chromium");
-                    w::tooltip(strings::ChromiumBased);
+                    w::tt(strings::ChromiumBased);
                 } else if(b->is_firefox) {
                     w::sl();
                     w::icon_image(*app, "bt_gecko");
-                    w::tooltip(strings::GeckoBased);
+                    w::tt(strings::GeckoBased);
                 }
             } else {
                 w::label(ICON_MD_SUPPORT_AGENT, 0, false);
-                w::tooltip("User-defined");
+                w::tt("User-defined");
             }
 
             if(b->get_supports_frameless_windows()) {
                 w::sl();
                 w::label(ICON_MD_TAB_UNSELECTED, 0, false);
-                w::tooltip("Supports frameless windows");
+                w::tt("Supports frameless windows");
             }
 
             if(b->is_hidden) {
                 w::sl();
                 w::label(ICON_MD_VISIBILITY_OFF, 0, false);
-                w::tooltip("Hidden");
+                w::tt("Hidden");
             }
 
             if(b->contains_profile_id(g_config.default_profile_long_id)) {
                 w::sl();
                 w::label(ICON_MD_FAVORITE, w::emphasis::primary);
-                w::tooltip("Default browser");
+                w::tt("Default browser");
             }
 
         } else {
             w::label(ICON_MD_FACE, 0, false);
-            w::tooltip("no profiles");
+            w::tt("no profiles");
         }
 
         w::spc();
@@ -1016,12 +1016,12 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(w::button(ICON_MD_VISIBILITY)) {
                 b->is_hidden = false;
             }
-            w::tooltip("Show this browser in the browser list");
+            w::tt("Show this browser in the browser list");
         } else {
             if(w::button(ICON_MD_VISIBILITY_OFF)) {
                 b->is_hidden = true;
             }
-            w::tooltip("Hide this browser from the browser list");
+            w::tt("Hide this browser from the browser list");
         }
 
         bool can_move_up = b->id != (*g_config.browsers.begin())->id;
@@ -1037,7 +1037,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 return;
             }
         }
-        w::tooltip(strings::BrowserMoveUpTooltip);
+        w::tt(strings::BrowserMoveUpTooltip);
 
         w::sl();
         if(w::button(ICON_MD_ARROW_DOWNWARD, w::emphasis::none, can_move_down)) {
@@ -1048,7 +1048,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 selected_browser_idx = idx + 1;
             }
         }
-        w::tooltip(strings::BrowserMoveDownTooltip);
+        w::tt(strings::BrowserMoveDownTooltip);
 
         if(!b->open_cmd.empty()) {
             w::sl();
@@ -1057,7 +1057,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                 string path = p.parent_path().string();
                 win32::shell::exec(path, "");
             }
-            w::tooltip(fmt::format("open {}'s folder in Explorer.", b->name));
+            w::tt(fmt::format("open {}'s folder in Explorer.", b->name));
         }
 
         if(b->is_system) {
@@ -1066,13 +1066,13 @@ It super fast, extremely light on resources, completely free and open source.)",
                 if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
                     win32::shell::exec(b->open_cmd, "-P");
                 }
-                w::tooltip("open Firefox Profile Manager (-P flag)");
+                w::tt("open Firefox Profile Manager (-P flag)");
 
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
                     win32::shell::exec(b->open_cmd, "about:profiles");
                 }
-                w::tooltip("open Firefox Profile Manager in Firefox itself");
+                w::tt("open Firefox Profile Manager in Firefox itself");
 
             }
         } else {
@@ -1080,13 +1080,13 @@ It super fast, extremely light on resources, completely free and open source.)",
             if(w::button(ICON_MD_FAVORITE)) {
                 g_config.default_profile_long_id = b->instances[0]->long_id();
             }
-            w::tooltip("Make this browser the default one");
+            w::tt("Make this browser the default one");
 
             w::sl();
             if(w::button(ICON_MD_LAUNCH)) {
                 url_opener::open(b->instances[0], APP_TEST_URL);
             }
-            w::tooltip("test by opening a link");
+            w::tt("test by opening a link");
 
             w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
@@ -1103,7 +1103,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                     }
                 }
             }
-            w::tooltip("Completely deletes this browser, no questions asked");
+            w::tt("Completely deletes this browser, no questions asked");
         }
 
         // --- toolbar end
@@ -1146,7 +1146,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                         else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
                             g_config.default_profile_long_id = bi->long_id();
                         }
-                        w::tooltip("Make this browser the default one");
+                        w::tt("Make this browser the default one");
 
                         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
                         w::sl();
@@ -1154,12 +1154,12 @@ It super fast, extremely light on resources, completely free and open source.)",
                             if(w::button(ICON_MD_VISIBILITY)) {
                                 bi->is_hidden = false;
                             }
-                            w::tooltip(strings::ShowThisProfile);
+                            w::tt(strings::ShowThisProfile);
                         } else {
                             if(w::button(ICON_MD_VISIBILITY_OFF)) {
                                 bi->is_hidden = true;
                             }
-                            w::tooltip(strings::HideThisProfile);
+                            w::tt(strings::HideThisProfile);
                         }
 
                         bool can_move_left = idx != 0;
@@ -1172,7 +1172,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                             set_selected_profile_idx = idx - 1;
                             return;
                         }
-                        w::tooltip(strings::ProfileMoveUpTooltip);
+                        w::tt(strings::ProfileMoveUpTooltip);
 
                         w::sl();
                         if(w::button(ICON_MD_EAST, w::emphasis::none, can_move_right)) {
@@ -1181,13 +1181,13 @@ It super fast, extremely light on resources, completely free and open source.)",
                             set_selected_profile_idx = idx + 1;
                             return;
                         }
-                        w::tooltip(strings::ProfileMoveDownTooltip);
+                        w::tt(strings::ProfileMoveDownTooltip);
 
                         w::sl();
                         if(w::button(ICON_MD_LAUNCH)) {
                             url_opener::open(bi, APP_TEST_URL);
                         }
-                        w::tooltip("test by opening a link");
+                        w::tt("test by opening a link");
 
                         if(b->is_chromium) {
                             w::sl();
@@ -1196,7 +1196,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                                 up.app_mode = true;
                                 url_opener::open(bi, up);
                             }
-                            w::tooltip(strings::ProfileTestLink);
+                            w::tt(strings::ProfileTestLink);
                         }
 
                         if(!b->open_cmd.empty()) {
@@ -1218,14 +1218,14 @@ It super fast, extremely light on resources, completely free and open source.)",
                             g.render();
 
                             w::input(bi->b->open_cmd, "cmd", true, 0, true);;
-                            w::tooltip("Location");
+                            w::tt("Location");
 
                             w::input(bi->launch_arg, "arg", true, 0, true);
-                            w::tooltip("Discovered arguments (read-only)");
+                            w::tt("Discovered arguments (read-only)");
 
                             if(!bi->b->is_msstore()) {
                                 w::input(bi->user_arg, "extra arg");
-                                w::tooltip("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
                             }
                         }
 
@@ -1248,20 +1248,20 @@ It super fast, extremely light on resources, completely free and open source.)",
                 g.render();
 
                 w::input(b->open_cmd, "exe", false);
-                w::tooltip("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+                w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
                 if(w::input(bi->name, "name")) {
                     b->name = bi->name;
                 }
 
                 w::input(bi->launch_arg, "arg");
-                w::tooltip(R"(Argument(s) to pass to the browser.
+                w::tt(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
 special keyword - %url% which is replaced by opening url.)");
 
                 w::checkbox("hide user interface", bi->launch_hide_ui);
-                w::tooltip(R"(When using terminal commands or utilities,
+                w::tt(R"(When using terminal commands or utilities,
 terminal window will be hidden.)");
             }
 
@@ -1299,7 +1299,7 @@ terminal window will be hidden.)");
         }
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            w::tooltip("Click to override the built-in icon\nRight-click to reset to default");
+            w::tt("Click to override the built-in icon\nRight-click to reset to default");
         }
 
         if(w::is_leftclicked()) {
@@ -1356,7 +1356,7 @@ terminal window will be hidden.)");
                     }
 
                     w::combo(val_label, g_script.rule_function_names, selected, 250);
-                    w::tooltip(strings::LuaScriptTooltip);
+                    w::tt(strings::LuaScriptTooltip);
 
                     // reassign value
                     if(!g_script.rule_function_names.empty()) {
@@ -1380,14 +1380,14 @@ terminal window will be hidden.)");
                 if(rule->loc != match_location::lua_script) {
                     w::sl();
                     w::icon_checkbox(ICON_MD_GRAIN, rule->is_regex);
-                    w::tooltip(strings::RuleIsARegex);
+                    w::tt(strings::RuleIsARegex);
                 }
 
                 // app mode
                 if(bi->b->is_chromium) {
                     w::sl();
                     w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule->app_mode);
-                    w::tooltip("Open in chromeless window");
+                    w::tt("Open in chromeless window");
                 }
 
                 // scope (for "URL" rules)
@@ -1405,7 +1405,7 @@ terminal window will be hidden.)");
                         refresh_pop_proc_names_items();
                         pop_proc_names.open();
                     }
-                    w::tooltip(strings::RulePickProcessName);
+                    w::tt(strings::RulePickProcessName);
 
                     {
                         w::guard gpop{pop_proc_names};
@@ -1419,7 +1419,7 @@ terminal window will be hidden.)");
                                     }
                                 }
                             }
-                            w::tooltip("Filter process names");
+                            w::tt("Filter process names");
                             if(w::list("##proc", pop_proc_names_items_filtered, pop_proc_names_selected)) {
                                 rule->value = pop_proc_names_items_filtered[pop_proc_names_selected];
                             }
@@ -1431,7 +1431,7 @@ terminal window will be hidden.)");
                 if(w::button(string{ICON_MD_DELETE} + "##" + to_string(i), w::emphasis::error)) {
                     bi->delete_rule(rule->value);
                 }
-                w::tooltip("Delete rule");
+                w::tt("Delete rule");
             }
         }
     }

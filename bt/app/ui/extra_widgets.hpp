@@ -11,7 +11,7 @@ namespace bt::ui {
         static void help_link(const std::string& relative_url) {
             w::label(ICON_MD_HELP, 0, false);
             if(w::is_hovered()) {
-                w::tooltip(bt::strings::OnlineHelpTooltip);
+                w::tt(bt::strings::OnlineHelpTooltip);
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             if(w::is_leftclicked()) {

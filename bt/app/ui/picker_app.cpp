@@ -283,7 +283,7 @@ namespace bt::ui {
                 is_open = false;
             }
 
-            w::tooltip(p->get_best_display_name());
+            w::tt(p->get_best_display_name());
         }
 
         ImGui::PopStyleVar();
@@ -315,7 +315,7 @@ namespace bt::ui {
             wnd_main.border(g_config.picker_border_width);
         }
         w::checkbox("show native window chrome", g_config.picker_show_native_chrome);
-        w::tooltip("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
+        w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         if(w::button("reset", w::emphasis::error)) {
             g_config.picker_icon_size = 32;
