@@ -7,7 +7,7 @@
     - Monthly subscription: $0.
     - Yearly subscription (after 20% discount i.e. $0 * 0.80): $0.
 - improvement: Firefox has changed containers implementation whcih broke discovery. This is now fixed.
-- breaking: custom browser extensions are no longer supported. This includes both Firefox and Chromium extensions.•	The main reason is a string of reviewers who kept marking the extensions down claiming they "do not support Linux" — even though the listing plainly says "Windows only", and combined with frequent browser breakages and my limited maintenance time, I decided to remove them. In addition to that, I myself have very limited time to maintain these extensions, and every new browser release breaks them in some way. Therefore, I have decided to remove them completely. If you are a developer and wish to maintain these extensions, please contact me and I can transfer the repositories to you.
+- breaking: custom browser extensions are no longer supported. This includes both Firefox and Chromium extensions.•	The main reason is a string of reviewers who kept marking the extensions down claiming they "do not support Linux" — even though the listing plainly says "Windows only", and combined with frequent browser breakages and my limited maintenance time, I decided to remove them. In addition to that, I myself have very limited time to maintain these extensions, and every new browser release breaks them in some way. Therefore, I have decided to remove them completely. If you are a developer and wish to maintain these extensions, please contact me.
 
 ## 5.3.0
 
