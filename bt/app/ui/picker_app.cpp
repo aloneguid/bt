@@ -246,7 +246,6 @@ namespace bt::ui {
 
             {
                 w::group g;
-                g.render();
 
                 // render icon and come back to starting position
                 float x0, y0;

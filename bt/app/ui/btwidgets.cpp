@@ -28,7 +28,6 @@ namespace bt::ui {
         float box_size = icon_size + padding * 2;
 
         w::group g;
-        g.render();
 
         // render icon and come back to starting position
         float x0, y0;

@@ -1,7 +1,11 @@
 ## 5.4.0
 
 - new: [Helium browser](https://helium.computer/) is now properly detected as Chromium-based browser with correct profiles. The issue was that Helium .exe is named `chrome.exe` so BT thought it was Chrome.
-- new: new approach to handling Firefox profiles and containers. BT can now discover all profiles and all containers at once, so you don't have to choose between profiles and containers anymore. Each profile and container is listed separately in the picker. This makes Firefox handling much more ergonomic, especially with new Firefox release promoting containers heavily.
+- new: new approach to handling Firefox profiles and containers. BT can now discover all profiles and all containers at once, so you don't have to choose between profiles and containers anymore. Each profile and container is listed separately in the picker. This makes Firefox handling much more ergonomic. Note that autodiscovery for "new Firefox profiles" is still not done, but should come in a next version.
+- new: we are switching to subscription model - it is possible to buy a monthly subscription rather than a one-time license. Pricing:
+    - Full one-time license: $0.
+    - Monthly subscription: $0.
+    - Yearly subscription (after 20% discount i.e. $0 * 0.80): $0.
 - improvement: Firefox has changed containers implementation whcih broke discovery. This is now fixed.
 - breaking: custom browser extensions are no longer supported. This includes both Firefox and Chromium extensions.•	The main reason is a string of reviewers who kept marking the extensions down claiming they "do not support Linux" — even though the listing plainly says "Windows only", and combined with frequent browser breakages and my limited maintenance time, I decided to remove them. In addition to that, I myself have very limited time to maintain these extensions, and every new browser release breaks them in some way. Therefore, I have decided to remove them completely. If you are a developer and wish to maintain these extensions, please contact me and I can transfer the repositories to you.
 

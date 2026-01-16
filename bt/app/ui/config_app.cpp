@@ -516,7 +516,6 @@ It super fast, extremely light on resources, completely free and open source.)",
             string tooltip = sc.description;
             {
                 w::group g;
-                g.render();
 
                 w::label(sc.is_ok ? ICON_MD_DONE : ICON_MD_ERROR, sc.is_ok ? w::emphasis::primary : w::emphasis::error);
                 w::sl();
@@ -924,86 +923,86 @@ It super fast, extremely light on resources, completely free and open source.)",
 
     void config_app::render_card(std::shared_ptr<bt::browser> b, bool is_selected) {
 
-        w::group g;
-        g
-            .border_hover(ImGuiCol_HeaderActive)
-            .spread_horizontally();
+        {
+            w::group g{true};
 
-        if(is_selected) {
-            g.border(ImGuiCol_HeaderHovered);
-        }
+            float padding = 10 * app->scale;
+            float icon_size = 32 * app->scale;
+            float left_pad = icon_size + padding * 2;
 
-        g.render();
+            // render icon and come back to starting position
+            auto pos = w::cur_get();
+            w::cur_set(pos.x + padding, pos.y + padding);
 
-        float padding = 10 * app->scale;
-        float icon_size = 32 * app->scale;
-        float left_pad = icon_size + padding * 2;
-
-        // render icon and come back to starting position
-        auto pos = w::cur_get();
-        w::cur_set(pos.x + padding, pos.y + padding);
-
-        string path = b->get_best_icon_path();
-        if(app->preload_texture(path, fss::get_full_path(path))) {
-            w::image(*app, path, icon_size, icon_size);
-        } else {
-            w::image(*app, "logo", icon_size, icon_size);
-        }
-
-        // elements
-        w::cur_set(pos.x + left_pad, pos.y + padding);
-        w::label(b->name);
-
-        //w::spc();
-        auto pos2 = w::cur_get();
-        w::cur_set(pos2.x + left_pad, pos2.y);
-        //w::move_pos(left_pad, 0);
-
-        if(b->instances.size() > 0) {
-            if(b->is_system) {
-                w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
-                w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
-                //i_where->is_enabled = false;
-
-                if(b->is_chromium) {
-                    w::sl();
-                    w::icon_image(*app, "bt_chromium");
-                    w::tt(strings::ChromiumBased);
-                } else if(b->is_firefox) {
-                    w::sl();
-                    w::icon_image(*app, "bt_gecko");
-                    w::tt(strings::GeckoBased);
-                }
+            string path = b->get_best_icon_path();
+            if(app->preload_texture(path, fss::get_full_path(path))) {
+                w::image(*app, path, icon_size, icon_size);
             } else {
-                w::label(ICON_MD_SUPPORT_AGENT, 0, false);
-                w::tt("User-defined");
+                w::image(*app, "logo", icon_size, icon_size);
             }
 
-            if(b->get_supports_frameless_windows()) {
-                w::sl();
-                w::label(ICON_MD_TAB_UNSELECTED, 0, false);
-                w::tt("Supports frameless windows");
+            // elements
+            w::cur_set(pos.x + left_pad, pos.y + padding);
+            w::label(b->name);
+
+            //w::spc();
+            auto pos2 = w::cur_get();
+            w::cur_set(pos2.x + left_pad, pos2.y);
+            //w::move_pos(left_pad, 0);
+
+            if(b->instances.size() > 0) {
+                if(b->is_system) {
+                    w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
+                    w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
+                    //i_where->is_enabled = false;
+
+                    if(b->is_chromium) {
+                        w::sl();
+                        w::icon_image(*app, "bt_chromium");
+                        w::tt(strings::ChromiumBased);
+                    } else if(b->is_firefox) {
+                        w::sl();
+                        w::icon_image(*app, "bt_gecko");
+                        w::tt(strings::GeckoBased);
+                    }
+                } else {
+                    w::label(ICON_MD_SUPPORT_AGENT, 0, false);
+                    w::tt("User-defined");
+                }
+
+                if(b->get_supports_frameless_windows()) {
+                    w::sl();
+                    w::label(ICON_MD_TAB_UNSELECTED, 0, false);
+                    w::tt("Supports frameless windows");
+                }
+
+                if(b->is_hidden) {
+                    w::sl();
+                    w::label(ICON_MD_VISIBILITY_OFF, 0, false);
+                    w::tt("Hidden");
+                }
+
+                if(b->contains_profile_id(g_config.default_profile_long_id)) {
+                    w::sl();
+                    w::label(ICON_MD_FAVORITE, w::emphasis::primary);
+                    w::tt("Default browser");
+                }
+
+            } else {
+                w::label(ICON_MD_FACE, 0, false);
+                w::tt("no profiles");
             }
 
-            if(b->is_hidden) {
-                w::sl();
-                w::label(ICON_MD_VISIBILITY_OFF, 0, false);
-                w::tt("Hidden");
-            }
+            w::spc();
+            w::cur_set(pos);
+        } // group end
 
-            if(b->contains_profile_id(g_config.default_profile_long_id)) {
-                w::sl();
-                w::label(ICON_MD_FAVORITE, w::emphasis::primary);
-                w::tt("Default browser");
-            }
-
-        } else {
-            w::label(ICON_MD_FACE, 0, false);
-            w::tt("no profiles");
+        auto item_rect = w::item_rect_get();
+        if(w::is_hovered() || is_selected) {
+            ImDrawList* fdl = ImGui::GetWindowDrawList();
+            auto style = ImGui::GetStyle();
+            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0, style.WindowBorderSize);
         }
-
-        w::spc();
-        w::cur_set(pos);
     }
 
     void config_app::render_detail(std::shared_ptr<bt::browser> b) {
@@ -1215,7 +1214,6 @@ It super fast, extremely light on resources, completely free and open source.)",
                         w::sl();
                         {
                             w::group g;
-                            g.render();
 
                             w::input(bi->b->open_cmd, "cmd", true, 0, true);;
                             w::tt("Location");
@@ -1245,7 +1243,6 @@ It super fast, extremely light on resources, completely free and open source.)",
             w::sl();
             {
                 w::group g;
-                g.render();
 
                 w::input(b->open_cmd, "exe", false);
                 w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
@@ -1274,10 +1271,10 @@ terminal window will be hidden.)");
     void config_app::render_icon(const std::string& path_default, bool is_incognito, string& path_override) {
         {
             w::group g;
-            g
+            //g
                 //.border(ImGuiCol_Border)
-                .border_hover(ImGuiCol_ButtonHovered)
-                .render();
+                //.border_hover(ImGuiCol_ButtonHovered)
+                //.render();
 
             float box_size = 40 * app->scale;
 
