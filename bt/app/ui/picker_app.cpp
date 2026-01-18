@@ -96,9 +96,6 @@ namespace bt::ui {
 
     bool picker_app::run_frame() {
 
-        // inspiration: https://github.com/sonnyp/Junction
-
-
         // get monitor dimensions
         int mon_idx = app->find_monitor_for_main_viewport();
         if(mon_idx != -1) {
@@ -197,8 +194,11 @@ namespace bt::ui {
         icon_size = g_config.picker_icon_size * app->scale;
         box_size = padding + icon_size + padding;
 
+        float max_url_width = ImGui::CalcTextSize(url.c_str()).x + action_button_width * (action_menu_items.size() + 2);
         float max_w_width = box_size * (choices.size() + 1);
-        float w_width = min(max_w_width, mon_work_size.x);
+        float max_width = max(max_url_width, max_w_width);
+
+        float w_width = min(max_width, mon_work_size.x);
         float w_height = pre_menu_height + box_size + padding * 2;
 
         auto target_window_size = ImVec2{w_width, w_height};
@@ -211,8 +211,28 @@ namespace bt::ui {
 
     void picker_app::render_action_menu() {
 
-        if(w::button(ICON_MD_SETTINGS, w::emphasis::none, true, false, "show settings")) {
-            is_settings_open = !is_settings_open;
+        float max_width = w::avail_x();
+        {
+            // calculate one action button width
+            ImVec2 cur = w::cur_get();
+            w::button(ICON_MD_SETTINGS "##measure"); w::sl();
+            action_button_width = max_width - w::avail_x();
+            w::cur_set(cur);
+        }
+
+        float input_width = max_width - (1 + action_menu_items.size()) * action_button_width;
+        w::input(url, "##url", true, input_width);
+        url_focused = w::is_focused();
+
+        if(w::is_hovered()) {
+            /*w::sl();
+            ImVec2 pos = w::cur_get();
+            w::cur_set(ImVec2(pos.x - button_width, pos.y));
+            if(w::button(ICON_MD_OPEN_IN_NEW, w::emphasis::secondary, true, true, "expand")) {
+                url_popup.open();
+            }
+            w::mouse_cursor(w::mouse_cursor_type::hand);
+            w::cur_set(pos);*/
         }
 
         for(const action_menu_item& ami : action_menu_items) {
@@ -223,8 +243,9 @@ namespace bt::ui {
         }
 
         w::sl();
-        w::input(url, "##url", true, -FLT_MIN);
-        url_focused = ImGui::IsItemFocused();
+        if(w::button(ICON_MD_SETTINGS, w::emphasis::none, true, false, "show settings")) {
+            is_settings_open = !is_settings_open;
+        }
     }
 
     void picker_app::render_list() {

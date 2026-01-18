@@ -43,6 +43,7 @@ namespace bt::ui {
         float box_size;
         float pre_menu_height{0.0f};
         ImVec2 window_size;
+        float action_button_width{0.0f};
 
         std::string url;
         std::string title;
