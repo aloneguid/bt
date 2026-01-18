@@ -370,9 +370,6 @@ It super fast, extremely light on resources, completely free and open source.)",
 
         w::sl(); w::label(APP_VERSION, w::emphasis::primary);
 
-        w::label("ImGui Version:");
-        w::sl(); w::label(ImGui::GetVersion(), w::emphasis::primary);
-
         // sys info
 
         // refresh sys info

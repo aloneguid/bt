@@ -1,3 +1,7 @@
+## 5.5.0
+
+- Picker should be resizable
+
 ## 5.4.0
 
 - new: [Helium browser](https://helium.computer/) is now properly detected as Chromium-based browser with correct profiles. The issue was that Helium .exe is named `chrome.exe` so BT thought it was Chrome.
