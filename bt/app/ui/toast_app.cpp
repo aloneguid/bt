@@ -39,20 +39,29 @@ namespace bt::ui {
 
     void toast_app::size_to_fit() {
         if(stage == toast_app::anim_stage::init) {
+
+            // get monitor dimensions
+            int mon_idx = app->find_monitor_for_main_viewport();
+            if(mon_idx != -1) {
+                ImGuiPlatformIO io = ImGui::GetPlatformIO();
+                ImGuiPlatformMonitor monitor = io.Monitors[mon_idx];
+                mon_work_pos = monitor.WorkPos;
+                mon_work_size = monitor.WorkSize;
+            }
+
             ImVec2 ts = ImGui::CalcTextSize(cp.url.c_str());
             ImVec2 wpad = ImGui::GetStyle().WindowPadding;
             icon_size = ts.y;
+            float wnd_width = min(wpad.x * 2 + ts.x + icon_size * app->scale, mon_work_size.x - 20.0f);
             wnd_size = ImVec2{
-                wpad.x * 2 + ts.x + icon_size * app->scale,
+                wnd_width,
                 wpad.y * 2 + ts.y * 2};
             wnd_size_anim = ImVec2{0, wnd_size.y};  // only animate X
 
-            int mon_idx = app->find_monitor_for_main_viewport();
-            ImGuiPlatformIO io = ImGui::GetPlatformIO();
-            ImGuiPlatformMonitor monitor = io.Monitors[mon_idx];
             mon_mid = ImVec2{
-                monitor.WorkPos.x + (monitor.WorkSize.x / 2),
-                monitor.WorkPos.y + monitor.WorkSize.y };
+                mon_work_pos.x + (mon_work_size.x / 2),
+                mon_work_pos.y + mon_work_size.y
+            };
 
             stage = toast_app::anim_stage::expand;
         }
@@ -125,7 +134,6 @@ namespace bt::ui {
             size_to_fit();
 
             {
-
                 w::guard gw{wnd_main};
 
                 render_content();

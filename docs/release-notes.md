@@ -2,6 +2,7 @@
 
 - improvement: picker width is resized dynamically based on the length or URL and number of browsers/profiles (previously just number of browsers/profiles).
 - improvement: picker UI elements are displayed in natural order: URL, actions, settings.
+- improvement: toast will not overflow the screen if URL is too long.
 
 ## 5.4.0
 

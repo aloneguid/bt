@@ -22,6 +22,9 @@ namespace bt::ui {
         void run();
 
     private:
+        ImVec2 mon_work_pos;
+        ImVec2 mon_work_size;
+
         //const float EdgePadding = 10.0f;
         const float AnimSpeed = 0.2f; // between 0 and 1,
 
