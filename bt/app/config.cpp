@@ -144,7 +144,7 @@ namespace bt {
         toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
         toast_visible_secs = cfg.get_int_value(ToastVisibleSecsKey, 3);
         toast_border_width = cfg.get_int_value(ToastBorderWidthKey, 1);
-        icon_overlay = to_icon_overlay_mode(cfg.get_value(IconOverlayKey, icon_overlay_mode_to_string(icon_overlay_mode::profile_on_browser)));
+        icon_overlay = to_icon_overlay_mode(cfg.get_value(IconOverlayKey));
 
         // picker
         picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
