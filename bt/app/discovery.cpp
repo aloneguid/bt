@@ -606,7 +606,7 @@ namespace bt {
         // Since some version of Windows 11, UserChoiceLatest is used instead of UserChoice
         prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
-            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
+            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest", protocol_name),
             "ProgId");
 
         if(!prog_id.empty()) return prog_id;
