@@ -20,6 +20,13 @@ namespace bt
 
         static bool is_firefox_id(const std::string& system_id);
 
+        /**
+         * @brief Looks up user data folder for a given browser.
+         * @param b browser
+         * @return 
+         */
+        static std::string get_data_folder(std::shared_ptr<browser> b);
+
     private:
         inline static const int ICON_SIZE = 256;
 

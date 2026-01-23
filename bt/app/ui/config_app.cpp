@@ -1053,10 +1053,17 @@ It super fast, extremely light on resources, completely free and open source.)",
                 string path = p.parent_path().string();
                 win32::shell::exec(path, "");
             }
-            w::tt(fmt::format("open {}'s folder in Explorer.", b->name));
+            w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
 
         if(b->is_system) {
+            w::sl();
+            if(w::button(ICON_MD_FOLDER_COPY)) {
+                string path = discovery::get_data_folder(b);
+                win32::shell::exec(path, "");
+            }
+            w::tt(strings::BrowserOpenUserDataFolderTooltip);
+
             if(b->is_firefox) {
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
@@ -1069,7 +1076,6 @@ It super fast, extremely light on resources, completely free and open source.)",
                     win32::shell::exec(b->open_cmd, "about:profiles");
                 }
                 w::tt("open Firefox Profile Manager in Firefox itself");
-
             }
         } else {
             w::sl();

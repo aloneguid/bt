@@ -3,6 +3,7 @@
 - improvement: picker width is resized dynamically based on the length or URL and number of browsers/profiles (previously just number of browsers/profiles).
 - improvement: picker UI elements are displayed in natural order: URL, actions, settings.
 - improvement: toast will not overflow the screen if URL is too long.
+- improvement: added extra button in browser configuration to open user data folder, helping to understand to what BT thinks it is.
 - bug: config for picker "icon drawing" display mode was not reading properly (reported by @lars18th in #166).
 - bug: incorrect default browser detection on some systems, fixed by @intisy in #167.
 

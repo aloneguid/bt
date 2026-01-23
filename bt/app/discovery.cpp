@@ -249,6 +249,28 @@ namespace bt {
         }
     }
 
+    std::string discovery::get_data_folder(std::shared_ptr<browser> b) {
+
+        if(b->is_system) {
+            if(b->is_chromium) {
+                if(chromium_id_to_bi.contains(b->id)) {
+                    auto bi = chromium_id_to_bi[b->id];
+                    auto bie = bi.get_best_entry(b->open_cmd);
+                    fs::path root = fs::path{lad} / bie.vdf;
+                    return root.string();
+                }
+            } else if(b->is_firefox) {
+                if(firefox_id_to_vdf.contains(b->id)) {
+                    string vdf = firefox_id_to_vdf[b->id];
+                    fs::path root = fs::path{ad} / vdf;
+                    return root.string();
+                }
+            }
+        }
+
+        return "";
+    }
+
     std::vector<shared_ptr<browser>> discovery::discover_browsers(const std::string& ignore_proto) {
         vector<shared_ptr<browser>> browsers;
 
