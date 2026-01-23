@@ -4,6 +4,7 @@
 - improvement: picker UI elements are displayed in natural order: URL, actions, settings.
 - improvement: toast will not overflow the screen if URL is too long.
 - bug: config for picker "icon drawing" display mode was not reading properly (reported by @lars18th in #166).
+- bug: incorrect default browser detection on some systems, fixed by @intisy in #167.
 
 ## 5.4.0
 
