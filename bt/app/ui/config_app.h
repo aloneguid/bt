@@ -38,7 +38,6 @@ namespace bt::ui {
         std::string pop_proc_names_filter;
         std::vector<std::string> pop_proc_names_items_filtered;
         unsigned int pop_proc_names_selected{0};
-        grey::widgets::window wnd_about;
         bool is_open{true};
         std::map<std::string, rule_match_status> id_to_rule_match_status;
 #if _DEBUG
@@ -51,13 +50,12 @@ namespace bt::ui {
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
 
-        // "About" window
-        bool show_about{false};
-        float about_frame_time{60.0f};
-        std::string about_fps;
-        std::string about_fps_tooltip;
-        std::string about_mem;
-        std::string about_cpu;
+        // System Information in "Help" menu
+        float si_frame_time{60.0f};
+        std::string si_fps;
+        std::string si_scale;
+        std::string si_dpi;
+        void refresh_sys_info();    // respects FPS update rate
 
         // "Health Dashboard" popup
         std::vector<system_check> health_checks;

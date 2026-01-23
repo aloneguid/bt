@@ -293,10 +293,14 @@ namespace bt {
 
         if(!chromium_id_to_bi.contains(b->id)) return;
 
+        // 
+        // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
+
         auto bi = chromium_id_to_bi[b->id];
         auto bie = bi.get_best_entry(b->open_cmd);
 
         fs::path root = fs::path{lad} / bie.vdf;
+        b->data_path = root.string();
         fs::path lsjf = root / "Local State";
 
         // faster method to discover

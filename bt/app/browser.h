@@ -43,6 +43,11 @@ namespace bt {
          */
         std::string icon_path;
 
+        /**
+         * @brief Location where browser data is stored (e.g. profiles). Depends on the browser.
+         */
+        std::string data_path;
+
         std::vector<std::shared_ptr<browser_instance>> instances;
 
         // instance id, non persistent, used in discovery process

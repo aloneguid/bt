@@ -31,7 +31,6 @@ namespace bt::ui {
         title{string{APP_LONG_NAME} + " " + APP_VERSION},
         wnd_config{title, &is_open},
         wnd_health_dash{"Health"},
-        wnd_about{"About"},
         wnd_subs{"Substitutions", &show_subs},
         wnd_scripting{strings::ScriptEditor, &show_scripting},
         wnd_pv{strings::PipelineDebugger, &pv_show} {
@@ -55,12 +54,6 @@ namespace bt::ui {
             .no_collapse()
             .center()
             .no_scroll();
-
-        wnd_about
-            .size(310, 0)
-            .center()
-            .border(1)
-            .no_resize();
 
         wnd_subs
             .size(600, 300)
@@ -107,6 +100,18 @@ namespace bt::ui {
         app->run([this](const grey::app& app) { return run_frame(); });
     }
 
+    void config_app::refresh_sys_info() {
+        si_frame_time += ImGui::GetIO().DeltaTime;
+        if(si_frame_time >= 1) { // update every second
+            si_frame_time = 0;
+
+            // fetch new info and convert to string to avoid conversion in every frame
+            si_fps = fmt::format("{:.1f}", ImGui::GetIO().Framerate);
+            si_scale = fmt::format("{:.1f}", app->scale);
+            si_dpi = fmt::format("{}", win32::shell::get_dpi());
+        }
+    }
+
     void config_app::check_health() {
         health_checks = setup::get_checks();
 
@@ -141,9 +146,6 @@ namespace bt::ui {
 #endif
 
         render_status_bar();
-
-        if(show_about)
-            render_about_window();
 
         if(show_subs)
             render_subs_window();
@@ -299,23 +301,28 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Help"}; m) {
-                if(w::mi("Contact", true, ICON_MD_OPEN_IN_NEW)) {
-                    url_opener::open("https://www.aloneguid.uk/about/#contact");
-                }
                 if(w::mi("All Releases", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open(APP_GITHUB_RELEASES_URL);
                 }
                 if(w::mi("Documentation", true, ICON_MD_OPEN_IN_NEW)) {
                     url_opener::open(APP_DOCS_URL);
                 }
-                if(w::mi("About", true, ICON_MD_INFO)) {
-                    show_about = !show_about;
-                }
+
 #if _DEBUG
                 if(w::mi("ImGui demo", true)) {
                     show_demo = !show_demo;
                 }
 #endif
+
+                // display sys info
+                refresh_sys_info();
+                w::sep(ICON_MD_MONITOR " system info");
+                {
+                    float offset = 100 * app->scale;
+                    w::label("FPS"); w::sl(offset); w::label(si_fps);
+                    w::label("Scale"); w::sl(offset); w::label(si_scale);
+                    w::label("DPI"); w::sl(offset); w::label(si_dpi);
+                }
             }
         }
     }
@@ -346,81 +353,6 @@ namespace bt::ui {
         }
         else {
             startup_health_warned = true;
-        }
-    }
-
-    void config_app::render_about_window() {
-        w::guard gw{wnd_about};
-        float width = w::avail_x();
-
-        float icon_size = 80 * app->scale;
-        auto pos = w::cur_get();
-        w::cur_set(pos.x + width / 2 - icon_size / 2, pos.y + 10 * app->scale);
-        w::image(*app, "logo", icon_size, icon_size);
-        w::spc(3);
-
-        w::label(
-            R"(Browser Tamer acts as a virtual browser, but instead of showing web pages, it redirects links to a browser or browser profile of your choice.
-
-It super fast, extremely light on resources, completely free and open source.)",
-300 * app->scale);
-        w::spc();
-
-        w::label("Version:");
-
-        w::sl(); w::label(APP_VERSION, w::emphasis::primary);
-
-        // sys info
-
-        // refresh sys info
-        {
-            about_frame_time += ImGui::GetIO().DeltaTime;
-            if(about_frame_time >= 1) {
-                about_frame_time = 0;
-
-                about_fps = fmt::format("{} {:.1f}", ICON_MD_SCREENSHOT_MONITOR, ImGui::GetIO().Framerate);
-                about_fps_tooltip = fmt::format(
-                    "Framerate: {:.1f}\nScale: {:.1f}\nDPI: {}",
-                    ImGui::GetIO().Framerate,
-                    app->scale,
-                    win32::shell::get_dpi());
-
-                // memory usage
-                win32::process p;
-                uint64_t working_set;
-                if(p.get_memory_info(working_set)) {
-                    about_mem = fmt::format("{} {}", ICON_MD_MEMORY, str::to_human_readable_size(working_set));
-                }
-
-                // total CPU usage
-                about_cpu = fmt::format("{} {:.1f}", ICON_MD_DEVELOPER_BOARD, win32::system_info::get_cpu_usage_perc());
-            }
-        }
-
-        w::spc();
-
-        w::label(about_fps);
-        w::tt(about_fps_tooltip);
-
-        w::label(about_mem);
-        w::tt("Process memory usage (when this dialog is closed, usage goes down massively)");
-
-        w::label(about_cpu);
-        w::tt("Current CPU load of your entire system (not this application) in percentages.");
-
-        w::sep();
-        w::spc();
-
-        if(w::button(ICON_MD_HOME " Home")) {
-            url_opener::open(APP_URL);
-        }
-        w::sl();
-        if(w::button("GitHub")) {
-            url_opener::open(APP_GITHUB_URL);
-        };
-        w::sl();
-        if(w::button("Close")) {
-            show_about = false;
         }
     }
 
@@ -1219,7 +1151,7 @@ It super fast, extremely light on resources, completely free and open source.)",
                             w::group g;
 
                             w::input(bi->b->open_cmd, "cmd", true, 0, true);;
-                            w::tt("Location");
+                            w::tt("Location of the executable");
 
                             w::input(bi->launch_arg, "arg", true, 0, true);
                             w::tt("Discovered arguments (read-only)");

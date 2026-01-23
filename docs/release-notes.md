@@ -4,8 +4,10 @@
 - improvement: picker UI elements are displayed in natural order: URL, actions, settings.
 - improvement: toast will not overflow the screen if URL is too long.
 - improvement: added extra button in browser configuration to open user data folder, helping to understand to what BT thinks it is.
+- visual change: "About" window has gone and system information is now just part of the "Help" menu, making the UI less cluttered; some indicators removed because they were not useful (CPU/Memory usage which you can get from the Task Manager).
 - bug: config for picker "icon drawing" display mode was not reading properly (reported by @lars18th in #166).
 - bug: incorrect default browser detection on some systems, fixed by @intisy in #167.
+- bug: "Contact" link in "About" window was dead and removed. You can always contact me via GitHub discussions or on the project page.
 
 ## 5.4.0
 

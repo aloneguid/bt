@@ -19,7 +19,9 @@ namespace bt {
     #define IIDKeyName "iid"
     #define BrowserPrefix "browser"
     #define IsHidden "hidden"
+    #define Icon "icon"
     #define ItemSortOrder "sort_order"
+    #define DataPath "data_path"
     #define FirefoxContainerModeKey "firefox_container_mode"
     #define DefaultProfileKey "default_profile"
     #define ToastOnOpenKey "toast_on_open"
@@ -240,8 +242,9 @@ namespace bt {
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
             cfg.set_value(IsHidden, b->is_hidden, section);
-            cfg.set_value("icon", b->icon_path, section);
+            cfg.set_value(Icon, b->icon_path, section);
             cfg.set_value(ItemSortOrder, b->sort_order, section);
+            cfg.set_value(DataPath, b->data_path, section);
 
             string subtype;
             if(b->is_system) {
@@ -301,8 +304,9 @@ namespace bt {
             b->is_firefox = subtype == "firefox";
             b->is_chromium = subtype == "chromium";
             b->is_hidden = cfg.get_bool_value(IsHidden, false, bsn);
-            b->icon_path = cfg.get_value("icon", bsn);
+            b->icon_path = cfg.get_value(Icon, bsn);
             b->sort_order = cfg.get_int_value(ItemSortOrder, 0, bsn);
+            b->data_path = cfg.get_value(DataPath, bsn);
 
             if(b->is_system) {
 
