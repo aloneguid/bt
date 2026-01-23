@@ -1,7 +1,6 @@
 ﻿#include <fmt/core.h>
 #include "globals.h"
 #include "../common/str.h"
-#include "../common/ext/alg_tracker.h"
 #include "win32/process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
@@ -18,37 +17,11 @@
 #include "app/ui/toast_app.h"
 
 // globals.h
-alg::tracker t{APP_SHORT_NAME, APP_VERSION, bt::config::get_data_file_path("t.cache"), 4};
 bt::config g_config;
 bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_config};
 
 using namespace std;
-
-void track_event(string name) {
-    t.track(map<string, string> {
-        {"event", name}
-    });
-}
-
-void track_click(bt::click_payload up, const string& pick_reason) {
-
-    map<string, string> data{
-        {"event", "click"},
-        {"process_name", up.process_name},
-        {"process_description", up.process_description}
-    };
-
-    if(up.app_mode) {
-        data["app_mode"] = "y";
-    }
-
-    if(!pick_reason.empty()) {
-        data["pick_reason"] = pick_reason;
-    }
-
-    t.track(data);
-}
 
 void open(bt::click_payload up, bool force_picker = false) {
 
@@ -107,8 +80,6 @@ void open(bt::click_payload up, bool force_picker = false) {
             app.run();
         }
     }
-
-    track_click(up, pick_reason);
 }
 
 string get_command(const string& data, string& command_data) {
@@ -137,7 +108,6 @@ void execute(const string& data) {
 
         bt::ui::config_app app;
         app.run();
-        track_event("config");
 
         return;
     }
@@ -234,9 +204,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     debug_args_msgbox(argc, argv);
 
-    t.add_constant("iid", g_config.get_iid());
-    track_event("open");
-
     string arg = parse_args(argc, argv);
 
     if(g_config.log_app) {
@@ -244,12 +211,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
     }
 
     execute(arg);
-
-    t.track(map<string, string> {
-        {"event", "close"},
-        {"browser_count", std::to_string(g_config.browsers.size())},
-        {"theme_id", g_config.theme_id}
-    });
 
     return 0;
 }

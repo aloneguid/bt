@@ -2,7 +2,6 @@
 #include "app/url_pipeline.h"
 #include "app/config.h"
 #include "app/script_site.h"
-#include "../common/ext/alg_tracker.h"
 
 #define ProtoName "BrowserTamerHTM"
 
@@ -21,8 +20,6 @@
 #define LuaRulePrefix "rule_"
 
 #define LuaPipelinePrefix "ppl_"
-
-extern alg::tracker t;
 
 extern bt::config g_config;
 

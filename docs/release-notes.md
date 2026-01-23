@@ -8,6 +8,7 @@
 - bug: config for picker "icon drawing" display mode was not reading properly (reported by @lars18th in #166).
 - bug: incorrect default browser detection on some systems, fixed by @intisy in #167.
 - bug: "Contact" link in "About" window was dead and removed. You can always contact me via GitHub discussions or on the project page.
+- privacy: BT used to send basic telemetry on app start (app version and the fact it's started) and even this was removed completely, because I do believe in total privacy; there is also no automatic check for updates or any calls any external online services - you get application that is 100% yours, does not expire, does not collect or sell your data, forever; if you need to be up to date, I do try to keep **winget** feed fresh.
 
 ## 5.4.0
 

@@ -3,7 +3,6 @@
 #include "fmt/core.h"
 #include "win32/process.h"
 #include "win32/shell.h"
-#include "win32/sysinfo.h"
 #include "win32/user.h"
 #include "win32/ole32.h"
 #include "win32/clipboard.h"
@@ -20,7 +19,6 @@
 #include "../strings.h"
 #include "extra_widgets.hpp"
 #include "datetime.h"
-#include <ranges>
 #include <algorithm>
 
 using namespace std;

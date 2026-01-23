@@ -20,7 +20,6 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "app/ui/*.cpp"
     "app/pipeline/*.cpp"
     "../common/*.cpp"
-    "../common/ext/*.cpp"
 
     "../common/win32/reg.cpp"
     "../common/win32/http.cpp"
