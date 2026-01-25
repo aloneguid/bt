@@ -219,6 +219,7 @@ namespace bt::ui {
                 if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
+                w::small_checkbox("Discover firefox containers", g_config.discover_firefox_containers);
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
@@ -257,8 +258,6 @@ namespace bt::ui {
                     app->set_theme(theme_id);
                     g_config.theme_id = theme_id;
                 });
-
-                w::small_checkbox("Discover firefox containers", g_config.discover_firefox_containers);
             }
 
             if(w::menu m{"Picker"}; m) {
@@ -811,6 +810,11 @@ namespace bt::ui {
                 add_custom_browser_by_asking();
             }
             w::tt("Add custom browser definition");
+            w::sl();
+            if(w::button(ICON_MD_REFRESH)) {
+                rediscover_browsers();
+            }
+            w::tt("Rediscover system browsers");
             w::sl();
             w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
             w::tt("Show hidden browsers");
