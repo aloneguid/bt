@@ -13,6 +13,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 file(GLOB core_src CONFIGURE_DEPENDS
     "cmdline.cpp"
@@ -59,6 +60,7 @@ target_link_libraries(bt
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
     tinyxml2::tinyxml2
+    unofficial::sqlite3::sqlite3
     ${LUA_LIBRARIES}
 )
 target_include_directories(${APP_NAME} PRIVATE

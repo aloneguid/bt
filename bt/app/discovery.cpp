@@ -11,11 +11,42 @@
 #include "../globals.h"
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
+#include <sqlite3.h>
 
 using namespace std;
 using hive = win32::reg::hive;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+
+/**
+ * @brief Executes an SQL query and returns results as a vector of row maps.
+ * @param db Pointer to an open sqlite3 database connection.
+ * @param query SQL query string to execute.
+ * @return Vector of maps, where each map represents a row with column names as keys.
+ */
+vector<map<string, string>> sql_execute(sqlite3* db, const string& query) {
+    vector<map<string, string>> results;
+
+    sqlite3_stmt* stmt = nullptr;
+    if(sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+        return results;
+    }
+
+    int col_count = sqlite3_column_count(stmt);
+
+    while(sqlite3_step(stmt) == SQLITE_ROW) {
+        map<string, string> row;
+        for(int i = 0; i < col_count; ++i) {
+            const char* col_name = sqlite3_column_name(stmt, i);
+            const char* col_value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
+            row[col_name ? col_name : ""] = col_value ? col_value : "";
+        }
+        results.push_back(std::move(row));
+    }
+
+    sqlite3_finalize(stmt);
+    return results;
+}
 
 // mapping of vendors to vendor data folder (relative to AppData\Local)
 // Arc stores data under AppData\Local\Packages\TheBrowserCompany.Arc_ttt1ap7aakyb4\LocalCache\Local\Arc\User Data
@@ -383,103 +414,133 @@ namespace bt {
         }
     }
 
+    void discovery::discover_filefox_profile_groups(
+        const string& store_id,
+        const std::string& sqlite_db_path,
+        const string& data_folder_path,
+        std::vector<firefox_profile>& profiles) {
+
+        // select * from Profiles
+        sqlite3* db;
+        int rc = sqlite3_open(sqlite_db_path.c_str(), &db);
+        if(rc == SQLITE_OK) {
+            auto sql_profiles = sql_execute(db, "select * from Profiles");
+            for(const auto& profile : sql_profiles) {
+                auto it_id = profile.find("id");
+                auto it_name = profile.find("name");
+                auto it_path = profile.find("path");
+
+                string full_id = store_id + ":" + (it_id != profile.end() ? it_id->second : "");
+                string name = it_name != profile.end() ? it_name->second : full_id;
+                string path = it_path != profile.end() ? it_path->second : "";
+                path = (fs::path{data_folder_path} / path).string();
+
+                profiles.emplace_back(full_id, name, path, false);
+            }
+        }
+        sqlite3_close(db);
+    }
+
+
+    void discovery::discover_firefox_profiles(std::shared_ptr<browser> b, std::vector<firefox_profile>& profiles) {
+        if(!firefox_id_to_vdf.contains(b->id)) return;
+        string data_folder_rel_path = firefox_id_to_vdf[b->id];
+        string data_folder_path = (fs::path{ad} / data_folder_rel_path).string();
+
+        // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
+        fs::path ini_path = fs::path{ad} / data_folder_rel_path / "profiles.ini";
+        if(!fs::exists(ini_path)) return;
+
+        CSimpleIniA ini;
+        ini.LoadFile(ini_path.c_str());
+        list<CSimpleIniA::Entry> ir;
+        ini.GetAllSections(ir);
+
+        // find section with installation ID to extract default profile path for this Firefox installation
+        string section_name = "Install" + b->disco_instance_id;
+        string default_profile_path;
+        for(CSimpleIni::Entry& section : ir) {
+            if(section_name == section.pItem) {
+                const char* c_path = ini.GetValue(section.pItem, "Default");
+                if(c_path) {
+                    default_profile_path = c_path;
+                }
+                break;
+            }
+        }
+
+        for(auto& e : ir) {
+            // a section is a profile if starts with "Profile".
+            string section_name{e.pItem};
+            if(!section_name.starts_with("Profile")) continue;
+
+            // extract display name if possible
+            const char* c_name = ini.GetValue(e.pItem, "Name");
+            string display_name = c_name ? c_name : section_name;
+
+            // if is_relative is false, this is an absolute path (not like it matters anyway)
+            const char* c_is_relative = ini.GetValue(e.pItem, "IsRelative");
+            const char* c_path = ini.GetValue(e.pItem, "Path");
+            bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
+            if(!c_path) continue;
+            string path{c_path};
+
+            bool is_default_profile = path == default_profile_path;
+            string profile_path = is_relative
+                ? (fs::path{data_folder_path} / c_path).string()
+                : c_path;
+
+            // Check is this is a container for profile groups
+            const char* c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
+            if(c_nested_store_id) {
+                fs::path sqlite_db_path = fs::path{ad} / data_folder_rel_path / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
+                // profile definitions i.e. "new profiles" are now stored in the sqlite database
+                if(fs::exists(sqlite_db_path)) {
+                    discover_filefox_profile_groups(c_nested_store_id, sqlite_db_path.string(), data_folder_path, profiles);
+                }
+            } else {
+                // classic profile
+                profiles.emplace_back(section_name, display_name, profile_path, true);
+            }
+        }
+    }
+
     void discovery::discover_firefox_profiles(shared_ptr<browser> b) {
         if (!(b->is_system && b->is_firefox)) return;
 
-        {
-            // see http://kb.mozillazine.org/Profiles.ini_file
+        vector<firefox_profile> profiles;
+        discover_firefox_profiles(b, profiles);
 
-            if(!firefox_id_to_vdf.contains(b->id)) return;
-            string vdf = firefox_id_to_vdf[b->id];
+        for(firefox_profile& fp : profiles) {
+            string arg_suffix = fp.is_classic
+                ? fmt::format("-P \"{}\"", fp.name)
+                : fmt::format("\"--profile\" \"{}\"",fp.path);
+            string arg = fmt::format("\"{}\" {}", browser_instance::URL_ARG_NAME, arg_suffix);
 
-            fs::path ini_path = fs::path{ad} / vdf / "profiles.ini";
-            if(fs::exists(ini_path)) {
-                CSimpleIniA ini;
-                ini.LoadFile(ini_path.c_str());
-                list<CSimpleIniA::Entry> ir;
-                ini.GetAllSections(ir);
+            auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
+            bi->sort_order = b->instances.size();
+            b->instances.push_back(bi);
 
-                // find section with installation ID to extract default profile path for this Firefox installation
-                string section_name = "Install" + b->disco_instance_id;
-                string default_profile_path;
-                for(CSimpleIni::Entry& section : ir) {
-                    if(section_name == section.pItem) {
-                        const char* c_path = ini.GetValue(section.pItem, "Default");
-                        if(c_path) {
-                            default_profile_path = c_path;
-                        }
-                        break;
-                    }
-                }
+            // containers
+            if(g_config.discover_firefox_containers) {
+                // for each container, add a profile
+                // Leave the "no container" profile as is.
 
-                for(auto& e : ir) {
-                    // a section is a profile if starts with "Profile".
-                    string section_name{e.pItem};
-                    if(!section_name.starts_with("Profile")) continue;
+                // add profile for each container
+                vector<firefox_container> containers = discover_firefox_containers(fp.path);
+                for(const auto& container : containers) {
 
-                    // extract display name if possible
-                    const char* c_name = ini.GetValue(e.pItem, "Name");
-                    string display_name = c_name ? c_name : section_name;
+                    string profile_name = fmt::format("{}::{}", fp.name, container.name);
 
-                    // if is_relative is false, this is an absolute path (not like it matters anyway)
-                    const char* c_is_relative = ini.GetValue(e.pItem, "IsRelative");
-                    const char* c_path = ini.GetValue(e.pItem, "Path");
-                    bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
-                    if(!c_path) continue;
-                    string path{c_path};
+                    string arg = fmt::format("\"ext+container:name={}&url={}\" {}",
+                        container.name,
+                        browser_instance::URL_ARG_NAME,
+                        arg_suffix);
 
-                    bool is_default_profile = path == default_profile_path;
-
-                    // We don't want "default" profile - in Firefox it's some kind of pre-release oddness.
-                    // In Waterfox it's called something like "68-edition-default"
-                    //if(display_name == "default" || display_name.ends_with("-edition-default")) continue;
-
-                    string local_home = is_relative
-                        ? (fs::path{lad} / vdf / c_path).string()
-                        : c_path;
-
-                    string roaming_home = is_relative
-                        ? (fs::path{ad} / vdf / c_path).string()
-                        : c_path;
-
-                    string arg = fmt::format("\"{}\" -P \"{}\"", browser_instance::URL_ARG_NAME, display_name);
-                    auto bi = make_shared<browser_instance>(b,
-                        e.pItem,
-                        display_name,
-                        arg,
-                        "");
-                    bi->sort_order = is_default_profile ? -1 : b->instances.size();
-
-                    {
-                        const char* c_default = ini.GetValue(e.pItem, "Default");
-                        bi->is_default = c_default != nullptr && string{c_default} == "1";
-                    }
-
+                    string id = fmt::format("{}+c_{}", fp.id, container.id);
+                    auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
+                    bi->sort_order = b->instances.size();
                     b->instances.push_back(bi);
-
-                    if(g_config.discover_firefox_containers) {
-                        // for each container, add a profile
-                        // Leave the "no container" profile as is.
-
-                        // add profile for each container
-                        vector<firefox_container> containers = discover_firefox_containers(roaming_home);
-                        for(const auto& container : containers) {
-
-                            string profile_name = fmt::format("{}::{}", display_name, container.name);
-
-                            string arg = fmt::format("\"ext+container:name={}&url={}\" -P \"{}\"",
-                                container.name,
-                                browser_instance::URL_ARG_NAME,
-                                display_name);
-
-
-                            string id = fmt::format("{}+c_{}", e.pItem, container.id);
-                            auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
-                            bi->sort_order = b->instances.size();
-                            b->instances.push_back(bi);
-                        }
-
-                    }
                 }
             }
         }

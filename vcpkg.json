@@ -32,6 +32,7 @@
         "p-ranav-csv2",
         "tinyxml2",
         "lua",
+        "sqlite3",
         "gtest"
     ]
 }
