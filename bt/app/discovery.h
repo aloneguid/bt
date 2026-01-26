@@ -1,11 +1,14 @@
 #pragma once
 #include "browser.h"
+#include "win32/reg.h"
 #include <vector>
 
 namespace bt {
 
     struct firefox_profile {
         std::string id;
+        std::string parent_id;  // parent profile id, if this is a "new profile" aka inside a "profile group"
+        std::string installation_id;
         std::string name;
         std::string path;
         bool is_classic{true};
@@ -28,17 +31,6 @@ namespace bt {
          */
         static const std::vector<std::shared_ptr<browser>> discover_all_browsers();
 
-        static bool is_chromium_id(const std::string& system_id);
-
-        static bool is_firefox_id(const std::string& system_id);
-
-        /**
-         * @brief Looks up user data folder for a given browser.
-         * @param b browser
-         * @return 
-         */
-        static std::string get_data_folder(std::shared_ptr<browser> b);
-
     private:
         inline static const int ICON_SIZE = 256;
 
@@ -51,6 +43,8 @@ namespace bt {
         static void discover_firefox_profiles(std::shared_ptr<browser> b);
 
         static void discover_filefox_profile_groups(
+            const std::string& parent_id,
+            const std::string& installation_id,
             const std::string& store_id,
             const std::string& sqlite_db_path,
             const std::string& data_folder_path,
@@ -63,5 +57,19 @@ namespace bt {
         static void discover_other_profiles(std::shared_ptr<browser> b);
 
         static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
+
+        static std::string unmangle_open_cmd(const std::string& open_cmd);
+
+        static void discover_registry_browsers(win32::reg::hive h,
+            std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
+
+        /**
+         * @brief Performs browser fingerprinting based on the executable path.
+         * @param exe_path 
+         * @param engine Engine type output
+         * @param data_path Data path output
+         * @return 
+         */
+        static bool fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path);
     };
 }

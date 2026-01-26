@@ -35,20 +35,20 @@ int cmdline::exec_list() {
 
     for(const auto& b : g_config.browsers) {
         wcout << str::to_wstr(b->id) << endl;
-        wcout << L"  name:     " << str::to_wstr(b->name) << endl;
-        wcout << L"  cmd:      " << str::to_wstr(b->open_cmd) << endl;
-        wcout << L"  system:   " << (b->is_system ? L"yes" : L"no") << endl;
-        wcout << L"  hidden:   " << (b->is_hidden ? L"yes" : L"no") << endl;
-        if(b->is_system || b->is_chromium || b->is_firefox) {
+        wcout << L"  name:             " << str::to_wstr(b->name) << endl;
+        wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
+        wcout << L"  autodiscovered:   " << (b->is_autodiscovered ? L"yes" : L"no") << endl;
+        wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
+        if(b->is_autodiscovered || b->engine == bt::browser_engine::chromium || b->engine == bt::browser_engine::gecko) {
             wcout << L"  features: ";
-            if(b->is_system) {
-                wcout << L"system ";
+            if(b->is_autodiscovered) {
+                wcout << L"autodiscovered ";
             }
-            if(b->is_chromium) {
+            if(b->engine == bt::browser_engine::chromium) {
                 wcout << L"chromium ";
             }
-            if(b->is_firefox) {
-                wcout << L"firefox ";
+            if(b->engine == bt::browser_engine::gecko) {
+                wcout << L"gecko ";
             }
             wcout << endl;
         }

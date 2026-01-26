@@ -1,6 +1,4 @@
 #include "config.h"
-#include "config.h"
-#include "config.h"
 #include "../globals.h"
 #include "win32/reg.h"
 #include "win32/ole32.h"
@@ -9,6 +7,7 @@
 #include <fmt/core.h>
 #include <filesystem>
 #include "fss.h"
+#include "hashing.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -28,11 +27,15 @@ namespace bt {
     #define ToastVisibleSecsKey "toast_visible_secs"
     #define ToastBorderWidthKey "toast_border_width"
     #define IconOverlayKey "icon_overlay"
+    #define BrowserEngine "engine"
+    #define IsAutodiscovered "auto"
+    #define IsIncognito "incognito"
     #define LogRuleHitsKey "log_rule_hits"
     #define LogAppKey "log_app"
     #define PersistPopularityKey "persist_popularity"
     #define ShowHiddenBrowsersKey "browsers_show_hidden"
     #define DiscoverFirefoxContainersKey "firefox_containers"
+    #define DiscoverClassicFirefoxProfilesKey "firefox_classic_profiles"
     #define UnshortEnabledKey "unshort_enabled"
     #define PickerSectionName "picker"
     #define PickerOnKeyCS "on_key_cs"
@@ -127,6 +130,47 @@ namespace bt {
             cfg.set_value("rule", rules, section);
         }
 
+        for(auto ssn : section_names) {
+            if(ssn.starts_with("browser:")) {
+                vector<string> parts = str::split(ssn, ":");
+                
+                if(parts.size() == 2) { // browser
+
+                    string browser_id = parts[1];
+
+                    // browser subtype (5.5.0)
+                    string subtype = cfg.get_value("subtype", ssn);
+                    if(!subtype.empty()) {
+                        is_dirty = true;
+                        cfg.delete_key("subtype", ssn);
+                        if(subtype == "firefox") {
+                            cfg.set_value("engine", "gecko", ssn);
+                            cfg.set_value("auto", true, ssn);
+                        } else if(subtype == "chromium") {
+                            cfg.set_value("engine", "chromium", ssn);
+                            cfg.set_value("auto", true, ssn);
+                        } else if(subtype == "user") {
+                            // no keys to add
+                        }
+                    }
+
+                } else if(parts.size() == 3) {  // profile
+
+                    string profile_id = parts[2];
+
+                    // profile subtype and incognito (5.5.0)
+                    string subtype = cfg.get_value("subtype", ssn);
+                    if(!subtype.empty()) {
+                        is_dirty = true;
+                        cfg.delete_key("subtype", ssn);
+                        if(subtype == "incognito") {
+                            cfg.set_value("incognito", true, ssn);
+                        }
+                    }
+                }
+            }
+        }
+
         if(is_dirty) {
             cfg.commit();
         }
@@ -136,6 +180,7 @@ namespace bt {
         string v;
 
         show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
+        discover_classic_firefox_profiles = cfg.get_bool_value(DiscoverClassicFirefoxProfilesKey, false);
         discover_firefox_containers = cfg.get_bool_value(DiscoverFirefoxContainersKey, false);
 
         theme_id = cfg.get_value("theme");
@@ -182,6 +227,7 @@ namespace bt {
 
     void config::commit() {
         cfg.set_value(ShowHiddenBrowsersKey, show_hidden_browsers);
+        cfg.set_value(DiscoverClassicFirefoxProfilesKey, discover_classic_firefox_profiles);
         cfg.set_value(DiscoverFirefoxContainersKey, discover_firefox_containers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_value(LogRuleHitsKey, log_rule_hits);
@@ -245,18 +291,11 @@ namespace bt {
             cfg.set_value(Icon, b->icon_path, section);
             cfg.set_value(ItemSortOrder, b->sort_order, section);
             cfg.set_value(DataPath, b->data_path, section);
-
-            string subtype;
-            if(b->is_system) {
-                if(b->is_firefox) subtype = "firefox";
-                else if(b->is_chromium) subtype = "chromium";
-            } else {
-                subtype = "user";
-            }
-            cfg.set_value("subtype", subtype, section);
+            cfg.set_value(BrowserEngine, browser_engine_to_string(b->engine), section);
+            cfg.set_value(IsAutodiscovered, b->is_autodiscovered, section);
 
             // singular user instance
-            if(!b->is_system && b->instances.size() == 1) {
+            if(!b->is_autodiscovered && b->instances.size() == 1) {
                 auto instance = b->instances[0];
                 cfg.set_value("arg", instance->launch_arg, section);
                 cfg.set_value("rule", instance->get_rules_as_text_clean(), section);
@@ -273,7 +312,7 @@ namespace bt {
                     cfg.set_value("user_arg", bi->user_arg, section);
                     cfg.set_value("icon", bi->icon_path, section);
                     cfg.set_value("user_icon", bi->user_icon_path, section);
-                    cfg.set_value("subtype", bi->is_incognito ? "incognito" : "", section);
+                    cfg.set_value(IsIncognito, bi->is_incognito, section);
                     cfg.set_value(IsHidden, bi->is_hidden, section);
                     cfg.set_value("rule", bi->get_rules_as_text_clean(), section);
                     cfg.set_value(ItemSortOrder, bi->sort_order, section);
@@ -291,24 +330,22 @@ namespace bt {
             vector<string> parts = str::split(bsn, ":");
             if(parts[0] != BrowserPrefix || parts.size() != 2) continue;
 
-            string subtype = cfg.get_value("subtype", bsn);
             string b_id = parts[1];
 
             auto b = make_shared<browser>(
                 b_id,
                 cfg.get_value("name", bsn),
-                cfg.get_value("cmd", bsn),
-                subtype != "user"
+                cfg.get_value("cmd", bsn)
             );
 
-            b->is_firefox = subtype == "firefox";
-            b->is_chromium = subtype == "chromium";
+            b->engine = to_browser_engine(cfg.get_value(BrowserEngine, bsn));
             b->is_hidden = cfg.get_bool_value(IsHidden, false, bsn);
             b->icon_path = cfg.get_value(Icon, bsn);
             b->sort_order = cfg.get_int_value(ItemSortOrder, 0, bsn);
             b->data_path = cfg.get_value(DataPath, bsn);
+            b->is_autodiscovered = cfg.get_bool_value(IsAutodiscovered, false, bsn);
 
-            if(b->is_system) {
+            if(b->is_autodiscovered) {
 
                 // profiles, if any
                 string profile_prefix = fmt::format("{}:{}", BrowserPrefix, b_id);
@@ -317,7 +354,6 @@ namespace bt {
                     if(parts[0] != BrowserPrefix || parts.size() != 3 || parts[1] != b_id) continue;
 
                     string p_sys_name = parts[2];
-                    string p_subtype = cfg.get_value("subtype", ssn);
 
                     auto bi = make_shared<browser_instance>(
                         b,
@@ -328,7 +364,7 @@ namespace bt {
                     
                     bi->user_icon_path = cfg.get_value("user_icon", ssn);
                     bi->user_arg = cfg.get_value("user_arg", ssn);
-                    bi->is_incognito = p_subtype == "incognito";
+                    bi->is_incognito = cfg.get_bool_value(IsIncognito, false, ssn);
                     bi->is_hidden = cfg.get_bool_value(IsHidden, false, ssn);
                     bi->sort_order = cfg.get_int_value(ItemSortOrder, 0, ssn);
 
@@ -380,6 +416,20 @@ namespace bt {
         if(name == "browser_only")         return icon_overlay_mode::browser_only;
         if(name == "profile_only")         return icon_overlay_mode::profile_only;
         return icon_overlay_mode::profile_on_browser;
+    }
+
+    std::string config::browser_engine_to_string(browser_engine engine) {
+        switch(engine) {
+            case browser_engine::chromium:    return "chromium";
+            case browser_engine::gecko:       return "gecko";
+            default:                          return "";
+        }
+    }
+
+    browser_engine config::to_browser_engine(const std::string& name) {
+        if(name == "chromium")                          return browser_engine::chromium;
+        if(name == "gecko")                             return browser_engine::gecko;
+        return browser_engine::unknown;
     }
 
 }

@@ -1,6 +1,7 @@
 ## 5.5.0
 
 - new: new Firefox profiles (aka "Profile Groups") are supported in autodiscovery, as well as classic Firefox profiles; containers are also supported, so you can mix and match all three.
+- new: more release channels are supported in autodiscovery for Firefox (Developer Edition, Nightly, ESR). Hey @Iz-zzzzz from #132!
 - improvement: picker width is resized dynamically based on the length or URL and number of browsers/profiles (previously just number of browsers/profiles).
 - improvement: picker UI elements are displayed in natural order: URL, actions, settings.
 - improvement: toast will not overflow the screen if URL is too long.

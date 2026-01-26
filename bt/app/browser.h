@@ -10,6 +10,12 @@ namespace bt {
     class browser_instance;
     class browser_match_result;
 
+    enum class browser_engine {
+        unknown,
+        chromium,
+        gecko
+    };
+
     class browser {
     public:
 
@@ -18,20 +24,18 @@ namespace bt {
         browser(
             const std::string& id,
             const std::string& name,
-            const std::string& open_cmd,
-            bool is_system = true);
+            const std::string& open_cmd);
 
         std::string id;
         std::string name;
         std::string open_cmd;
-        bool is_chromium;
-        bool is_firefox;
+        browser_engine engine{browser_engine::unknown};
         int sort_order{0};
 
         /**
          * @brief when true, this browser is part of the system i.e not a user defined one.
         */
-        bool is_system;
+        bool is_autodiscovered{false};
 
         /**
          * @brief Whether to hide this browser from UI.
@@ -50,8 +54,10 @@ namespace bt {
 
         std::vector<std::shared_ptr<browser_instance>> instances;
 
-        // instance id, non persistent, used in discovery process
-        std::string disco_instance_id;
+        /**
+         * @brief Instance ID, used by Firefox. Not persisted as it's not required after discovery.
+         */
+        std::string instance_id;
 
         // UI helper properties
         bool ui_test_url_matches{false};
@@ -59,9 +65,9 @@ namespace bt {
 
         size_t get_total_rule_count() const;
 
-        bool get_supports_frameless_windows() const { return supports_frameless_windows; }
+        bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
 
-        bool is_wellknown() const { return is_chromium || is_firefox; }
+        bool is_wellknown() const { return engine != browser_engine::unknown; }
 
         bool is_msstore() const { return open_cmd.starts_with(UwpCmdPrefix); }
 
@@ -111,11 +117,7 @@ namespace bt {
 
     private:
 
-        const bool supports_frameless_windows;
-
         static std::string get_image_name(const std::string& open_cmd);
-
-        static std::string unmangle_open_cmd(const std::string& open_cmd);
     };
 
     class browser_instance {

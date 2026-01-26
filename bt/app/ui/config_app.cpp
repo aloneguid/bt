@@ -219,7 +219,8 @@ namespace bt::ui {
                 if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
-                w::small_checkbox("Discover firefox containers", g_config.discover_firefox_containers);
+                w::small_checkbox("Discover classic Firefox profiles", g_config.discover_classic_firefox_profiles);
+                w::small_checkbox("Discover Firefox containers", g_config.discover_firefox_containers);
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
@@ -777,7 +778,7 @@ namespace bt::ui {
             w::sl(); w::label(dbr->b->name, 0, false);
             w::tt("Default browser");
 
-            if(dbr->b->is_system) {
+            if(dbr->b->is_autodiscovered) {
                 w::sl(); w::label("|", 0, false);
                 w::sl(); w::label(ICON_MD_TAB, 0, false);
                 w::sl(); w::label(dbr->name, 0, false);
@@ -845,7 +846,7 @@ namespace bt::ui {
 
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
         auto browser = g_config.browsers[selected_browser_idx];
-        if(browser->is_system) {
+        if(browser->is_autodiscovered) {
             return browser->instances[selected_profile_idx];
         } else {
             return browser->instances[0];
@@ -882,16 +883,16 @@ namespace bt::ui {
             //w::move_pos(left_pad, 0);
 
             if(b->instances.size() > 0) {
-                if(b->is_system) {
+                if(b->is_autodiscovered) {
                     w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
                     w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
                     //i_where->is_enabled = false;
 
-                    if(b->is_chromium) {
+                    if(b->engine == bt::browser_engine::chromium) {
                         w::sl();
                         w::icon_image(*app, "bt_chromium");
                         w::tt(strings::ChromiumBased);
-                    } else if(b->is_firefox) {
+                    } else if(b->engine == bt::browser_engine::gecko) {
                         w::sl();
                         w::icon_image(*app, "bt_gecko");
                         w::tt(strings::GeckoBased);
@@ -928,11 +929,15 @@ namespace bt::ui {
             w::cur_set(pos);
         } // group end
 
+#if _DEBUG
+        w::tt(fmt::format("id: {}\ndisco id: {}", b->id, b->instance_id));
+#endif
+
         auto item_rect = w::item_rect_get();
         if(w::is_hovered() || is_selected) {
             ImDrawList* fdl = ImGui::GetWindowDrawList();
             auto style = ImGui::GetStyle();
-            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0, style.WindowBorderSize);
+            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0, style.WindowBorderSize * 2);
         }
     }
 
@@ -990,15 +995,14 @@ namespace bt::ui {
             w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
 
-        if(b->is_system) {
+        if(b->is_autodiscovered) {
             w::sl();
             if(w::button(ICON_MD_FOLDER_COPY)) {
-                string path = discovery::get_data_folder(b);
-                win32::shell::exec(path, "");
+                win32::shell::exec(b->data_path, "");
             }
             w::tt(strings::BrowserOpenUserDataFolderTooltip);
 
-            if(b->is_firefox) {
+            if(b->engine == bt::browser_engine::gecko) {
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
                     win32::shell::exec(b->open_cmd, "-P");
@@ -1047,7 +1051,7 @@ namespace bt::ui {
 
         // --- profiles start
 
-        if(b->is_system) {
+        if(b->is_autodiscovered) {
             w::tab_bar tabs{b->id, true, true};
 
             int idx{0};
@@ -1125,7 +1129,7 @@ namespace bt::ui {
                         }
                         w::tt("test by opening a link");
 
-                        if(b->is_chromium) {
+                        if(b->engine == bt::browser_engine::chromium) {
                             w::sl();
                             if(w::button(ICON_MD_TAB_UNSELECTED)) {
                                 click_payload up{APP_TEST_URL};
@@ -1136,7 +1140,7 @@ namespace bt::ui {
                         }
 
                         if(!b->open_cmd.empty()) {
-                            if(b->is_firefox) {
+                            if(b->engine == bt::browser_engine::gecko) {
                                 if(g_config.discover_firefox_containers) {
                                     w::sl();
                                     w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
@@ -1318,7 +1322,7 @@ terminal window will be hidden.)");
                 }
 
                 // app mode
-                if(bi->b->is_chromium) {
+                if(bi->b->engine == bt::browser_engine::chromium) {
                     w::sl();
                     w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule->app_mode);
                     w::tt("Open in chromeless window");
@@ -1405,7 +1409,7 @@ terminal window will be hidden.)");
         wstring w_product_name = win32::user::get_file_version_info_string(exe_path, "ProductName");
         string id = win32::ole32::create_guid();
         string name = str::to_str(w_product_name);
-        auto b = make_shared<browser>(id, name, exe_path, false);
+        auto b = make_shared<browser>(id, name, exe_path);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
 
         g_config.browsers.push_back(b);

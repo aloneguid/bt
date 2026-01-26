@@ -26,6 +26,7 @@ namespace bt {
     public:
         // whether to show hidden browsers in the configuration list
         bool show_hidden_browsers{true};
+        bool discover_classic_firefox_profiles{false};
         bool discover_firefox_containers{false};
         std::string theme_id;
         bool log_rule_hits{true};
@@ -86,6 +87,8 @@ namespace bt {
         // conversion functions
         static std::string icon_overlay_mode_to_string(icon_overlay_mode mode);
         static icon_overlay_mode to_icon_overlay_mode(const std::string& name);
+        static std::string browser_engine_to_string(browser_engine engine);
+        static browser_engine to_browser_engine(const std::string& name);
 
         static std::string get_data_file_path(const std::string& name);
 

@@ -12,6 +12,7 @@
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
 #include <sqlite3.h>
+#include "hashing.h"
 
 using namespace std;
 using hive = win32::reg::hive;
@@ -48,64 +49,6 @@ vector<map<string, string>> sql_execute(sqlite3* db, const string& query) {
     return results;
 }
 
-// mapping of vendors to vendor data folder (relative to AppData\Local)
-// Arc stores data under AppData\Local\Packages\TheBrowserCompany.Arc_ttt1ap7aakyb4\LocalCache\Local\Arc\User Data
-
-struct browser_info_entry {
-    // Vendor Data Folder, relative to AppData\Local
-    string vdf;
-
-    // Optional path substring to help identify identical IDs
-    string path_substr;
-};
-
-struct browser_info {
-    vector<browser_info_entry> entries;
-
-    browser_info_entry& get_best_entry(const string& open_cmd) {
-        for(auto& entry : entries) {
-            if(!entry.path_substr.empty() && str::contains_ic(open_cmd, entry.path_substr)) {
-                return entry;
-            }
-        }
-        return entries[0];
-    }
-};
-
-map<string, browser_info> chromium_id_to_bi{
-    { "msedge", browser_info {
-            { browser_info_entry{"Microsoft\\Edge\\User Data"} }
-        }
-    },
-    { "chrome", browser_info {
-            {
-                browser_info_entry{"Google\\Chrome\\User Data"},
-                browser_info_entry{"imput\\Helium\\User Data", "\\Helium\\" }
-            }
-        }
-    },
-    { "vivaldi", browser_info {
-            { browser_info_entry{"Vivaldi\\User Data"} }
-        }
-    },
-    { "brave", browser_info {
-            { browser_info_entry{"BraveSoftware\\Brave-Browser\\User Data"} }
-        }
-    },
-    { "thorium", browser_info {
-            { browser_info_entry{"Thorium\\User Data"} }
-        }
-    }
-};
-
-map<string, string> firefox_id_to_vdf{
-    { "firefox", "Mozilla\\Firefox" },
-    { "Mozilla.Firefox_n80bbvh6b1yt2!App", "Mozilla\\Firefox" },    // Microsoft Store version
-    { "waterfox", "Waterfox" },
-    { "librewolf", "Librewolf" },
-    { "zen", "zen" }
-};
-
 namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
     const string apps_root = "Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\PackageRepository\\Packages";
@@ -117,9 +60,8 @@ namespace bt {
     const string ChromiumExtraArgs = " --no-default-browser-check";
 
     string get_id_from_open_cmd(const std::string& cmd) {
-        fs::path p(cmd);
-        p.replace_extension();
-        return p.filename().string();
+        // compute MD5 hash of the command, because just exe name is not unique enough, especially when almost every browser is named "chrome.exe"
+        return hashing::md5(cmd);
     }
 
     bool is_msstore_browser(const string& package_name, string& app_path, string& app_user_model_id) {
@@ -247,20 +189,41 @@ namespace bt {
         return reg_value;
     }
 
-    void discover_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
+    std::string discovery::unmangle_open_cmd(const std::string& open_cmd) {
+
+        string r = open_cmd;
+
+        // if open_cmd starts with quote ("), remove it, and substring up to first next quote
+        if(r.starts_with("\"")) {
+            r = r.substr(1);
+
+            size_t pos = r.find("\"");
+            if(pos != string::npos) {
+                r = r.substr(0, pos);
+            }
+        }
+
+        return r;
+    }
+
+    void discovery::discover_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
         auto subs = enum_subkeys(h, abs_root);
 
         for (const string& sub : subs) {
             string root = abs_root + "\\" + sub;
             string display_name = get_value(h, root);
             string open_command = get_value(h, root + "\\shell\\open\\command");
+            open_command = unmangle_open_cmd(open_command);
             string http_url_assoc = get_value(h,
                 root + "\\Capabilities\\URLAssociations", "http");
 
             if (!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
                 string id = get_id_from_open_cmd(open_command);
                 auto b = make_shared<browser>(id, display_name, open_command);
-                b->disco_instance_id = get_instance_id(sub);
+                b->instance_id = get_instance_id(sub);
+                b->is_autodiscovered = true;
+
+                fingerprint(open_command, b->engine, b->data_path);
 
                 // check for duplicates (HKLM & HKCU can have the same browser registered)
                 // this is possible to to operator== on browser class
@@ -278,28 +241,6 @@ namespace bt {
 
             }
         }
-    }
-
-    std::string discovery::get_data_folder(std::shared_ptr<browser> b) {
-
-        if(b->is_system) {
-            if(b->is_chromium) {
-                if(chromium_id_to_bi.contains(b->id)) {
-                    auto bi = chromium_id_to_bi[b->id];
-                    auto bie = bi.get_best_entry(b->open_cmd);
-                    fs::path root = fs::path{lad} / bie.vdf;
-                    return root.string();
-                }
-            } else if(b->is_firefox) {
-                if(firefox_id_to_vdf.contains(b->id)) {
-                    string vdf = firefox_id_to_vdf[b->id];
-                    fs::path root = fs::path{ad} / vdf;
-                    return root.string();
-                }
-            }
-        }
-
-        return "";
     }
 
     std::vector<shared_ptr<browser>> discovery::discover_browsers(const std::string& ignore_proto) {
@@ -320,23 +261,16 @@ namespace bt {
     }
 
     void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
-        if (!(b->is_system && b->is_chromium)) return;
+        if (!(b->is_autodiscovered && b->engine == browser_engine::chromium)) return;
 
-        if(!chromium_id_to_bi.contains(b->id)) return;
-
-        // 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
 
-        auto bi = chromium_id_to_bi[b->id];
-        auto bie = bi.get_best_entry(b->open_cmd);
-
-        fs::path root = fs::path{lad} / bie.vdf;
-        b->data_path = root.string();
+        fs::path root{b->data_path};
         fs::path lsjf = root / "Local State";
 
         // faster method to discover
         if(fs::exists(lsjf)) {
-            string jt = fss::read_file_as_string(str::to_str(lsjf));
+            string jt = fss::read_all_text(str::to_str(lsjf));
             auto j = json::parse(jt);
             auto j_p_ic = j["profile"]["info_cache"];
             if(j_p_ic.is_object()) {
@@ -381,7 +315,7 @@ namespace bt {
         }
 
         {
-            if(b->id == "msedge") {
+            if(b->open_cmd.find("msedge.exe") != string::npos) {
                 // Edge is not stupid, it's just different
                 auto inprivate = make_shared<browser_instance>(
                     b, "InPrivate", "InPrivate",
@@ -415,8 +349,10 @@ namespace bt {
     }
 
     void discovery::discover_filefox_profile_groups(
+        const string& parent_id,
+        const string& installation_id,
         const string& store_id,
-        const std::string& sqlite_db_path,
+        const string& sqlite_db_path,
         const string& data_folder_path,
         std::vector<firefox_profile>& profiles) {
 
@@ -435,7 +371,7 @@ namespace bt {
                 string path = it_path != profile.end() ? it_path->second : "";
                 path = (fs::path{data_folder_path} / path).string();
 
-                profiles.emplace_back(full_id, name, path, false);
+                profiles.emplace_back(full_id, parent_id, installation_id, name, path, false);
             }
         }
         sqlite3_close(db);
@@ -443,12 +379,11 @@ namespace bt {
 
 
     void discovery::discover_firefox_profiles(std::shared_ptr<browser> b, std::vector<firefox_profile>& profiles) {
-        if(!firefox_id_to_vdf.contains(b->id)) return;
-        string data_folder_rel_path = firefox_id_to_vdf[b->id];
-        string data_folder_path = (fs::path{ad} / data_folder_rel_path).string();
+
+        fs::path data_folder{b->data_path};
 
         // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
-        fs::path ini_path = fs::path{ad} / data_folder_rel_path / "profiles.ini";
+        fs::path ini_path = data_folder / "profiles.ini";
         if(!fs::exists(ini_path)) return;
 
         CSimpleIniA ini;
@@ -456,20 +391,25 @@ namespace bt {
         list<CSimpleIniA::Entry> ir;
         ini.GetAllSections(ir);
 
-        // find section with installation ID to extract default profile path for this Firefox installation
-        string section_name = "Install" + b->disco_instance_id;
-        string default_profile_path;
+        // create a map of profile id to installation id
+        map<string, string> profile_to_installation_id;
         for(CSimpleIni::Entry& section : ir) {
-            if(section_name == section.pItem) {
-                const char* c_path = ini.GetValue(section.pItem, "Default");
-                if(c_path) {
-                    default_profile_path = c_path;
-                }
-                break;
+            string section_name = section.pItem;
+            if(!section_name.starts_with("Install")) continue;
+
+            const char* c_profile_path = ini.GetValue(section.pItem, "Default");
+            if(c_profile_path == nullptr) continue;
+
+            string profile_path = c_profile_path;
+            string installation_id = section_name.substr(strlen("Install"));
+
+            if(!profile_path.empty() && !installation_id.empty()) {
+                profile_to_installation_id[profile_path] = installation_id;
             }
         }
 
-        for(auto& e : ir) {
+        // extract all the profiles
+        for(CSimpleIniA::Entry& e : ir) {
             // a section is a profile if starts with "Profile".
             string section_name{e.pItem};
             if(!section_name.starts_with("Profile")) continue;
@@ -485,36 +425,64 @@ namespace bt {
             if(!c_path) continue;
             string path{c_path};
 
-            bool is_default_profile = path == default_profile_path;
-            string profile_path = is_relative
-                ? (fs::path{data_folder_path} / c_path).string()
-                : c_path;
+            // get installation id if possible
+            auto it_installation_id = profile_to_installation_id.find(path);
+            string installation_id = it_installation_id != profile_to_installation_id.end()
+                ? it_installation_id->second
+                : "";
+
+            if(is_relative) {
+                path = (data_folder / path).string();
+            }
 
             // Check is this is a container for profile groups
             const char* c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
             if(c_nested_store_id) {
-                fs::path sqlite_db_path = fs::path{ad} / data_folder_rel_path / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
+                fs::path sqlite_db_path = data_folder / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
                 // profile definitions i.e. "new profiles" are now stored in the sqlite database
                 if(fs::exists(sqlite_db_path)) {
-                    discover_filefox_profile_groups(c_nested_store_id, sqlite_db_path.string(), data_folder_path, profiles);
+                    discover_filefox_profile_groups(section_name,
+                        installation_id,
+                        c_nested_store_id,
+                        sqlite_db_path.string(),
+                        data_folder.string(),
+                        profiles);
                 }
             } else {
                 // classic profile
-                profiles.emplace_back(section_name, display_name, profile_path, true);
+                profiles.emplace_back(section_name, "", installation_id, display_name, path, true);
             }
         }
     }
 
     void discovery::discover_firefox_profiles(shared_ptr<browser> b) {
-        if (!(b->is_system && b->is_firefox)) return;
+        if (!(b->is_autodiscovered && b->engine == browser_engine::gecko)) return;
 
         vector<firefox_profile> profiles;
         discover_firefox_profiles(b, profiles);
 
+        // sort profiles using the following rules: is_classic, has installation_id, name
+        std::sort(profiles.begin(), profiles.end(),
+            [](const firefox_profile& a, const firefox_profile& b) {
+                if(a.is_classic != b.is_classic) {
+                    return !a.is_classic; // classic profiles last
+                }
+                if((!a.installation_id.empty()) != (!b.installation_id.empty())) {
+                    return !a.installation_id.empty(); // profiles with installation_id first
+                }
+                return a.name < b.name; // finally by name
+        });
+
         for(firefox_profile& fp : profiles) {
+
+            // if profile is bound to an installation but it's not ours, skip it always
+            if(!fp.installation_id.empty() && fp.installation_id != b->instance_id) continue;
+
+            if(fp.installation_id.empty() && !g_config.discover_classic_firefox_profiles) continue;
+
             string arg_suffix = fp.is_classic
                 ? fmt::format("-P \"{}\"", fp.name)
-                : fmt::format("\"--profile\" \"{}\"",fp.path);
+                : fmt::format("\"--profile\" \"{}\"", fp.path);
             string arg = fmt::format("\"{}\" {}", browser_instance::URL_ARG_NAME, arg_suffix);
 
             auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
@@ -567,7 +535,7 @@ namespace bt {
         // detect if "containers" are installed
         fs::path containers_path = fs::path{roaming_home} / "containers.json";
         if(fs::exists(containers_path)) {
-            string jt = fss::read_file_as_string(containers_path.string());
+            string jt = fss::read_all_text(containers_path.string());
             auto j = json::parse(jt);
             auto identities = j["identities"];
             if(identities.is_array()) {
@@ -622,7 +590,7 @@ namespace bt {
 
         fs::path path = fs::path{roaming_home} / "addons.json";
         if(fs::exists(path)) {
-            string jt = fss::read_file_as_string(path.string());
+            string jt = fss::read_all_text(path.string());
             auto j = json::parse(jt);
             auto j_addons = j["addons"];
             if(j_addons.is_array()) {
@@ -641,7 +609,7 @@ namespace bt {
 
     void discovery::discover_other_profiles(shared_ptr<browser> b) {
 
-        if(!(b->is_system && b->instances.empty())) return;
+        if(!(b->is_autodiscovered && b->instances.empty())) return;
 
         string icon_path = b->icon_path.empty() ? b->open_cmd : b->icon_path;
 
@@ -679,14 +647,6 @@ namespace bt {
         return bt::discovery::discover_browsers(ProtoName);
     }
 
-    bool discovery::is_chromium_id(const std::string& system_id) {
-        return chromium_id_to_bi.find(system_id) != chromium_id_to_bi.end();
-    }
-
-    bool discovery::is_firefox_id(const std::string& system_id) {
-        return firefox_id_to_vdf.find(system_id) != firefox_id_to_vdf.end();
-    }
-
     string discovery::get_shell_url_association_progid(const string& protocol_name) {
         string prog_id;
 
@@ -704,6 +664,83 @@ namespace bt {
             "ProgId");
 
         return prog_id;
+    }
+
+    bool discovery::fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path) {
+
+        engine = browser_engine::unknown;
+        data_path.clear();
+
+        // get folder path
+        fs::path p{exe_path};
+        fs::path folder_path = p.parent_path();
+
+        // get executable name
+        auto exe_name = p.filename().string();
+        str::lower(exe_name);
+
+        // Chromium
+        // Should have a file *_proxy.exe in the same folder
+        for(const auto& entry : fs::directory_iterator(folder_path)) {
+            if(entry.is_regular_file()) {
+                auto filename = entry.path().filename().string();
+                if(filename.ends_with("_proxy.exe")) {
+                    engine = browser_engine::chromium;
+
+                    // we don't know where data folders are exactly, so this is the best we can do
+
+                    fs::path root = fs::path{lad};
+
+                    if(exe_name == "msedge.exe") {
+                        data_path = (root / "Microsoft" / "Edge" / "User Data").string();
+                    } else if(exe_name == "chrome.exe") {
+                        // Helium is also "chrome.exe", so we need to check path substring
+                        if(str::contains_ic(exe_path, "\\Helium\\")) {
+                            data_path = (root / "imput" / "Helium" / "User Data").string();
+                        } else {
+                            data_path = (root / "Google" / "Chrome" / "User Data").string();
+                        }
+                    } else if(exe_name == "vivaldi.exe") {
+                        data_path = (root / "Vivaldi" / "User Data").string();
+                    } else if(exe_name == "brave.exe") {
+                        data_path = (root / "BraveSoftware" / "Brave-Browser" / "User Data").string();
+                    } else if(exe_name == "thorium.exe") {
+                        data_path = (root / "Thorium" / "User Data").string();
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        // Gecko
+        // Should have "xul.dll" in the same folder
+        for(const auto& entry : fs::directory_iterator(folder_path)) {
+            if(entry.is_regular_file()) {
+                auto filename = entry.path().filename().string();
+                if(filename == "xul.dll") {
+                    engine = browser_engine::gecko;
+
+                    // as with chromium, we don't know exact data folder path
+
+                    fs::path root = fs::path{ad};
+
+                    if(exe_name == "firefox.exe") {
+                        data_path = (root / "Mozilla" / "Firefox").string();
+                    } else if(exe_name == "waterfox.exe") {
+                        data_path = (root / "Waterfox").string();
+                    } else if(exe_name == "librewolf.exe") {
+                        data_path = (root / "Librewolf").string();
+                    } else if(exe_name == "zen.exe") {
+                        data_path = (root / "zen").string();
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     string get_settings_root() {

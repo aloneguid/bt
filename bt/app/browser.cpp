@@ -1,7 +1,5 @@
 #include "browser.h"
-#include "browser.h"
 #include "match_rule.h"
-#include "browser.h"
 #include <filesystem>
 #include <algorithm>
 #include "win32/shell.h"
@@ -10,8 +8,6 @@
 #include "win32/user.h"
 #include "str.h"
 #include <fmt/core.h>
-#include "discovery.h"
-#include "strings.h"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -23,15 +19,10 @@ namespace bt {
     browser::browser(
         const std::string& id,
         const std::string& name,
-        const std::string& open_cmd,
-        bool is_system)
-        : id{id}, name{ name }, open_cmd{ open_cmd },
-        is_chromium{ discovery::is_chromium_id(id) }, is_firefox{ discovery::is_firefox_id(id) },
-        is_system{ is_system },
-        supports_frameless_windows{is_chromium}
+        const std::string& open_cmd)
+        : id{id}, name{ name }, open_cmd{ open_cmd }
     {
         str::trim(this->name);
-        this->open_cmd = unmangle_open_cmd(this->open_cmd);
     }
 
     bool operator==(const browser& b1, const browser& b2) {
@@ -50,7 +41,7 @@ namespace bt {
 
         if(!icon_path.empty()) return icon_path;
 
-        if(!is_system) {
+        if(!is_autodiscovered) {
             if(!instances.empty()) {
                 return instances[0]->get_best_icon_path();
             }
@@ -148,10 +139,10 @@ namespace bt {
         vector<shared_ptr<browser>> r;
 
         for (shared_ptr<browser> b_new : new_set) {
-            // find corresponding browser
+            // find corresponding browser by open_cmd
             auto b_old_it = std::find_if(
                 old_set.begin(), old_set.end(),
-                [b_new](shared_ptr<browser> el) { return el->id == b_new->id; });
+                [b_new](shared_ptr<browser> el) { return el->open_cmd == b_new->open_cmd; });
 
             if (b_old_it != old_set.end()) {
                 shared_ptr<browser> b_old = *b_old_it;
@@ -187,7 +178,7 @@ namespace bt {
 
         // add user browsers from the old set
         for(shared_ptr<browser> b_custom : old_set) {
-            if(b_custom->is_system) continue;
+            if(b_custom->is_autodiscovered) continue;
 
             r.push_back(b_custom);
         }
@@ -228,23 +219,6 @@ namespace bt {
     std::string browser::get_image_name(const std::string& open_cmd) {
         if(open_cmd.empty()) return open_cmd;
         return fs::path{open_cmd}.filename().replace_extension().string();
-    }
-
-    std::string browser::unmangle_open_cmd(const std::string& open_cmd) {
-
-        string r = open_cmd;
-
-        // if open_cmd starts with quote ("), remove it, and substring up to first next quote
-        if(r.starts_with("\"")) {
-            r = r.substr(1);
-            
-            size_t pos = r.find("\"");
-            if(pos != string::npos) {
-               r = r.substr(0, pos);
-            }
-        }
-
-        return r;
     }
 
     browser_instance::browser_instance(
@@ -344,7 +318,7 @@ namespace bt {
     std::string browser_instance::get_best_display_name() const {
         if(is_incognito) return fmt::format("Private {}", b->name);
 
-        if(b->is_system && is_singular()) return b->name;
+        if(b->is_autodiscovered && is_singular()) return b->name;
 
         return name;
     }
