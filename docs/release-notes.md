@@ -1,6 +1,8 @@
 ## 5.5.1
 
 - bug: Firefox profiles were lost during configuration load, because they were assigned unrecognisable IDs on discovery. Thanks to @pibcht in #170 for early report.
+- cleanup: removed `.msi` compilation target, now only `.exe` installer is provided; originally `.msi` was only created to satisfy some package manager requirements, however this is not longer needed.
+- cleanup: sha-256 checksums are not published alongside releases anymore, because GitHub now provides automatic checksum generation for all release assets.
 - meta: These release notes were NOT written by AI, despite being spell-checked by an AI that thinks "colour" is always wrong. Any resemblance to coherent documentation is purely coincidental and will be fixed in 5.5.2.
 
 ## 5.5.0
