@@ -1,3 +1,8 @@
+## 5.5.1
+
+- bug: Firefox profiles were lost during configuration load, because they were assigned unrecognisable IDs on discovery. Thanks to @pibcht in #170 for early report.
+- meta: These release notes were NOT written by AI, despite being spell-checked by an AI that thinks "colour" is always wrong. Any resemblance to coherent documentation is purely coincidental and will be fixed in 5.5.2.
+
 ## 5.5.0
 
 - new: new Firefox profiles (aka "Profile Groups") are supported in autodiscovery, as well as classic Firefox profiles; containers are also supported, so you can mix and match all three.

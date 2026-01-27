@@ -366,7 +366,8 @@ namespace bt {
                 auto it_name = profile.find("name");
                 auto it_path = profile.find("path");
 
-                string full_id = store_id + ":" + (it_id != profile.end() ? it_id->second : "");
+                string id = it_id != profile.end() ? it_id->second : "";
+                string full_id = fmt::format("s{}i{}", store_id, id);
                 string name = it_name != profile.end() ? it_name->second : full_id;
                 string path = it_path != profile.end() ? it_path->second : "";
                 path = (fs::path{data_folder_path} / path).string();
