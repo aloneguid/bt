@@ -216,11 +216,6 @@ namespace bt::ui {
                 if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
                     win32::shell::open_default_apps();
                 }
-                if(w::mi("Rediscover Browsers", true, ICON_MD_REFRESH)) {
-                    rediscover_browsers();
-                }
-                w::small_checkbox("Discover classic Firefox profiles", g_config.discover_classic_firefox_profiles);
-                w::small_checkbox("Discover Firefox containers", g_config.discover_firefox_containers);
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
@@ -243,6 +238,13 @@ namespace bt::ui {
                         w::notify_info("todo");
                     }
                 }
+                w::sep("Discovery");
+                if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
+                    rediscover_browsers();
+                }
+                w::small_checkbox("Discover classic Firefox profiles", g_config.discover_classic_firefox_profiles);
+                w::small_checkbox("Discover Firefox containers", g_config.discover_firefox_containers);
+
             }
 
             if(w::menu m{"General"}; m) {
