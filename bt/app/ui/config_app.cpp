@@ -1266,7 +1266,7 @@ terminal window will be hidden.)");
             bi->rules.clear();
         }
 
-        w::sl(); ww::help_link("rules.html");
+        w::sl(); ww::help_link("#rules");
 
         // scrollable area with list of rules
         {

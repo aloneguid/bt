@@ -1,3 +1,7 @@
+## 5.5.2
+
+- bug: help link next to rules editor was pointing to a wrong page, thanks @pibcht in #171 for reporting.
+
 ## 5.5.1
 
 - bug: Firefox profiles were lost during configuration load, because they were assigned unrecognisable IDs on discovery. Thanks to @pibcht in #170 for early report.
