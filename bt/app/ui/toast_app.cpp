@@ -16,6 +16,7 @@ namespace bt::ui {
         app->win32_always_on_top = true;
         app->win32_transparent = true;
         app->win32_hide_from_taskbar = true;
+        app->win32_no_activate = true;  // prevent from stealing focus or appearing in alt-tab
 
         wnd_main
             .no_titlebar()
