@@ -649,8 +649,6 @@ namespace bt {
     }
 
     string discovery::get_shell_url_association_progid(const string& protocol_name) {
-        string prog_id;
-
         // There are 3 locations to check:
         // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
         // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest, value of ProdId
