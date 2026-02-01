@@ -1,6 +1,10 @@
+## 5.5.4
+
+- bug: HTTP/HTTPS default health check is a bit wobbly as it keeps changing between Windows 11 versions. Hopefull this fixes it.
+
 ## 5.5.3
 
-- bug: 
+- bug: Toast will now correctly avoid Alt+Tab window list, and configuration will be correctly saved.
 
 ## 5.5.2
 

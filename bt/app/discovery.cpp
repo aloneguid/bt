@@ -651,19 +651,31 @@ namespace bt {
     string discovery::get_shell_url_association_progid(const string& protocol_name) {
         string prog_id;
 
-        prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
-            "ProgId");
+        // There are 3 locations to check:
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest, value of ProdId
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice, value of ProdId
+        // If any of those are found, return the value
 
+        // 1
+        string prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
+            "ProgId");
         if(!prog_id.empty()) return prog_id;
 
-        // Since some version of Windows 11, UserChoiceLatest is used instead of UserChoice
+        // 2
         prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
             fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest", protocol_name),
             "ProgId");
+        if(!prog_id.empty()) return prog_id;
 
+        // 3
+        prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
+            "ProgId");
         return prog_id;
     }
 
