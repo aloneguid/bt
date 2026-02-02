@@ -1,3 +1,7 @@
+## 5.5.5
+
+- bug: fixed crash during discovery when registry points to a non-existing browser path. Thanks to @janpio in #177 for reporting.
+
 ## 5.5.4
 
 - bug: HTTP/HTTPS default health check is a bit wobbly as it keeps changing between Windows 11 versions. Hopefull this fixes it.

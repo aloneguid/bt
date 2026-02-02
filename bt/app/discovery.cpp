@@ -682,9 +682,12 @@ namespace bt {
         engine = browser_engine::unknown;
         data_path.clear();
 
+        if(!fs::exists(exe_path)) return false;
+
         // get folder path
         fs::path p{exe_path};
         fs::path folder_path = p.parent_path();
+        if(!fs::exists(folder_path)) return false;
 
         // get executable name
         auto exe_name = p.filename().string();

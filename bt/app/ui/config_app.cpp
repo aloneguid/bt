@@ -237,6 +237,11 @@ namespace bt::ui {
                     if(w::mi("Re-register as browser")) {
                         w::notify_info("todo");
                     }
+                    //if(w::mi("Crash now!")) {
+                    //    w::notify_info("Crashing...");
+                    //    int* crash = nullptr;
+                    //    *crash = 0;  // This will crash immediately
+                    //}
                 }
                 w::sep("Discovery");
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
