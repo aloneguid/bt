@@ -67,6 +67,7 @@ namespace bt::ui {
         bool show_subs{false};
         grey::widgets::window wnd_subs;
         std::vector<std::string> replacer_kinds{"string", "regex"};
+        std::string url_subs_in;
         click_payload url_subs_up;
 
         // "Script" window

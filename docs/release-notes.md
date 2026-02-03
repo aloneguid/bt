@@ -1,6 +1,7 @@
 ## 5.5.5
 
 - bug: fixed crash during discovery when registry points to a non-existing browser path. Thanks to @janpio in #177 for reporting.
+- bug: substitution tester was changing input box after substition is done.
 
 ## 5.5.4
 

@@ -376,7 +376,7 @@ namespace bt::ui {
 
         // testing stuff
         w::sep("Test");
-        if(w::input(url_subs_up.url, ICON_MD_LOGIN)) recompute = true;
+        if(w::input(url_subs_in, ICON_MD_LOGIN)) recompute = true;
         w::tt("Input a value to test substitutions.");
         if(w::input(url_subs_up.url, ICON_MD_LOGOUT, true, 0, true)) recompute = true;
         w::tt("Substitution result are populated here.");
@@ -432,6 +432,7 @@ namespace bt::ui {
 
             // recompute
             url_subs_up.clear(true);
+            url_subs_up.url = url_subs_in;
             g_pipeline.process(url_subs_up);
             recompute = false;
         }
