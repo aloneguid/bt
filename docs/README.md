@@ -1,4 +1,4 @@
-# Browser Tamer ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/aloneguid/bt/total) ![WinGet Package Version](https://img.shields.io/winget/v/aloneguid.bt)
+# Browser Tamer [![Downloads](https://img.shields.io/github/downloads/aloneguid/bt/total)](https://github.com/aloneguid/bt/releases) [![WinGet Package Version](https://img.shields.io/winget/v/aloneguid.bt)](https://www.aloneguid.uk/projects/bt/#installing)
 
 
 [Home + Documentation](https://www.aloneguid.uk/projects/bt/) 👈
