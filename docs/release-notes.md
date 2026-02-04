@@ -1,3 +1,7 @@
+## 5.5.6
+
+- bug: custom browser name and arguments were not properly persisted (#182)
+
 ## 5.5.5
 
 - bug: fixed crash during discovery when registry points to a non-existing browser path. Thanks to @janpio in #177 for reporting.

@@ -1196,11 +1196,11 @@ namespace bt::ui {
                 w::input(b->open_cmd, "exe", false);
                 w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
-                if(w::input(bi->name, "name")) {
+                if(w::input(bi->name, fmt::format("name##{}", b->id))) {
                     b->name = bi->name;
                 }
 
-                w::input(bi->launch_arg, "arg");
+                w::input(bi->launch_arg, fmt::format("arg##{}", b->id));
                 w::tt(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
