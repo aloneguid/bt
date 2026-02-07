@@ -14,8 +14,9 @@ namespace bt {
     std::vector<system_check> setup::get_checks() {
         return vector<system_check> {
             system_check{
-                "sys_browser", "Register as proxy browser",
-                fmt::format("{} needs to be registered as a browser in Windows in order to become a proxy.", APP_LONG_NAME),
+                "sys_browser", "System Browser",
+                "Registered as a virtual browser in Windows.",
+                "automatically register as a virtual browser",
                 [](string& error_message) {
                     return setup::is_installed_as_browser(APP_LONG_NAME, error_message);
                 },
@@ -23,11 +24,17 @@ namespace bt {
 
                 system_check{
                     "proto_http",
-                    "Set as HTTP protocol handler",
-                    fmt::format("{} needs to be set as HTTP protocol handler so that Windows starts forwarding HTTP links to it.", APP_LONG_NAME),
+                    "HTTP Protocol Handler",
+                    "Once set, Windows will forward HTTP links to it.",
+                    "open system settings and set the default browser",
                     [](string& error_message) {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
+                        if(!is_http) {
+                            string http, https;
+                            discovery::get_default_browser_url_assoc(http, https);
+                            error_message = fmt::format("Current handler is {}.", http);
+                        }
                         return is_http;
                     },
                     []() {
@@ -38,11 +45,17 @@ namespace bt {
 
                 system_check{
                     "proto_https",
-                    "Set as HTTPS protocol handler",
-                    fmt::format("{} needs to be set as HTTPS protocol handler so that Windows starts forwarding HTTPS links to it.", APP_LONG_NAME),
+                    "HTTPS Protocol Handler",
+                    "Once set, Windows will forward HTTPS links to it.",
+                    "open system settings and set the default browser",
                     [](string& error_message) {
                         bool is_http, is_https, is_xbt;
                         discovery::is_default_browser(is_http, is_https, is_xbt);
+                        if(!is_https) {
+                            string http, https;
+                            discovery::get_default_browser_url_assoc(http, https);
+                            error_message = fmt::format("Current handler is {}.", https);
+                        }
                         return is_https;
                     },
                     []() {
@@ -173,7 +186,7 @@ namespace bt {
         if(installed) {
             error_message.clear();
         } else {
-            error_message = fmt::format("expected: {}\nregistered: {}", app_path, reg_app_path);
+            error_message = fmt::format("Expected: {}\nRegistered: {}.", app_path, reg_app_path);
         }
         return installed;
     }

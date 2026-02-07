@@ -56,7 +56,7 @@ namespace bt::ui {
         std::string si_dpi;
         void refresh_sys_info();    // respects FPS update rate
 
-        // "Health Dashboard" popup
+        // "Health Dashboard" that is now part of status bar
         std::vector<system_check> health_checks;
         float health_blink_time{0.0f};
         size_t health_succeeded{0};
@@ -100,9 +100,7 @@ namespace bt::ui {
         bool startup_health_warned{false};
         bool startup_health_opened{false};
         void startup_health_warning();
-        void render_about_window();
         void render_subs_window();
-        void render_dashboard();
         void render_scripting_window();
         void render_pipe_visualiser_window();
 

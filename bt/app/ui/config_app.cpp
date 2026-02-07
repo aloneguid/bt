@@ -154,8 +154,6 @@ namespace bt::ui {
         if(pv_show)
             render_pipe_visualiser_window();
 
-        render_dashboard();
-
         w::notify_render_frame();
 
         return is_open;
@@ -234,14 +232,15 @@ namespace bt::ui {
                         win32::clipboard::set_ascii_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
-                    if(w::mi("Re-register as browser")) {
-                        w::notify_info("todo");
-                    }
                     //if(w::mi("Crash now!")) {
                     //    w::notify_info("Crashing...");
                     //    int* crash = nullptr;
                     //    *crash = 0;  // This will crash immediately
                     //}
+                }
+                if(w::mi("Re-check health", true, ICON_MD_MEDICAL_SERVICES)) {
+                    check_health();
+                    w::notify_info("Health check finished");
                 }
                 w::sep("Discovery");
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
@@ -439,50 +438,11 @@ namespace bt::ui {
 
     }
 
-    void config_app::render_dashboard() {
-
-        if(health_failed == 0) return;
-
-        w::guard gpop{wnd_health_dash};
-
-        bool recheck{false};
-        int i = 0;
-        for(auto& sc : health_checks) {
-            string tooltip = sc.description;
-            {
-                w::group g;
-
-                w::label(sc.is_ok ? ICON_MD_DONE : ICON_MD_ERROR, sc.is_ok ? w::emphasis::primary : w::emphasis::error);
-                w::sl();
-                w::label(sc.name);
-
-                if(!sc.is_ok) {
-                    w::sl(250 * app->scale);
-                    if(w::button(fmt::format("fix##{}", i++), w::emphasis::error, true, true)) {
-                        sc.fix();
-                        recheck = true;
-                    }
-                    if(!sc.error_message.empty()) {
-                        tooltip += "\n\n";
-                        tooltip += sc.error_message;
-                    }
-                }
-            }
-            w::tt(tooltip);
-        }
-
-        if(w::button("recheck", w::emphasis::primary) || recheck) {
-            check_health();
-            recheck = false;
-        }
-    }
-
     void config_app::render_scripting_window() {
         w::guard gw{wnd_scripting};
 
         {
             w::guard g{w_script_top_panel};
-
 
             if(!script_initialised) {
                 script_editor.set_text(g_script.get_code());
@@ -730,17 +690,34 @@ namespace bt::ui {
     void config_app::render_status_bar() {
         w::status_bar sb;
 
-        if(health_failed > 0) {
+        bool is_odd;
+        {
             health_blink_time += ImGui::GetIO().DeltaTime;
-            w::label(ICON_MD_HEALTH_AND_SAFETY, health_blink_time < .5f ? w::emphasis::error : w::emphasis::none);
+            is_odd = health_blink_time < .3f;
             if(health_blink_time >= 1.0f) health_blink_time = 0;
-            if(ImGui::IsItemHovered()) {
-                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
+        bool recheck{false};
+        int i = 0;
+        for(system_check& hc : health_checks) {
+            w::sl();
+            w::id_frame idf{i++};
+
+            if(hc.is_ok) {
+                w::label(ICON_MD_CHECK, w::emphasis::primary);
+                w::tt(hc.name);
+            } else {
+                if(w::button("issue", is_odd ? w::emphasis::error : w::emphasis::none, true, true)) {
+                    hc.fix();
+                    recheck = true;
+                }
+                if(w::is_hovered()) w::mouse_cursor(w::mouse_cursor_type::hand);
+                w::tt(fmt::format("{}\n{}\n{}\n\nPress here to {}.",
+                    hc.name, hc.description, hc.error_message, hc.fix_description));
             }
-            w::tt("Health issues detected, " APP_LONG_NAME " won't be able to intercept URLs until fixed.");
-        } else {
-            w::label(ICON_MD_HEALTH_AND_SAFETY, w::emphasis::primary);
-            w::tt("All health checks passed.");
+        }
+        if(recheck) {
+            check_health();
         }
 
         size_t ipc{0};
@@ -1385,13 +1362,15 @@ terminal window will be hidden.)");
     void config_app::refresh_pop_proc_names_items() {
         auto procs = win32::process::enumerate();
         pop_proc_names_items.clear();
-        for(auto& p : procs) {
-            if(!p.get_name().empty()) {
-                pop_proc_names_items.push_back(p.get_name());
+        for(win32::process& p : procs) {
+            if(!p.is_valid()) continue;
+            string name = p.get_name();
+            if(!name.empty()) {
+                pop_proc_names_items.push_back(name);
             }
         }
 
-        // deduplicate
+        // deduplicate and sort
         std::ranges::sort(pop_proc_names_items);
         pop_proc_names_items.erase(
             std::unique(pop_proc_names_items.begin(), pop_proc_names_items.end()),

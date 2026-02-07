@@ -9,9 +9,11 @@ namespace bt
     public:
         system_check(const std::string& id, const std::string& name,
             const std::string& description,
+            const std::string& fix_description,
             std::function<bool(std::string& error)> perform_check,
             std::function<bool()> mitigate)
             : id{id}, name{name}, description{description},
+            fix_description{fix_description},
             perform_check{perform_check},
             mitigate{mitigate} {
 
@@ -20,6 +22,7 @@ namespace bt
         const std::string id;
         const std::string name;
         const std::string description;
+        const std::string fix_description;  // The rest of the message "Press this button to..."
 
         /**
          * @brief Whether the check is currently passing

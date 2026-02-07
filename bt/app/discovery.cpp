@@ -644,6 +644,11 @@ namespace bt {
         return http && https && xbt;
     }
 
+    void discovery::get_default_browser_url_assoc(std::string& http, std::string& https) {
+        http = get_shell_url_association_progid("http");
+        https = get_shell_url_association_progid("https");
+    }
+
     const std::vector<shared_ptr<browser>> discovery::discover_all_browsers() {
         return bt::discovery::discover_browsers(ProtoName);
     }

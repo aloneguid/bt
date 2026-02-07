@@ -1,3 +1,8 @@
+## 5.5.7
+
+- visual change: Health dashboard was as ugly as my first girlfriend, so I dumped it and moved health indicators to the status bar.
+- visual change: slider controls now look like sliders instead of some weird bars that looked like they were from a 90s website.
+
 ## 5.5.6
 
 - bug: custom browser name and arguments were not properly persisted (#182)

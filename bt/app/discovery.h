@@ -25,6 +25,7 @@ namespace bt {
     class discovery {
     public:
         static bool is_default_browser(bool& http, bool& https, bool& xbt);
+        static void get_default_browser_url_assoc(std::string& http, std::string& https);
 
         /**
          * @brief Scans the system for all the browsers.Also returns custom browser placeholder.
