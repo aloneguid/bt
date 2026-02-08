@@ -1,6 +1,6 @@
 ## 5.5.7
 
-- visual change: Health dashboard was as ugly as my first girlfriend, so I dumped it and moved health indicators to the status bar.
+- visual change: Health dashboard is now part of status bar, this feels more ergonomic and less intrusive. Health messages also reworked and more information is included when health is not good.
 - visual change: slider controls now look like sliders instead of some weird bars that looked like they were from a 90s website.
 
 ## 5.5.6
