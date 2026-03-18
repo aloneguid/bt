@@ -1,7 +1,10 @@
-## 5.5.7
+## 5.6.0
 
-- visual change: Health dashboard is now part of status bar, this feels more ergonomic and less intrusive. Health messages also reworked and more information is included when health is not good.
-- visual change: slider controls now look like sliders instead of some weird bars that looked like they were from a 90s website.
+- feat: Health dashboard is now part of status bar, this feels more ergonomic and less intrusive. Health messages also reworked and more information is included when health is not good.
+- feat: Slider controls now look like sliders instead of some weird bars that looked like they were from a 90s website.
+- feat: Picker opacity can be configured in options.
+- chore: Lua code editor is upgraded to latest stable version.
+- chore: Upgrade to latest Grey version.
 
 ## 5.5.6
 

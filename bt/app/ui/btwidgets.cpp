@@ -61,13 +61,13 @@ namespace bt::ui {
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_config.picker_inactive_item_alpha);
 
-        w::rounded_image(app, icon1, icon_size, icon_size, icon_size / 2);
+        w::image_rounded(app, icon1, icon_size, icon_size, icon_size / 2);
 
         // if required, draw overlay icon
         if(!icon2.empty()) {
             w::cur_set(x0 + padding + icon_size / 2, y0 + padding + icon_size / 2);
             float isz = icon_size / 2;
-            w::rounded_image(app, icon2, isz, isz, isz);
+            w::image_rounded(app, icon2, isz, isz, isz);
         }
 
         ImGui::PopStyleVar();

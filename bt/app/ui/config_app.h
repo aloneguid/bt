@@ -75,7 +75,7 @@ namespace bt::ui {
         bool show_scripting{false};
         bool script_initialised{false};
         grey::widgets::window wnd_scripting{"Scripting"};
-        grey::widgets::text_editor script_editor;
+        grey::widgets::code_editor script_editor{grey::widgets::code_editor::language::lua};
         std::string script_terminal;
         bool script_terminal_autoscroll{true};
         unsigned int script_fn_selected{0};

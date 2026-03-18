@@ -58,6 +58,7 @@ namespace bt {
         bool picker_show_key_hints;
         int picker_border_width;
         bool picker_show_native_chrome;
+        int picker_opacity{255};
 
         // pipeline
         bool pipeline_unwrap_o365;

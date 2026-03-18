@@ -1,7 +1,7 @@
 #include "config.h"
 #include "../globals.h"
 #include "win32/reg.h"
-#include "win32/ole32.h"
+#include "win32/os.h"
 #include "win32/shell.h"
 #include "str.h"
 #include <fmt/core.h>
@@ -51,6 +51,7 @@ namespace bt {
     #define PickerShowKeyHints "show_key_hints"
     #define PickerBorderWidth "border_width"
     #define PickerShowNativeChrome "show_native_chrome"
+    #define PickerOpacity "picker_opacity"
     #define PipelineSectionName "pipeline"
     #define PipelineSubstKeyName "subst"
     #define PipelineUnwrapO365Key "unwrap_o365"
@@ -86,7 +87,7 @@ namespace bt {
         } else {
             iid = win32::reg::get_value(win32::reg::hive::current_user, settings_root, IIDKeyName);
             if(iid.empty()) {
-                iid = win32::ole32::create_guid();
+                iid = win32::os::create_guid();
                 win32::reg::set_value(win32::reg::hive::current_user, settings_root, iid, IIDKeyName);
             }
         }
@@ -209,6 +210,7 @@ namespace bt {
         picker_show_key_hints = cfg.get_bool_value(PickerShowKeyHints, true, PickerSectionName);
         picker_border_width = cfg.get_int_value(PickerBorderWidth, 1, PickerSectionName);
         picker_show_native_chrome = cfg.get_bool_value(PickerShowNativeChrome, false, PickerSectionName);
+        picker_opacity = cfg.get_int_value(PickerOpacity, 255, PickerSectionName);
 
         // pipeline
         pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
@@ -254,6 +256,7 @@ namespace bt {
         cfg.set_value(PickerShowKeyHints, picker_show_key_hints, PickerSectionName);
         cfg.set_value(PickerBorderWidth, picker_border_width, PickerSectionName);
         cfg.set_value(PickerShowNativeChrome, picker_show_native_chrome, PickerSectionName);
+        cfg.set_value(PickerOpacity, picker_opacity, PickerSectionName);
 
         // pipeline
         cfg.set_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);

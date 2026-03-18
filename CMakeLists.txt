@@ -37,6 +37,7 @@ if(MSVC AND CMAKE_BUILD_TYPE MATCHES Release)
     add_link_options("/OPT:REF")
 endif()
 
+add_subdirectory(common)
 add_subdirectory(grey/grey)
 add_subdirectory(grey/demo/desktop)
 add_subdirectory(bt)

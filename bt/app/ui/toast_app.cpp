@@ -14,7 +14,7 @@ namespace bt::ui {
         app->initial_theme_id = g_config.theme_id;
         app->win32_can_resize = false;
         app->win32_always_on_top = true;
-        app->win32_transparent = true;
+        app->win32_title_bar = false;
         app->win32_hide_from_taskbar = true;
         app->win32_no_activate = true;  // prevent from stealing focus or appearing in alt-tab
 

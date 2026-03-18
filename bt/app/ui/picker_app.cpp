@@ -7,7 +7,7 @@
 #include "../common/win32/user.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../../common/win32/clipboard.h"
+#include "../../common/win32/os.h"
 #include "../../common/win32/shell.h"
 #include "btwidgets.h"
 
@@ -26,7 +26,7 @@ namespace bt::ui {
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
         app->win32_always_on_top = g_config.picker_always_on_top;
-        app->win32_transparent = !g_config.picker_show_native_chrome;
+        app->win32_title_bar = g_config.picker_show_native_chrome;
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
         clear_color = cc1;
@@ -95,6 +95,8 @@ namespace bt::ui {
     }
 
     bool picker_app::run_frame() {
+
+        app->win32_transparency_window_alpha = g_config.picker_opacity;
 
         // get monitor dimensions
         int mon_idx = app->find_monitor_for_main_viewport();
@@ -310,30 +312,22 @@ namespace bt::ui {
     }
 
     void picker_app::render_settings() {
-        //ImGuiViewport* vp = ImGui::GetMainViewport();
 
-        //w::label(fmt::format("monitor wp: {}x{}, ws: {}x{}", mon_work_pos.x, mon_work_pos.y, mon_work_size.x, mon_work_size.y));
-        //w::label(fmt::format("viewport wp {}x{}, ws: {}x{}", vp->WorkPos.x, vp->WorkPos.y, vp->WorkSize.x, vp->WorkSize.y));
-        //w::label(fmt::format("window_size: {}x{}", window_size.x, window_size.y));
-
-        //ImVec2 pos = w::cur_get();
-        //w::label(fmt::format("cursor pos: {}x{}", pos.x, pos.y));
-        //w::label(fmt::format("box size: {}, pmh: {}", box_size, pre_menu_height));
-
-        w::combo("icon drawing",
-        {
+        w::combo("icon drawing", {
             "profile on top of browser",
             "browser on top of profile",
             "browser only",
-            "profile only"},
-            (unsigned int&)g_config.icon_overlay);
+            "profile only"
+        }, (unsigned int&)g_config.icon_overlay);
+
         w::slider(g_config.picker_icon_size, 5, 256, "icon size");
         w::slider(g_config.picker_item_padding, 0, 100, "padding");
         w::slider(g_config.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
         w::checkbox("show key hints (1-9)", g_config.picker_show_key_hints);
-        if(w::slider(g_config.picker_border_width, 0, 5, "border width")) {
+        if(w::slider(g_config.picker_border_width, 0, 10, "border width", 1, true)) {
             wnd_main.border(g_config.picker_border_width);
         }
+        w::slider(g_config.picker_opacity, 50, 255, "window opacity");
         w::checkbox("show native window chrome", g_config.picker_show_native_chrome);
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
@@ -345,25 +339,18 @@ namespace bt::ui {
             g_config.picker_border_width = 1;
             g_config.picker_show_native_chrome = false;
             g_config.icon_overlay = icon_overlay_mode::profile_on_browser;
+            g_config.picker_opacity = 255;
         }
 
-//#if _DEBUG
-//        w::sl();
-//        if(w::button("double items")) {
-//            const size_t c = choices.size();                  // snapshot current count
-//            choices.reserve(choices.size() + c);              // avoid reallocation (keeps iterators valid)
-//            choices.insert(choices.end(), choices.begin(), choices.begin() + c); // append first c items
-//        }
-//#endif
-
+        w::spc(3);
     }
 
     void picker_app::menu_item_clicked(const std::string& id) {
         if(id == "copy") {
-            win32::clipboard::set_ascii_text(url);
+            win32::os::set_clipboard_text(url);
             is_open = false;
         } else if(id == "email") {
-            win32::clipboard::set_ascii_text(url);
+            win32::os::set_clipboard_text(url);
             win32::shell::exec(fmt::format("mailto:?body={}", url), "");
             is_open = false;
         } else if(id == "edit") {

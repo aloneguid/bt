@@ -1,11 +1,10 @@
 #include "config_app.h"
 #include "../../res.inl"
 #include "fmt/core.h"
+#include "win32/os.h"
 #include "win32/process.h"
 #include "win32/shell.h"
 #include "win32/user.h"
-#include "win32/ole32.h"
-#include "win32/clipboard.h"
 #include "str.h"
 #include "stl.hpp"
 #include "fss.h"
@@ -37,6 +36,7 @@ namespace bt::ui {
         app->initial_theme_id = g_config.theme_id;
         app->win32_can_resize = true;
         app->win32_center_on_screen = true;
+        app->load_fixed_font = true;
 
         wnd_config
             .has_menubar()
@@ -179,7 +179,7 @@ namespace bt::ui {
                         win32::shell::exec(g_config.get_absolute_path(), "");
                     }
                     if(w::mi("Copy path")) {
-                        win32::clipboard::set_ascii_text(g_config.get_absolute_path());
+                        win32::os::set_clipboard_text(g_config.get_absolute_path());
                         w::notify_info("Path copied to clipboard.");
                     }
                 }
@@ -189,7 +189,7 @@ namespace bt::ui {
                         win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
                     }
                     if(w::mi("Copy path")) {
-                        win32::clipboard::set_ascii_text(rule_hit_log::i.get_absolute_path());
+                        win32::os::set_clipboard_text(rule_hit_log::i.get_absolute_path());
                         w::notify_info("Path copied to clipboard.");
                     }
                 }
@@ -199,7 +199,7 @@ namespace bt::ui {
                         win32::shell::exec(app_log::i.get_absolute_path(), "");
                     }
                     if(w::mi("Copy path")) {
-                        win32::clipboard::set_ascii_text(app_log::i.get_absolute_path());
+                        win32::os::set_clipboard_text(app_log::i.get_absolute_path());
                         w::notify_info("Path copied to clipboard.");
                     }
                 }
@@ -225,11 +225,11 @@ namespace bt::ui {
                         w::notify_info("todo");
                     }
                     if(w::mi("Copy custom protocol")) {
-                        win32::clipboard::set_ascii_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
+                        win32::os::set_clipboard_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
                     if(w::mi("Copy browser registration")) {
-                        win32::clipboard::set_ascii_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
+                        win32::os::set_clipboard_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
                     //if(w::mi("Crash now!")) {
@@ -1206,15 +1206,15 @@ terminal window will be hidden.)");
 
             if(is_incognito) {
                 if(!path_override.empty() && app->preload_texture(path_override, fss::get_full_path(path_override))) {
-                    w::rounded_image(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
+                    w::image_rounded(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
                 } else {
-                    w::rounded_image(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
+                    w::image_rounded(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
                 }
             } else {
                 string path = path_override.empty() ? path_default : path_override;
 
                 if(!path.empty() && app->preload_texture(path, fss::get_full_path(path))) {
-                    w::rounded_image(*app, path, box_size - 1, box_size - 1, box_size / 2);
+                    w::image_rounded(*app, path, box_size - 1, box_size - 1, box_size / 2);
                 } else {
                     ImGui::Dummy(ImVec2(box_size, box_size));
                 }
@@ -1394,7 +1394,7 @@ terminal window will be hidden.)");
         if(exe_path.empty()) return;
 
         wstring w_product_name = win32::user::get_file_version_info_string(exe_path, "ProductName");
-        string id = win32::ole32::create_guid();
+        string id = win32::os::create_guid();
         string name = str::to_str(w_product_name);
         auto b = make_shared<browser>(id, name, exe_path);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));

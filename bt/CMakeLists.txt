@@ -19,25 +19,7 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "cmdline.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
-    "app/pipeline/*.cpp"
-    "../common/*.cpp"
-
-    "../common/win32/reg.cpp"
-    "../common/win32/http.cpp"
-    "../common/win32/shell.cpp"
-    "../common/win32/ole32.cpp"
-    "../common/win32/process.cpp"
-    "../common/win32/clipboard.cpp"
-    "../common/win32/sysinfo.cpp"
-    "../common/win32/user.cpp"
-    "../common/win32/kernel.cpp"
-    "../common/win32/window.cpp"
-    "../common/win32/uwp.cpp"
-    "../common/win32/app.cpp"
-    "../common/win32/shell_notify_icon.cpp"
-    "../common/win32/popup_menu.cpp"
-
-    "../common/config/config.cpp")
+    "app/pipeline/*.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 
 # todo: move these to strings.h
@@ -56,6 +38,7 @@ target_compile_definitions(${APP_NAME} PRIVATE
 )
 
 target_link_libraries(bt
+    libcommon
 	libgrey
 	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
