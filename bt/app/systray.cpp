@@ -1,6 +1,7 @@
 #include "systray.h"
 #include "win32/app.h"
 #include "win32/shell_notify_icon.h"
+#include "../globals.h"
 #include <fmt/core.h>
 
 namespace bt {

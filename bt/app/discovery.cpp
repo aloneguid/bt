@@ -484,7 +484,7 @@ namespace bt {
             string arg_suffix = fp.is_classic
                 ? fmt::format("-P \"{}\"", fp.name)
                 : fmt::format("\"--profile\" \"{}\"", fp.path);
-            string arg = fmt::format("\"{}\" {}", browser_instance::URL_ARG_NAME, arg_suffix);
+            string arg = fmt::format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
 
             auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
             bi->sort_order = b->instances.size();

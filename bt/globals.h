@@ -7,11 +7,7 @@
 
 #define PdfProtoName "BrowserTamerPDF"
 
-#define SSHProtoName "BrowserTamerSSH"
-
 #define CustomProtoName "x-bt"
-
-#define ContributeUrl "https://github.com/aloneguid/bt#contributing"
 
 #define ArgSplitter "|"
 
@@ -20,6 +16,28 @@
 #define LuaRulePrefix "rule_"
 
 #define LuaPipelinePrefix "ppl_"
+
+#define APP_SHORT_NAME "bt"
+
+#define APP_LONG_NAME "Browser Tamer"
+
+#define APP_URL "https://www.aloneguid.uk/projects/bt/"
+
+#define APP_TEST_URL "https://www.aloneguid.uk/other/bt-test-page/"
+
+#define APP_GITHUB_URL "https://github.com/aloneguid/bt"
+
+#define APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases"
+
+#define APP_DOCS_URL "https://www.aloneguid.uk/projects/bt/"
+
+#define APP_HELP_BASE_URL "https://www.aloneguid.uk/projects/bt/"
+
+#define APP_BUYMEACOFFEE_URL "https://www.buymeacoffee.com/alonecoffee"
+
+#define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
+
+#define APP_VERSION "5.6.0"
 
 extern bt::config g_config;
 

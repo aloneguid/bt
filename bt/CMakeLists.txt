@@ -22,21 +22,6 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "app/pipeline/*.cpp")
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 
-# todo: move these to strings.h
-target_compile_definitions(${APP_NAME} PRIVATE
-    APP_SHORT_NAME="${APP_NAME}"
-    APP_LONG_NAME="${APP_LONG_NAME}"
-    APP_VERSION="${PROJECT_VERSION}"
-    APP_URL="${APP_URL}"
-    APP_TEST_URL="https://www.aloneguid.uk/other/bt-test-page/"
-    APP_GITHUB_URL="${APP_GITHUB_URL}"
-    APP_GITHUB_RELEASES_URL="${APP_GITHUB_RELEASES_URL}"
-    APP_DOCS_URL="https://www.aloneguid.uk/projects/bt/"
-    APP_HELP_BASE_URL="https://www.aloneguid.uk/projects/bt/"
-    APP_BUYMEACOFFEE_URL="https://www.buymeacoffee.com/alonecoffee"
-    APP_REG_DESCRIPTION="Redirects open URLs to a browser of your choice."
-)
-
 target_link_libraries(bt
     libcommon
 	libgrey
