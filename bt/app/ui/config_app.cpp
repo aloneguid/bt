@@ -59,7 +59,7 @@ namespace bt::ui {
             .center();
 
         wnd_scripting
-            .size(600, 600)
+            .size(800, 600)
             .border(1)
             .no_scroll();
 

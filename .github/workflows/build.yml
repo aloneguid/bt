@@ -5,7 +5,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: 5422eb983d4ca8bc4851ac9771d6e74554efc5c8
+  VCPKG_HASH: c27eeddba73f608f10605d80bc0144c1166f8fb7
 
 on: [push, workflow_dispatch]
 

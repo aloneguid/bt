@@ -4,6 +4,7 @@
 - feat: Slider controls now look like sliders instead of some weird bars that looked like they were from a 90s website.
 - feat: Picker opacity can be configured in options.
 - feat: Added "-foreground" flag to Firefox discovered instances, which improves bringing Firefox to foreground on some systems.
+- feat: Picker and toast now have native rounded windows corners.
 - chore: Lua code editor is upgraded to latest stable version.
 - chore: Upgrade to latest Grey version.
 - chore: minor cleanup of unused code.
