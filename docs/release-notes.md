@@ -1,3 +1,7 @@
+## 5.7.0
+
+- chore: CI improvements.
+
 ## 5.6.0
 
 - feat: Health dashboard is now part of status bar, this feels more ergonomic and less intrusive. Health messages also reworked and more information is included when health is not good.
