@@ -1,3 +1,9 @@
+## 5.6.2
+
+### Other
+- removed unused registry key read.
+- removed app.log creation.
+
 ## 5.6.1
 
 ### Improvements

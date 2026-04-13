@@ -9,7 +9,6 @@
 #include "stl.hpp"
 #include "fss.h"
 #include "../rule_hit_log.h"
-#include "../app_log.h"
 #include <filesystem>
 #include "../url_opener.h"
 #include "../discovery.h"
@@ -194,16 +193,6 @@ namespace bt::ui {
                     }
                 }
 
-                if(w::menu m_app_log{"log.txt", true, ICON_MD_BOOK}; m_app_log) {
-                    if(w::mi("Open")) {
-                        win32::shell::exec(app_log::i.get_absolute_path(), "");
-                    }
-                    if(w::mi("Copy path")) {
-                        win32::os::set_clipboard_text(app_log::i.get_absolute_path());
-                        w::notify_info("Path copied to clipboard.");
-                    }
-                }
-
                 w::sep();
                 if(w::mi("Exit", true, ICON_MD_LOGOUT)) {
                     is_open = false;
@@ -253,7 +242,6 @@ namespace bt::ui {
 
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Write clicks to hit_log.csv", g_config.log_rule_hits);
-                w::small_checkbox("Log application events to log.txt", g_config.log_app);
 
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
                     w::small_checkbox("Show on link open", g_config.toast_on_open);

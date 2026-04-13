@@ -30,7 +30,6 @@ namespace bt {
         bool discover_firefox_containers{false};
         std::string theme_id;
         bool log_rule_hits{true};
-        bool log_app{false};
         // default browser long sys name
         std::string default_profile_long_id;
         bool toast_on_open{true};
@@ -75,8 +74,6 @@ namespace bt {
         // browser collection
         std::vector<std::shared_ptr<browser>> browsers;
 
-        std::string get_iid();
-
         config();
         void commit();
 
@@ -96,7 +93,6 @@ namespace bt {
     private:
         ::common::config cfg;
 
-        void ensure_instance_id();
         void migrate();
         void load();
 

@@ -15,7 +15,6 @@ namespace fs = std::filesystem;
 namespace bt {
     #define ConfigFileName "config.ini"
     #define settings_root "SOFTWARE\\" APP_LONG_NAME
-    #define IIDKeyName "iid"
     #define BrowserPrefix "browser"
     #define IsHidden "hidden"
     #define Icon "icon"
@@ -31,7 +30,6 @@ namespace bt {
     #define IsAutodiscovered "auto"
     #define IsIncognito "incognito"
     #define LogRuleHitsKey "log_rule_hits"
-    #define LogAppKey "log_app"
     #define PersistPopularityKey "persist_popularity"
     #define ShowHiddenBrowsersKey "browsers_show_hidden"
     #define DiscoverFirefoxContainersKey "firefox_containers"
@@ -62,35 +60,13 @@ namespace bt {
 
     config::config() : cfg{config::get_data_file_path(ConfigFileName)} {
         migrate();
-        ensure_instance_id();
         load();
-    }
-
-    std::string config::get_iid() {
-        return win32::reg::get_value(win32::reg::hive::current_user, settings_root, IIDKeyName);
     }
 
     std::string config::get_data_file_path(const std::string& name) {
         return fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
             ? (fs::path{fss::get_current_dir()} / name).string()
             : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / name).string();
-    }
-
-    void config::ensure_instance_id() {
-        // ensure instance ID is remembered
-        string iid = cfg.get_value(IIDKeyName);
-
-        // if found in .ini, remove it
-        if(!iid.empty()) {
-            cfg.delete_key(IIDKeyName);
-            win32::reg::set_value(win32::reg::hive::current_user, settings_root, iid, IIDKeyName);
-        } else {
-            iid = win32::reg::get_value(win32::reg::hive::current_user, settings_root, IIDKeyName);
-            if(iid.empty()) {
-                iid = win32::os::create_guid();
-                win32::reg::set_value(win32::reg::hive::current_user, settings_root, iid, IIDKeyName);
-            }
-        }
     }
 
     void config::migrate() {
@@ -186,7 +162,6 @@ namespace bt {
 
         theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
-        log_app = cfg.get_bool_value(LogAppKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
         default_profile_long_id = cfg.get_value(DefaultProfileKey);
         toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
@@ -233,7 +208,6 @@ namespace bt {
         cfg.set_value(DiscoverFirefoxContainersKey, discover_firefox_containers);
         cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_value(LogRuleHitsKey, log_rule_hits);
-        cfg.set_value(LogAppKey, log_app);
         cfg.set_value(DefaultProfileKey, default_profile_long_id);
         cfg.set_value(ToastOnOpenKey, toast_on_open);
         cfg.set_value(ToastVisibleSecsKey, toast_visible_secs);
