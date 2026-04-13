@@ -1,8 +1,11 @@
 ## 5.6.2
 
+## Improvements
+- consistent behavior of "show/hide" browser and profile in configuration dialog.
+
 ### Other
-- removed unused registry key read.
-- removed app.log creation.
+- Removed unused registry key read.
+- Removed app.log creation.
 
 ## 5.6.1
 

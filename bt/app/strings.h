@@ -6,8 +6,6 @@ namespace bt::strings {
     const std::string ChromiumBased{"Chromium based"};
     const std::string GeckoBased{"Gecko based"};
 
-    const std::string ShowThisProfile{"Show this profile in the profile list"};
-    const std::string HideThisProfile{"Hide this profile from the profile list"};
     const std::string ProfileMoveUpTooltip{"Move left (affects the picker)"};
     const std::string ProfileMoveDownTooltip{"Move right (affects the picker)"};
     const std::string ProfileTestLink{"test by opening a link as an app"};

@@ -920,17 +920,7 @@ namespace bt::ui {
 
         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
         w::sl();
-        if(b->is_hidden) {
-            if(w::button(ICON_MD_VISIBILITY)) {
-                b->is_hidden = false;
-            }
-            w::tt("Show this browser in the browser list");
-        } else {
-            if(w::button(ICON_MD_VISIBILITY_OFF)) {
-                b->is_hidden = true;
-            }
-            w::tt("Hide this browser from the browser list");
-        }
+        w::icon_checkbox(ICON_MD_VISIBILITY, b->is_hidden, true, "Show in browser list and picker");
 
         bool can_move_up = b->id != (*g_config.browsers.begin())->id;
         bool can_move_down = b->id != (*g_config.browsers.rbegin())->id;
@@ -1063,17 +1053,7 @@ namespace bt::ui {
 
                         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
                         w::sl();
-                        if(bi->is_hidden) {
-                            if(w::button(ICON_MD_VISIBILITY)) {
-                                bi->is_hidden = false;
-                            }
-                            w::tt(strings::ShowThisProfile);
-                        } else {
-                            if(w::button(ICON_MD_VISIBILITY_OFF)) {
-                                bi->is_hidden = true;
-                            }
-                            w::tt(strings::HideThisProfile);
-                        }
+                        w::icon_checkbox(ICON_MD_VISIBILITY, bi->is_hidden, true, "Show in profile list and picker");
 
                         bool can_move_left = idx != 0;
                         bool can_move_right = idx != b->instances.size() - 1;
