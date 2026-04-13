@@ -37,7 +37,7 @@
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
-#define APP_VERSION "5.6.0"
+#define APP_VERSION "5.6.1"
 
 extern bt::config g_config;
 
