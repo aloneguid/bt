@@ -5,6 +5,7 @@
 #include "app/config.h"
 #include "app/url_pipeline.h"
 #include "win32/window.h"
+#include "win32/os.h"
 #include "app/rule_hit_log.h"
 #include "app/app_log.h"
 #include "app/url_opener.h"
@@ -177,6 +178,14 @@ void debug_args_msgbox(int argc, wchar_t* argv[]) {
     }
 }
 
+bool check_min_os_version() {
+    if(!win32::os::is_windows11_or_greater()) {
+        ::MessageBox(nullptr, L"Windows 11 is the minimum supported OS version", L"Unsupported OS", MB_OK | MB_ICONERROR);
+        return false;
+    }
+    return true;
+}
+
 /**
  * @brief Parses incoming arguments and shapes them into universal command format.
  * @param argc 
@@ -201,6 +210,9 @@ string parse_args(int argc, wchar_t* argv[]) {
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
+    if(!check_min_os_version()) {
+        return 1;
+    }
 
     debug_args_msgbox(argc, argv);
 

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project ("btu")
 
 add_compile_definitions(UNICODE) # required for WIN32 API to use correct versions
+#add_compile_definitions(WIN32_LEAN_AND_MEAN)
 
 # statically link MSVC runtime in thrift to being fully self-contained.
 # this increases .exe size but guarantees working on all windows versions

@@ -1,6 +1,10 @@
-## 5.7.0
+## 5.6.1
 
-- chore: CI improvements.
+### Improvements
+- Check BT is running on Windows 11 or higher on start.
+
+### Other
+- CI improvements.
 
 ## 5.6.0
 
