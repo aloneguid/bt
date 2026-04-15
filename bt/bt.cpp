@@ -204,9 +204,10 @@ string parse_args(int argc, wchar_t* argv[]) {
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
-    if(!check_min_os_version()) {
-        return 1;
-    }
+    // Introduced in 5.6.1, removed in 5.6.3
+    //if(!check_min_os_version()) {
+    //    return 1;
+    //}
 
     debug_args_msgbox(argc, argv);
 
