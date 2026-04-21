@@ -124,6 +124,7 @@ void execute(const string& data) {
             vector<shared_ptr<bt::browser>> fresh_browsers = bt::discovery::discover_all_browsers();
             fresh_browsers = bt::browser::merge(fresh_browsers, g_config.browsers);
             g_config.browsers = fresh_browsers;
+            g_config.commit();
             return;
         }
     }
@@ -145,7 +146,6 @@ void execute(const string& data) {
     up.process_path = proc.get_module_filename();
     up.process_name = proc.get_name();
     up.process_description = proc.get_description();
-
 #if _DEBUG
     if(command == "toast") {
         bt::ui::toast_app app{up, g_config.browsers[0]->instances[0]};
