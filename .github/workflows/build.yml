@@ -207,4 +207,12 @@ jobs:
             *.png
           body_path: final_notes.md
 
-
+      - name: 📦 create WinGet release
+        shell: pwsh
+        run: |
+          # Update package using wingetcreate
+          curl.exe -JLO https://aka.ms/wingetcreate/latest
+          .\wingetcreate.exe update aloneguid.bt `
+            --version "${{ env.VERSION }}" `
+            --urls "https://github.com/aloneguid/bt/releases/download/${{ env.VERSION }}/bt.zip" `
+            --submit

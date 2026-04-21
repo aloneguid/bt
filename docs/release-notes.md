@@ -4,8 +4,11 @@
 - Changed PDF icon to look more like an official one.
 - Added ".epub" file association.
 
-### Bugs fixed
-- "Troubleshooting/Re-register custom protocol" was not working.
+### Bug fixed
+"Troubleshooting/Re-register custom protocol" was not working.
+
+## Other
+Despite [the poll](https://github.com/aloneguid/bt/discussions/180) I have decided not to put Copilot button everywhere in BT. It's just stupid.
 
 
 ## 5.6.3
