@@ -158,6 +158,8 @@ jobs:
     name: '🚀 Release'
     needs: [build-win, screenshots-win]
     if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
     environment:
       name: release
 
