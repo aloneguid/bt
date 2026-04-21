@@ -113,29 +113,34 @@ namespace bt::ui {
 
             w::guard gw{wnd_main};
 
-            ImVec2 cur = w::cur_get();
+            if(choices.empty()) {
+                w::label("no browsers", w::emphasis::error);
+            } else {
 
-            with_container(cnt_top,
-                render_action_menu();
-            );
+                ImVec2 cur = w::cur_get();
 
-            ImGui::Spacing();
+                with_container(cnt_top,
+                    render_action_menu();
+                );
 
-            if(pre_menu_height == 0.0f) {
-                ImVec2 cur1 = w::cur_get();
-                //float y = ImGui::GetWindowViewport()->WorkPos.y;
-                //pre_menu_height = cur.y - y;
-                pre_menu_height = cur1.y - cur.y;
+                ImGui::Spacing();
 
-                // add ImGui element spacing
-                pre_menu_height += ImGui::GetStyle().ItemSpacing.y * 2;
+                if(pre_menu_height == 0.0f) {
+                    ImVec2 cur1 = w::cur_get();
+                    //float y = ImGui::GetWindowViewport()->WorkPos.y;
+                    //pre_menu_height = cur.y - y;
+                    pre_menu_height = cur1.y - cur.y;
+
+                    // add ImGui element spacing
+                    pre_menu_height += ImGui::GetStyle().ItemSpacing.y * 2;
+                }
+
+                recalc();
+
+                with_container(cnt_blist,
+                    render_list();
+                );
             }
-
-            recalc();
-
-            with_container(cnt_blist,
-                render_list();
-            );
             ImGui::PopStyleVar();
         }
 

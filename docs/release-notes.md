@@ -1,3 +1,11 @@
+## 5.6.5
+
+## New
+- Windows 10 testing (ongoing).
+
+## Improvements
+- Tools windows use Windows 11 native rounded corners when available.
+
 ## 5.6.4
 
 ### New
@@ -8,7 +16,7 @@
 - "Troubleshooting/Re-register custom protocol" was not working.
 - Lua script editor was buggy - scrollbars were scrolling empty space, cursor was editing both input sample and code. This is fixed now.
 
-## Other
+### Other
 Despite [the poll](https://github.com/aloneguid/bt/discussions/180) I have decided not to put Copilot button everywhere in BT. It's just stupid.
 
 

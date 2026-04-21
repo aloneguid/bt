@@ -170,11 +170,6 @@ jobs:
         with:
           name: bin-static
 
-      - name: ⬇️ Download screenshots
-        uses: actions/download-artifact@v8
-        with:
-          name: screenshots
-
       - name: 🔍 view artifacts to be used
         run: ls -R
         working-directory: .
