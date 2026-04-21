@@ -502,7 +502,6 @@ namespace bt::ui {
                 }
             }
 
-            w::sep(strings::LuaScript);
             script_editor.render();
         }
 

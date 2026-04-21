@@ -204,7 +204,6 @@ jobs:
           files: |
             bt.zip
             bt.pdb.zip
-            *.png
           body_path: final_notes.md
 
       - name: 📦 create WinGet release

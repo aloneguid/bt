@@ -5,7 +5,8 @@
 - Added ".epub" file association.
 
 ### Bug fixed
-"Troubleshooting/Re-register custom protocol" was not working.
+- "Troubleshooting/Re-register custom protocol" was not working.
+- Lua script editor was buggy - scrollbars were scrolling empty space, cursor was editing both input sample and code. This is fixed now.
 
 ## Other
 Despite [the poll](https://github.com/aloneguid/bt/discussions/180) I have decided not to put Copilot button everywhere in BT. It's just stupid.
