@@ -1,3 +1,13 @@
+## 5.6.4
+
+### New
+- Changed PDF icon to look more like an official one.
+- Added ".epub" file association.
+
+### Bugs fixed
+- "Troubleshooting/Re-register custom protocol" was not working.
+
+
 ## 5.6.3
 
 Remove minimum OS check (Windows 11) as users are reporting it's working fine on Windows 10 LTSC. Use it at your own risk as I'm not testing on 10 at the moment. What potentially can break is BT is calling Windows 11 specific API to enable dark mode in header / context menu and rounded corners. Of course this is each to check and not to apply, but I just don't physically have time to test Windows 10 thoroughly.

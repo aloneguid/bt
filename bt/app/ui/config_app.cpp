@@ -211,7 +211,8 @@ namespace bt::ui {
                 }
                 if(w::menu m{"Troubleshooting", true}; m) {
                     if(w::mi("Re-register custom protocol")) {
-                        w::notify_info("todo");
+                        bt::setup::register_browser();
+                        w::notify_info("Custom prototol re-registered");
                     }
                     if(w::mi("Copy custom protocol")) {
                         win32::os::set_clipboard_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));

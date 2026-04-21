@@ -60,6 +60,8 @@ namespace bt
 
         static void register_protocol();
 
+        static void register_file_association(const std::string& proto_name, int icon_index, const std::vector<std::string>& extensions);
+
         static void register_browser();
 
     private:

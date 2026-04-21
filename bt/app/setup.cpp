@@ -3,7 +3,7 @@
 #include "../../common/fss.h"
 #include "../../common/win32/reg.h"
 #include "../globals.h"
-#include <fmt/core.h>
+#include <format>
 #include "discovery.h"
 #include "win32/shell.h"
 
@@ -33,7 +33,7 @@ namespace bt {
                         if(!is_http) {
                             string http, https;
                             discovery::get_default_browser_url_assoc(http, https);
-                            error_message = fmt::format("Current handler is {}.", http);
+                            error_message = format("Current handler is {}.", http);
                         }
                         return is_http;
                     },
@@ -54,7 +54,7 @@ namespace bt {
                         if(!is_https) {
                             string http, https;
                             discovery::get_default_browser_url_assoc(http, https);
-                            error_message = fmt::format("Current handler is {}.", https);
+                            error_message = format("Current handler is {}.", https);
                         }
                         return is_https;
                     },
@@ -84,14 +84,35 @@ namespace bt {
     }
 
     std::string setup::get_browser_registration_reg_path() {
-        return fmt::format("Software\\Clients\\StartMenuInternet\\{}", APP_LONG_NAME);
+        return format("Software\\Clients\\StartMenuInternet\\{}", APP_LONG_NAME);
+    }
+
+    void setup::register_file_association(const std::string& proto_tag, int icon_index, const std::vector<std::string>& extensions) {
+
+        string proto_name = format("BrowserTamer{}", proto_tag);
+        string app_path = fss::get_current_exec_path();
+        string app_root = get_browser_registration_reg_path();
+        string cap_root = format("{}\\Capabilities", app_root);
+
+        // add file association
+        for(const string& ext : extensions) {
+            set_value(hive::current_user, format("{}\\FileAssociations", cap_root), proto_name, ext);
+        }
+
+        //register handler
+        string handler_path = format("Software\\Classes\\{}", proto_name);
+        set_value(hive::current_user, handler_path, format("{} Document", APP_LONG_NAME));
+        set_value(hive::current_user, handler_path + "\\DefaultIcon", format("{},{}", app_path, icon_index));
+        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
+        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
+        set_value(hive::current_user, handler_path + "\\shell\\open\\command", format("\"{}\" %1", app_path));
     }
 
     void setup::register_browser() {
         string app_path = fss::get_current_exec_path();
 
         string app_root = get_browser_registration_reg_path();
-        string cap_root = fmt::format("{}\\Capabilities", app_root);
+        string cap_root = format("{}\\Capabilities", app_root);
 
         set_value(hive::current_user, app_root, APP_LONG_NAME);
 
@@ -107,15 +128,10 @@ namespace bt {
         }
 
         //supported file extensions
-        vector<string> html_exts{".svg", ".htm", ".html", ".shtml", ".webp", ".xht", ".xhtml", ".mht", ".mhtml"};
-        vector<string> pdf_exts{".pdf"};
         delete_key(hive::current_user, cap_root + "\\FileAssociations");
-        for(const string& ext : html_exts) {
-            set_value(hive::current_user, cap_root + "\\FileAssociations", ProtoName, ext);
-        }
-        for(const string& ext : pdf_exts) {
-            set_value(hive::current_user, cap_root + "\\FileAssociations", PdfProtoName, ext);
-        }
+        register_file_association("HTM", 0, {".svg", ".htm", ".html", ".shtml", ".webp", ".xht", ".xhtml", ".mht", ".mhtml"});
+        register_file_association("PDF", 1, {".pdf"});
+        register_file_association("EPUB", 2, {".epub"});
 
         //icon and command
         set_value(hive::current_user,
@@ -123,32 +139,14 @@ namespace bt {
            app_path + ",0");
         set_value(hive::current_user,
            app_root + "\\shell\\open\\command",
-           fmt::format("\"{}\"", app_path));
+           format("\"{}\"", app_path));
 
         //register caps
         set_value(hive::current_user, "Software\\RegisteredApplications", cap_root, APP_LONG_NAME);
-
-        //register HTML handler
-        string handler_path = string("Software\\Classes\\") + ProtoName;
-        set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " HTML Document");
-        set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",0");
-        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
-        set_value(hive::current_user, handler_path + "\\shell\\open\\command",
-           string("\"") + app_path + "\" %1");
-
-        //register PDF handler
-        handler_path = string("Software\\Classes\\") + PdfProtoName;
-        set_value(hive::current_user, handler_path, string(APP_LONG_NAME) + " PDF Document");
-        set_value(hive::current_user, handler_path + "\\DefaultIcon", app_path + ",1");
-        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
-        set_value(hive::current_user, handler_path + "\\shell\\open\\command",
-           string("\"") + app_path + "\" %1");
     }
 
     std::string setup::get_custom_proto_reg_path() {
-        return fmt::format("Software\\Classes\\{}", CustomProtoName);
+        return format("Software\\Classes\\{}", CustomProtoName);
     }
 
     void setup::register_protocol() {
@@ -156,11 +154,11 @@ namespace bt {
 
         string root = get_custom_proto_reg_path();
 
-        set_value(hive::current_user, root, fmt::format("URL:{}", CustomProtoName));
+        set_value(hive::current_user, root, format("URL:{}", CustomProtoName));
         set_value(hive::current_user, root, "", "URL Protocol");
 
-        string command_root = fmt::format("{}\\shell\\open\\command", root);
-        string open_command = fmt::format("\"{}\" \"%1\"", app_path);
+        string command_root = format("{}\\shell\\open\\command", root);
+        string open_command = format("\"{}\" \"%1\"", app_path);
         set_value(hive::current_user, command_root, open_command);
     }
 
@@ -180,13 +178,13 @@ namespace bt {
         string app_root = root + "\\" + name;
         string soc = app_root + "\\shell\\open\\command";
 
-        string app_path = fmt::format("\"{}\"", fss::get_current_exec_path());
+        string app_path = format("\"{}\"", fss::get_current_exec_path());
         string reg_app_path = get_value(hive::current_user, soc);
         bool installed = app_path == reg_app_path;
         if(installed) {
             error_message.clear();
         } else {
-            error_message = fmt::format("Expected: {}\nRegistered: {}.", app_path, reg_app_path);
+            error_message = format("Expected: {}\nRegistered: {}.", app_path, reg_app_path);
         }
         return installed;
     }
