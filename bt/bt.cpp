@@ -9,7 +9,7 @@
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
 #include "cmdline.h"
-//#include "app/systray.h"
+#include "app/discovery.h"
 
 //ui
 #include "app/ui/config_app.h"
@@ -119,6 +119,11 @@ void execute(const string& data) {
         } else if(command == "browser") {
             cmdline c;
             c.exec(command, command_data);
+            return;
+        } else if(command == "discover") {
+            vector<shared_ptr<bt::browser>> fresh_browsers = bt::discovery::discover_all_browsers();
+            fresh_browsers = bt::browser::merge(fresh_browsers, g_config.browsers);
+            g_config.browsers = fresh_browsers;
             return;
         }
     }
