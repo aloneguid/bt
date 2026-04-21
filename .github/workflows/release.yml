@@ -25,13 +25,18 @@ jobs:
         run: |
           echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
 
-      - name: 🔢 prep release notes
+      - name: 🔢 prep release notes / artifacts
         run: |
           envsubst < instructions.md > g.tmp && mv g.tmp instructions.md
           grep -m 2 -B 1000 '^## ' release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat instructions.md >> final_notes.md
           cat final_notes.md
-          
+          zip -9 bt.zip bt.exe
+          zip -9 bt.pdb.zip bt.pdb
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .         
 
       # https://github.com/softprops/action-gh-release
       - name: 📦 create release
@@ -41,5 +46,5 @@ jobs:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           files: |
-            bt-*.*
+            bt.*
           body_path: final_notes.md
