@@ -5,6 +5,7 @@ env:
   ARCH: x64
   VCPKG_CONFIG: Release
   VCPKG_HASH: c27eeddba73f608f10605d80bc0144c1166f8fb7
+  RELEASE: ''
 
 on: [push, workflow_dispatch]
 
@@ -159,10 +160,15 @@ jobs:
 
     steps:
       
-      - name: ⬇️ Download artifacts from latest workflow
+      - name: ⬇️ Download binaries
         uses: actions/download-artifact@v8
         with:
           name: bin-static
+
+      - name: ⬇️ Download screenshots
+        uses: actions/download-artifact@v8
+        with:
+          name: screenshots
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -183,6 +189,20 @@ jobs:
 
       - name: 🔍 view artifacts to be used
         run: ls -R
-        working-directory: .         
+        working-directory: .
+
+
+      # https://github.com/softprops/action-gh-release
+      - name: 📦 create release
+        uses: softprops/action-gh-release@v3
+        if: github.ref == 'refs/heads/master' && env.RELEASE != ''
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          files: |
+            bt.zip
+            bt.pdb.zip
+            *.png
+          body_path: final_notes.md
 
 
