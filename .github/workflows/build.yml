@@ -6,7 +6,18 @@ env:
   VCPKG_CONFIG: Release
   VCPKG_HASH: c27eeddba73f608f10605d80bc0144c1166f8fb7
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ master ]
+    tags:
+      - 'v*'              # release only when pushing a version tag
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Create GitHub release'
+        required: false
+        default: false
+        type: boolean
 
 # Gives the workflow permissions to clone the repo and create a page deployment
 permissions:
@@ -154,10 +165,12 @@ jobs:
 
 
   github-release:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
     needs: [build-win, screenshots-win]
-    if: github.ref == 'refs/heads/master'
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
     permissions:
       contents: write
     environment:
