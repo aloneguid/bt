@@ -153,9 +153,9 @@ jobs:
         if-no-files-found: error
 
 
-  release:
+  github-release:
     runs-on: ubuntu-latest 
-    name: '🚀 Release'
+    name: '🚀 GitHub Release'
     needs: [build-win, screenshots-win]
     if: github.ref == 'refs/heads/master'
     permissions:
@@ -203,12 +203,18 @@ jobs:
             bt.pdb.zip
           body_path: final_notes.md
 
-      - name: 📦 create WinGet release
-        shell: pwsh
-        run: |
-          # Update package using wingetcreate
-          curl.exe -JLO https://aka.ms/wingetcreate/latest
-          .\wingetcreate.exe update aloneguid.bt `
-            --version "${{ env.VERSION }}" `
-            --urls "https://github.com/aloneguid/bt/releases/download/${{ env.VERSION }}/bt.zip" `
-            --submit
+  winget-release:
+    runs-on: windows-latest
+    needs: github-release
+    environment:
+      name: release
+    steps:
+    - name: 📦 create WinGet release
+      shell: pwsh
+      run: |
+        # Update package using wingetcreate
+        curl.exe -JLO https://aka.ms/wingetcreate/latest
+        .\wingetcreate.exe update aloneguid.bt `
+          --version "${{ env.VERSION }}" `
+          --urls "https://github.com/aloneguid/bt/releases/download/${{ env.VERSION }}/bt.zip" `
+          --submit
