@@ -106,15 +106,17 @@ jobs:
           $bitmap.Dispose()
         }
 
-        $pick = Start-Process -FilePath "$PWD\atf\bt.exe" -ArgumentList "discover" -PassThru
+        $processPath = "build/bt/Release/bt.exe"
+
+        $pick = Start-Process -FilePath $processPath -ArgumentList "discover" -PassThru
         Start-Sleep -Seconds 3
 
-        $bt = Start-Process -FilePath "$PWD\atf\bt.exe" -PassThru
+        $bt = Start-Process -FilePath $processPath -PassThru
         Start-Sleep -Seconds 3
         Save-Screenshot "$PWD\screenshots\config.png"
         if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
 
-        $pick = Start-Process -FilePath "$PWD\atf\bt.exe" -ArgumentList "pick", "https://bbc.co.uk" -PassThru
+        $pick = Start-Process -FilePath $processPath -ArgumentList "pick", "https://bbc.co.uk" -PassThru
         Start-Sleep -Seconds 3
         Save-Screenshot "$PWD\screenshots\picker.png"
 
