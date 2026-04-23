@@ -141,7 +141,7 @@ jobs:
       with:
         name: bin${{ matrix.config.suffix }}
         path: atf/*
-        if-no-files-foujnd: error
+        if-no-files-found: error
         compression-level: 9
 
   github-release:
