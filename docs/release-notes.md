@@ -1,8 +1,4 @@
-## 5.6.7
-
-ignore
-
-## 5.6.5
+## 5.6.8
 
 ### New
 - Start Menu shortcut will be created when opening BT configuration, if it doesn't exist already (#208).

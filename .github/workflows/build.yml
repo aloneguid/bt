@@ -88,38 +88,7 @@ jobs:
     - name: Create artifacts directory
       run: mkdir atf        
 
-    # put the following inside "atf" subdir:
-    # 1. msi installer, renamed after version number (removed in 5.5.1)
-    # 2. zipped .exe
-    # 3. version.txt containing version number
-    - name: prep artifacts
-      run: |
-        cp build/bt/Release/bt.exe atf/
-        cp build/bt/Release/bt.pdb atf/
-        "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
-        cp docs/release-notes.md atf/
-        cp docs/instructions.md atf/
-
-    - uses: actions/upload-artifact@v7
-      name: collect binaries
-      with:
-        name: bin${{ matrix.config.suffix }}
-        path: atf/*
-        if-no-files-foujnd: error
-        compression-level: 9
-
-  screenshots-win:
-    runs-on: windows-latest
-    needs: build-win
-    name: '🖥️ Windows Screenshots'
-
-    steps:
-    - uses: actions/download-artifact@v5
-      with:
-        name: bin-static
-        path: atf
-
-    - name: Capture bt screenshots
+    - name: '🖥️ Screenshots'
       shell: pwsh
       run: |
         Add-Type -AssemblyName System.Drawing
@@ -152,17 +121,31 @@ jobs:
         if ($pick -and -not $pick.HasExited) { Stop-Process -Id $pick.Id -Force }
         if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
 
-    - uses: actions/upload-artifact@v7
-      with:
-        name: screenshots
-        path: screenshots/*.png
-        if-no-files-found: error
+    # put the following inside "atf" subdir:
+    # 1. msi installer, renamed after version number (removed in 5.5.1)
+    # 2. zipped .exe
+    # 3. version.txt containing version number
+    - name: prep artifacts
+      run: |
+        cp build/bt/Release/bt.exe atf/
+        cp build/bt/Release/bt.pdb atf/
+        "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
+        cp docs/release-notes.md atf/
+        cp docs/instructions.md atf/
+        cp screenshots/*.png atf/
 
+    - uses: actions/upload-artifact@v7
+      name: collect binaries
+      with:
+        name: bin${{ matrix.config.suffix }}
+        path: atf/*
+        if-no-files-foujnd: error
+        compression-level: 9
 
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [build-win, screenshots-win]
+    needs: [build-win]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
