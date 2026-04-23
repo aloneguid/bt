@@ -19,11 +19,6 @@ on:
         default: false
         type: boolean
 
-# Gives the workflow permissions to clone the repo and create a page deployment
-permissions:
-    id-token: write
-    pages: write
-
 jobs:
   build-win:
     strategy:
@@ -210,6 +205,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_RELEASE_TOKEN }}
           name: ${{ env.VERSION }}
           files: |
             bt.zip
