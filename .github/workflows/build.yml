@@ -205,7 +205,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION }}
-          token: ${{ secrets.GITHUB_RELEASE_TOKEN }}
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
           name: ${{ env.VERSION }}
           files: |
             bt.zip
