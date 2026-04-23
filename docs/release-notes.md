@@ -1,7 +1,7 @@
 ## 5.6.5
 
 ## New
-- Windows 10 testing (ongoing).
+- Start Menu shortcut will be created when opening BT configuration, if it doesn't exist already (#208).
 
 ## Improvements
 - Tools windows use Windows 11 native rounded corners when available.

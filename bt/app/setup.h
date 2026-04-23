@@ -3,8 +3,7 @@
 #include <vector>
 #include <functional>
 
-namespace bt
-{
+namespace bt {
     class system_check {
     public:
         system_check(const std::string& id, const std::string& name,

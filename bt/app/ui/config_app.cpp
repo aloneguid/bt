@@ -86,6 +86,9 @@ namespace bt::ui {
                 browser::get_default(g_config.browsers, g_config.default_profile_long_id)->long_id();
         }
 
+        // re-create start menu shortcut in case it's missing
+        win32::shell::create_start_menu_shortcut(APP_LONG_NAME);
+
         check_health();
     }
 
