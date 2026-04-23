@@ -206,15 +206,26 @@ jobs:
   winget-release:
     runs-on: windows-latest
     needs: github-release
+    name: '🚀 WinGet Release'
     environment:
       name: release
     steps:
-    - name: 📦 create WinGet release
-      shell: pwsh
-      run: |
-        # Update package using wingetcreate
-        curl.exe -JLO https://aka.ms/wingetcreate/latest
-        .\wingetcreate.exe update aloneguid.bt `
-          --version "${{ env.VERSION }}" `
-          --urls "https://github.com/aloneguid/bt/releases/download/${{ env.VERSION }}/bt.zip" `
-          --submit
+
+      - name: ⬇️ Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-static
+
+      - name: 🔢 set version environment variable
+        run: |
+          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+
+      - name: 📦 create WinGet release
+        shell: pwsh
+        run: |
+          # Update package using wingetcreate
+          curl.exe -JLO https://aka.ms/wingetcreate/latest
+          .\wingetcreate.exe update aloneguid.bt `
+            --version "${{ env.VERSION }}" `
+            --urls "https://github.com/aloneguid/bt/releases/download/${{ env.VERSION }}/bt.zip" `
+            --submit
