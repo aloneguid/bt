@@ -6,6 +6,8 @@
 ### Improvements
 - Tools windows use Windows 11 native rounded corners when available.
 
+Note: Versions 5.6.5--5.6.7 do not exists (the numbers were used in WinGet automated release pipeline testing).
+
 ## 5.6.4
 
 ### New
