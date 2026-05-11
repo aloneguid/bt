@@ -1,3 +1,9 @@
+## 5.6.9
+
+### Bugs fixed
+- Picker would force exit if icon images could not be loaded.
+- If you use multiple monitors, picker will open on a monitor where mouse cursor is (#212).
+
 ## 5.6.8
 
 ### New
