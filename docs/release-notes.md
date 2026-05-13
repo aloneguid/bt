@@ -1,3 +1,10 @@
+## 5.6.10
+
+### Bugs fixed
+- UI: Rounded corners woudl disappear when non-main window is re-opened.
+- When settings are open when picker is open and "close on focus loss" is **on**, settings and picker will forec-close immediately, because picker has lost the focus. Therefore you weren't able to access picker settings at all (#210).
+
+
 ## 5.6.9
 
 ### Bugs fixed

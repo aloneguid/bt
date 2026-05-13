@@ -325,6 +325,8 @@ namespace bt::ui {
             "profile only"
         }, (unsigned int&)g_config.icon_overlay);
 
+        app->win32_close_on_focus_lost = false; // never close app when settings are open
+
         w::slider(g_config.picker_icon_size, 5, 256, "icon size");
         w::slider(g_config.picker_item_padding, 0, 100, "padding");
         w::slider(g_config.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
