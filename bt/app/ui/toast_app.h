@@ -3,6 +3,7 @@
 #include "grey.h"
 #include "../browser.h"
 #include "../click_payload.h"
+#include "url.h"
 
 namespace bt::ui {
 
@@ -30,6 +31,7 @@ namespace bt::ui {
 
         anim_stage stage{anim_stage::init};
         const click_payload& cp;
+        url cp_url_parsed;
         std::string line1;
         std::shared_ptr<bt::browser_instance> bi;
         ImVec2 wnd_size{0, 0};

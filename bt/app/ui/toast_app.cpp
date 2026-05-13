@@ -8,7 +8,7 @@ namespace w = grey::widgets;
 
 namespace bt::ui {
     toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_instance> bi) :
-        cp{cpp}, bi{bi},
+        cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_config.theme_id;
@@ -50,13 +50,17 @@ namespace bt::ui {
                 mon_work_size = monitor.WorkSize;
             }
 
-            ImVec2 ts = ImGui::CalcTextSize(cp.url.c_str());
+            string longest_text = cp.url;
+            if(cp.process_description.size() > longest_text.size()) longest_text = cp.process_description;
+            if(cp.process_name.size() > longest_text.size()) longest_text = cp.process_name;
+
+            ImVec2 ts = ImGui::CalcTextSize(longest_text.c_str());
             ImVec2 wpad = ImGui::GetStyle().WindowPadding;
             icon_size = ts.y;
             float wnd_width = min(wpad.x * 2 + ts.x + icon_size * app->scale, mon_work_size.x - 20.0f);
             wnd_size = ImVec2{
                 wnd_width,
-                wpad.y * 2 + ts.y * 2};
+                wpad.y * 3 + ts.y * 2};
             wnd_size_anim = ImVec2{0, wnd_size.y};  // only animate X
 
             mon_mid = ImVec2{
@@ -110,23 +114,30 @@ namespace bt::ui {
         } else {
             w::image(*app, "app_icon", icon_size, icon_size);
         }
+
         w::sl();
+
         if(!cp.process_description.empty()) {
-            w::label(cp.process_description);
+            w::label(cp.process_description, w::emphasis::primary);
             if(!cp.process_name.empty()) {
-                w::sl();
-                w::label("(" + cp.process_name + ")");
+                w::tt(cp.process_name);
             }
         } else if(!cp.process_name.empty()) {
-            w::label(cp.process_name);
+            w::label(cp.process_name, w::emphasis::primary);
         } else {
             w::label("unknown", w::emphasis::error);
         }
 
         // line 2
         btw_icon(*app, bi, 0, icon_size, true);
-        w::sl();
-        w::label(cp.url);
+
+        w::sl(); w::label("");
+        ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);
+        w::sl(); w::label(cp_url_parsed.protocol, w::emphasis::none, 0, false);
+        w::sl(); w::label("://", w::emphasis::none, 0, false);
+        w::sl(); w::label(cp_url_parsed.host);
+        w::tt(cp.url);
+        ImGui::PopStyleVar();
     }
 
     void toast_app::run() {
@@ -138,8 +149,6 @@ namespace bt::ui {
                 w::guard gw{wnd_main};
 
                 render_content();
-
-                //ImGui::ShowDemoWindow();
 
                 // check if mouse cursor is over the window to pause the timer
                 if(w::is_hovered()) {

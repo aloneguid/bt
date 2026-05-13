@@ -148,6 +148,7 @@ void execute(const string& data) {
     up.process_description = proc.get_description();
 #if _DEBUG
     if(command == "toast") {
+        up.url = command_data;
         bt::ui::toast_app app{up, g_config.browsers[0]->instances[0]};
         app.run();
         return;
