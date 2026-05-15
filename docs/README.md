@@ -8,7 +8,7 @@
 
 ## Raising an Issue
 
-Feel free to [raise an issue here](https://github.com/aloneguid/bt/issues/new) or [start a discussion](https://github.com/aloneguid/bt/discussions/new/choose).
+Feel free to [raise an issue here](https://github.com/aloneguid/bt/issues/new).
 
 ## Contributing
 
