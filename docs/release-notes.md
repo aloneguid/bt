@@ -1,3 +1,7 @@
+## 5.6.11
+
+bug fixed: Toast width calculation was wrong, it was using URL text which is not shown by default anymore.
+
 ## 5.6.10
 
 ### Improvements

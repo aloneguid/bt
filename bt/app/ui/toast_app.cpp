@@ -50,7 +50,7 @@ namespace bt::ui {
                 mon_work_size = monitor.WorkSize;
             }
 
-            string longest_text = cp.url;
+            string longest_text = cp_url_parsed.host + "https://";
             if(cp.process_description.size() > longest_text.size()) longest_text = cp.process_description;
             if(cp.process_name.size() > longest_text.size()) longest_text = cp.process_name;
 
