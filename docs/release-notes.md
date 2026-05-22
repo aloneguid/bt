@@ -1,3 +1,7 @@
+## 5.6.12
+
+improvement: process name and description can be determined more reliably even with less permissions, but also works better on non-US english systems.
+
 ## 5.6.11
 
 bug fixed: Toast width calculation was wrong, it was using URL text which is not shown by default anymore.
