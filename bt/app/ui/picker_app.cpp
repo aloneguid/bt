@@ -21,7 +21,7 @@ namespace bt::ui {
         wnd_main{title, &is_open},
         wnd_settings{"Settings", &is_settings_open} {
 
-        app->initial_theme_id = g_config.theme_id;
+        app->initial_theme_id = g_settings.theme;
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;

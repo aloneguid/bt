@@ -32,7 +32,7 @@ namespace bt::ui {
         wnd_pv{strings::PipelineDebugger, &pv_show} {
 
         app = grey::app::make(title, 900, 500);
-        app->initial_theme_id = g_config.theme_id;
+        app->initial_theme_id = g_settings.theme;
         app->win32_can_resize = true;
         app->win32_center_on_screen = true;
         app->load_fixed_font = true;
@@ -158,6 +158,8 @@ namespace bt::ui {
 
         w::notify_render_frame();
 
+        //g_appconfig.tick();
+
         return is_open;
     }
 
@@ -239,8 +241,8 @@ namespace bt::ui {
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
-                w::small_checkbox("Discover classic Firefox profiles", g_config.discover_classic_firefox_profiles);
-                w::small_checkbox("Discover Firefox containers", g_config.discover_firefox_containers);
+                w::small_checkbox("Discover classic Firefox profiles", g_settings.firefox_classic_profiles);
+                w::small_checkbox("Discover Firefox containers", g_settings.firefox_containers);
 
             }
 
@@ -255,7 +257,7 @@ namespace bt::ui {
 
                 w::mi_themes([this](const string& theme_id) {
                     app->set_theme(theme_id);
-                    g_config.theme_id = theme_id;
+                    g_settings.theme = theme_id;
                 });
             }
 
@@ -793,12 +795,12 @@ namespace bt::ui {
             }
             w::tt("Rediscover system browsers");
             w::sl();
-            w::icon_checkbox(ICON_MD_VISIBILITY, g_config.show_hidden_browsers);
+            w::icon_checkbox(ICON_MD_VISIBILITY, g_settings.browsers_show_hidden);
             w::tt("Show hidden browsers");
 
             for(int i = 0; i < g_config.browsers.size(); i++) {
                 auto br = g_config.browsers[i];
-                if(!g_config.show_hidden_browsers && br->is_hidden) {
+                if(!g_settings.browsers_show_hidden && br->is_hidden) {
                     continue;
                 }
 
@@ -1023,7 +1025,7 @@ namespace bt::ui {
             int idx{0};
             for(shared_ptr<browser_instance> bi : b->instances) {
 
-                if(!g_config.show_hidden_browsers && bi->is_hidden) {
+                if(!g_settings.browsers_show_hidden && bi->is_hidden) {
                     idx++;
                     continue;
                 }
@@ -1097,7 +1099,7 @@ namespace bt::ui {
 
                         if(!b->open_cmd.empty()) {
                             if(b->engine == bt::browser_engine::gecko) {
-                                if(g_config.discover_firefox_containers) {
+                                if(g_settings.firefox_containers) {
                                     w::sl();
                                     w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                 }

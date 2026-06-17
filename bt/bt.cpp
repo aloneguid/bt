@@ -18,6 +18,7 @@
 
 // globals.h
 bt::config g_config;
+grey::common::config g_settings{APP_SHORT_NAME, "settings.ini"};
 bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_config};
 

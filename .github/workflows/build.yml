@@ -4,7 +4,7 @@ env:
   BUILD_TYPE: Release
   ARCH: x64
   VCPKG_CONFIG: Release
-  VCPKG_HASH: c27eeddba73f608f10605d80bc0144c1166f8fb7
+  VCPKG_HASH: 5d35de2ee8b13d0bcec328153605638a74fbbf84
 
 on:
   push:

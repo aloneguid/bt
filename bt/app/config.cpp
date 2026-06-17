@@ -32,8 +32,6 @@ namespace bt {
     #define LogRuleHitsKey "log_rule_hits"
     #define PersistPopularityKey "persist_popularity"
     #define ShowHiddenBrowsersKey "browsers_show_hidden"
-    #define DiscoverFirefoxContainersKey "firefox_containers"
-    #define DiscoverClassicFirefoxProfilesKey "firefox_classic_profiles"
     #define UnshortEnabledKey "unshort_enabled"
     #define PickerSectionName "picker"
     #define PickerOnKeyCS "on_key_cs"
@@ -156,11 +154,6 @@ namespace bt {
     void config::load() {
         string v;
 
-        show_hidden_browsers = cfg.get_bool_value(ShowHiddenBrowsersKey, true);
-        discover_classic_firefox_profiles = cfg.get_bool_value(DiscoverClassicFirefoxProfilesKey, false);
-        discover_firefox_containers = cfg.get_bool_value(DiscoverFirefoxContainersKey, false);
-
-        theme_id = cfg.get_value("theme");
         log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
         default_profile_long_id = cfg.get_value(DefaultProfileKey);
@@ -203,10 +196,6 @@ namespace bt {
     }
 
     void config::commit() {
-        cfg.set_value(ShowHiddenBrowsersKey, show_hidden_browsers);
-        cfg.set_value(DiscoverClassicFirefoxProfilesKey, discover_classic_firefox_profiles);
-        cfg.set_value(DiscoverFirefoxContainersKey, discover_firefox_containers);
-        cfg.set_value("theme", theme_id == "follow_os" ? "" : theme_id);
         cfg.set_value(LogRuleHitsKey, log_rule_hits);
         cfg.set_value(DefaultProfileKey, default_profile_long_id);
         cfg.set_value(ToastOnOpenKey, toast_on_open);

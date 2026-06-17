@@ -24,11 +24,6 @@ namespace bt {
 
     class config {
     public:
-        // whether to show hidden browsers in the configuration list
-        bool show_hidden_browsers{true};
-        bool discover_classic_firefox_profiles{false};
-        bool discover_firefox_containers{false};
-        std::string theme_id;
         bool log_rule_hits{true};
         // default browser long sys name
         std::string default_profile_long_id;

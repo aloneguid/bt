@@ -43,6 +43,7 @@ target_link_libraries(bt
     ${LUA_LIBRARIES}
 )
 target_include_directories(${APP_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "../common"
     "../grey/grey"
     ${P_RANAV_CSV2_INCLUDE_DIRS}

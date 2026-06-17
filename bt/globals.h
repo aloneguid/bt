@@ -1,6 +1,7 @@
 #pragma once
 #include "app/url_pipeline.h"
 #include "app/config.h"
+#include "common/config.hpp"
 #include "app/script_site.h"
 
 #define ProtoName "BrowserTamerHTM"
@@ -37,9 +38,10 @@
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
-#define APP_VERSION "5.6.12"
+#define APP_VERSION "5.7"
 
 extern bt::config g_config;
+extern grey::common::config g_settings;
 
 extern bt::url_pipeline g_pipeline;
 

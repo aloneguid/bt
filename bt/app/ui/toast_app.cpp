@@ -11,7 +11,7 @@ namespace bt::ui {
         cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
-        app->initial_theme_id = g_config.theme_id;
+        app->initial_theme_id = g_settings.theme;
         app->win32_can_resize = false;
         app->win32_always_on_top = true;
         app->win32_title_bar = false;

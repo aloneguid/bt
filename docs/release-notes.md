@@ -1,3 +1,8 @@
+## 5.7
+
+todo:
+- config
+
 ## 5.6.12
 
 improvement: process name and description can be determined more reliably even with less permissions, but also works better on non-US english systems.

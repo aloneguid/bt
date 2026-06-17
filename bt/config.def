@@ -1,0 +1,4 @@
+opt(bool,         browsers_show_hidden,     true)
+opt(string,       theme,                    "")
+opt(bool,         firefox_classic_profiles, false)
+opt(bool,         firefox_containers,       false)
