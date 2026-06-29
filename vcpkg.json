@@ -16,14 +16,14 @@
             "name": "imgui",
             "features": [
                 "opengl3-binding",
-                "sdl2-binding",
+                "glfw-binding",
                 "docking-experimental"
             ],
-            "platform": "linux"
+            "platform": "linux | osx"
         },
         {
-            "name": "opengl",
-            "platform": "linux"
+            "name": "glfw3",
+            "platform": "linux | osx"
         },
         "implot",
         "fmt",
