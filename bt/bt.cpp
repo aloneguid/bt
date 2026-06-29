@@ -4,7 +4,7 @@
 #include "win32/process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
-#include "win32/window.h"
+#include "common/win32/window.h"
 #include "win32/os.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
@@ -140,7 +140,7 @@ void execute(const string& data) {
 
     up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 
-    win32::window win{up.source_window_handle};
+    grey::common::win32::window win{up.source_window_handle};
     up.window_title = win.get_text();
 
     win32::process proc{win.get_pid()};
@@ -171,7 +171,7 @@ void debug_args_msgbox(int argc, wchar_t* argv[]) {
         for(int i = 0; i < argc; i++) {
             msg << i + 1 << ": [" << argv[i] << "]" << endl;
         }
-        auto fg = win32::window::get_foreground();
+        auto fg = grey::common::win32::window::get_foreground();
         win32::process p{fg.get_pid()};
         msg << "by: [" << str::to_wstr(p.get_name()) << "]";
 
@@ -205,7 +205,7 @@ string parse_args(int argc, wchar_t* argv[]) {
     arg = fmt::format("{}{}{:x}",
       arg,
       ArgSplitter,
-      (DWORD)(win32::window::get_foreground().get_handle()));
+      (DWORD)(grey::common::win32::window::get_foreground().get_handle()));
 
     return arg;
 }
