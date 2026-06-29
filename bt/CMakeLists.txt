@@ -8,7 +8,6 @@ set(APP_URL "https://www.aloneguid.uk/projects/bt/")
 set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
 set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
-find_package(fmt CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 find_package(tinyxml2 CONFIG REQUIRED)
@@ -36,7 +35,6 @@ add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 target_link_libraries(bt
     libcommon
 	libgrey
-	fmt::fmt-header-only
 	nlohmann_json::nlohmann_json
     tinyxml2::tinyxml2
     unofficial::sqlite3::sqlite3

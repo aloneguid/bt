@@ -26,7 +26,6 @@
             "platform": "linux | osx"
         },
         "implot",
-        "fmt",
         "nlohmann-json",
         "simpleini",
         "p-ranav-csv2",

@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <string>
-#include <fmt/core.h>
+#include <format>
 #include "../globals.h"
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
@@ -76,7 +76,7 @@ namespace bt {
         app_user_model_id = subkeys[0];
 
         // it's sufficient to check for the availability of the "https" key to make the decision
-        string https_key_path = fmt::format("{}\\{}\\{}\\windows.protocol\\https", apps_root, package_name, app_user_model_id);
+        string https_key_path = format("{}\\{}\\{}\\windows.protocol\\https", apps_root, package_name, app_user_model_id);
         return win32::reg::path_exists(hive::classes_root, https_key_path);
     }
 
@@ -86,7 +86,7 @@ namespace bt {
         if(usubs.empty()) return "";
 
         string appx_id = win32::reg::get_value(hive::current_user,
-            fmt::format("{}\\{}\\Capabilities\\URLAssociations", path, usubs[0]),
+            format("{}\\{}\\Capabilities\\URLAssociations", path, usubs[0]),
             "https");
 
         return appx_id;
@@ -160,7 +160,7 @@ namespace bt {
             if(!appx_id.empty()) {
                 // go to HKCR/id to get shell/open/command
                 string open_command = win32::reg::get_value(hive::classes_root,
-                    fmt::format("{}\\shell\\open\\command", appx_id));
+                    format("{}\\shell\\open\\command", appx_id));
 
                 // this command can be used to set full path to executable (de-obfuscated in "browser" constructor)
                 auto b = make_shared<browser>(app_user_model_id, display_name, open_command);
@@ -172,7 +172,7 @@ namespace bt {
                     // get app family id, which is model id without the "!" and everything after it
                     string app_family_id = app_user_model_id.substr(0, app_user_model_id.find('!'));
 
-                    b->open_cmd = fmt::format("{}{}", browser::UwpCmdPrefix, app_family_id);
+                    b->open_cmd = format("{}{}", browser::UwpCmdPrefix, app_family_id);
                 }
 
                 browsers.push_back(b);
@@ -294,7 +294,7 @@ namespace bt {
                     }
 
                     // all the data is ready
-                    string arg = fmt::format("\"{}\" \"--profile-directory={}\"{}",
+                    string arg = format("\"{}\" \"--profile-directory={}\"{}",
                         browser_instance::URL_ARG_NAME, sys_name,
                         ChromiumExtraArgs);
 
@@ -319,7 +319,7 @@ namespace bt {
                 // Edge is not stupid, it's just different
                 auto inprivate = make_shared<browser_instance>(
                     b, "InPrivate", "InPrivate",
-                    fmt::format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
+                    format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
                     "");
                 inprivate->is_incognito = true;
                 inprivate->sort_order = b->instances.size();
@@ -327,7 +327,7 @@ namespace bt {
             } else {
                 auto inprivate = make_shared<browser_instance>(
                 b, "Incognito", "Incognito",
-                fmt::format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
+                format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
                 "");
                 inprivate->is_incognito = true;
                 inprivate->sort_order = b->instances.size();
@@ -339,7 +339,7 @@ namespace bt {
         if(b->id == "brave") {
             auto tor = make_shared<browser_instance>(
                 b, "tor", "Tor",
-                fmt::format("\"{}\" --tor", browser_instance::URL_ARG_NAME),
+                format("\"{}\" --tor", browser_instance::URL_ARG_NAME),
                 ""
             );
             tor->is_incognito = true;
@@ -367,7 +367,7 @@ namespace bt {
                 auto it_path = profile.find("path");
 
                 string id = it_id != profile.end() ? it_id->second : "";
-                string full_id = fmt::format("s{}i{}", store_id, id);
+                string full_id = format("s{}i{}", store_id, id);
                 string name = it_name != profile.end() ? it_name->second : full_id;
                 string path = it_path != profile.end() ? it_path->second : "";
                 path = (fs::path{data_folder_path} / path).string();
@@ -482,9 +482,9 @@ namespace bt {
             if(fp.installation_id.empty() && !g_settings.firefox_classic_profiles) continue;
 
             string arg_suffix = fp.is_classic
-                ? fmt::format("-P \"{}\"", fp.name)
-                : fmt::format("\"--profile\" \"{}\"", fp.path);
-            string arg = fmt::format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
+                ? format("-P \"{}\"", fp.name)
+                : format("\"--profile\" \"{}\"", fp.path);
+            string arg = format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
 
             auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
             bi->sort_order = b->instances.size();
@@ -499,14 +499,14 @@ namespace bt {
                 vector<firefox_container> containers = discover_firefox_containers(fp.path);
                 for(const auto& container : containers) {
 
-                    string profile_name = fmt::format("{}::{}", fp.name, container.name);
+                    string profile_name = format("{}::{}", fp.name, container.name);
 
-                    string arg = fmt::format("\"ext+container:name={}&url={}\" {}",
+                    string arg = format("\"ext+container:name={}&url={}\" {}",
                         container.name,
                         browser_instance::URL_ARG_NAME,
                         arg_suffix);
 
-                    string id = fmt::format("{}+c_{}", fp.id, container.id);
+                    string id = format("{}+c_{}", fp.id, container.id);
                     auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
                     bi->sort_order = b->instances.size();
                     b->instances.push_back(bi);
@@ -521,7 +521,7 @@ namespace bt {
 
         // in-private
         auto private_bi = make_shared<browser_instance>(b, "private", "Private",
-            fmt::format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
+            format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
             b->open_cmd);
         private_bi->is_incognito = true;
         private_bi->sort_order = b->instances.size();
@@ -663,21 +663,21 @@ namespace bt {
         // 1
         string prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
-            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
             "ProgId");
         if(!prog_id.empty()) return prog_id;
 
         // 2
         prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
-            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest", protocol_name),
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest", protocol_name),
             "ProgId");
         if(!prog_id.empty()) return prog_id;
 
         // 3
         prog_id = win32::reg::get_value(
             win32::reg::hive::current_user,
-            fmt::format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
             "ProgId");
         return prog_id;
     }

@@ -7,7 +7,7 @@
 #include "win32/uwp.h"
 #include "win32/user.h"
 #include "str.h"
-#include <fmt/core.h>
+#include <format>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -253,7 +253,7 @@ namespace bt {
 
         // works in Chrome only
         if(b->get_supports_frameless_windows() && up.app_mode) {
-            arg = fmt::format("--app={}", arg);
+            arg = format("--app={}", arg);
         }
 
         // add user-defined attributes
@@ -316,7 +316,7 @@ namespace bt {
     }
 
     std::string browser_instance::get_best_display_name() const {
-        if(is_incognito) return fmt::format("Private {}", b->name);
+        if(is_incognito) return format("Private {}", b->name);
 
         if(b->is_autodiscovered && is_singular()) return b->name;
 
@@ -386,7 +386,7 @@ namespace bt {
             ::CloseHandle(pi.hThread);
         } else {
             string error = win32::os::get_last_error_text();
-            win32::user::message_box("Browser launch error", fmt::format("Command line: {}.\r\nError: {}", cmdline, error));
+            win32::user::message_box("Browser launch error", format("Command line: {}.\r\nError: {}", cmdline, error));
         }
     }
 }

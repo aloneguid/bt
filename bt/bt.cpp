@@ -1,4 +1,4 @@
-﻿#include <fmt/core.h>
+﻿#include <format>
 #include "globals.h"
 #include "../common/str.h"
 #include "win32/process.h"
@@ -202,7 +202,7 @@ string parse_args(int argc, wchar_t* argv[]) {
         arg += pt;
     }
 
-    arg = fmt::format("{}{}{:x}",
+    arg = format("{}{}{:x}",
       arg,
       ArgSplitter,
       (DWORD)(grey::common::win32::window::get_foreground().get_handle()));

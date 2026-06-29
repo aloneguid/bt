@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(test)
 
-find_package(fmt CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
@@ -26,7 +25,6 @@ include(GoogleTest)
 gtest_discover_tests(test)
 
 target_link_libraries(test PRIVATE
-    fmt::fmt-header-only
     GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
     ${LUA_LIBRARIES})
 

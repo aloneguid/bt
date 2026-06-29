@@ -1,6 +1,6 @@
 #include "match_rule.h"
 #include <str.h>
-#include <fmt/core.h>
+#include <format>
 #include <regex>
 #include "strings.h"
 
@@ -75,7 +75,7 @@ namespace bt {
             r = is_regex ? "regex " : "substring ";
         }
 
-        r += fmt::format("'{}' in ", value);
+        r += format("'{}' in ", value);
 
         switch(loc) {
             case match_location::url:
@@ -85,10 +85,10 @@ namespace bt {
                         r += "URL";
                         break;
                     case match_scope::domain:
-                        r += fmt::format("domain part of the URL", value);
+                        r += format("domain part of the URL", value);
                         break;
                     case match_scope::path:
-                        r += fmt::format("query part of the URL", value);
+                        r += format("query part of the URL", value);
                         break;
                 }
             }
@@ -115,23 +115,23 @@ namespace bt {
         vector<string> parts;
 
         if(loc != match_location::url) {
-            parts.push_back(fmt::format("{}:{}", LocationKey, to_string(loc)));
+            parts.push_back(format("{}:{}", LocationKey, to_string(loc)));
         }
 
         if(scope != match_scope::any) {
-            parts.push_back(fmt::format("{}:{}", ScopeKey, to_string(scope)));
+            parts.push_back(format("{}:{}", ScopeKey, to_string(scope)));
         }
 
         if(priority > 0) {
-            parts.push_back(fmt::format("{}:{}", PriorityKey, priority));
+            parts.push_back(format("{}:{}", PriorityKey, priority));
         }
 
         if(app_mode) {
-            parts.push_back(fmt::format("{}:app", ModeKey));
+            parts.push_back(format("{}:app", ModeKey));
         }
 
         if(is_regex) {
-            parts.push_back(fmt::format("{}:regex", TypeKey));
+            parts.push_back(format("{}:regex", TypeKey));
         }
 
         parts.push_back(s);

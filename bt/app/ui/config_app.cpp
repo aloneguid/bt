@@ -1,6 +1,6 @@
 #include "config_app.h"
 #include "../../res.inl"
-#include "fmt/core.h"
+#include <format>
 #include "win32/os.h"
 #include "win32/process.h"
 #include "win32/shell.h"
@@ -106,9 +106,9 @@ namespace bt::ui {
             si_frame_time = 0;
 
             // fetch new info and convert to string to avoid conversion in every frame
-            si_fps = fmt::format("{:.1f}", ImGui::GetIO().Framerate);
-            si_scale = fmt::format("{:.1f}", app->scale);
-            si_dpi = fmt::format("{}", win32::shell::get_dpi());
+            si_fps = format("{:.1f}", ImGui::GetIO().Framerate);
+            si_scale = format("{:.1f}", app->scale);
+            si_dpi = format("{}", win32::shell::get_dpi());
         }
     }
 
@@ -220,11 +220,11 @@ namespace bt::ui {
                         w::notify_info("Custom prototol re-registered");
                     }
                     if(w::mi("Copy custom protocol")) {
-                        win32::os::set_clipboard_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
+                        win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
                     if(w::mi("Copy browser registration")) {
-                        win32::os::set_clipboard_text(fmt::format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
+                        win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
                     //if(w::mi("Crash now!")) {
@@ -338,7 +338,7 @@ namespace bt::ui {
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
             if (ImGui::BeginPopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-                string msg = fmt::format(
+                string msg = format(
                     "There are {} issues preventing " APP_SHORT_NAME " from working properly.", health_failed);
 
                 if (w::button("Close", w::emphasis::error)) {
@@ -471,7 +471,7 @@ namespace bt::ui {
 
                 if(do_run && g_script.get_error().empty()) {
                     // test it
-                    script_terminal += fmt::format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
+                    script_terminal += format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
 
                     click_payload up;
                     up.url = g_config.pv_last_url;
@@ -481,19 +481,19 @@ namespace bt::ui {
                     if(is_ppl) {
                         string out_url = g_script.call_ppl(up, func_name);
                         script_terminal += g_script.print_buffer;
-                        script_terminal += fmt::format("result: {}\n------------\n", out_url);
+                        script_terminal += format("result: {}\n------------\n", out_url);
                     } else {
 
                         g_pipeline.process(up);
                         if(up.url != g_config.pv_last_url) {
-                            script_terminal += fmt::format("pipeline changed URL to '{}'\n", up.url);
+                            script_terminal += format("pipeline changed URL to '{}'\n", up.url);
                         }
 
                         g_script.print_buffer.clear();
                         bool matched = g_script.call_rule(up, func_name);
                         script_terminal += g_script.print_buffer;
 
-                        script_terminal += fmt::format("rule match: {}\n------------\n", matched);
+                        script_terminal += format("rule match: {}\n------------\n", matched);
                     }
                 }
             }
@@ -609,7 +609,7 @@ namespace bt::ui {
                             if(i->rules.empty()) {
                                 w::label("no rules", 0, false);
                             } else {
-                                w::label(fmt::format("{} rule(s)", i->rules.size()), 0, false);
+                                w::label(format("{} rule(s)", i->rules.size()), 0, false);
                             }
 
                             // rules
@@ -620,7 +620,7 @@ namespace bt::ui {
                                     pv.begin_row();
                                     auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
                                     w::tree_node node_rule{
-                                        fmt::format("{}##{}", r->get_type_string(), idx++),
+                                        format("{}##{}", r->get_type_string(), idx++),
                                         false, true, true, emp};
                                     pv.next_column();
                                     w::label(r->to_string(false), emp);
@@ -653,7 +653,7 @@ namespace bt::ui {
             //                if(i->rules.empty()) {
             //                    w::label("no rules", 0, false);
             //                } else {
-            //                    w::label(fmt::format("{} rule(s)", i->rules.size()), 0, false);
+            //                    w::label(format("{} rule(s)", i->rules.size()), 0, false);
             //                }
 
             //                if(i_open) {
@@ -666,7 +666,7 @@ namespace bt::ui {
             //                        ImGui::TableSetColumnIndex(0);
             //                        auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
             //                        w::tree_node(
-            //                            fmt::format("{}##{}", r->get_type_string(), idx++),
+            //                            format("{}##{}", r->get_type_string(), idx++),
             //                            false, true, true, emp);
             //                        ImGui::TableSetColumnIndex(1);
             //                        w::label(r->to_string(false), emp);
@@ -705,7 +705,7 @@ namespace bt::ui {
                     recheck = true;
                 }
                 if(w::is_hovered()) w::mouse_cursor(w::mouse_cursor_type::hand);
-                w::tt(fmt::format("{}\n{}\n{}\n\nPress here to {}.",
+                w::tt(format("{}\n{}\n{}\n\nPress here to {}.",
                     hc.name, hc.description, hc.error_message, hc.fix_description));
             }
         }
@@ -725,15 +725,15 @@ namespace bt::ui {
         w::sl();
         w::label("|", 0, false);
         w::sl();
-        w::label(fmt::format("{} {}", ICON_MD_WEB, g_config.browsers.size()), 0, false);
+        w::label(format("{} {}", ICON_MD_WEB, g_config.browsers.size()), 0, false);
         w::tt("Browser count");
 
         w::sl();
-        w::label(fmt::format("{} {}", ICON_MD_PERSON, ipc), 0, false);
+        w::label(format("{} {}", ICON_MD_PERSON, ipc), 0, false);
         w::tt("Profile count");
 
         w::sl();
-        w::label(fmt::format("{} {}", ICON_MD_RULE, irc), 0, false);
+        w::label(format("{} {}", ICON_MD_RULE, irc), 0, false);
         w::tt("Configured rule count");
 
         w::sl();
@@ -862,7 +862,7 @@ namespace bt::ui {
 
             if(b->instances.size() > 0) {
                 if(b->is_autodiscovered) {
-                    w::label(fmt::format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
+                    w::label(format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
                     w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
                     //i_where->is_enabled = false;
 
@@ -908,7 +908,7 @@ namespace bt::ui {
         } // group end
 
 #if _DEBUG
-        w::tt(fmt::format("id: {}\ndisco id: {}", b->id, b->instance_id));
+        w::tt(format("id: {}\ndisco id: {}", b->id, b->instance_id));
 #endif
 
         auto item_rect = w::item_rect_get();
@@ -1033,9 +1033,9 @@ namespace bt::ui {
 
                 string tab_icon;
                 if(bi->is_incognito) {
-                    tab_icon = fmt::format("{} ", ICON_MD_SECURITY);
+                    tab_icon = format("{} ", ICON_MD_SECURITY);
                 }
-                string tab_title = fmt::format(" {}{} ", tab_icon, bi->name);
+                string tab_title = format(" {}{} ", tab_icon, bi->name);
 
                 {
                     auto t = tabs.next_tab(tab_title, false,
@@ -1146,11 +1146,11 @@ namespace bt::ui {
                 w::input(b->open_cmd, "exe", false);
                 w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
-                if(w::input(bi->name, fmt::format("name##{}", b->id))) {
+                if(w::input(bi->name, format("name##{}", b->id))) {
                     b->name = bi->name;
                 }
 
-                w::input(bi->launch_arg, fmt::format("arg##{}", b->id));
+                w::input(bi->launch_arg, format("arg##{}", b->id));
                 w::tt(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
@@ -1214,7 +1214,7 @@ terminal window will be hidden.)");
         w::sep("Rules");
 
         if(w::button(ICON_MD_ADD " add", w::emphasis::primary)) {
-            bi->add_rule(fmt::format("rule {}", bi->rules.size()));
+            bi->add_rule(format("rule {}", bi->rules.size()));
         }
 
         w::sl();
@@ -1297,7 +1297,7 @@ terminal window will be hidden.)");
                 // process name selection helper (for "process" rules)
                 if(rule->loc == match_location::process_name) {
                     w::sl();
-                    if(w::button(fmt::format("{}##{}", ICON_MD_DEVELOPER_BOARD, si))) {
+                    if(w::button(format("{}##{}", ICON_MD_DEVELOPER_BOARD, si))) {
                         refresh_pop_proc_names_items();
                         pop_proc_names.open();
                     }
@@ -1358,7 +1358,7 @@ terminal window will be hidden.)");
         fresh_browsers = browser::merge(fresh_browsers, g_config.browsers);
         g_config.browsers = fresh_browsers;
 
-        string message = fmt::format("Discovered {} browser(s).", g_config.browsers.size());
+        string message = format("Discovered {} browser(s).", g_config.browsers.size());
         w::notify_info(message);
     }
 

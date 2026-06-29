@@ -3,7 +3,7 @@
 #include "fss.h"
 #include "../../globals.h"
 #include "../../res.inl"
-#include "fmt/core.h"
+#include <format>
 #include "../common/win32/user.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -283,7 +283,7 @@ namespace bt::ui {
 
                 // draw key highlight
                 if(g_config.picker_show_key_hints && i < 9) {
-                    string label = fmt::format("{}", i + 1);
+                    string label = format("{}", i + 1);
                     ImVec2 wsz = ImGui::CalcTextSize(label.c_str());
 
                     // label in the middle-top
@@ -358,7 +358,7 @@ namespace bt::ui {
             is_open = false;
         } else if(id == "email") {
             win32::os::set_clipboard_text(url);
-            win32::shell::exec(fmt::format("mailto:?body={}", url), "");
+            win32::shell::exec(format("mailto:?body={}", url), "");
             is_open = false;
         } else if(id == "edit") {
 

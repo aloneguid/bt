@@ -4,7 +4,7 @@
 #include "win32/os.h"
 #include "win32/shell.h"
 #include "str.h"
-#include <fmt/core.h>
+#include <format>
 #include <filesystem>
 #include "fss.h"
 #include "hashing.h"
@@ -97,7 +97,7 @@ namespace bt {
             cfg.delete_section(ssn);
 
             // write new
-            string section = fmt::format("{}:{}", BrowserPrefix, id);
+            string section = format("{}:{}", BrowserPrefix, id);
             cfg.set_value("name", name, section);
             cfg.set_value("arg", arg, section);
             cfg.set_value("cmd", cmd, section);
@@ -250,7 +250,7 @@ namespace bt {
         int order = 0;
         for(auto& b : browsers) {
             b->sort_order = order++;
-            string section = fmt::format("{}:{}", BrowserPrefix, b->id);
+            string section = format("{}:{}", BrowserPrefix, b->id);
             cfg.set_value("name", b->name, section);
             cfg.set_value("cmd", b->open_cmd, section);
             cfg.set_value(IsHidden, b->is_hidden, section);
@@ -272,7 +272,7 @@ namespace bt {
                 int sort_order = 0;
                 for(auto& bi : b->instances) {
                     bi->sort_order = sort_order++;
-                    string section = fmt::format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
+                    string section = format("{}:{}:{}", BrowserPrefix, b->id, bi->id);
                     cfg.set_value("name", bi->name, section);
                     cfg.set_value("arg", bi->launch_arg, section);
                     cfg.set_value("user_arg", bi->user_arg, section);
@@ -314,7 +314,7 @@ namespace bt {
             if(b->is_autodiscovered) {
 
                 // profiles, if any
-                string profile_prefix = fmt::format("{}:{}", BrowserPrefix, b_id);
+                string profile_prefix = format("{}:{}", BrowserPrefix, b_id);
                 for(auto& ssn : section_names) {
                     vector<string> parts = str::split(ssn, ":");
                     if(parts[0] != BrowserPrefix || parts.size() != 3 || parts[1] != b_id) continue;
@@ -363,7 +363,7 @@ namespace bt {
     }
 
     string config::get_flag(const std::string& name) {
-        return cfg.get_value(fmt::format("flag_{}", name));
+        return cfg.get_value(format("flag_{}", name));
     }
 
     std::string bt::config::icon_overlay_mode_to_string(icon_overlay_mode mode) {
