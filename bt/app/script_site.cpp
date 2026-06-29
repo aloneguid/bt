@@ -1,9 +1,12 @@
 #include "script_site.h"
 #include <fstream>
 #include <regex>
-#include "../globals.h"
 
 using namespace std;
+
+#define LuaRulePrefix "rule_"
+
+#define LuaPipelinePrefix "ppl_"
 
 namespace bt {
 

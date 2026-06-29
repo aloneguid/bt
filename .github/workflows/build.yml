@@ -20,16 +20,27 @@ on:
         type: boolean
 
 jobs:
-  build-win:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        config: [ {triplet: x64-windows-static, suffix: '-static'}, {triplet: x64-windows, suffix: '-dynamic' } ]
+        include:
+          - os: windows-latest
+            name: Windows x64
+            vcpkg_triplet: x64-windows-static
+            vcpkg_config: Release
+            artifact_suffix: -win-x64
+          # - os: ubuntu-latest
+          #   name: Linux x64
+          #   vcpkg_triplet: x64-linux
+          #   vcpkg_config: MinSizeRel
+          #   artifact_suffix: -linux-x64
+
     runs-on: windows-latest 
     name: 'Windows Binary'
     env:
-      VCPKG_DEFAULT_VCPKG_TRIPLET: ${{ matrix.config.triplet }}
-      VCPKG_TRIPLET: ${{ matrix.config.triplet }}
+      VCPKG_DEFAULT_VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
+      VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
 
     steps:
       
@@ -139,7 +150,7 @@ jobs:
     - uses: actions/upload-artifact@v7
       name: collect binaries
       with:
-        name: bin${{ matrix.config.suffix }}
+        name: bin${{ matrix.artifact_suffix }}
         path: atf/*
         if-no-files-found: error
         compression-level: 9
@@ -147,7 +158,7 @@ jobs:
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [build-win]
+    needs: [build]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
@@ -161,7 +172,7 @@ jobs:
       - name: ⬇️ Download binaries
         uses: actions/download-artifact@v8
         with:
-          name: bin-static
+          name: bin-win-x64
 
       - name: 🔍 view artifacts to be used
         run: ls -R

@@ -14,10 +14,6 @@
 
 #define PortableMarkerName ".portable"
 
-#define LuaRulePrefix "rule_"
-
-#define LuaPipelinePrefix "ppl_"
-
 #define APP_SHORT_NAME "bt"
 
 #define APP_LONG_NAME "Browser Tamer"
