@@ -19,10 +19,14 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "app/*.cpp"
     "app/ui/*.cpp"
     "app/pipeline/*.cpp"
+    "../common/http.cpp"
     "../common/hashing.cpp"
     "../common/url.cpp"
-    "../common/config/config.cpp"
-    "../common/win32/http.cpp"
+    "../common/config/config.cpp")
+
+if(WIN32)
+file(GLOB core_src CONFIGURE_DEPENDS
+    ${core_src}
     "../common/win32/process.cpp"
     "../common/win32/window.cpp"
     "../common/win32/shell.cpp"
@@ -30,6 +34,8 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/win32/reg.cpp"
     "../common/win32/uwp.cpp"
     "../common/win32/user.cpp")
+endif()
+
 add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 
 target_link_libraries(bt

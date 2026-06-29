@@ -5,6 +5,10 @@
 #include <functional>
 #include "click_payload.h"
 
+#define LuaRulePrefix "rule_"
+
+#define LuaPipelinePrefix "ppl_"
+
 namespace bt {
     class script_site {
     public:

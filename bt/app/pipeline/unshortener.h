@@ -1,6 +1,6 @@
 #pragma once
 #include "../url_pipeline_step.h"
-#include "win32/http.h"
+#include "http.h"
 
 namespace bt::pipeline {
     class unshortener : public bt::url_pipeline_step {
@@ -12,7 +12,7 @@ namespace bt::pipeline {
         void process(click_payload& up) override;
 
     private:
-        win32::http http;
+        http h;
 
         bool is_supported(const std::string& abs_url);
     };

@@ -43,7 +43,7 @@ namespace bt::pipeline {
         // example: https://bit.ly/47EZHSl -> https://github.com/aloneguid/bt
 
         map<string, string> headers;
-        int code = http.get_get_headers(up.url, headers);
+        int code = h.get_get_headers(up.url, headers);
 
         map<string, string>::const_iterator it_loc;
         if((code == 301 || code == 302) && (it_loc = headers.find(LocationHeaderName)) != headers.end()) {

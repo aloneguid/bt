@@ -1,7 +1,10 @@
 #pragma once
 #include "browser.h"
-#include "win32/reg.h"
 #include <vector>
+#include "platform.h"
+#if PLATFORM_WINDOWS
+#include "win32/reg.h"
+#endif
 
 namespace bt {
 
@@ -61,8 +64,10 @@ namespace bt {
 
         static std::string unmangle_open_cmd(const std::string& open_cmd);
 
-        static void discover_registry_browsers(win32::reg::hive h,
+#if PLATFORM_WINDOWS
+        static void discover_win32_registry_browsers(win32::reg::hive h,
             std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
+#endif
 
         /**
          * @brief Performs browser fingerprinting based on the executable path.

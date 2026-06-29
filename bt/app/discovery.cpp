@@ -206,7 +206,8 @@ namespace bt {
         return r;
     }
 
-    void discovery::discover_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
+#if PLATFORM_WINDOWS
+    void discovery::discover_win32_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
         auto subs = enum_subkeys(h, abs_root);
 
         for (const string& sub : subs) {
@@ -242,13 +243,16 @@ namespace bt {
             }
         }
     }
+#endif
 
     std::vector<shared_ptr<browser>> discovery::discover_browsers(const std::string& ignore_proto) {
         vector<shared_ptr<browser>> browsers;
 
+#if PLATFORM_WINDOWS
         discover_registry_browsers(hive::local_machine, browsers, ignore_proto);
         discover_registry_browsers(hive::current_user, browsers, ignore_proto);
         discover_msstore_browsers(browsers);
+#endif
 
         // discover various profiles
         for (shared_ptr<bt::browser> b : browsers) {
@@ -270,7 +274,11 @@ namespace bt {
 
         // faster method to discover
         if(fs::exists(lsjf)) {
+#if PLATFORM_WINDOWS
             string jt = fss::read_all_text(str::to_str(lsjf));
+#else
+            string jt = fss::read_all_text(lsjf);
+#endif
             auto j = json::parse(jt);
             auto j_p_ic = j["profile"]["info_cache"];
             if(j_p_ic.is_object()) {

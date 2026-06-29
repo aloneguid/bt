@@ -4,10 +4,6 @@
 
 using namespace std;
 
-#define LuaRulePrefix "rule_"
-
-#define LuaPipelinePrefix "ppl_"
-
 namespace bt {
 
     script_site::script_site(const string& path_or_code, bool is_path) :
