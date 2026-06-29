@@ -19,6 +19,7 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -34,8 +35,7 @@ jobs:
             vcpkg_config: MinSizeRel
             artifact_suffix: -linux-x64
 
-    runs-on: windows-latest 
-    name: 'Windows Binary'
+    name: 'build: ${{ matrix.name }}'
     env:
       VCPKG_DEFAULT_VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
       VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}

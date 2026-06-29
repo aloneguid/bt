@@ -2,8 +2,6 @@
 #include "fss.h"
 #include "config.h"
 #include "str.h"
-#include "win32/shell.h"
-#include "win32/reg.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -14,8 +12,14 @@
 #include <sqlite3.h>
 #include "hashing.h"
 
-using namespace std;
+#if PLATFORM_WINDOWS
+#include "win32/shell.h"
+#include "win32/reg.h"
 using hive = win32::reg::hive;
+#endif
+
+using namespace std;
+
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
@@ -53,8 +57,11 @@ namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
     const string apps_root = "Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\PackageRepository\\Packages";
     const string app_user_root = "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
+#if PLATFORM_WINDOWS
     const string ad = win32::shell::get_app_data_folder();
     const string lad = win32::shell::get_local_app_data_path();
+#endif
+
     const string FirefoxInstancePrefix = "Firefox-";
     // any parameters to add to Chromium-based browsers
     const string ChromiumExtraArgs = " --no-default-browser-check";
@@ -64,6 +71,7 @@ namespace bt {
         return hashing::md5(cmd);
     }
 
+#if PLATFORM_WINDOWS
     bool is_msstore_browser(const string& package_name, string& app_path, string& app_user_model_id) {
 
         app_path = win32::reg::get_value(hive::classes_root, apps_root + "\\" + package_name, "Path");
@@ -81,7 +89,7 @@ namespace bt {
     }
 
     string get_appx_app_id(const string& package_name) {
-        string path = app_user_root + "\\" + package_name;
+        string path     = app_user_root + "\\" + package_name;
         auto usubs = win32::reg::enum_subkeys(hive::current_user, path);
         if(usubs.empty()) return "";
 
@@ -179,6 +187,7 @@ namespace bt {
             }
         }
     }
+#endif
 
     string get_instance_id(const string& reg_value) {
         // if this is Firefox, strip out the prefix to get instance ID

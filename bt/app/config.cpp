@@ -1,13 +1,17 @@
 #include "config.h"
 #include "../globals.h"
-#include "win32/reg.h"
-#include "win32/os.h"
-#include "win32/shell.h"
+#include "platform.h"
 #include "str.h"
 #include <format>
 #include <filesystem>
 #include "fss.h"
 #include "hashing.h"
+
+#if PLATFORM_WINDOWS
+#include "win32/reg.h"
+#include "win32/os.h"
+#include "win32/shell.h"
+#endif
 
 using namespace std;
 namespace fs = std::filesystem;
