@@ -2,18 +2,24 @@
 #include "match_rule.h"
 #include <filesystem>
 #include <algorithm>
+#include "str.h"
+#include <format>
+#include "process.h"
+
+#if PLATFORM_WINDOWS
 #include "win32/shell.h"
 #include "win32/os.h"
 #include "win32/uwp.h"
 #include "win32/user.h"
-#include "str.h"
-#include <format>
+#endif
 
 namespace fs = std::filesystem;
 using namespace std;
 
 namespace bt {
+#if PLATFORM_WINDOWS
     const string lad = win32::shell::get_local_app_data_path();
+#endif
     const string browser::UwpCmdPrefix = "msstore:";
 
     browser::browser(
@@ -265,10 +271,12 @@ namespace bt {
         // if command starts with UWP prefix, launch this as UWP app
         if(b->open_cmd.starts_with(browser::UwpCmdPrefix)) {
             string family_name = b->open_cmd.substr(browser::UwpCmdPrefix.size());
+#if PLATFORM_WINDOWS
             win32::uwp uwp;
             uwp.launch_uri(family_name, arg);
+#endif
         } else {
-            launch_win32_process_and_foreground(b->open_cmd + " " + arg);
+            launch_process(b->open_cmd + " " + arg);
         }
     }
 
@@ -350,7 +358,8 @@ namespace bt {
         }
     }
 
-    void browser_instance::launch_win32_process_and_foreground(const std::string& cmdline) const {
+    void browser_instance::launch_process(const std::string& cmdline) const {
+#if PLATFORM_WINDOWS
         STARTUPINFO si{};
         si.cb = sizeof(si);
         if(launch_hide_ui) {
@@ -388,5 +397,6 @@ namespace bt {
             string error = win32::os::get_last_error_text();
             win32::user::message_box("Browser launch error", format("Command line: {}.\r\nError: {}", cmdline, error));
         }
+#endif
     }
 }

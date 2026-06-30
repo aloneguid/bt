@@ -1,16 +1,21 @@
 #include "cmdline.h"
-#include <Windows.h>
 #include <iostream>
 #include "globals.h"
 #include "str.h"
 
+#if PLATFORM_WINDOWS
+#include <Windows.h>
+#endif
+
 using namespace std;
 
 cmdline::cmdline(){
+#if PLATFORM_WINDOWS
     // Attach to the parent process's console or create a new one
     if(!::AttachConsole(ATTACH_PARENT_PROCESS)) {
         AllocConsole();
     }
+#endif
 
     // Redirect standard input, output, and error streams to the console
     freopen("CONIN$", "r", stdin);

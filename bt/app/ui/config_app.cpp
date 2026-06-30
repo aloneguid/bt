@@ -1,10 +1,8 @@
 #include "config_app.h"
+#include "platform.h"
 #include "../../res.inl"
 #include <format>
-#include "win32/os.h"
 #include "process.h"
-#include "win32/shell.h"
-#include "win32/user.h"
 #include "str.h"
 #include "stl.hpp"
 #include "fss.h"
@@ -18,6 +16,12 @@
 #include "extra_widgets.hpp"
 #include "datetime.h"
 #include <algorithm>
+
+#if PLATFORM_WINDOWS
+#include "win32/os.h"
+#include "win32/shell.h"
+#include "win32/user.h"
+#endif
 
 using namespace std;
 namespace w = grey::widgets;
@@ -33,8 +37,10 @@ namespace bt::ui {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_settings.theme;
+#if PLATFORM_WINDOWS
         app->win32_can_resize = true;
         app->win32_center_on_screen = true;
+#endif
         app->load_fixed_font = true;
 
         wnd_config
@@ -86,8 +92,10 @@ namespace bt::ui {
                 browser::get_default(g_config.browsers, g_config.default_profile_long_id)->long_id();
         }
 
+#if PLATFORM_WINDOWS
         // re-create start menu shortcut in case it's missing
         win32::shell::create_start_menu_shortcut(APP_LONG_NAME);
+#endif
 
         check_health();
     }
@@ -108,7 +116,9 @@ namespace bt::ui {
             // fetch new info and convert to string to avoid conversion in every frame
             si_fps = format("{:.1f}", ImGui::GetIO().Framerate);
             si_scale = format("{:.1f}", app->scale);
+#if PLATFORM_WINDOWS
             si_dpi = format("{}", win32::shell::get_dpi());
+#endif
         }
     }
 
@@ -180,20 +190,28 @@ namespace bt::ui {
 
                 if(w::menu m_ini{"config.ini", true, ICON_MD_SETTINGS}; m_ini) {
                     if(w::mi("Open")) {
+#if PLATFORM_WINDOWS
                         win32::shell::exec(g_config.get_absolute_path(), "");
+#endif
                     }
                     if(w::mi("Copy path")) {
+#if PLATFORM_WINDOWS
                         win32::os::set_clipboard_text(g_config.get_absolute_path());
+#endif
                         w::notify_info("Path copied to clipboard.");
                     }
                 }
 
                 if(w::menu m_csv{"hit_log.csv", true, ICON_MD_BOOK}; m_csv) {
                     if(w::mi("Open")) {
+#if PLATFORM_WINDOWS
                         win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
+#endif
                     }
                     if(w::mi("Copy path")) {
+#if PLATFORM_WINDOWS
                         win32::os::set_clipboard_text(rule_hit_log::i.get_absolute_path());
+#endif
                         w::notify_info("Path copied to clipboard.");
                     }
                 }
@@ -205,9 +223,11 @@ namespace bt::ui {
             }
 
             if(w::menu m_tools{strings::MenuTools}; m_tools) {
+#if PLATFORM_WINDOWS
                 if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
                     win32::shell::open_default_apps();
                 }
+#endif
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
@@ -219,6 +239,7 @@ namespace bt::ui {
                         bt::setup::register_browser();
                         w::notify_info("Custom prototol re-registered");
                     }
+#if PLATFORM_WINDOWS
                     if(w::mi("Copy custom protocol")) {
                         win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
@@ -227,6 +248,7 @@ namespace bt::ui {
                         win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
                         w::notify_info("Registry path copied to clipboard.");
                     }
+#endif
                     //if(w::mi("Crash now!")) {
                     //    w::notify_info("Crashing...");
                     //    int* crash = nullptr;
@@ -958,7 +980,9 @@ namespace bt::ui {
             if(w::button(ICON_MD_FOLDER)) {
                 std::filesystem::path p{b->open_cmd};
                 string path = p.parent_path().string();
+#if PLATFORM_WINDOWS
                 win32::shell::exec(path, "");
+#endif
             }
             w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
@@ -966,20 +990,26 @@ namespace bt::ui {
         if(b->is_autodiscovered) {
             w::sl();
             if(w::button(ICON_MD_FOLDER_COPY)) {
+#if PLATFORM_WINDOWS
                 win32::shell::exec(b->data_path, "");
+#endif
             }
             w::tt(strings::BrowserOpenUserDataFolderTooltip);
 
             if(b->engine == bt::browser_engine::gecko) {
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
+#if PLATFORM_WINDOWS
                     win32::shell::exec(b->open_cmd, "-P");
+#endif
                 }
                 w::tt("open Firefox Profile Manager (-P flag)");
 
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
+#if PLATFORM_WINDOWS
                     win32::shell::exec(b->open_cmd, "about:profiles");
+#endif
                 }
                 w::tt("open Firefox Profile Manager in Firefox itself");
             }
@@ -1199,10 +1229,12 @@ terminal window will be hidden.)");
         }
 
         if(w::is_leftclicked()) {
+#if PLATFORM_WINDOWS
             string icon_path = win32::shell::file_open_dialog("Icon", "*.png;*.ico");
             if(!icon_path.empty()) {
                 path_override = icon_path;
             }
+#endif
         }
         if(w::is_rightclicked()) {
             path_override.clear();
@@ -1363,6 +1395,7 @@ terminal window will be hidden.)");
     }
 
     void config_app::add_custom_browser_by_asking() {
+#if PLATFORM_WINDOWS
         string exe_path = win32::shell::file_open_dialog("Windows Executable", "*.exe");
         if(exe_path.empty()) return;
 
@@ -1379,6 +1412,7 @@ terminal window will be hidden.)");
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }
+#endif
     }
 
     void config_app::recalculate_test_url_matches(const click_payload& cp) {

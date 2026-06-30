@@ -34,9 +34,11 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/win32/reg.cpp"
     "../common/win32/uwp.cpp"
     "../common/win32/user.cpp")
-endif()
 
-add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
+    add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
+else()
+    add_executable (bt ${core_src} "bt.cpp")
+endif()
 
 target_link_libraries(bt
     libcommon
@@ -53,22 +55,24 @@ target_include_directories(${APP_NAME} PRIVATE
     ${P_RANAV_CSV2_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIR})
 
-target_sources(bt PRIVATE dpi-aware.manifest)
+if(WIN32)
+    target_sources(bt PRIVATE dpi-aware.manifest)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup")
 
-# include .pdb symbol generation
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CMAKE_BUILD_TYPE MATCHES "Release")
-   target_compile_options(${APP_NAME} PRIVATE /Zi)
+    # include .pdb symbol generation
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CMAKE_BUILD_TYPE MATCHES "Release")
+       target_compile_options(${APP_NAME} PRIVATE /Zi)
 
-   # Tell linker to include symbol data
-    set_target_properties(${APP_NAME} PROPERTIES 
-        LINK_FLAGS "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
-    )
+       # Tell linker to include symbol data
+        set_target_properties(${APP_NAME} PROPERTIES 
+            LINK_FLAGS "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
+        )
 
-    # Set file name & location
-    set_target_properties(${APP_NAME} PROPERTIES 
-        COMPILE_PDB_NAME ${APP_NAME} 
-        COMPILE_PDB_OUTPUT_DIR ${CMAKE_BINARY_DIR}
-    )
+        # Set file name & location
+        set_target_properties(${APP_NAME} PROPERTIES 
+            COMPILE_PDB_NAME ${APP_NAME} 
+            COMPILE_PDB_OUTPUT_DIR ${CMAKE_BINARY_DIR}
+        )
+    endif()
 endif()

@@ -3,6 +3,7 @@
 #include "../../res.inl"
 #include "btwidgets.h"
 #include "platform.h"
+#include <cmath>
 
 using namespace std;
 namespace w = grey::widgets;

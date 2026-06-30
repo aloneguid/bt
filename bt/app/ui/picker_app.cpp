@@ -4,12 +4,16 @@
 #include "../../globals.h"
 #include "../../res.inl"
 #include <format>
-#include "../common/win32/user.h"
+
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../../common/win32/os.h"
-#include "../../common/win32/shell.h"
 #include "btwidgets.h"
+
+#if PLATFORM_WINDOWS
+#include "win32/user.h"
+#include "win32/os.h"
+#include "win32/shell.h"
+#endif
 
 using namespace std;
 namespace w = grey::widgets;
@@ -22,11 +26,13 @@ namespace bt::ui {
         wnd_settings{"Settings", &is_settings_open} {
 
         app->initial_theme_id = g_settings.theme;
+#if PLATFORM_WINDOWS
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
         app->win32_always_on_top = g_config.picker_always_on_top;
         app->win32_title_bar = g_config.picker_show_native_chrome;
+#endif
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
         clear_color = cc1;
@@ -82,6 +88,7 @@ namespace bt::ui {
     }
 
     bool picker_app::is_hotkey_down() {
+#if PLATFORM_WINDOWS
         bool k_shift = win32::user::is_kbd_shift_down();
         bool k_ctrl = win32::user::is_kbd_ctrl_down();
         bool k_alt = win32::user::is_kbd_alt_down();
@@ -92,11 +99,16 @@ namespace bt::ui {
             (g_config.picker_on_key_ca && (k_ctrl && k_alt)) ||
             (g_config.picker_on_key_cs && (k_ctrl && k_shift)) ||
             (g_config.picker_on_key_cl && k_caps);
+#else
+        return false;
+#endif
     }
 
     bool picker_app::run_frame() {
 
+#if PLATFORM_WINDOWS
         app->win32_transparency_window_alpha = g_config.picker_opacity;
+#endif
 
         // get monitor dimensions
         int mon_idx = app->find_monitor_for_main_viewport();
@@ -325,7 +337,9 @@ namespace bt::ui {
             "profile only"
         }, (unsigned int&)g_config.icon_overlay);
 
+#if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = false; // never close app when settings are open
+#endif
 
         w::slider(g_config.picker_icon_size, 5, 256, "icon size");
         w::slider(g_config.picker_item_padding, 0, 100, "padding");
@@ -354,11 +368,15 @@ namespace bt::ui {
 
     void picker_app::menu_item_clicked(const std::string& id) {
         if(id == "copy") {
+#if PLATFORM_WINDOWS
             win32::os::set_clipboard_text(url);
+#endif
             is_open = false;
         } else if(id == "email") {
+#if PLATFORM_WINDOWS
             win32::os::set_clipboard_text(url);
             win32::shell::exec(format("mailto:?body={}", url), "");
+#endif
             is_open = false;
         } else if(id == "edit") {
 

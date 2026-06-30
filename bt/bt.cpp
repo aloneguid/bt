@@ -4,12 +4,15 @@
 #include "process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
-#include "common/win32/window.h"
-#include "win32/os.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
 #include "cmdline.h"
 #include "app/discovery.h"
+
+#if PLATFORM_WINDOWS
+#include "win32/os.h"
+#include "common/win32/window.h"
+#endif
 
 //ui
 #include "app/ui/config_app.h"
@@ -140,6 +143,7 @@ void execute(const string& data) {
 
     up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 
+#if PLATFORM_WINDOWS
     grey::common::win32::window win{up.source_window_handle};
     up.window_title = win.get_text();
 
@@ -147,6 +151,8 @@ void execute(const string& data) {
     up.process_path = proc.get_module_filename();
     up.process_name = proc.get_name();
     up.process_description = proc.get_description();
+#endif
+
 #if _DEBUG
     if(command == "toast") {
         up.url = command_data;
@@ -171,19 +177,24 @@ void debug_args_msgbox(int argc, wchar_t* argv[]) {
         for(int i = 0; i < argc; i++) {
             msg << i + 1 << ": [" << argv[i] << "]" << endl;
         }
+
+#if PLATFORM_WINDOWS
         auto fg = grey::common::win32::window::get_foreground();
         process p{fg.get_pid()};
         msg << "by: [" << str::to_wstr(p.get_name()) << "]";
 
         ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
+#endif
     }
 }
 
 bool check_min_os_version() {
+#if PLATFORM_WINDOWS
     if(!win32::os::is_windows11_or_greater()) {
         ::MessageBox(nullptr, L"Windows 11 is the minimum supported OS version", L"Unsupported OS", MB_OK | MB_ICONERROR);
         return false;
     }
+#endif
     return true;
 }
 
@@ -193,6 +204,8 @@ bool check_min_os_version() {
  * @param argv 
  * @return 
  */
+
+#if PLATFORM_WINDOWS
 string parse_args(int argc, wchar_t* argv[]) {
     string arg;
 
@@ -224,3 +237,32 @@ int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
 
     return 0;
 }
+
+#else
+
+string parse_args(int argc, char* argv[]) {
+    string arg;
+
+    for(int i = 1; i < argc; i++) {
+        string pt{argv[i]};
+        if(!arg.empty()) arg += " ";
+        arg += pt;
+    }
+
+    arg = format("{}{}{:x}",
+      arg,
+      ArgSplitter,
+      123);
+
+    return arg;
+}
+
+int main(int argc, char* argv[]) {
+    string arg = parse_args(argc, argv);
+
+    execute(arg);
+
+    return 0;
+}
+
+#endif

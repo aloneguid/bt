@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "browser.h"
+#include <iterator> // due to bug in p-ranav/csv2
 #include <csv2/writer.hpp>
 
 namespace bt {

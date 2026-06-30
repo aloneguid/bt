@@ -219,7 +219,7 @@ namespace bt {
         void set_rules_from_text(std::vector<std::string> rules_txt);
 
     private:
-        void launch_win32_process_and_foreground(const std::string& cmdline) const;
+        void launch_process(const std::string& cmdline) const;
     };
 
     struct browser_match_result {

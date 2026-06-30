@@ -1,17 +1,25 @@
 #include "setup.h"
+#include "platform.h"
 #include <string>
 #include "../../common/fss.h"
-#include "../../common/win32/reg.h"
 #include "../globals.h"
 #include <format>
 #include "discovery.h"
+
+#if PLATFORM_WINDOWS
+#include "win32/reg.h"
 #include "win32/shell.h"
 
-using namespace std;
 using namespace win32::reg;
+
+#endif
+
+using namespace std;
 
 namespace bt {
     std::vector<system_check> setup::get_checks() {
+
+#if PLATFORM_WINDOWS
         return vector<system_check> {
             system_check{
                 "sys_browser", "System Browser",
@@ -64,6 +72,9 @@ namespace bt {
                     }
                 }
         };
+#else
+        return vector<system_check>();
+#endif
     }
 
     void setup::register_as_browser_and_custom_protocol() {
@@ -74,6 +85,7 @@ namespace bt {
 
     void setup::unregister_all() {
 
+#if PLATFORM_WINDOWS
         // unregister protocol
         string root = get_custom_proto_reg_path();
         win32::reg::delete_key(win32::reg::hive::current_user, root);
@@ -81,6 +93,7 @@ namespace bt {
         // unregister browser
         root = get_browser_registration_reg_path();
         win32::reg::delete_key(win32::reg::hive::current_user, root);
+#endif
     }
 
     std::string setup::get_browser_registration_reg_path() {
@@ -88,7 +101,7 @@ namespace bt {
     }
 
     void setup::register_file_association(const std::string& proto_tag, int icon_index, const std::vector<std::string>& extensions) {
-
+#if PLATFORM_WINDOWS
         string proto_name = format("BrowserTamer{}", proto_tag);
         string app_path = fss::get_current_exec_path();
         string app_root = get_browser_registration_reg_path();
@@ -106,9 +119,11 @@ namespace bt {
         set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
         set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
         set_value(hive::current_user, handler_path + "\\shell\\open\\command", format("\"{}\" %1", app_path));
+#endif
     }
 
     void setup::register_browser() {
+#if PLATFORM_WINDOWS
         string app_path = fss::get_current_exec_path();
 
         string app_root = get_browser_registration_reg_path();
@@ -143,6 +158,7 @@ namespace bt {
 
         //register caps
         set_value(hive::current_user, "Software\\RegisteredApplications", cap_root, APP_LONG_NAME);
+#endif
     }
 
     std::string setup::get_custom_proto_reg_path() {
@@ -150,6 +166,7 @@ namespace bt {
     }
 
     void setup::register_protocol() {
+#if PLATFORM_WINDOWS
         string app_path = fss::get_current_exec_path();
 
         string root = get_custom_proto_reg_path();
@@ -160,9 +177,11 @@ namespace bt {
         string command_root = format("{}\\shell\\open\\command", root);
         string open_command = format("\"{}\" \"%1\"", app_path);
         set_value(hive::current_user, command_root, open_command);
+#endif
     }
 
     void setup::uninstall_as_browser(const std::string& proto_name, const std::string& name) {
+#if PLATFORM_WINDOWS
         string root = "Software\\Clients\\StartMenuInternet";
         string app_root = root + "\\" + name;
         string cap_root = app_root + "\\Capabilities";
@@ -171,9 +190,11 @@ namespace bt {
         delete_key(hive::current_user, app_root);
         delete_value(hive::current_user, "Software\\RegisteredApplications", name);
         delete_key(hive::current_user, handler_path);
+#endif
     }
 
     bool setup::is_installed_as_browser(const std::string& name, string& error_message) {
+#if PLATFORM_WINDOWS
         string root = "Software\\Clients\\StartMenuInternet";
         string app_root = root + "\\" + name;
         string soc = app_root + "\\shell\\open\\command";
@@ -187,5 +208,8 @@ namespace bt {
             error_message = format("Expected: {}\nRegistered: {}.", app_path, reg_app_path);
         }
         return installed;
+#else
+        return false;
+#endif
     }
 }
