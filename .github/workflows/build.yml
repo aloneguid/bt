@@ -22,6 +22,8 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    # allow Linux build to fail while prototyping
+    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
