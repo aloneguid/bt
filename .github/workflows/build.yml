@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     # allow Linux build to fail while prototyping
-    # continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
+    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -45,7 +45,13 @@ jobs:
       VCPKG_TRIPLET: ${{ matrix.vcpkg_triplet }}
 
     steps:
-      
+
+    - name: Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool      
+
     - uses: actions/checkout@v6
       with:
         submodules: true
