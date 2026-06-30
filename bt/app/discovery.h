@@ -60,11 +60,11 @@ namespace bt {
 
         static void discover_other_profiles(std::shared_ptr<browser> b);
 
-        static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
-
         static std::string unmangle_open_cmd(const std::string& open_cmd);
 
 #if PLATFORM_WINDOWS
+        static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
+
         static void discover_win32_registry_browsers(win32::reg::hive h,
             std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
 #endif

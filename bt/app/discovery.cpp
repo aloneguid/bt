@@ -60,6 +60,9 @@ namespace bt {
 #if PLATFORM_WINDOWS
     const string ad = win32::shell::get_app_data_folder();
     const string lad = win32::shell::get_local_app_data_path();
+#else
+    const string ad = "todo";
+    const string lad = "todo";
 #endif
 
     const string FirefoxInstancePrefix = "Firefox-";
@@ -652,6 +655,7 @@ namespace bt {
     }
 
     bool discovery::is_default_browser(bool& http, bool& https, bool& xbt) {
+#if PLATFORM_WINDOWS
         http = ProtoName == get_shell_url_association_progid("http");
         https = ProtoName == get_shell_url_association_progid("https");
 
@@ -659,17 +663,23 @@ namespace bt {
         xbt = xbt_assoc.empty() || ProtoName == xbt_assoc;
 
         return http && https && xbt;
+#else
+        return false;
+#endif
     }
 
     void discovery::get_default_browser_url_assoc(std::string& http, std::string& https) {
+#if PLATFORM_WINDOWS
         http = get_shell_url_association_progid("http");
         https = get_shell_url_association_progid("https");
+#endif
     }
 
     const std::vector<shared_ptr<browser>> discovery::discover_all_browsers() {
         return bt::discovery::discover_browsers(ProtoName);
     }
 
+#if PLATFORM_WINDOWS
     string discovery::get_shell_url_association_progid(const string& protocol_name) {
         // There are 3 locations to check:
         // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
@@ -698,6 +708,7 @@ namespace bt {
             "ProgId");
         return prog_id;
     }
+#endif
 
     bool discovery::fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path) {
 
