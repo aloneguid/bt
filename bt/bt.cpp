@@ -1,7 +1,7 @@
 ﻿#include <format>
 #include "globals.h"
 #include "../common/str.h"
-#include "win32/process.h"
+#include "process.h"
 #include "app/config.h"
 #include "app/url_pipeline.h"
 #include "common/win32/window.h"
@@ -143,7 +143,7 @@ void execute(const string& data) {
     grey::common::win32::window win{up.source_window_handle};
     up.window_title = win.get_text();
 
-    win32::process proc{win.get_pid()};
+    process proc{win.get_pid()};
     up.process_path = proc.get_module_filename();
     up.process_name = proc.get_name();
     up.process_description = proc.get_description();
@@ -172,7 +172,7 @@ void debug_args_msgbox(int argc, wchar_t* argv[]) {
             msg << i + 1 << ": [" << argv[i] << "]" << endl;
         }
         auto fg = grey::common::win32::window::get_foreground();
-        win32::process p{fg.get_pid()};
+        process p{fg.get_pid()};
         msg << "by: [" << str::to_wstr(p.get_name()) << "]";
 
         ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);

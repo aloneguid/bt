@@ -261,8 +261,8 @@ namespace bt {
         vector<shared_ptr<browser>> browsers;
 
 #if PLATFORM_WINDOWS
-        discover_registry_browsers(hive::local_machine, browsers, ignore_proto);
-        discover_registry_browsers(hive::current_user, browsers, ignore_proto);
+        discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto);
+        discover_win32_registry_browsers(hive::current_user, browsers, ignore_proto);
         discover_msstore_browsers(browsers);
 #endif
 

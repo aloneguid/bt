@@ -2,7 +2,7 @@
 #include "../../res.inl"
 #include <format>
 #include "win32/os.h"
-#include "win32/process.h"
+#include "process.h"
 #include "win32/shell.h"
 #include "win32/user.h"
 #include "str.h"
@@ -1333,9 +1333,9 @@ terminal window will be hidden.)");
     }
 
     void config_app::refresh_pop_proc_names_items() {
-        auto procs = win32::process::enumerate();
+        auto procs = process::enumerate();
         pop_proc_names_items.clear();
-        for(win32::process& p : procs) {
+        for(process& p : procs) {
             if(!p.is_valid()) continue;
             string name = p.get_name();
             if(!name.empty()) {

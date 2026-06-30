@@ -2,6 +2,7 @@
 #include "../../globals.h"
 #include "../../res.inl"
 #include "btwidgets.h"
+#include "platform.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -12,11 +13,13 @@ namespace bt::ui {
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_settings.theme;
+#if PLATFORM_WINDOWS
         app->win32_can_resize = false;
         app->win32_always_on_top = true;
         app->win32_title_bar = false;
         app->win32_hide_from_taskbar = true;
         app->win32_no_activate = true;  // prevent from stealing focus or appearing in alt-tab
+#endif
 
         wnd_main
             .no_titlebar()

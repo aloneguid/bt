@@ -22,12 +22,12 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/http.cpp"
     "../common/hashing.cpp"
     "../common/url.cpp"
+    "../common/process.cpp"
     "../common/config/config.cpp")
 
 if(WIN32)
 file(GLOB core_src CONFIGURE_DEPENDS
     ${core_src}
-    "../common/win32/process.cpp"
     "../common/win32/window.cpp"
     "../common/win32/shell.cpp"
     "../common/win32/os.cpp"

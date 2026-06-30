@@ -68,7 +68,7 @@ namespace bt {
     std::string config::get_data_file_path(const std::string& name) {
         return fs::exists(fs::path{fss::get_current_dir()} / PortableMarkerName)
             ? (fs::path{fss::get_current_dir()} / name).string()
-            : (fs::path{win32::shell::get_local_app_data_path()} / APP_SHORT_NAME / name).string();
+            : (fs::path{fss::get_config_dir()} / APP_SHORT_NAME / name).string();
     }
 
     void config::migrate() {
