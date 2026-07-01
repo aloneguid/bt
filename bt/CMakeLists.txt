@@ -16,6 +16,7 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 file(GLOB core_src
     "cmdline.cpp"
+    "config_custom.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
     "app/pipeline/*.cpp"

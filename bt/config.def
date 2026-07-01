@@ -34,3 +34,5 @@ opt_sect(bool,      pipeline_unshorten,             true,       pipeline,    uns
 opt_sect(bool,      pipeline_substitute,            true,       pipeline,    substitute)
 opt_sect(bool,      pipeline_script,                true,       pipeline,    script)
 opt_sect(strings,   pipeline_substitutions,         {},         pipeline,    subst)
+
+opt_custom(std::vector<std::shared_ptr<bt::browser>>, browsers)
