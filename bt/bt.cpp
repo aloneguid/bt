@@ -2,7 +2,6 @@
 #include "globals.h"
 #include "../common/str.h"
 #include "process.h"
-#include "app/config.h"
 #include "app/url_pipeline.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
@@ -20,9 +19,8 @@
 #include "app/ui/toast_app.h"
 
 // globals.h
-bt::config g_config;
-grey::common::config g_settings{APP_SHORT_NAME, "settings.ini"};
-bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
+grey::common::config g_settings{APP_SHORT_NAME, "config.ini"};
+bt::script_site g_script{grey::common::fss::get_config_file_path(APP_SHORT_NAME, "scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_settings};
 
 using namespace std;
@@ -41,7 +39,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             show_picker = true;
             pick_reason = "hotkey";
         } else if(g_settings.picker_on_conflict || g_settings.picker_on_no_rule) {
-            auto matches = bt::browser::match(g_config.browsers, up, g_settings.default_profile, g_script);
+            auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
             if(g_settings.picker_on_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
@@ -63,7 +61,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             }
         }
     } else {
-        auto matches = bt::browser::match(g_config.browsers, up, g_settings.default_profile, g_script);
+        auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
         bt::browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);
@@ -123,9 +121,9 @@ void execute(const string& data) {
             return;
         } else if(command == "discover") {
             vector<shared_ptr<bt::browser>> fresh_browsers = bt::discovery::discover_all_browsers();
-            fresh_browsers = bt::browser::merge(fresh_browsers, g_config.browsers);
-            g_config.browsers = fresh_browsers;
-            g_config.commit();
+            fresh_browsers = bt::browser::merge(fresh_browsers, g_settings.browsers);
+            g_settings.browsers = fresh_browsers;
+            g_settings.commit();
             return;
         }
     }
@@ -153,36 +151,13 @@ void execute(const string& data) {
 #if _DEBUG
     if(command == "toast") {
         up.url = command_data;
-        bt::ui::toast_app app{up, g_config.browsers[0]->instances[0]};
+        bt::ui::toast_app app{up, g_settings.browsers[0]->instances[0]};
         app.run();
         return;
     }
 #endif
 
     open(up, force_picker);   // open-up hahaha
-}
-
-/**
- * @brief Shows a message box with the command line arguments (for debugging purposes)
- * @param argc 
- * @param argv 
- */
-void debug_args_msgbox(int argc, wchar_t* argv[]) {
-    if(g_config.get_flag("debug_args") == "y") {
-        wostringstream msg;
-        msg << "count: " << argc << endl;
-        for(int i = 0; i < argc; i++) {
-            msg << i + 1 << ": [" << argv[i] << "]" << endl;
-        }
-
-#if PLATFORM_WINDOWS
-        auto fg = grey::common::win32::window::get_foreground();
-        process p{fg.get_pid()};
-        msg << "by: [" << str::to_wstr(p.get_name()) << "]";
-
-        ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
-#endif
-    }
 }
 
 /**
@@ -211,17 +186,8 @@ string parse_args(int argc, wchar_t* argv[]) {
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
-    // Introduced in 5.6.1, removed in 5.6.3
-    //if(!check_min_os_version()) {
-    //    return 1;
-    //}
-
-    debug_args_msgbox(argc, argv);
-
     string arg = parse_args(argc, argv);
-
     execute(arg);
-
     return 0;
 }
 

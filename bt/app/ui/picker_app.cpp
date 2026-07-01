@@ -44,7 +44,7 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        choices = browser::to_instances(g_config.browsers, true);
+        choices = browser::to_instances(g_settings.browsers, true);
 
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
@@ -76,7 +76,7 @@ namespace bt::ui {
     }
 
     picker_app::~picker_app() {
-        g_config.commit();
+        g_settings.commit();
     }
 
     picker_result picker_app::run() {
@@ -335,7 +335,7 @@ namespace bt::ui {
             "browser on top of profile",
             "browser only",
             "profile only"
-        }, (unsigned int&)g_config.icon_overlay);
+        }, (unsigned int&)g_settings.icon_overlay);
 
 #if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = false; // never close app when settings are open
@@ -359,7 +359,7 @@ namespace bt::ui {
             g_settings.picker_show_key_hints = true;
             g_settings.picker_border_width = 1;
             g_settings.picker_show_native_chrome = false;
-            g_config.icon_overlay = icon_overlay_mode::profile_on_browser;
+            g_settings.icon_overlay = icon_overlay_mode::profile_on_browser;
             g_settings.picker_opacity = 255;
         }
 

@@ -1,7 +1,8 @@
 #include "rule_hit_log.h"
-#include "config.h"
 #include <vector>
 #include "datetime.h"
+#include "common/fss.h"
+#include "globals.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -12,7 +13,7 @@ namespace bt {
     rule_hit_log rule_hit_log::i;
 
     rule_hit_log::rule_hit_log() : 
-        path{config::get_data_file_path(HitLogFileName)},
+        path{grey::common::fss::get_config_file_path(APP_SHORT_NAME, HitLogFileName)},
         stream(path, ofstream::out | ofstream::app | ofstream::ate),
         writer(stream) {
         if(stream.tellp() == 0) {

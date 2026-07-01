@@ -24,7 +24,7 @@ cmdline::cmdline(){
 }
 
 int cmdline::exec(const std::string& command, const std::string& data) {
-    // browser related queries
+    // browser-related queries
     if(data.starts_with("list|")) return exec_list();
     if(data.starts_with("get default|")) return exec_get_default();
     if(data.starts_with("set default ")) return exec_set_default(data);
@@ -36,9 +36,9 @@ int cmdline::exec(const std::string& command, const std::string& data) {
 int cmdline::exec_list() {
     // list all browsers and profiles
 
-    wcout << L"browsers: " << g_config.browsers.size() << endl << endl;
+    wcout << L"browsers: " << g_settings.browsers.size() << endl << endl;
 
-    for(const auto& b : g_config.browsers) {
+    for(const auto& b : g_settings.browsers) {
         wcout << str::to_wstr(b->id) << endl;
         wcout << L"  name:             " << str::to_wstr(b->name) << endl;
         wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
@@ -89,7 +89,7 @@ int cmdline::exec_list() {
 
 int cmdline::exec_get_default() {
 
-    auto def = bt::browser::get_default(g_config.browsers, g_settings.default_profile);
+    auto def = bt::browser::get_default(g_settings.browsers, g_settings.default_profile);
 
     wcout << str::to_wstr(def->b->id) << L"." << str::to_wstr(def->id) << endl;
 
@@ -117,7 +117,7 @@ int cmdline::exec_set_default(const std::string& data) {
     wcout << L"setting default browser to " << str::to_wstr(browser_id) << L"." << str::to_wstr(profile_id) << endl;
 
     // find browser
-    for(const auto& b : g_config.browsers) {
+    for(const auto& b : g_settings.browsers) {
         if(b->id == browser_id) {
             wcout << L"found browser: " << str::to_wstr(b->name) << endl;
             // find profile
@@ -125,7 +125,7 @@ int cmdline::exec_set_default(const std::string& data) {
                 if(p->id == profile_id) {
                     wcout << L"found profile: " << str::to_wstr(p->name) << endl;
                     g_settings.default_profile = p->long_id();
-                    g_config.commit();
+                    g_settings.commit();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

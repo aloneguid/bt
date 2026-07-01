@@ -87,9 +87,9 @@ namespace bt::ui {
         };
 
         // in case config is not set, explicitly set it to default
-        if(!g_config.browsers.empty()) {
+        if(!g_settings.browsers.empty()) {
             g_settings.default_profile =
-                browser::get_default(g_config.browsers, g_settings.default_profile)->long_id();
+                browser::get_default(g_settings.browsers, g_settings.default_profile)->long_id();
         }
 
 #if PLATFORM_WINDOWS
@@ -101,11 +101,11 @@ namespace bt::ui {
     }
 
     config_app::~config_app() {
-        g_config.commit();
+        g_settings.commit();
     }
 
     void config_app::run() {
-        app->run([this](const grey::app& app) { return run_frame(); });
+        app->run([this](const grey::app&) { return run_frame(); });
     }
 
     void config_app::refresh_sys_info() {
@@ -143,7 +143,7 @@ namespace bt::ui {
 
         render_menu_bar();
 
-        if(g_config.browsers.empty()) {
+        if(g_settings.browsers.empty()) {
             render_no_browsers();
         } else {
             render_browsers();
@@ -180,40 +180,18 @@ namespace bt::ui {
 
             if(w::menu m_file{"File"}; m_file) {
                 if(w::mi("Save configuration", true, ICON_MD_SAVE)) {
-                    g_config.commit();
+                    g_settings.commit();
                     w::notify_info("Configuration saved.");
                 }
                 if(w::mi("Add custom browser", true, ICON_MD_ADD_CIRCLE)) {
                     add_custom_browser_by_asking();
                 }
-               
 
-                if(w::menu m_ini{"config.ini", true, ICON_MD_SETTINGS}; m_ini) {
-                    if(w::mi("Open")) {
+                if(w::mi("Open configuration directory", true, ICON_MD_FOLDER_OPEN)) {
 #if PLATFORM_WINDOWS
-                        win32::shell::exec(g_config.get_absolute_path(), "");
+                    win32::shell::exec(grey::common::fss::get_config_dir(APP_SHORT_NAME), "");
 #endif
-                    }
-                    if(w::mi("Copy path")) {
-#if PLATFORM_WINDOWS
-                        win32::os::set_clipboard_text(g_config.get_absolute_path());
-#endif
-                        w::notify_info("Path copied to clipboard.");
-                    }
-                }
 
-                if(w::menu m_csv{"hit_log.csv", true, ICON_MD_BOOK}; m_csv) {
-                    if(w::mi("Open")) {
-#if PLATFORM_WINDOWS
-                        win32::shell::exec(rule_hit_log::i.get_absolute_path(), "");
-#endif
-                    }
-                    if(w::mi("Copy path")) {
-#if PLATFORM_WINDOWS
-                        win32::os::set_clipboard_text(rule_hit_log::i.get_absolute_path());
-#endif
-                        w::notify_info("Path copied to clipboard.");
-                    }
                 }
 
                 w::sep();
@@ -615,7 +593,7 @@ namespace bt::ui {
             // browsers
             pv.begin_row();
             if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
-                for(auto b : g_config.browsers) {
+                for(auto b : g_settings.browsers) {
                     if(pv_only_matching && !b->ui_test_url_matches) continue;
 
                     pv.begin_row();
@@ -737,7 +715,7 @@ namespace bt::ui {
 
         size_t ipc{0};
         size_t irc{0};
-        for(const auto& b : g_config.browsers) {
+        for(const auto& b : g_settings.browsers) {
             ipc += b->instances.size();
             for(const auto& i : b->instances) {
                 irc += i->rules.size();
@@ -747,7 +725,7 @@ namespace bt::ui {
         w::sl();
         w::label("|", 0, false);
         w::sl();
-        w::label(format("{} {}", ICON_MD_WEB, g_config.browsers.size()), 0, false);
+        w::label(format("{} {}", ICON_MD_WEB, g_settings.browsers.size()), 0, false);
         w::tt("Browser count");
 
         w::sl();
@@ -771,9 +749,9 @@ namespace bt::ui {
             url_opener::open(APP_BUYMEACOFFEE_URL);
         };
 
-        if(!g_config.browsers.empty()) {
+        if(!g_settings.browsers.empty()) {
             w::sl(); w::label("|", 0, false);
-            const auto dbr = browser::get_default(g_config.browsers, g_settings.default_profile);
+            const auto dbr = browser::get_default(g_settings.browsers, g_settings.default_profile);
             w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
             w::sl(); w::label(dbr->b->name, 0, false);
             w::tt("Default browser");
@@ -820,8 +798,8 @@ namespace bt::ui {
             w::icon_checkbox(ICON_MD_VISIBILITY, g_settings.browsers_show_hidden);
             w::tt("Show hidden browsers");
 
-            for(int i = 0; i < g_config.browsers.size(); i++) {
-                auto br = g_config.browsers[i];
+            for(int i = 0; i < g_settings.browsers.size(); i++) {
+                auto br = g_settings.browsers[i];
                 if(!g_settings.browsers_show_hidden && br->is_hidden) {
                     continue;
                 }
@@ -838,14 +816,14 @@ namespace bt::ui {
         {
             w::guard g{w_right_panel};
 
-            if(selected_browser_idx < g_config.browsers.size()) {
-                render_detail(g_config.browsers[selected_browser_idx]);
+            if(selected_browser_idx < g_settings.browsers.size()) {
+                render_detail(g_settings.browsers[selected_browser_idx]);
             }
         }
     }
 
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
-        auto browser = g_config.browsers[selected_browser_idx];
+        auto browser = g_settings.browsers[selected_browser_idx];
         if(browser->is_autodiscovered) {
             return browser->instances[selected_profile_idx];
         } else {
@@ -949,15 +927,15 @@ namespace bt::ui {
         w::sl();
         w::icon_checkbox(ICON_MD_VISIBILITY, b->is_hidden, true, "Show in browser list and picker");
 
-        bool can_move_up = b->id != (*g_config.browsers.begin())->id;
-        bool can_move_down = b->id != (*g_config.browsers.rbegin())->id;
+        bool can_move_up = b->id != (*g_settings.browsers.begin())->id;
+        bool can_move_down = b->id != (*g_settings.browsers.rbegin())->id;
 
         w::sl();
         if(w::button(ICON_MD_ARROW_UPWARD, w::emphasis::none, can_move_up)) {
             // move up one position inside g_config.browsers
-            size_t idx = browser::index_of(g_config.browsers, b);
+            size_t idx = browser::index_of(g_settings.browsers, b);
             if(idx != string::npos && idx > 0) {
-                std::swap(g_config.browsers[idx], g_config.browsers[idx - 1]);
+                std::swap(g_settings.browsers[idx], g_settings.browsers[idx - 1]);
                 selected_browser_idx = idx - 1;
                 return;
             }
@@ -966,10 +944,10 @@ namespace bt::ui {
 
         w::sl();
         if(w::button(ICON_MD_ARROW_DOWNWARD, w::emphasis::none, can_move_down)) {
-            // move down one position inside g_config.browsers
-            size_t idx = browser::index_of(g_config.browsers, b);
-            if(idx != string::npos && idx < g_config.browsers.size() - 1) {
-                std::swap(g_config.browsers[idx], g_config.browsers[idx + 1]);
+            // move down one position inside g_settings.browsers
+            size_t idx = browser::index_of(g_settings.browsers, b);
+            if(idx != string::npos && idx < g_settings.browsers.size() - 1) {
+                std::swap(g_settings.browsers[idx], g_settings.browsers[idx + 1]);
                 selected_browser_idx = idx + 1;
             }
         }
@@ -1028,15 +1006,15 @@ namespace bt::ui {
 
             w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
-                size_t idx = browser::index_of(g_config.browsers, b);
+                size_t idx = browser::index_of(g_settings.browsers, b);
 
                 // erase and save
-                std::erase_if(g_config.browsers, [b](auto i) { return i->id == b->id; });
+                std::erase_if(g_settings.browsers, [b](auto i) { return i->id == b->id; });
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
                     idx -= 1;
-                    if(idx >= 0 && idx < g_config.browsers.size()) {
+                    if(idx >= 0 && idx < g_settings.browsers.size()) {
                         selected_browser_idx = idx;
                     }
                 }
@@ -1387,10 +1365,10 @@ terminal window will be hidden.)");
 
     void config_app::rediscover_browsers() {
         vector<shared_ptr<browser>> fresh_browsers = discovery::discover_all_browsers();
-        fresh_browsers = browser::merge(fresh_browsers, g_config.browsers);
-        g_config.browsers = fresh_browsers;
+        fresh_browsers = browser::merge(fresh_browsers, g_settings.browsers);
+        g_settings.browsers = fresh_browsers;
 
-        string message = format("Discovered {} browser(s).", g_config.browsers.size());
+        string message = format("Discovered {} browser(s).", g_settings.browsers.size());
         w::notify_info(message);
     }
 
@@ -1405,10 +1383,10 @@ terminal window will be hidden.)");
         auto b = make_shared<browser>(id, name, exe_path);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
 
-        g_config.browsers.push_back(b);
+        g_settings.browsers.push_back(b);
 
         // find this new browser and select it (it won't be the last in the list)
-        size_t idx = browser::index_of(g_config.browsers, b);
+        size_t idx = browser::index_of(g_settings.browsers, b);
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }
@@ -1416,7 +1394,7 @@ terminal window will be hidden.)");
     }
 
     void config_app::recalculate_test_url_matches(const click_payload& cp) {
-        for(auto b : g_config.browsers) {
+        for(auto b : g_settings.browsers) {
             b->ui_test_url_matches = false;
             for(auto bi : b->instances) {
                 bi->ui_test_url_matches = false;

@@ -11,7 +11,7 @@ namespace bt::ui {
         app.preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
 
         // preload browser icons
-        for(auto& b : g_config.browsers) {
+        for(auto& b : g_settings.browsers) {
             string path = b->get_best_icon_path();
             app.preload_texture(path, fss::get_full_path(path));
 
@@ -43,7 +43,7 @@ namespace bt::ui {
             ? ""
             : (bi->is_incognito && bi->user_icon_path.empty()) ? "incognito" : bi->get_best_icon_path();
 
-        switch(g_config.icon_overlay) {
+        switch(g_settings.icon_overlay) {
             case icon_overlay_mode::browser_only:
                 icon2 = "";
                 break;

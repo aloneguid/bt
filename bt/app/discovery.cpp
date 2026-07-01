@@ -1,6 +1,5 @@
 #include "discovery.h"
 #include "fss.h"
-#include "config.h"
 #include "str.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>

@@ -7,6 +7,7 @@ opt(string,       default_profile,          "")
 opt(bool,         toast_on_open,            true)
 opt(int,          toast_visible_secs,       3)
 opt(int,          toast_border_width,       1)
+opt_enum(bt::icon_overlay_mode,     icon_overlay,  0, uint)
 
 opt_sect(bool,      picker_on_key_cs,               true,       picker,     on_key_cs)
 opt_sect(bool,      picker_on_key_ca,               false,      picker,     on_key_ca)
