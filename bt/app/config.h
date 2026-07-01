@@ -24,50 +24,15 @@ namespace bt {
 
     class config {
     public:
-        bool log_rule_hits{true};
-        // default browser long sys name
-        std::string default_profile_long_id;
-        bool toast_on_open{true};
-        int toast_visible_secs{3};
-        int toast_border_width{1};
+
+        // -------------- begin
+
         icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
-
-        // picker
-        // ctrl + shift
-        bool picker_on_key_cs;
-        bool picker_on_key_ca;
-        bool picker_on_key_as;
-        bool picker_on_key_cl; // CAPS LOCKS
-        // whether to show picker on conflict (more than one browser/profile match)
-        bool picker_on_conflict;
-        // whether to show picker if none of the rules match at all
-        bool picker_on_no_rule;
-        // whether to always show the picker, regardless of other settings above (they are kept to restore old behavior when you un-tick)
-        bool picker_always;
-        bool picker_close_on_focus_loss;
-        bool picker_always_on_top;
-        float picker_icon_size;
-        float picker_item_padding;
-        float picker_inactive_item_alpha;
-        bool picker_show_key_hints;
-        int picker_border_width;
-        bool picker_show_native_chrome;
-        int picker_opacity{255};
-
-        // pipeline
-        bool pipeline_unwrap_o365;
-        bool pipeline_unshorten;
-        bool pipeline_substitute;
-        bool pipeline_script;
-        std::vector<std::string> pipeline_substitutions;
-
-        // pipe visualiser
-        std::string pv_last_url;
-        std::string pv_last_wt;
-        std::string pv_last_pn;
 
         // browser collection
         std::vector<std::shared_ptr<browser>> browsers;
+
+        // ------------- end
 
         config();
         void commit();

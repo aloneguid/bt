@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 #include "url_pipeline_step.h"
-#include "config.h"
+#include "common/config.hpp"
 #include "pipeline/replacer.h"
 
 namespace bt {
@@ -18,17 +18,17 @@ namespace bt {
     */
     class url_pipeline {
     public:
-        url_pipeline(config& cfg);
+        url_pipeline(grey::common::config& cfg);
 
         /**
-         * @brief Process payload in place and change it according to the pipeline steps.
+         * @brief Process the payload in place and change it according to the pipeline steps.
         */
         void process(click_payload& up);
 
         std::vector<url_pipeline_processing_step> process_debug(click_payload& cp);
 
         /**
-         * @brief Reloads pipeline from configuration file.
+         * @brief Reloads the pipeline from configuration file.
         */
         void load();
 
@@ -42,7 +42,7 @@ namespace bt {
         std::shared_ptr<bt::pipeline::replacer> get_replacer_step(size_t idx);
 
     private:
-        config& cfg;
+        grey::common::config& cfg;
         std::vector<std::shared_ptr<url_pipeline_step>> steps;
 
         static void clean(std::string& s);

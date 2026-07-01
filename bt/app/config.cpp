@@ -25,23 +25,14 @@ namespace bt {
     #define ItemSortOrder "sort_order"
     #define DataPath "data_path"
     #define FirefoxContainerModeKey "firefox_container_mode"
-    #define DefaultProfileKey "default_profile"
-    #define ToastOnOpenKey "toast_on_open"
-    #define ToastVisibleSecsKey "toast_visible_secs"
-    #define ToastBorderWidthKey "toast_border_width"
     #define IconOverlayKey "icon_overlay"
     #define BrowserEngine "engine"
     #define IsAutodiscovered "auto"
     #define IsIncognito "incognito"
-    #define LogRuleHitsKey "log_rule_hits"
     #define PersistPopularityKey "persist_popularity"
     #define ShowHiddenBrowsersKey "browsers_show_hidden"
     #define UnshortEnabledKey "unshort_enabled"
     #define PickerSectionName "picker"
-    #define PickerOnKeyCS "on_key_cs"
-    #define PickerOnKeyCA "on_key_ca"
-    #define PickerOnKeyAS "on_key_as"
-    #define PickerOnKeyCL "on_key_cl"
     #define PickerOnConflict "on_conflict"
     #define PickerCloseOnFocusLoss "close_on_focus_loss"
     #define PickerAlwaysOnTop "always_on_top"
@@ -158,85 +149,13 @@ namespace bt {
     void config::load() {
         string v;
 
-        log_rule_hits = cfg.get_bool_value(LogRuleHitsKey);
         string mode = cfg.get_value(FirefoxContainerModeKey);
-        default_profile_long_id = cfg.get_value(DefaultProfileKey);
-        toast_on_open = cfg.get_bool_value(ToastOnOpenKey, true);
-        toast_visible_secs = cfg.get_int_value(ToastVisibleSecsKey, 3);
-        toast_border_width = cfg.get_int_value(ToastBorderWidthKey, 1);
         icon_overlay = to_icon_overlay_mode(cfg.get_value(IconOverlayKey));
-
-        // picker
-        picker_on_key_cs = cfg.get_bool_value(PickerOnKeyCS, true, PickerSectionName);
-        picker_on_key_ca = cfg.get_bool_value(PickerOnKeyCA, false, PickerSectionName);
-        picker_on_key_as = cfg.get_bool_value(PickerOnKeyAS, false, PickerSectionName);
-        picker_on_key_cl = cfg.get_bool_value(PickerOnKeyCL, false, PickerSectionName);
-        picker_on_conflict = cfg.get_bool_value(PickerOnConflict, true, PickerSectionName);
-        picker_on_no_rule = cfg.get_bool_value("on_no_rule", false, PickerSectionName);
-        picker_always = cfg.get_bool_value("always", false, PickerSectionName);
-        picker_close_on_focus_loss = cfg.get_bool_value(PickerCloseOnFocusLoss, false, PickerSectionName);
-        picker_always_on_top = cfg.get_bool_value(PickerAlwaysOnTop, false, PickerSectionName);
-        picker_icon_size = cfg.get_float_value(PickerIconSize, 32.0f, PickerSectionName);
-        picker_item_padding = cfg.get_float_value(PickerItemPadding, 10.0f, PickerSectionName);
-        picker_inactive_item_alpha = cfg.get_float_value(PickerInactiveItemAlpha, 0.4f, PickerSectionName);
-        picker_show_key_hints = cfg.get_bool_value(PickerShowKeyHints, true, PickerSectionName);
-        picker_border_width = cfg.get_int_value(PickerBorderWidth, 1, PickerSectionName);
-        picker_show_native_chrome = cfg.get_bool_value(PickerShowNativeChrome, false, PickerSectionName);
-        picker_opacity = cfg.get_int_value(PickerOpacity, 255, PickerSectionName);
-
-        // pipeline
-        pipeline_unwrap_o365 = cfg.get_bool_value(PipelineUnwrapO365Key, true, PipelineSectionName);
-        pipeline_unshorten = cfg.get_bool_value(PipelineUnshortenKey, true, PipelineSectionName);
-        pipeline_substitute = cfg.get_bool_value(PipelineSubstituteKey, true, PipelineSectionName);
-        pipeline_substitutions = cfg.get_all_values(PipelineSubstKeyName, PipelineSectionName);
-        pipeline_script = cfg.get_bool_value(PipelineScriptKey, true, PipelineSectionName);
-
-        // pipe visualiser
-        pv_last_url = cfg.get_value("last_url", PipeVisualiserSectionName);
-        pv_last_wt = cfg.get_value("last_wt", PipeVisualiserSectionName);
-        pv_last_pn = cfg.get_value("last_pn", PipeVisualiserSectionName);
-
         browsers = load_browsers();
     }
 
     void config::commit() {
-        cfg.set_value(LogRuleHitsKey, log_rule_hits);
-        cfg.set_value(DefaultProfileKey, default_profile_long_id);
-        cfg.set_value(ToastOnOpenKey, toast_on_open);
-        cfg.set_value(ToastVisibleSecsKey, toast_visible_secs);
-        cfg.set_value(ToastBorderWidthKey, toast_border_width);
         cfg.set_value(IconOverlayKey, icon_overlay_mode_to_string(icon_overlay));
-
-        // picker
-        cfg.set_value(PickerOnKeyCS, picker_on_key_cs, PickerSectionName);
-        cfg.set_value(PickerOnKeyCA, picker_on_key_ca, PickerSectionName);
-        cfg.set_value(PickerOnKeyAS, picker_on_key_as, PickerSectionName);
-        cfg.set_value(PickerOnKeyCL, picker_on_key_cl, PickerSectionName);
-        cfg.set_value(PickerOnConflict, picker_on_conflict, PickerSectionName);
-        cfg.set_value("on_no_rule", picker_on_no_rule, PickerSectionName);
-        cfg.set_value("always", picker_always, PickerSectionName);
-        cfg.set_value(PickerCloseOnFocusLoss, picker_close_on_focus_loss, PickerSectionName);
-        cfg.set_value(PickerAlwaysOnTop, picker_always_on_top, PickerSectionName);
-        cfg.set_value(PickerIconSize, picker_icon_size, PickerSectionName);
-        cfg.set_value(PickerItemPadding, picker_item_padding, PickerSectionName);
-        cfg.set_value(PickerInactiveItemAlpha, picker_inactive_item_alpha, PickerSectionName);
-        cfg.set_value(PickerShowKeyHints, picker_show_key_hints, PickerSectionName);
-        cfg.set_value(PickerBorderWidth, picker_border_width, PickerSectionName);
-        cfg.set_value(PickerShowNativeChrome, picker_show_native_chrome, PickerSectionName);
-        cfg.set_value(PickerOpacity, picker_opacity, PickerSectionName);
-
-        // pipeline
-        cfg.set_value(PipelineUnwrapO365Key, pipeline_unwrap_o365, PipelineSectionName);
-        cfg.set_value(PipelineUnshortenKey, pipeline_unshorten, PipelineSectionName);
-        cfg.set_value(PipelineSubstituteKey, pipeline_substitute, PipelineSectionName);
-        cfg.set_value(PipelineSubstKeyName, pipeline_substitutions, PipelineSectionName);
-        cfg.set_value(PipelineScriptKey, pipeline_script, PipelineSectionName);
-
-        // pipe visualiser
-        cfg.set_value("last_url", pv_last_url, PipeVisualiserSectionName);
-        cfg.set_value("last_wt", pv_last_wt, PipeVisualiserSectionName);
-        cfg.set_value("last_pn", pv_last_pn, PipeVisualiserSectionName);
-
         save_browsers(browsers);
 
         cfg.commit();

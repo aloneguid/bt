@@ -12,7 +12,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 enable_testing()
 
-file(GLOB cpps CONFIGURE_DEPENDS
+file(GLOB cpps
     "*.cpp"
     "../common/*.cpp"
     "../bt/app/match_rule.cpp"

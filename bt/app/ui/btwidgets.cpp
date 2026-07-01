@@ -59,7 +59,7 @@ namespace bt::ui {
         if(icon2 == icon1)
             icon2.clear();
 
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_config.picker_inactive_item_alpha);
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_settings.picker_inactive_item_alpha);
 
         w::image_rounded(app, icon1, icon_size, icon_size, icon_size / 2);
 

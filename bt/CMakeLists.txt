@@ -14,7 +14,7 @@ find_package(tinyxml2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
-file(GLOB core_src CONFIGURE_DEPENDS
+file(GLOB core_src
     "cmdline.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
@@ -26,7 +26,7 @@ file(GLOB core_src CONFIGURE_DEPENDS
     "../common/config/config.cpp")
 
 if(WIN32)
-file(GLOB core_src CONFIGURE_DEPENDS
+file(GLOB core_src
     ${core_src}
     "../common/win32/window.cpp"
     "../common/win32/shell.cpp"

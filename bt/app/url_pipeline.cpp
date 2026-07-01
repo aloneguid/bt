@@ -8,7 +8,7 @@ using namespace std;
 
 namespace bt {
 
-    url_pipeline::url_pipeline(config& cfg) : cfg{cfg} {
+    url_pipeline::url_pipeline(grey::common::config& cfg) : cfg{cfg} {
         load();
     }
 
@@ -77,9 +77,9 @@ namespace bt {
     }
 
     std::shared_ptr<bt::pipeline::replacer> url_pipeline::get_replacer_step(size_t idx) {
-        // enumerate all steps until we find the indexed replacer step
+        // list all steps until we find the indexed replacer step
         size_t i = 0;
-        for(auto step : steps) {
+        for(const auto step : steps) {
             if(step->type == url_pipeline_step_type::find_replace) {
                 if(i == idx) {
                     return std::static_pointer_cast<bt::pipeline::replacer>(step);

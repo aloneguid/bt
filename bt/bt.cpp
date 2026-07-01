@@ -23,32 +23,29 @@
 bt::config g_config;
 grey::common::config g_settings{APP_SHORT_NAME, "settings.ini"};
 bt::script_site g_script{bt::config::get_data_file_path("scripts.lua"), true};
-bt::url_pipeline g_pipeline{g_config};
+bt::url_pipeline g_pipeline{g_settings};
 
 using namespace std;
 
 void open(bt::click_payload up, bool force_picker = false) {
-
-    //::MessageBox(nullptr, L"open-up", L"Command Line Debugger", MB_OK);
-
     g_pipeline.process(up);
 
     // decision whether to show picker or not
     bool show_picker{force_picker};
     string pick_reason;
     if(!show_picker) {
-        if(g_config.picker_always) {
+        if(g_settings.picker_always) {
             show_picker = true;
             pick_reason = "always";
         } else if(bt::ui::picker_app::is_hotkey_down()) {
             show_picker = true;
             pick_reason = "hotkey";
-        } else if(g_config.picker_on_conflict || g_config.picker_on_no_rule) {
-            auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
-            if(g_config.picker_on_conflict && matches.size() > 1) {
+        } else if(g_settings.picker_on_conflict || g_settings.picker_on_no_rule) {
+            auto matches = bt::browser::match(g_config.browsers, up, g_settings.default_profile, g_script);
+            if(g_settings.picker_on_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
-            } else if(g_config.picker_on_no_rule && matches[0].rule.is_fallback) {
+            } else if(g_settings.picker_on_no_rule && matches[0].rule.is_fallback) {
                 show_picker = true;
                 pick_reason = "no rule";
             }
@@ -61,20 +58,20 @@ void open(bt::click_payload up, bool force_picker = false) {
         if(bi) {
             up.url = bi.url;
             bt::url_opener::open(bi.decision, up);
-            if(g_config.log_rule_hits) {
+            if(g_settings.log_rule_hits) {
                 bt::rule_hit_log::i.write(up, bi.decision, "picker:" + pick_reason);
             }
         }
     } else {
-        auto matches = bt::browser::match(g_config.browsers, up, g_config.default_profile_long_id, g_script);
+        auto matches = bt::browser::match(g_config.browsers, up, g_settings.default_profile, g_script);
         bt::browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);
-        if(g_config.log_rule_hits) {
+        if(g_settings.log_rule_hits) {
             bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
         }
 
-        if(g_config.toast_on_open) {
+        if(g_settings.toast_on_open) {
             bt::ui::toast_app app{up, first_match.bi};
             app.run();
         }
@@ -186,16 +183,6 @@ void debug_args_msgbox(int argc, wchar_t* argv[]) {
         ::MessageBox(nullptr, msg.str().c_str(), L"Command Line Debugger", MB_OK);
 #endif
     }
-}
-
-bool check_min_os_version() {
-#if PLATFORM_WINDOWS
-    if(!win32::os::is_windows11_or_greater()) {
-        ::MessageBox(nullptr, L"Windows 11 is the minimum supported OS version", L"Unsupported OS", MB_OK | MB_ICONERROR);
-        return false;
-    }
-#endif
-    return true;
 }
 
 /**

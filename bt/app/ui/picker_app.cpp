@@ -29,9 +29,9 @@ namespace bt::ui {
 #if PLATFORM_WINDOWS
         app->win32_can_resize = false;
         app->win32_center_on_screen = true;
-        app->win32_close_on_focus_lost = g_config.picker_close_on_focus_loss;
-        app->win32_always_on_top = g_config.picker_always_on_top;
-        app->win32_title_bar = g_config.picker_show_native_chrome;
+        app->win32_close_on_focus_lost = g_settings.picker_close_on_focus_loss;
+        app->win32_always_on_top = g_settings.picker_always_on_top;
+        app->win32_title_bar = g_settings.picker_show_native_chrome;
 #endif
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
@@ -53,7 +53,7 @@ namespace bt::ui {
                 //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
-                .border(g_config.picker_border_width)
+                .border(g_settings.picker_border_width)
                 .fill_viewport()
                 //.no_background()
                 .no_scroll();
@@ -95,10 +95,10 @@ namespace bt::ui {
         bool k_caps = win32::user::is_kbd_caps_locks_on();
 
         return
-            (g_config.picker_on_key_as && (k_alt && k_shift)) ||
-            (g_config.picker_on_key_ca && (k_ctrl && k_alt)) ||
-            (g_config.picker_on_key_cs && (k_ctrl && k_shift)) ||
-            (g_config.picker_on_key_cl && k_caps);
+            (g_settings.picker_on_key_as && (k_alt && k_shift)) ||
+            (g_settings.picker_on_key_ca && (k_ctrl && k_alt)) ||
+            (g_settings.picker_on_key_cs && (k_ctrl && k_shift)) ||
+            (g_settings.picker_on_key_cl && k_caps);
 #else
         return false;
 #endif
@@ -107,7 +107,7 @@ namespace bt::ui {
     bool picker_app::run_frame() {
 
 #if PLATFORM_WINDOWS
-        app->win32_transparency_window_alpha = g_config.picker_opacity;
+        app->win32_transparency_window_alpha = g_settings.picker_opacity;
 #endif
 
         // get monitor dimensions
@@ -209,8 +209,8 @@ namespace bt::ui {
     }
 
     void picker_app::recalc() {
-        padding = g_config.picker_item_padding * app->scale;
-        icon_size = g_config.picker_icon_size * app->scale;
+        padding = g_settings.picker_item_padding * app->scale;
+        icon_size = g_settings.picker_icon_size * app->scale;
         box_size = padding + icon_size + padding;
 
         float max_url_width = ImGui::CalcTextSize(url.c_str()).x + action_button_width * (action_menu_items.size() + 2);
@@ -294,7 +294,7 @@ namespace bt::ui {
                 btw_icon(*app, p, padding, icon_size, is_active);
 
                 // draw key highlight
-                if(g_config.picker_show_key_hints && i < 9) {
+                if(g_settings.picker_show_key_hints && i < 9) {
                     string label = format("{}", i + 1);
                     ImVec2 wsz = ImGui::CalcTextSize(label.c_str());
 
@@ -341,26 +341,26 @@ namespace bt::ui {
         app->win32_close_on_focus_lost = false; // never close app when settings are open
 #endif
 
-        w::slider(g_config.picker_icon_size, 5, 256, "icon size");
-        w::slider(g_config.picker_item_padding, 0, 100, "padding");
-        w::slider(g_config.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
-        w::checkbox("show key hints (1-9)", g_config.picker_show_key_hints);
-        if(w::slider(g_config.picker_border_width, 0, 10, "border width", 1, true)) {
-            wnd_main.border(g_config.picker_border_width);
+        w::slider(g_settings.picker_icon_size, 5, 256, "icon size");
+        w::slider(g_settings.picker_item_padding, 0, 100, "padding");
+        w::slider(g_settings.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
+        w::checkbox("show key hints (1-9)", g_settings.picker_show_key_hints);
+        if(w::slider(g_settings.picker_border_width, 0, 10, "border width", 1, true)) {
+            wnd_main.border(g_settings.picker_border_width);
         }
-        w::slider(g_config.picker_opacity, 50, 255, "window opacity");
-        w::checkbox("show native window chrome", g_config.picker_show_native_chrome);
+        w::slider(g_settings.picker_opacity, 50, 255, "window opacity");
+        w::checkbox("show native window chrome", g_settings.picker_show_native_chrome);
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         if(w::button("reset", w::emphasis::error)) {
-            g_config.picker_icon_size = 32;
-            g_config.picker_item_padding = 10;
-            g_config.picker_inactive_item_alpha = 0.4f;
-            g_config.picker_show_key_hints = true;
-            g_config.picker_border_width = 1;
-            g_config.picker_show_native_chrome = false;
+            g_settings.picker_icon_size = 32;
+            g_settings.picker_item_padding = 10;
+            g_settings.picker_inactive_item_alpha = 0.4f;
+            g_settings.picker_show_key_hints = true;
+            g_settings.picker_border_width = 1;
+            g_settings.picker_show_native_chrome = false;
             g_config.icon_overlay = icon_overlay_mode::profile_on_browser;
-            g_config.picker_opacity = 255;
+            g_settings.picker_opacity = 255;
         }
 
         w::spc(3);

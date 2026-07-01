@@ -89,7 +89,7 @@ int cmdline::exec_list() {
 
 int cmdline::exec_get_default() {
 
-    auto def = bt::browser::get_default(g_config.browsers, g_config.default_profile_long_id);
+    auto def = bt::browser::get_default(g_config.browsers, g_settings.default_profile);
 
     wcout << str::to_wstr(def->b->id) << L"." << str::to_wstr(def->id) << endl;
 
@@ -97,13 +97,13 @@ int cmdline::exec_get_default() {
 }
 
 int cmdline::exec_set_default(const std::string& data) {
-    // data is in the following form: "set default <browser_id>.<profile_id>|suffix"
-    // suffix is optional
-    // extract browser_id and profile_id
+    // Data is in the following form: "set default <browser_id>.<profile_id>|suffix".
+    // Suffix is optional.
+    // Extract browser_id and profile_id.
     string browser_id;
     string profile_id;
 
-    string t = data.substr(12); // skip "set default "
+    string t = data.substr(12); // skip "set default"
     size_t pos = t.find('|');
     if(pos != string::npos) {
         t = t.substr(0, pos);
@@ -124,7 +124,7 @@ int cmdline::exec_set_default(const std::string& data) {
             for(const auto& p : b->instances) {
                 if(p->id == profile_id) {
                     wcout << L"found profile: " << str::to_wstr(p->name) << endl;
-                    g_config.default_profile_long_id = p->long_id();
+                    g_settings.default_profile = p->long_id();
                     g_config.commit();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
