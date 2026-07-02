@@ -51,39 +51,30 @@ add_executable(test ${test_src})
 include(GoogleTest)
 gtest_discover_tests(test)
 
-target_link_libraries(bt
-	libgrey
-	nlohmann_json::nlohmann_json
-    tinyxml2::tinyxml2
-    unofficial::sqlite3::sqlite3
-    ${LUA_LIBRARIES}
-)
-
-target_link_libraries(test PRIVATE
-        GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+set(COMMON_LIBS
         libgrey
         nlohmann_json::nlohmann_json
         tinyxml2::tinyxml2
         unofficial::sqlite3::sqlite3
         ${LUA_LIBRARIES})
 
-target_include_directories(${APP_NAME} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}"
-    "../grey/grey/common"
-    "../grey/grey"
-    ${P_RANAV_CSV2_INCLUDE_DIRS}
-    ${LUA_INCLUDE_DIR})
-
-target_include_directories(test PRIVATE
+set(COMMON_INCLUDES
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "../grey/grey/common"
         "../grey/grey"
         ${P_RANAV_CSV2_INCLUDE_DIRS}
         ${LUA_INCLUDE_DIR})
 
+target_link_libraries(bt PRIVATE ${COMMON_LIBS})
+target_link_libraries(test PRIVATE ${COMMON_LIBS} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
+target_include_directories(${APP_NAME} PRIVATE ${COMMON_INCLUDES})
+target_include_directories(test PRIVATE ${COMMON_INCLUDES})
+
 if(WIN32)
     target_sources(bt PRIVATE dpi-aware.manifest)
 
+    # only BT needs windows-specific main function, in order to capture UNICODE command line parameters and not to spawn terminal
     target_link_options(bt PRIVATE
             /SUBSYSTEM:WINDOWS
             /ENTRY:wmainCRTStartup
