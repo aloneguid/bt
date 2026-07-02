@@ -97,12 +97,12 @@ jobs:
 
     - name: debug
       run: ls -R
-      working-directory: build/test
+      working-directory: build/bt
 
 
     - name: 🧪 unit tests
       run: .\test.exe
-      working-directory: build/test/Release
+      working-directory: build/bt/Release
 
     - name: Create artifacts directory
       run: mkdir atf        
