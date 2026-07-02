@@ -1,6 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include "../bt/app/match_rule.h"
+#include "../app/match_rule.h"
 
 using namespace std;
 using namespace bt;

@@ -1,6 +1,6 @@
 ﻿#include <format>
 #include "globals.h"
-#include "../common/str.h"
+#include "common/str.h"
 #include "process.h"
 #include "app/url_pipeline.h"
 #include "app/rule_hit_log.h"

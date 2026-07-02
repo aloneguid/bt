@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../grey/grey/common/url.h"
+#include "common/url.h"
 
 using namespace std;
 using namespace grey::common;

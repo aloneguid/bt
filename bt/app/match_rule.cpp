@@ -1,5 +1,5 @@
 #include "match_rule.h"
-#include "../grey/grey/common/str.h"
+#include "str.h"
 #include <format>
 #include <regex>
 #include "strings.h"

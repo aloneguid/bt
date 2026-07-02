@@ -13,6 +13,11 @@ find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+enable_testing()
 
 file(GLOB core_src
     "cmdline.cpp"
@@ -41,6 +46,11 @@ else()
     add_executable (bt ${core_src} "bt.cpp")
 endif()
 
+file(GLOB test_src ${core_src} "tests/*.cpp")
+add_executable(test ${test_src})
+include(GoogleTest)
+gtest_discover_tests(test)
+
 target_link_libraries(bt
 	libgrey
 	nlohmann_json::nlohmann_json
@@ -48,6 +58,15 @@ target_link_libraries(bt
     unofficial::sqlite3::sqlite3
     ${LUA_LIBRARIES}
 )
+
+target_link_libraries(test PRIVATE
+        GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+        libgrey
+        nlohmann_json::nlohmann_json
+        tinyxml2::tinyxml2
+        unofficial::sqlite3::sqlite3
+        ${LUA_LIBRARIES})
+
 target_include_directories(${APP_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "../grey/grey/common"
@@ -55,10 +74,20 @@ target_include_directories(${APP_NAME} PRIVATE
     ${P_RANAV_CSV2_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIR})
 
+target_include_directories(test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+        "../grey/grey/common"
+        "../grey/grey"
+        ${P_RANAV_CSV2_INCLUDE_DIRS}
+        ${LUA_INCLUDE_DIR})
+
 if(WIN32)
     target_sources(bt PRIVATE dpi-aware.manifest)
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup")
+    target_link_options(bt PRIVATE
+            /SUBSYSTEM:WINDOWS
+            /ENTRY:wmainCRTStartup
+    )
 
     # include .pdb symbol generation
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CMAKE_BUILD_TYPE MATCHES "Release")

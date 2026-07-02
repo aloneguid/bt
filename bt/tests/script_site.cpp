@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../bt/app/script_site.h"
+#include "../app/script_site.h"
 
 using namespace std;
 using namespace bt;
