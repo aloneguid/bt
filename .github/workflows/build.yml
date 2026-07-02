@@ -101,13 +101,19 @@ jobs:
 
 
     - name: 🧪 unit tests
-      run: .\test.exe
+      run: |
+        if ("${{ runner.os }}" -eq "Windows") {
+          .\test.exe
+        } else {
+          ./test
+        }
       working-directory: build/bt/Release
 
     - name: Create artifacts directory
       run: mkdir atf        
 
     - name: '🖥️ Screenshots'
+      if: runner.os == 'Windows'
       shell: pwsh
       run: |
         Add-Type -AssemblyName System.Drawing
@@ -176,7 +182,7 @@ jobs:
       name: release
 
     steps:
-      
+
       - name: ⬇️ Download binaries
         uses: actions/download-artifact@v8
         with:
@@ -188,7 +194,7 @@ jobs:
 
       - name: 🔢 set version environment variable
         run: |
-          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+          echo "VERSION=$(cat win/version.txt | xargs)" >> "$GITHUB_ENV"
 
       - name: 🔢 prep release notes / artifacts
         run: |
