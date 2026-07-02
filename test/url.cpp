@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
-#include "../common/url.h"
+#include "../grey/grey/common/url.h"
 
 using namespace std;
+using namespace grey::common;
 
 TEST(URL, Perfect) {
 
