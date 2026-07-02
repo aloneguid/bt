@@ -99,15 +99,17 @@ jobs:
       run: ls -R
       working-directory: build/bt
 
+    - name: 🧪 unit tests
+      if: runner.os == 'Windows'
+      run: |
+          .\test.exe
+      working-directory: build/bt/Release
 
     - name: 🧪 unit tests
+      if: runner.os == 'Linux'
       run: |
-        if ("${{ runner.os }}" -eq "Windows") {
-          .\test.exe
-        } else {
           ./test
-        }
-      working-directory: build/bt/Release
+      working-directory: build/bt
 
     - name: Create artifacts directory
       run: mkdir atf        
@@ -153,6 +155,7 @@ jobs:
     # 2. zipped .exe
     # 3. version.txt containing version number
     - name: prep artifacts
+      if: runner.os == 'Windows'
       run: |
         cp build/bt/Release/bt.exe atf/
         cp build/bt/Release/bt.pdb atf/
@@ -163,6 +166,7 @@ jobs:
 
     - uses: actions/upload-artifact@v7
       name: collect binaries
+      if: runner.os == 'Windows'
       with:
         name: bin${{ matrix.artifact_suffix }}
         path: atf/*
