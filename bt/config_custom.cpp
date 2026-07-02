@@ -3,6 +3,7 @@
 #include "str.h"
 
 using namespace std;
+using namespace grey::common;
 
 #define BrowserPrefix "browser"
 #define BrowserEngine "engine"

@@ -4,6 +4,7 @@
 #include "fss.h"
 
 using namespace std;
+using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {

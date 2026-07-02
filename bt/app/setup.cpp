@@ -1,7 +1,7 @@
 #include "setup.h"
 #include "platform.h"
 #include <string>
-#include "../../common/fss.h"
+#include "fss.h"
 #include "../globals.h"
 #include <format>
 #include "discovery.h"
@@ -10,7 +10,8 @@
 #include "win32/reg.h"
 #include "win32/shell.h"
 
-using namespace win32::reg;
+using namespace grey::common;
+using namespace grey::common::win32::reg;
 
 #endif
 

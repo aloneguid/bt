@@ -12,7 +12,7 @@ namespace bt::pipeline {
         void process(click_payload& up) override;
 
     private:
-        http h;
+        grey::common::http h;
 
         bool is_supported(const std::string& abs_url);
     };

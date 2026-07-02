@@ -6,6 +6,7 @@
 
 using namespace std;
 namespace fs = std::filesystem;
+using namespace grey::common;
 
 namespace bt {
 

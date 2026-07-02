@@ -36,7 +36,6 @@ if(WIN32)
     endif()
 endif()
 
-add_subdirectory(common)
 add_subdirectory(grey/grey)
 add_subdirectory(grey/demo/desktop)
 add_subdirectory(bt)

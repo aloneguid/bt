@@ -4,6 +4,7 @@
 #include "url.h"
 
 using namespace std;
+using namespace grey::common;
 
 namespace bt::pipeline {
 

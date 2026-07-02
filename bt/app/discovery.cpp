@@ -1,6 +1,6 @@
 #include "discovery.h"
-#include "fss.h"
-#include "str.h"
+#include "common/fss.h"
+#include "common/str.h"
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -9,11 +9,14 @@
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
 #include <sqlite3.h>
-#include "hashing.h"
+#include "common/hashing.h"
+
+using namespace grey::common;
+
 
 #if PLATFORM_WINDOWS
-#include "win32/shell.h"
-#include "win32/reg.h"
+#include "common/win32/shell.h"
+#include "common/win32/reg.h"
 using hive = win32::reg::hive;
 #endif
 

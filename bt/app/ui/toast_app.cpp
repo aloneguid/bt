@@ -7,6 +7,7 @@
 
 using namespace std;
 namespace w = grey::widgets;
+using namespace grey::common;
 
 namespace bt::ui {
     toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_instance> bi) :

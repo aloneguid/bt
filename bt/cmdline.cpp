@@ -8,6 +8,7 @@
 #endif
 
 using namespace std;
+using namespace grey::common;
 
 cmdline::cmdline(){
 #if PLATFORM_WINDOWS

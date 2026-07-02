@@ -1,8 +1,9 @@
 #include "replacer.h"
-#include "str.h"
+#include "common/str.h"
 #include <regex>
 
 using namespace std;
+using namespace grey::common;
 
 namespace bt::pipeline {
 

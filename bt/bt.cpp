@@ -24,6 +24,7 @@ bt::script_site g_script{grey::common::fss::get_config_file_path(APP_SHORT_NAME,
 bt::url_pipeline g_pipeline{g_settings};
 
 using namespace std;
+using namespace grey::common;
 
 void open(bt::click_payload up, bool force_picker = false) {
     g_pipeline.process(up);

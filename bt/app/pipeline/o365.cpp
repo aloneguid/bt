@@ -1,8 +1,9 @@
 #include "o365.h"
-#include "url.h"
-#include "str.h"
+#include "common/url.h"
+#include "common/str.h"
 
 using namespace std;
+using namespace grey::common;
 
 namespace bt::pipeline {
     void o365::process(click_payload& up) {

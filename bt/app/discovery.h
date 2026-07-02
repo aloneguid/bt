@@ -1,9 +1,9 @@
 #pragma once
 #include "browser.h"
 #include <vector>
-#include "platform.h"
+#include "common/platform.h"
 #if PLATFORM_WINDOWS
-#include "win32/reg.h"
+#include "common/win32/reg.h"
 #endif
 
 namespace bt {
@@ -65,7 +65,7 @@ namespace bt {
 #if PLATFORM_WINDOWS
         static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
 
-        static void discover_win32_registry_browsers(win32::reg::hive h,
+        static void discover_win32_registry_browsers(grey::common::win32::reg::hive h,
             std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
 #endif
 

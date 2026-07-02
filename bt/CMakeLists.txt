@@ -42,7 +42,6 @@ else()
 endif()
 
 target_link_libraries(bt
-    libcommon
 	libgrey
 	nlohmann_json::nlohmann_json
     tinyxml2::tinyxml2
@@ -51,7 +50,7 @@ target_link_libraries(bt
 )
 target_include_directories(${APP_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "../common"
+    "../grey/grey/common"
     "../grey/grey"
     ${P_RANAV_CSV2_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIR})
