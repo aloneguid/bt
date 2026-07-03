@@ -2,7 +2,9 @@
 #include "browser.h"
 #include <vector>
 #include "common/platform.h"
+
 #if PLATFORM_WINDOWS
+// Windows discovery is nice - all the browsers register in the windows registry
 #include "common/win32/reg.h"
 #endif
 
@@ -67,6 +69,11 @@ namespace bt {
 
         static void discover_win32_registry_browsers(grey::common::win32::reg::hive h,
             std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
+#endif
+
+#if PLATFORM_LINUX
+        static std::string resolve_xdg_icon_path(const std::string& icon);
+        static void discover_xdg_desktop_browsers(std::vector<std::shared_ptr<browser>>& browsers);
 #endif
 
         /**

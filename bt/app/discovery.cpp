@@ -9,6 +9,8 @@
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
 #include <sqlite3.h>
+#include <unordered_set>
+#include <fstream>
 #include "common/hashing.h"
 
 using namespace grey::common;
@@ -259,6 +261,194 @@ namespace bt {
     }
 #endif
 
+#if PLATFORM_LINUX
+    std::string discovery::resolve_xdg_icon_path(const std::string& icon) {
+        if(icon.empty()) {
+            return {};
+        }
+
+        // Absolute path — use directly
+        if(icon[0] == '/') {
+            std::error_code ec;
+            return fs::exists(icon, ec) ? icon : std::string{};
+        }
+
+        // Share dirs to search, in priority order
+        std::vector<fs::path> share_dirs;
+        if(const char* h = std::getenv("HOME")) {
+            share_dirs.emplace_back(fs::path(h) / ".local/share");
+            share_dirs.emplace_back(fs::path(h) / ".local/share/flatpak/exports/share");
+        }
+        if(const char* xdg = std::getenv("XDG_DATA_DIRS")) {
+            for(std::string_view sv = xdg; !sv.empty();) {
+                auto end = sv.find(':');
+                share_dirs.emplace_back(sv.substr(0, end));
+                sv.remove_prefix(end == sv.npos ? sv.size() : end + 1);
+            }
+        } else {
+            share_dirs.emplace_back("/usr/share");
+            share_dirs.emplace_back("/usr/local/share");
+        }
+        share_dirs.emplace_back("/var/lib/flatpak/exports/share");
+        share_dirs.emplace_back("/var/lib/snapd/desktop");
+
+        const char* exts[] = {".png", ".svg", ".xpm"};
+
+        for(const auto& share : share_dirs) {
+            // Enumerate all size dirs under hicolor, sorted largest-first
+            fs::path hicolor = share / "icons/hicolor";
+            std::error_code ec;
+
+            std::vector<std::pair<int, fs::path>> size_dirs; // {size, apps_path}
+            for(const auto& e : fs::directory_iterator(hicolor, ec)) {
+                if(!fs::is_directory(e.path(), ec)) continue;
+                std::string name = e.path().filename().string();
+                int size = 0;
+                if(name != "scalable") {
+                    auto x = name.find('x');
+                    if(x == std::string::npos) continue;
+                    try { size = std::stoi(name.substr(0, x)); } catch(...) { continue; }
+                }
+                size_dirs.emplace_back(size, e.path() / "apps");
+            }
+            std::sort(size_dirs.begin(), size_dirs.end(),
+                      [](const auto& a, const auto& b) { return a.first > b.first; });
+
+            for(const auto& [sz, apps] : size_dirs) {
+                for(const char* ext : exts) {
+                    fs::path p = apps / (icon + ext);
+                    if(fs::exists(p, ec)) {
+                        return p.string();
+                    }
+                }
+            }
+
+            // Fallback: pixmaps
+            for(const char* ext : exts) {
+                fs::path p = share / "pixmaps" / (icon + ext);
+                if(fs::exists(p, ec)) {
+                    return p.string();
+                }
+            }
+            // Some packages drop the file in pixmaps with no extension
+            {
+                fs::path p = share / "pixmaps" / icon;
+                if(fs::exists(p, ec)) {
+                    return p.string();
+                }
+            }
+        }
+
+        return {};
+    }
+
+    void discovery::discover_xdg_desktop_browsers(std::vector<std::shared_ptr<browser>>& browsers) {
+        const char* home = std::getenv("HOME");
+
+        fs::path dirs[] = {
+            home ? fs::path(home) / ".local/share/applications" : fs::path{},
+            "/usr/share/applications",
+            "/usr/local/share/applications",
+            "/var/lib/flatpak/exports/share/applications",
+            "/var/lib/snapd/desktop/applications",
+        };
+
+        std::unordered_set<std::string> seen_exec;
+
+        for(const auto& dir : dirs) {
+            std::error_code ec;
+            if(!fs::is_directory(dir, ec)) continue;
+
+            for(const auto& de : fs::directory_iterator(dir, ec)) {
+                if(de.path().extension() != ".desktop") continue;
+
+                std::string name, exec, categories, mimetypes, icon;
+
+                std::ifstream f(de.path());
+                bool in_entry = false;
+                std::string line;
+                while(std::getline(f, line)) {
+                    if(!line.empty() && line.back() == '\r')
+                        line.pop_back();
+
+                    if(line == "[Desktop Entry]") {
+                        in_entry = true;
+                        continue;
+                    }
+
+                    if(in_entry && line.size() && line[0] == '[')
+                        break; // next section
+
+                    if(!in_entry)
+                        continue;
+
+                    auto eq = line.find('=');
+                    if(eq == std::string::npos)
+                        continue;
+
+                    auto k = line.substr(0, eq);
+                    auto v = line.substr(eq + 1);
+
+                    if(k == "Name")
+                        name = v;
+                    else if(k == "Exec")
+                        exec = v;
+                    else if(k == "Categories")
+                        categories = v;
+                    else if(k == "MimeType")
+                        mimetypes = v;
+                    else if(k == "Icon")
+                        icon = v;
+                }
+
+                // filter: must be a browser
+                auto has_token = [](const std::string& s, std::string_view tok) {
+                    for(size_t p = 0; p <= s.size();) {
+                        auto e = s.find(';', p);
+                        if(e == std::string::npos) e = s.size();
+                        if(std::string_view(s).substr(p, e - p) == tok)
+                            return true;
+                        p = e + 1;
+                    }
+                    return false;
+                };
+
+                if(!has_token(categories, "WebBrowser") && !has_token(mimetypes, "x-scheme-handler/http"))
+                    continue;
+
+                if(exec.empty() || !seen_exec.emplace(exec).second)
+                    continue;
+
+                // strip field codes (%u, %U, %f, %F, %i, %c, %k, ...)
+                std::string cmd;
+                for(size_t i = 0; i < exec.size(); ++i) {
+                    if(exec[i] == '%' && i + 1 < exec.size()) {
+                        ++i;
+                        continue;
+                    }
+
+                    cmd += exec[i];
+                }
+
+                while(!cmd.empty() && cmd.back() == ' ') {
+                    cmd.pop_back();
+                }
+
+                string id = get_id_from_open_cmd(cmd);
+                auto b = make_shared<browser>(id, name, cmd);
+                b->instance_id = id;
+                b->is_autodiscovered = true;
+                b->icon_path = resolve_xdg_icon_path(icon);
+                fingerprint(cmd, b->engine, b->data_path);
+                browsers.push_back(b);
+            }
+        }
+
+
+    }
+#endif
+
+
     std::vector<shared_ptr<browser>> discovery::discover_browsers(const std::string& ignore_proto) {
         vector<shared_ptr<browser>> browsers;
 
@@ -266,6 +456,11 @@ namespace bt {
         discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto);
         discover_win32_registry_browsers(hive::current_user, browsers, ignore_proto);
         discover_msstore_browsers(browsers);
+#endif
+
+#if PLATFORM_LINUX
+        discover_xdg_desktop_browsers(browsers);
+
 #endif
 
         // discover various profiles
