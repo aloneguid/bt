@@ -15,6 +15,8 @@ find_package(Lua REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
+include(GNUInstallDirs)
+
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 enable_testing()
@@ -96,3 +98,12 @@ if(WIN32)
         )
     endif()
 endif()
+
+install(TARGETS bt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES ${CMAKE_SOURCE_DIR}/bt.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon16x16.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps RENAME bt.png)
+install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon48x48.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps RENAME bt.png)
+install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon128x128.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps RENAME bt.png)
+install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon192x192.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/192x192/apps RENAME bt.png)
+install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps RENAME bt.png)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps RENAME bt.png)

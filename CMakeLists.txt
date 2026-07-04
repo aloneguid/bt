@@ -39,3 +39,22 @@ endif()
 add_subdirectory(grey/grey)
 add_subdirectory(grey/demo/desktop)
 add_subdirectory(bt)
+
+# CPack configuration
+set(CPACK_PACKAGE_NAME "browsertamer")
+set(CPACK_PACKAGE_VENDOR "aloneguid")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Browser Tamer helps you choose the right browser for each URL.")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "aloneguid <aloneguid@gmail.com>")
+set(CPACK_DEBIAN_PACKAGE_SECTION "net")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.aloneguid.uk/projects/bt/")
+set(CPACK_GENERATOR "DEB")
+
+# Act as a web browser - this is mostly handled by the .desktop file,
+# but we ensure the package is marked correctly.
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "xdg-utils") # useful for URL handling
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/cmake/debian/postinst;${CMAKE_SOURCE_DIR}/cmake/debian/prerm")
+
+include(CPack)

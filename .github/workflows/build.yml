@@ -50,7 +50,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool      
+        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev
 
     - uses: actions/checkout@v6
       with:
@@ -154,7 +154,7 @@ jobs:
     # 1. msi installer, renamed after version number (removed in 5.5.1)
     # 2. zipped .exe
     # 3. version.txt containing version number
-    - name: prep artifacts
+    - name: prep artifacts (Windows)
       if: runner.os == 'Windows'
       run: |
         cp build/bt/Release/bt.exe atf/
@@ -164,9 +164,18 @@ jobs:
         cp docs/instructions.md atf/
         cp screenshots/*.png atf/
 
+    - name: prep artifacts (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        cpack -C ${{ matrix.vcpkg_config }}
+        cp *.deb ../atf/
+        echo -n "${{ env.VERSION }}" > ../atf/version.txt
+        cp ../docs/release-notes.md ../atf/
+        cp ../docs/instructions.md ../atf/
+      working-directory: build
+
     - uses: actions/upload-artifact@v7
       name: collect binaries
-      if: runner.os == 'Windows'
       with:
         name: bin${{ matrix.artifact_suffix }}
         path: atf/*
@@ -187,10 +196,17 @@ jobs:
 
     steps:
 
-      - name: ⬇️ Download binaries
+      - name: ⬇️ Download binaries (Windows)
         uses: actions/download-artifact@v8
         with:
           name: bin-win-x64
+          path: win
+
+      - name: ⬇️ Download binaries (Linux)
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-linux-x64
+          path: linux
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -202,6 +218,11 @@ jobs:
 
       - name: 🔢 prep release notes / artifacts
         run: |
+          cp win/instructions.md .
+          cp win/release-notes.md .
+          cp win/bt.exe .
+          cp win/bt.pdb .
+          cp linux/*.deb .
           envsubst < instructions.md > g.tmp && mv g.tmp instructions.md
           grep -m 2 -B 1000 '^## ' release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat instructions.md >> final_notes.md
@@ -224,4 +245,5 @@ jobs:
           files: |
             bt.zip
             bt.pdb.zip
+            *.deb
           body_path: final_notes.md

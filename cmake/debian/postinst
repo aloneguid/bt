@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "configure" ]; then
+    update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/bt 100
+    update-alternatives --install /usr/bin/gnome-www-browser gnome-www-browser /usr/bin/bt 100
+fi
+
+if [ -x /usr/bin/update-desktop-database ]; then
+    update-desktop-database -q
+fi
