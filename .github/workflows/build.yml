@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - master
-      - xplat/linux
+      - linux
     tags:
       - 'v*'              # release only when pushing a version tag
   workflow_dispatch:
