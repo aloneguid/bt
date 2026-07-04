@@ -89,6 +89,7 @@ jobs:
         -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
         -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
+        -D "CPACK_PACKAGE_VERSION=${{ env.VERSION }}"
       working-directory: . 
 
     - name: 🏭 build
