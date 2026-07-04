@@ -15,6 +15,7 @@
 #include "../strings.h"
 #include "extra_widgets.hpp"
 #include "datetime.h"
+#include "common/os.h"
 #include <algorithm>
 
 #if PLATFORM_WINDOWS
@@ -189,10 +190,7 @@ namespace bt::ui {
                 }
 
                 if(w::mi("Open configuration directory", true, ICON_MD_FOLDER_OPEN)) {
-#if PLATFORM_WINDOWS
-                    win32::shell::exec(grey::common::fss::get_config_dir(APP_SHORT_NAME), "");
-#endif
-
+                    os::shell_open(grey::common::fss::get_config_dir(APP_SHORT_NAME));
                 }
 
                 w::sep();
@@ -959,9 +957,7 @@ namespace bt::ui {
             if(w::button(ICON_MD_FOLDER)) {
                 std::filesystem::path p{b->open_cmd};
                 string path = p.parent_path().string();
-#if PLATFORM_WINDOWS
-                win32::shell::exec(path, "");
-#endif
+                os::shell_open(path);
             }
             w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
@@ -969,26 +965,22 @@ namespace bt::ui {
         if(b->is_autodiscovered) {
             w::sl();
             if(w::button(ICON_MD_FOLDER_COPY)) {
-#if PLATFORM_WINDOWS
-                win32::shell::exec(b->data_path, "");
-#endif
+                os::shell_open(b->data_path);
             }
             w::tt(strings::BrowserOpenUserDataFolderTooltip);
 
             if(b->engine == bt::browser_engine::gecko) {
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-#if PLATFORM_WINDOWS
-                    win32::shell::exec(b->open_cmd, "-P");
-#endif
+                    // todo
+                    // os::shell_open(b->open_cmd, "-P");
                 }
                 w::tt("open Firefox Profile Manager (-P flag)");
 
                 w::sl();
                 if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-#if PLATFORM_WINDOWS
-                    win32::shell::exec(b->open_cmd, "about:profiles");
-#endif
+                    // todo
+                    // os::shell_open(b->open_cmd, "about:profiles");
                 }
                 w::tt("open Firefox Profile Manager in Firefox itself");
             }
