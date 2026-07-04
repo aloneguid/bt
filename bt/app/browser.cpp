@@ -398,6 +398,8 @@ namespace bt {
             string error = win32::os::get_last_error_text();
             win32::user::message_box("Browser launch error", format("Command line: {}.\r\nError: {}", cmdline, error));
         }
+#else
+        process::start(cmdline);
 #endif
     }
 }
