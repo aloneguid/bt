@@ -62,6 +62,6 @@ set(CPACK_GENERATOR "DEB")
 # Act as a web browser - this is mostly handled by the .desktop file,
 # but we ensure the package is marked correctly.
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "xdg-utils") # useful for URL handling
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/cmake/debian/postinst;${CMAKE_SOURCE_DIR}/cmake/debian/prerm")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/resources/debian/postinst;${CMAKE_SOURCE_DIR}/resources/debian/prerm")
 
 include(CPack)
