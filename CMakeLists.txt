@@ -4,6 +4,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project ("BrowserTamer")
 
+# Application metadata - shared between main build and packaging
+set(APP_NAME bt)
+set(APP_LONG_NAME "Browser Tamer")
+set(APP_URL "https://www.aloneguid.uk/projects/bt/")
+set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
+set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
+
 add_compile_definitions(UNICODE)    # required for WIN32 API to use correct versions
 if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
@@ -59,8 +66,30 @@ set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.aloneguid.uk/projects/bt/")
 if(WIN32)
     set(CPACK_GENERATOR "WIX")
+
+    # Generate WiX source files from templates with substituted variables
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/wix")
+    configure_file("${CMAKE_SOURCE_DIR}/resources/wix/registry.wxs.in" "${CMAKE_BINARY_DIR}/wix/registry.wxs" @ONLY)
+    configure_file("${CMAKE_SOURCE_DIR}/resources/wix/startmenu.wxs.in" "${CMAKE_BINARY_DIR}/wix/startmenu.wxs" @ONLY)
+
+    # Product identity
     set(CPACK_WIX_UPGRADE_GUID "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")
-    set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_SOURCE_DIR}/resources/wix/registry.wxs;${CMAKE_SOURCE_DIR}/resources/wix/startmenu.wxs")
+    set(CPACK_WIX_ARCHITECTURE "x64")
+    set(CPACK_WIX_INSTALL_SCOPE "perMachine")
+
+    # UI customization
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "${APP_LONG_NAME}")
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png")
+    set(CPACK_WIX_ROOT_FEATURE_TITLE "${APP_LONG_NAME}")
+    set(CPACK_WIX_ROOT_FEATURE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
+
+    # ARP (Add/Remove Programs) properties
+    set(CPACK_WIX_PROPERTY_ARPHELPLINK "${APP_GITHUB_URL}")
+    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "${APP_URL}")
+    set(CPACK_WIX_PROPERTY_ARPURLUPDATEINFO "${APP_GITHUB_RELEASES_URL}")
+
+    # Extra WiX source files and patching
+    set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_BINARY_DIR}/wix/registry.wxs;${CMAKE_BINARY_DIR}/wix/startmenu.wxs")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
 else()
     set(CPACK_GENERATOR "DEB")

@@ -2,12 +2,6 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(APP_NAME bt)
-set(APP_LONG_NAME "Browser Tamer")
-set(APP_URL "https://www.aloneguid.uk/projects/bt/")
-set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
-set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
-
 find_package(nlohmann_json CONFIG REQUIRED)
 find_path(P_RANAV_CSV2_INCLUDE_DIRS "csv2/mio.hpp")
 find_package(tinyxml2 CONFIG REQUIRED)

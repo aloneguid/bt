@@ -101,13 +101,13 @@ jobs:
       run: ls -R
       working-directory: build/bt
 
-    - name: 🧪 unit tests
+    - name: 🪟 🧪 unit tests
       if: runner.os == 'Windows'
       run: |
           .\test.exe
       working-directory: build/bt/Release
 
-    - name: 🧪 unit tests
+    - name: 🐧 🧪 unit tests
       if: runner.os == 'Linux'
       run: |
           ./test
@@ -152,6 +152,12 @@ jobs:
         if ($pick -and -not $pick.HasExited) { Stop-Process -Id $pick.Id -Force }
         if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
 
+    - name: 📦 Package Installer
+      if: runner.os == 'Linux'
+      run: |
+        cpack -C ${{ matrix.vcpkg_config }}
+      working-directory: build
+
     # put the following inside "atf" subdir:
     # 1. msi installer, renamed after version number (removed in 5.5.1)
     # 2. zipped .exe
@@ -169,7 +175,6 @@ jobs:
     - name: prep artifacts (Linux)
       if: runner.os == 'Linux'
       run: |
-        cpack -C ${{ matrix.vcpkg_config }}
         cp *.deb ../atf/
         echo -n "${{ env.VERSION }}" > ../atf/version.txt
         cp ../docs/release-notes.md ../atf/

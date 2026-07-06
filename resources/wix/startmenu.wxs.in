@@ -1,0 +1,15 @@
+<Fragment>
+    <DirectoryRef Id="ProgramMenuFolder">
+        <Directory Id="@APP_NAME@ShortcutFolder" Name="@APP_LONG_NAME@">
+            <Component Id="ApplicationShortcut" Guid="66666666-6666-6666-6666-666666666666">
+                <Shortcut Id="ApplicationShortcut1"
+                          Name="Configure @APP_LONG_NAME@"
+                          Description="Configure @APP_LONG_NAME@"
+                          Target="[INSTALLDIR]@APP_NAME@.exe"
+                          WorkingDirectory="INSTALLDIR"/>
+                <RemoveFolder Id="CleanUpShortCut" Directory="@APP_NAME@ShortcutFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\@APP_LONG_NAME@" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </Directory>
+    </DirectoryRef>
+</Fragment>

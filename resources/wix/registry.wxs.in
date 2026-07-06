@@ -1,0 +1,29 @@
+<Fragment>
+    <DirectoryRef Id="TARGETDIR">
+        <Component Id="RegistryEntries" Guid="55555555-5555-5555-5555-555555555555">
+            <RegistryKey Root="HKCU" Key="Software\Classes\http\shell\open\command">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot; &quot;%1&quot;" />
+            </RegistryKey>
+            <RegistryKey Root="HKCU" Key="Software\Classes\http\DefaultIcon">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot;" />
+            </RegistryKey>
+
+            <RegistryKey Root="HKCU" Key="Software\Classes\https\shell\open\command">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot; &quot;%1&quot;" />
+            </RegistryKey>
+            <RegistryKey Root="HKCU" Key="Software\Classes\https\DefaultIcon">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot;" />
+            </RegistryKey>
+
+            <RegistryKey Root="HKCU" Key="Software\Classes\x-@APP_NAME@">
+                <RegistryValue Type="string" Name="URL Protocol" Value="" />
+            </RegistryKey>
+            <RegistryKey Root="HKCU" Key="Software\Classes\x-@APP_NAME@\shell\open\command">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot; &quot;%1&quot;" />
+            </RegistryKey>
+            <RegistryKey Root="HKCU" Key="Software\Classes\x-@APP_NAME@\DefaultIcon">
+                <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot;" />
+            </RegistryKey>
+        </Component>
+    </DirectoryRef>
+</Fragment>
