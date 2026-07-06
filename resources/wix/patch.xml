@@ -1,8 +1,6 @@
 <CPackWiXPatch>
-    <CPackWiXFragment Id="#PRODUCT">
-        <FeatureRef Id="ProductFeature">
-            <ComponentRef Id="RegistryEntries" />
-            <ComponentRef Id="ApplicationShortcut" />
-        </FeatureRef>
+    <CPackWiXFragment Id="#PRODUCTFEATURE">
+        <ComponentRef Id="RegistryEntries" />
+        <ComponentRef Id="ApplicationShortcut" />
     </CPackWiXFragment>
 </CPackWiXPatch>
