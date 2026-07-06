@@ -64,6 +64,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.aloneguid.uk/projects/bt/")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 if(WIN32)
     # see https://cmake.org/cmake/help/latest/cpack_gen/wix.html
     set(CPACK_GENERATOR "WIX")

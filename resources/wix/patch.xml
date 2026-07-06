@@ -1,5 +1,5 @@
 <CPackWiXPatch>
-    <CPackWiXFragment Id="Product">
+    <CPackWiXFragment Id="#PRODUCT">
         <DirectoryRef Id="TARGETDIR">
             <ComponentRef Id="RegistryEntries" />
         </DirectoryRef>
