@@ -1,7 +1,8 @@
 ## 5.7
 
 ### Breaking changes
-BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaler, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler.
+
+BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler.
 
 todo:
 - config.

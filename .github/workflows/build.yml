@@ -153,7 +153,6 @@ jobs:
         if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
 
     - name: 📦 Package Installer
-      if: runner.os == 'Linux'
       run: |
         cpack -C ${{ matrix.vcpkg_config }}
       working-directory: build
