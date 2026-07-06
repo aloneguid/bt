@@ -130,6 +130,13 @@ jobs:
         cpack -C ${{ matrix.vcpkg_config }}
       working-directory: build
 
+    - name: 📋 Dump WiX log on failure
+      if: failure() && runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $log = "build/_CPack_Packages/win64/WIX/wix.log"
+        if (Test-Path $log) { Get-Content $log }
+
     # put the following inside "atf" subdir:
     # 1. msi installer, renamed after version number (removed in 5.5.1)
     # 2. zipped .exe
