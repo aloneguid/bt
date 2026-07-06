@@ -162,10 +162,21 @@ jobs:
         if-no-files-found: error
         compression-level: 9
 
+  release-artifacts:
+    runs-on: ubuntu-latest
+    name: '📦 Prepare Release Artifacts'
+    needs: [build]
+    steps:
+      - name: ⬇️ Download all artifacts
+        uses: actions/download-artifact@v8
+
+      - name: debug
+        run: ls -R
+
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [build]
+    needs: [release-artifacts]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
