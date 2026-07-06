@@ -1,6 +1,7 @@
-<Fragment>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
     <DirectoryRef Id="TARGETDIR">
-        <Component Id="RegistryEntries" Guid="55555555-5555-5555-5555-555555555555">
+        <Component Id="RegistryEntries" Guid="CAD04FE6-0D69-4412-9B44-89B12032D7B5">
             <RegistryKey Root="HKCU" Key="Software\Classes\http\shell\open\command">
                 <RegistryValue Type="string" Value="&quot;[INSTALLDIR]@APP_NAME@.exe&quot; &quot;%1&quot;" />
             </RegistryKey>
@@ -26,4 +27,5 @@
             </RegistryKey>
         </Component>
     </DirectoryRef>
-</Fragment>
+    </Fragment>
+</Wix>

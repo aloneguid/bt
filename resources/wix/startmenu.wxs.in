@@ -1,7 +1,8 @@
-<Fragment>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
     <DirectoryRef Id="ProgramMenuFolder">
         <Directory Id="@APP_NAME@ShortcutFolder" Name="@APP_LONG_NAME@">
-            <Component Id="ApplicationShortcut" Guid="66666666-6666-6666-6666-666666666666">
+            <Component Id="ApplicationShortcut" Guid="9448E42D-FAEE-48A7-8045-C04D34010112">
                 <Shortcut Id="ApplicationShortcut1"
                           Name="Configure @APP_LONG_NAME@"
                           Description="Configure @APP_LONG_NAME@"
@@ -12,4 +13,5 @@
             </Component>
         </Directory>
     </DirectoryRef>
-</Fragment>
+    </Fragment>
+</Wix>
