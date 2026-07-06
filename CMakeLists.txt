@@ -92,6 +92,9 @@ if(WIN32)
     set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "${APP_URL}")
     set(CPACK_WIX_PROPERTY_ARPURLUPDATEINFO "${APP_GITHUB_RELEASES_URL}")
 
+    # MSI file name includes architecture (e.g. bt-1.0.0-x64.msi)
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_WIX_ARCHITECTURE}")
+
     # Extra WiX source files and patching
     set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_BINARY_DIR}/wix/registry.wxs;${CMAKE_BINARY_DIR}/wix/startmenu.wxs")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")

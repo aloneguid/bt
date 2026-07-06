@@ -50,7 +50,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev
+        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev imagemagick xvfb
 
     - uses: actions/checkout@v6
       with:
@@ -116,41 +116,14 @@ jobs:
     - name: Create artifacts directory
       run: mkdir atf        
 
-    - name: '🖥️ Screenshots'
+    - name: '🖥️ Screenshots (Windows)'
       if: runner.os == 'Windows'
       shell: pwsh
-      run: |
-        Add-Type -AssemblyName System.Drawing
-        Add-Type -AssemblyName System.Windows.Forms
+      run: .\resources\ci\screenshots.ps1
 
-        New-Item -ItemType Directory -Path screenshots -Force | Out-Null
-
-        function Save-Screenshot([string]$Path) {
-          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
-          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
-          $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
-          $graphics.Dispose()
-          $bitmap.Dispose()
-        }
-
-        $processPath = "build/bt/Release/bt.exe"
-
-        $pick = Start-Process -FilePath $processPath -ArgumentList "discover" -PassThru
-        Start-Sleep -Seconds 3
-
-        $bt = Start-Process -FilePath $processPath -PassThru
-        Start-Sleep -Seconds 3
-        Save-Screenshot "$PWD\screenshots\config.png"
-        if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
-
-        $pick = Start-Process -FilePath $processPath -ArgumentList "pick", "https://bbc.co.uk" -PassThru
-        Start-Sleep -Seconds 3
-        Save-Screenshot "$PWD\screenshots\picker.png"
-
-        if ($pick -and -not $pick.HasExited) { Stop-Process -Id $pick.Id -Force }
-        if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
+    - name: '🖥️ Screenshots (Linux)'
+      if: runner.os == 'Linux'
+      run: xvfb-run -a bash resources/ci/screenshots.sh
 
     - name: 📦 Package Installer
       run: |
@@ -178,6 +151,7 @@ jobs:
         echo -n "${{ env.VERSION }}" > ../atf/version.txt
         cp ../docs/release-notes.md ../atf/
         cp ../docs/instructions.md ../atf/
+        cp -r ../screenshots ../atf/
       working-directory: build
 
     - uses: actions/upload-artifact@v7
