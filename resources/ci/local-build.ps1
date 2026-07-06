@@ -1,3 +1,8 @@
+param(
+    [bool]$Build = $true,
+    [bool]$Pack = $false
+)
+
 $MD_VERSION = (Get-Content -Path .\docs\release-notes.md -First 1).Trim('#', ' ')
 
 Write-Host "version $MD_VERSION"
@@ -5,9 +10,16 @@ Write-Host "version $MD_VERSION"
 $env:VERSION=$MD_VERSION
 
 Write-Host "configuring..."
-cmake -B build -S . -D "CMAKE_BUILD_TYPE=Release" `
-    -D "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-    -D "VCPKG_TARGET_TRIPLET=x64-windows-static"
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release --preset x64-debug
 
-Write-Host "building..."
-cmake --build build --config Release
+if ($Build)
+{
+    Write-Host "building..."
+    cmake --build build --config Release
+}
+
+if ($Pack)
+{
+    Write-Host "packaging..."
+    cpack --config build/CPackConfig.cmake -C Release
+}
