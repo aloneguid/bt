@@ -57,7 +57,14 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.aloneguid.uk/projects/bt/")
-set(CPACK_GENERATOR "DEB")
+if(WIN32)
+    set(CPACK_GENERATOR "WIX")
+    set(CPACK_WIX_UPGRADE_GUID "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA")
+    set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_SOURCE_DIR}/resources/wix/registry.wxs;${CMAKE_SOURCE_DIR}/resources/wix/startmenu.wxs")
+    set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
+else()
+    set(CPACK_GENERATOR "DEB")
+endif()
 
 # Act as a web browser - this is mostly handled by the .desktop file,
 # but we ensure the package is marked correctly.

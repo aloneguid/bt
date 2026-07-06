@@ -1,0 +1,10 @@
+<CPackWiXPatch>
+    <CPackWiXFragment Id="Product">
+        <DirectoryRef Id="TARGETDIR">
+            <ComponentRef Id="RegistryEntries" />
+        </DirectoryRef>
+        <DirectoryRef Id="ProgramMenuFolder">
+            <ComponentRef Id="ApplicationShortcut" />
+        </DirectoryRef>
+    </CPackWiXFragment>
+</CPackWiXPatch>

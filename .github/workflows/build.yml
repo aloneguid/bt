@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     # allow Linux build to fail while prototyping
-    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
+    # continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -67,15 +67,16 @@ jobs:
         Write-Host "VERSION: ${{ env.VERSION }}"
       shell: pwsh
 
+    # below seems to work on Linux, it looks like GHA has powershell/linux available already
     - name: pre-build patch script
-      run: .\pre-build.ps1
+      run: .\resources\ci\pre-build.ps1
       shell: pwsh
 
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
         committish: ${{ env.VCPKG_HASH }} 
-        # set to false to clear any cache in case of build errors
+        # set it to false to clear any cache in case of build errors
         cache: false
 
     # - name: Setup Python

@@ -1,0 +1,15 @@
+<Fragment>
+    <DirectoryRef Id="ProgramMenuFolder">
+        <Directory Id="BrowserTamerShortcutFolder" Name="Browser Tamer">
+            <Component Id="ApplicationShortcut" Guid="66666666-6666-6666-6666-666666666666">
+                <Shortcut Id="ApplicationShortcut1"
+                          Name="Configure Browser Tamer"
+                          Description="Configure Browser Tamer"
+                          Target="[INSTALLDIR]bt.exe"
+                          WorkingDirectory="INSTALLDIR"/>
+                <RemoveFolder Id="CleanUpShortCut" Directory="BrowserTamerShortcutFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\BrowserTamer" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </Directory>
+    </DirectoryRef>
+</Fragment>
