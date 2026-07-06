@@ -1,4 +1,4 @@
-$version = (Get-Content -Path .\docs\release-notes.md -First 1).Trim('#', ' ')
+$version = (Get-Content -Path ..\..\docs\release-notes.md -First 1).Trim('#', ' ')
 
 Write-Host "submiting version $($version)..."
 
