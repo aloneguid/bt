@@ -33,11 +33,13 @@ jobs:
             vcpkg_triplet: x64-windows-static
             vcpkg_config: Release
             artifact_suffix: -win-x64
+            artifact_pattern: '*.msi'
           - os: ubuntu-latest
             name: Linux x64
             vcpkg_triplet: x64-linux
             vcpkg_config: MinSizeRel
             artifact_suffix: -linux-x64
+            artifact_pattern: '*.deb'
 
     name: 'build: ${{ matrix.name }}'
     env:
@@ -137,8 +139,7 @@ jobs:
 
     - name: prep artifacts
       run: |
-        cp *.deb ../atf/
-        cp *.msi ../atf/
+        cp {{ matrix.artifact_pattern }} ../atf/
         echo -n "${{ env.VERSION }}" > ../atf/version.txt
         cp ../docs/release-notes.md ../atf/
         cp ../docs/instructions.md ../atf/
