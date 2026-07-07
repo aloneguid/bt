@@ -134,5 +134,7 @@ if(WIN32)
     )
 elseif(LINUX)
     set(CPACK_GENERATOR DEB)
+    install(FILES ${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+    install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps RENAME BrowserTamer.svg)
 endif()
 include(CPack) # needs to be at the end of install configurations
