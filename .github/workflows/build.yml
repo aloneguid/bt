@@ -113,18 +113,6 @@ jobs:
           ./test
       working-directory: build/bt
 
-    - name: Create artifacts directory
-      run: mkdir atf        
-
-    - name: '🖥️ Screenshots (Windows)'
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: .\resources\ci\screenshots.ps1
-
-    - name: '🖥️ Screenshots (Linux)'
-      if: runner.os == 'Linux'
-      run: xvfb-run -a bash resources/ci/screenshots.sh
-
     - name: 📦 Package Installer
       run: |
         cpack -C ${{ matrix.vcpkg_config }}
@@ -139,12 +127,11 @@ jobs:
 
     - name: prep artifacts
       run: |
-        cp {{ matrix.artifact_pattern }} ../atf/
-        echo -n "${{ env.VERSION }}" > ../atf/version.txt
-        cp ../docs/release-notes.md ../atf/
-        cp ../docs/instructions.md ../atf/
-        cp -r ../screenshots ../atf/
-      working-directory: build
+        mkdir atf
+        cp build/${{ matrix.artifact_pattern }} atf/
+        echo -n "${{ env.VERSION }}" > atf/version.txt
+        cp docs/release-notes.md atf/
+        cp docs/instructions.md atf/
 
     - uses: actions/upload-artifact@v7
       name: collect binaries
