@@ -154,6 +154,14 @@ jobs:
       - name: debug
         run: ls -R
 
+      - uses: actions/upload-artifact@v7
+        name: ⬆️ Upload as a single artifact
+        with:
+          name: bin-all
+          path: *
+          if-no-files-found: error
+          compression-level: 9
+
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
