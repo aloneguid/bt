@@ -137,6 +137,8 @@ elseif(UNIX AND NOT APPLE)
     install(TARGETS ${APP_NAME} RUNTIME DESTINATION "bin")
     set(CPACK_GENERATOR DEB)
 
+    set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+
     install(FILES "${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop"
             DESTINATION share/applications)
 
