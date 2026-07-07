@@ -95,9 +95,10 @@ endif()
 
 # "Install" target
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION dist)
-set(CPACK_PACKAGE_NAME "browser-tamer")
+set(CPACK_PACKAGE_NAME "BrowserTamer")
+set(CPACK_PACKAGE_VENDOR "@aloneguid")
 set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "dfdsfdsfsdf")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
     # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
     # dotnet tool install --global wix
@@ -115,6 +116,8 @@ if(WIN32)
 
     # WiX requires a stable Upgrade GUID — generate ONE and hardcode it (don't regenerate per build)
     set(CPACK_WIX_UPGRADE_GUID "C7630F02-56B6-41A6-8166-9D15AF6961E7")
+    # needs to re-generate
+    set(CPACK_WIX_PRODUCT_GUID "*")
 
     set(CPACK_WIX_INSTALL_SCOPE "perUser")
     set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/resources/LICENSE.rtf")
@@ -123,5 +126,9 @@ if(WIN32)
     set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/resources/wix/wix_dialog.png")
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
     set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
+
+    set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
+            PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
+    )
 endif()
 include(CPack) # needs to be at the end of install configurations
