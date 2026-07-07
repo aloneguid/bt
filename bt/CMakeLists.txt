@@ -94,13 +94,15 @@ if(WIN32)
 endif()
 
 # "Install" target
-install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
 set(CPACK_PACKAGE_NAME "BrowserTamer")
 set(CPACK_PACKAGE_VENDOR "@aloneguid")
 set(CPACK_PACKAGE_CONTACT "@aloneguid")
 set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
+
+    install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
+
     # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
     # dotnet tool install --global wix
     #

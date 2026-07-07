@@ -21,7 +21,7 @@ namespace bt {
     std::vector<system_check> setup::get_checks() {
 
 #if PLATFORM_WINDOWS
-        return vector<system_check> {
+        return vector {
             system_check{
                 "sys_browser", "System Browser",
                 "Registered as a virtual browser in Windows.",

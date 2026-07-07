@@ -56,7 +56,7 @@
             <RegistryValue Type="string" Value="[#CM_FP_bt.exe],0" />
         </RegistryKey>
         <RegistryKey Root="HKCU" Key="Software\Classes\BrowserTamerHTM\shell\open\command">
-            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" %1' />
+            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" "%1"' />
         </RegistryKey>
 
         <RegistryKey Root="HKCU" Key="Software\Classes\BrowserTamerPDF">
@@ -70,7 +70,7 @@
             <RegistryValue Type="string" Value="[#CM_FP_bt.exe],1" />
         </RegistryKey>
         <RegistryKey Root="HKCU" Key="Software\Classes\BrowserTamerPDF\shell\open\command">
-            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" %1' />
+            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" "%1"' />
         </RegistryKey>
 
         <RegistryKey Root="HKCU" Key="Software\Classes\BrowserTamerEPUB">
@@ -84,7 +84,7 @@
             <RegistryValue Type="string" Value="[#CM_FP_bt.exe],2" />
         </RegistryKey>
         <RegistryKey Root="HKCU" Key="Software\Classes\BrowserTamerEPUB\shell\open\command">
-            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" %1' />
+            <RegistryValue Type="string" Value='"[#CM_FP_bt.exe]" "%1"' />
         </RegistryKey>
 
         <!-- register application -->
