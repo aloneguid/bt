@@ -97,6 +97,7 @@ endif()
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
 set(CPACK_PACKAGE_NAME "BrowserTamer")
 set(CPACK_PACKAGE_VENDOR "@aloneguid")
+set(CPACK_PACKAGE_CONTACT "@aloneguid")
 set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
@@ -131,5 +132,7 @@ if(WIN32)
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
     )
+elseif(LINUX)
+    set(CPACK_GENERATOR DEB)
 endif()
 include(CPack) # needs to be at the end of install configurations
