@@ -52,6 +52,14 @@ jobs:
         sudo apt-get update
         sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev imagemagick xvfb
 
+    - name: Windows dependencies
+      if: runner.os == 'Windows'
+      run: |
+        dotnet tool install --global wix
+        wix eula accept wix7
+        wix extension add --global WixToolset.UI.wixext
+      working-directory: build
+
     - uses: actions/checkout@v6
       with:
         submodules: true
@@ -124,14 +132,6 @@ jobs:
     - name: '🖥️ Screenshots (Linux)'
       if: runner.os == 'Linux'
       run: xvfb-run -a bash resources/ci/screenshots.sh
-
-    - name: 📦 Install WIX 4
-      if: runner.os == 'Windows'
-      run: |
-        dotnet tool install --global wix
-        wix eula accept wix7
-        wix extension add --global WixToolset.UI.wixext
-      working-directory: build
 
     - name: 📦 Package Installer
       run: |
