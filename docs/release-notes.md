@@ -2,12 +2,12 @@
 
 ### Breaking changes
 
-BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler.
+BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as system browser.
 
 todo:
 - config.
-- switch to `.msi` only.
 - debian support.
+- remove sections of setup that install protocols etc.
 
 ## 5.6.12
 
