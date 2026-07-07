@@ -94,7 +94,7 @@ if(WIN32)
 endif()
 
 # "Install" target
-install(TARGETS ${APP_NAME} RUNTIME DESTINATION dist)
+install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
 set(CPACK_PACKAGE_NAME "BrowserTamer")
 set(CPACK_PACKAGE_VENDOR "@aloneguid")
 set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
@@ -126,7 +126,7 @@ if(WIN32)
     set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/resources/wix/wix_dialog.png")
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
     set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
-    #set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
+    set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
 
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
