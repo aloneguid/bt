@@ -100,7 +100,6 @@ set(CPACK_PACKAGE_CONTACT "@aloneguid")
 set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
-
     install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
 
     # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
@@ -135,6 +134,7 @@ if(WIN32)
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
     )
 elseif(UNIX AND NOT APPLE)
+    install(TARGETS ${APP_NAME} RUNTIME DESTINATION "bin")
     set(CPACK_GENERATOR DEB)
 
     install(FILES "${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop"
