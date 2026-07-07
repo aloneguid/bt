@@ -1,0 +1,25 @@
+<CPackWiXPatch>
+    <CPackWiXFragment Id="CM_CP_dist.bt.exe">
+        <RegistryKey Root="HKCU" Key="Software\Classes\http\shell\open\command">
+            <RegistryValue Type="string" Value='"[#bt]" "%1"' />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\http">
+            <RegistryValue Type="string" Value="URL:BrowserTamer Protocol" />
+            <RegistryValue Type="string" Name="URL Protocol" Value="" />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\https\shell\open\command">
+            <RegistryValue Type="string" Value='"[#bt]" "%1"' />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\https">
+            <RegistryValue Type="string" Value="URL:BrowserTamer Protocol" />
+            <RegistryValue Type="string" Name="URL Protocol" Value="" />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\x-bt\shell\open\command">
+            <RegistryValue Type="string" Value='"[#bt]" "%1"' />
+        </RegistryKey>
+        <RegistryKey Root="HKCU" Key="Software\Classes\x-bt">
+            <RegistryValue Type="string" Value="URL:BrowserTamer Protocol" />
+            <RegistryValue Type="string" Name="URL Protocol" Value="" />
+        </RegistryKey>
+    </CPackWiXFragment>
+</CPackWiXPatch>

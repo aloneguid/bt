@@ -46,13 +46,13 @@ jobs:
 
     steps:
 
-    - name: Linux dependencies
+    - name: 🐧 Dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev imagemagick xvfb
 
-    - name: Windows dependencies
+    - name: 🪟 Dependencies
       if: runner.os == 'Windows'
       run: |
         dotnet tool install --global wix
@@ -63,14 +63,10 @@ jobs:
       with:
         submodules: true
 
-    - name: create variables
+    - name: Create variables
       run: |
         $VERSION = (Get-Content docs/release-notes.md -Head 1).Trim() -replace '[ #]', ''
         Add-Content -Path $env:GITHUB_ENV -Value "VERSION=$VERSION"
-      shell: pwsh
-
-    - name: print variables
-      run: |
         Write-Host "VERSION: ${{ env.VERSION }}"
       shell: pwsh
 
@@ -86,11 +82,6 @@ jobs:
         # set it to false to clear any cache in case of build errors
         cache: false
 
-    # - name: Setup Python
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: '3.11' 
-
     - name: ⚙️ configure
       run: >
         cmake -B build -S .
@@ -104,9 +95,9 @@ jobs:
       run: cmake --build build --config ${{ matrix.vcpkg_config }}
       working-directory: . 
 
-    - name: debug
-      run: ls -R
-      working-directory: build/bt
+#    - name: debug
+#      run: ls -R
+#      working-directory: build/bt
 
     - name: 🪟 🧪 unit tests
       if: runner.os == 'Windows'
@@ -144,24 +135,10 @@ jobs:
         $log = "build/_CPack_Packages/win64/WIX/wix.log"
         if (Test-Path $log) { Get-Content $log }
 
-    # put the following inside "atf" subdir:
-    # 1. msi installer, renamed after version number (removed in 5.5.1)
-    # 2. zipped .exe
-    # 3. version.txt containing version number
-    - name: prep artifacts (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        cp build/bt/Release/bt.exe atf/
-        cp build/bt/Release/bt.pdb atf/
-        "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
-        cp docs/release-notes.md atf/
-        cp docs/instructions.md atf/
-        cp screenshots/*.png atf/
-
-    - name: prep artifacts (Linux)
-      if: runner.os == 'Linux'
+    - name: prep artifacts
       run: |
         cp *.deb ../atf/
+        cp *.msi ../atf/
         echo -n "${{ env.VERSION }}" > ../atf/version.txt
         cp ../docs/release-notes.md ../atf/
         cp ../docs/instructions.md ../atf/
