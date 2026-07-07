@@ -58,7 +58,6 @@ jobs:
         dotnet tool install --global wix
         wix eula accept wix7
         wix extension add --global WixToolset.UI.wixext
-      working-directory: build
 
     - uses: actions/checkout@v6
       with:
