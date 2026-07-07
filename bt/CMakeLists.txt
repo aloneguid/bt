@@ -132,9 +132,14 @@ if(WIN32)
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
     )
-elseif(LINUX)
+elseif(UNIX AND NOT APPLE)
     set(CPACK_GENERATOR DEB)
-    install(FILES ${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
-    install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png   DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps RENAME BrowserTamer.svg)
+
+    install(FILES "${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop"
+            DESTINATION share/applications)
+
+    install(FILES "${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png"
+            DESTINATION share/icons/hicolor/256x256/apps RENAME BrowserTamer.png)
+
 endif()
 include(CPack) # needs to be at the end of install configurations
