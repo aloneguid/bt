@@ -125,6 +125,14 @@ jobs:
       if: runner.os == 'Linux'
       run: xvfb-run -a bash resources/ci/screenshots.sh
 
+    - name: 📦 Install WIX 4
+      if: runner.os == 'Windows'
+      run: |
+        dotnet tool install --global wix
+        wix eula accept wix7
+        wix extension add --global WixToolset.UI.wixext
+      working-directory: build
+
     - name: 📦 Package Installer
       run: |
         cpack -C ${{ matrix.vcpkg_config }}
