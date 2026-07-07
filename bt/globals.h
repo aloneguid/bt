@@ -33,7 +33,7 @@
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
-#define APP_VERSION "5.7.0"
+#define APP_VERSION "6.0.0"
 
 extern grey::common::config g_settings;
 

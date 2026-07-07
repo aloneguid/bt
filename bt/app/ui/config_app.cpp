@@ -16,12 +16,12 @@
 #include "extra_widgets.hpp"
 #include "datetime.h"
 #include "common/os.h"
+#include "common/guid.h"
 #include <algorithm>
+#include "common/desktop_shell.h"
 
 #if PLATFORM_WINDOWS
-#include "win32/os.h"
-#include "win32/shell.h"
-#include "win32/user.h"
+#include "common/win32/user.h"
 #endif
 
 using namespace std;
@@ -94,11 +94,6 @@ namespace bt::ui {
                 browser::get_default(g_settings.browsers, g_settings.default_profile)->long_id();
         }
 
-#if PLATFORM_WINDOWS
-        // re-create start menu shortcut in case it's missing
-        win32::shell::create_start_menu_shortcut(APP_LONG_NAME);
-#endif
-
         check_health();
     }
 
@@ -118,9 +113,7 @@ namespace bt::ui {
             // fetch new info and convert to string to avoid conversion in every frame
             si_fps = format("{:.1f}", ImGui::GetIO().Framerate);
             si_scale = format("{:.1f}", app->scale);
-#if PLATFORM_WINDOWS
-            si_dpi = format("{}", win32::shell::get_dpi());
-#endif
+            si_dpi = format("{}", grey::common::desktop_shell::get_current_monitor_dpi());
         }
     }
 
@@ -200,37 +193,14 @@ namespace bt::ui {
             }
 
             if(w::menu m_tools{strings::MenuTools}; m_tools) {
-#if PLATFORM_WINDOWS
                 if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
-                    win32::shell::open_default_apps();
+                    desktop_shell::open_default_apps_configuration();
                 }
-#endif
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
                 if(w::mi(strings::ScriptEditor, true, ICON_MD_CODE)) {
                     show_scripting = !show_scripting;
-                }
-                if(w::menu m{"Troubleshooting", true}; m) {
-                    if(w::mi("Re-register custom protocol")) {
-                        bt::setup::register_browser();
-                        w::notify_info("Custom prototol re-registered");
-                    }
-#if PLATFORM_WINDOWS
-                    if(w::mi("Copy custom protocol")) {
-                        win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_custom_proto_reg_path()));
-                        w::notify_info("Registry path copied to clipboard.");
-                    }
-                    if(w::mi("Copy browser registration")) {
-                        win32::os::set_clipboard_text(format("Computer\\HKEY_CURRENT_USER\\{}", bt::setup::get_browser_registration_reg_path()));
-                        w::notify_info("Registry path copied to clipboard.");
-                    }
-#endif
-                    //if(w::mi("Crash now!")) {
-                    //    w::notify_info("Crashing...");
-                    //    int* crash = nullptr;
-                    //    *crash = 0;  // This will crash immediately
-                    //}
                 }
                 if(w::mi("Re-check health", true, ICON_MD_MEDICAL_SERVICES)) {
                     check_health();
@@ -1200,13 +1170,12 @@ terminal window will be hidden.)");
         }
 
         if(w::is_leftclicked()) {
-#if PLATFORM_WINDOWS
-            string icon_path = win32::shell::file_open_dialog("Icon", "*.png;*.ico");
+            string icon_path = desktop_shell::file_open_dialog("Icon", "*.png;*.ico");
             if(!icon_path.empty()) {
                 path_override = icon_path;
             }
-#endif
         }
+
         if(w::is_rightclicked()) {
             path_override.clear();
         }
@@ -1366,12 +1335,11 @@ terminal window will be hidden.)");
     }
 
     void config_app::add_custom_browser_by_asking() {
-#if PLATFORM_WINDOWS
-        string exe_path = win32::shell::file_open_dialog("Windows Executable", "*.exe");
+        string exe_path = desktop_shell::file_open_dialog("Windows Executable", "*.exe");
         if(exe_path.empty()) return;
 
         wstring w_product_name = win32::user::get_file_version_info_string(exe_path, "ProductName");
-        string id = win32::os::create_guid();
+        string id = guid::create_guid();
         string name = str::to_str(w_product_name);
         auto b = make_shared<browser>(id, name, exe_path);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
@@ -1383,7 +1351,6 @@ terminal window will be hidden.)");
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }
-#endif
     }
 
     void config_app::recalculate_test_url_matches(const click_payload& cp) {

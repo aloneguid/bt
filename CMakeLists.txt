@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.20)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project ("BrowserTamer" VERSION 5.7.0)
+project ("BrowserTamer" VERSION 6.0.0)
 
 # Application metadata - shared between main build and packaging
 set(APP_NAME bt)

@@ -20,22 +20,17 @@ file(GLOB core_src
     "config_custom.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
-    "app/pipeline/*.cpp"
-    "../common/http.cpp"
-    "../common/hashing.cpp"
-    "../common/url.cpp"
-    "../common/process.cpp"
-    "../common/config/config.cpp")
+    "app/pipeline/*.cpp")
 
 if(WIN32)
 file(GLOB core_src
     ${core_src}
-    "../common/win32/window.cpp"
-    "../common/win32/shell.cpp"
-    "../common/win32/os.cpp"
-    "../common/win32/reg.cpp"
-    "../common/win32/uwp.cpp"
-    "../common/win32/user.cpp")
+    "../grey/grey/common/win32/window.cpp"
+    "../grey/grey/common/win32/shell.cpp"
+    "../grey/grey/common/win32/os.cpp"
+    "../grey/grey/common/win32/reg.cpp"
+    "../grey/grey/common/win32/uwp.cpp"
+    "../grey/grey/common/win32/user.cpp")
 
     add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
 else()
