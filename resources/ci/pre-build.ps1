@@ -44,3 +44,15 @@ if (Test-Path -Path $globalsPath) {
 
     Write-Host "Updated: $globalsPath"
 }
+
+# update version in CMakeLists.txt
+$cmakeListsPath = "CMakeLists.txt"
+if (Test-Path -Path $cmakeListsPath) {
+    Write-Host "Updating version in: $cmakeListsPath"
+
+    (Get-Content $cmakeListsPath) `
+        -replace "\sVERSION\s+\d+\.\d+\.\d+", " VERSION $version" |
+        Out-File $cmakeListsPath
+
+    Write-Host "Updated: $cmakeListsPath"
+}

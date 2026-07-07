@@ -93,11 +93,35 @@ if(WIN32)
     endif()
 endif()
 
-install(TARGETS bt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES ${CMAKE_SOURCE_DIR}/resources/bt.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon16x16.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/16x16/apps RENAME bt.png)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon48x48.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/48x48/apps RENAME bt.png)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon128x128.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/128x128/apps RENAME bt.png)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon192x192.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/192x192/apps RENAME bt.png)
-install(FILES ${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps RENAME bt.png)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/icon.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps RENAME bt.png)
+# "Install" target
+install(TARGETS ${APP_NAME} RUNTIME DESTINATION dist)
+set(CPACK_PACKAGE_NAME "browser-tamer")
+set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "dfdsfdsfsdf")
+if(WIN32)
+    # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
+    # dotnet tool install --global wix
+    #
+    # then run the silly "eula accept" command:
+    # wix eula accept wix7
+    #
+    # then install wix ui extension required by cpack:
+    # wix extension add --global WixToolset.UI.wixext
+
+    set(CPACK_GENERATOR WIX)
+
+    # "4" is required in order not to use the legacy WIX 3.x generator. It did not matter that I was using WIX 7.
+    set(CPACK_WIX_VERSION 4)
+
+    # WiX requires a stable Upgrade GUID — generate ONE and hardcode it (don't regenerate per build)
+    set(CPACK_WIX_UPGRADE_GUID "C7630F02-56B6-41A6-8166-9D15AF6961E7")
+
+    set(CPACK_WIX_INSTALL_SCOPE "perUser")
+    set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/resources/LICENSE.rtf")
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/bt/icon.ico")
+    set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/resources/wix/wix_banner.png")
+    set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/resources/wix/wix_dialog.png")
+    set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
+    set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
+endif()
+include(CPack) # needs to be at the end of install configurations

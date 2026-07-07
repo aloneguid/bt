@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.20)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project ("BrowserTamer")
+project ("BrowserTamer" VERSION 5.7.0)
 
 # Application metadata - shared between main build and packaging
 set(APP_NAME bt)
@@ -46,65 +46,3 @@ endif()
 add_subdirectory(grey/grey)
 add_subdirectory(grey/demo/desktop)
 add_subdirectory(bt)
-
-# CPack configuration
-set(CPACK_PACKAGE_NAME "bt")
-set(CPACK_PACKAGE_VENDOR "aloneguid")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Browser proxy with autodetection, rules, scripting. 100% local, no tracking, no registration.")
-
-if(NOT CPACK_PACKAGE_VERSION)
-    if(DEFINED ENV{VERSION})
-        set(CPACK_PACKAGE_VERSION $ENV{VERSION})
-    else()
-        set(CPACK_PACKAGE_VERSION "1.0.0")
-    endif()
-endif()
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "aloneguid <aloneguid@gmail.com>")
-set(CPACK_DEBIAN_PACKAGE_SECTION "net")
-set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://www.aloneguid.uk/projects/bt/")
-set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-if(WIN32)
-    # see https://cmake.org/cmake/help/latest/cpack_gen/wix.html
-    set(CPACK_GENERATOR "WIX")
-
-    # Generate WiX source files from templates with substituted variables
-    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/wix")
-    configure_file("${CMAKE_SOURCE_DIR}/resources/wix/registry.wxs.in" "${CMAKE_BINARY_DIR}/wix/registry.wxs" @ONLY)
-    configure_file("${CMAKE_SOURCE_DIR}/resources/wix/startmenu.wxs.in" "${CMAKE_BINARY_DIR}/wix/startmenu.wxs" @ONLY)
-
-    # Product identity
-    set(CPACK_WIX_UPGRADE_GUID "ADA65E64-7A29-492F-97C6-B1ED187E7A4D")
-    set(CPACK_WIX_ARCHITECTURE "x64")
-    set(CPACK_WIX_INSTALL_SCOPE "perUser")
-
-    # UI customization
-    set(CPACK_WIX_PROGRAM_MENU_FOLDER "${APP_LONG_NAME}")
-    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/resources/icons/icon256x256.png")
-    set(CPACK_WIX_ROOT_FEATURE_TITLE "${APP_LONG_NAME}")
-    set(CPACK_WIX_ROOT_FEATURE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
-    set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/resources/LICENSE.rtf")
-    set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/resources/wix/wix_banner.png")
-
-    # ARP (Add/Remove Programs) properties
-    set(CPACK_WIX_PROPERTY_ARPHELPLINK "${APP_GITHUB_URL}")
-    set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "${APP_URL}")
-    set(CPACK_WIX_PROPERTY_ARPURLUPDATEINFO "${APP_GITHUB_RELEASES_URL}")
-
-    # MSI file name includes architecture (e.g. bt-1.0.0-x64.msi)
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_WIX_ARCHITECTURE}")
-
-    # Extra WiX source files and patching
-    set(CPACK_WIX_EXTRA_SOURCES "${CMAKE_BINARY_DIR}/wix/registry.wxs;${CMAKE_BINARY_DIR}/wix/startmenu.wxs")
-    set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
-else()
-    set(CPACK_GENERATOR "DEB")
-endif()
-
-# Act as a web browser - this is mostly handled by the .desktop file,
-# but we ensure the package is marked correctly.
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "xdg-utils") # useful for URL handling
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_SOURCE_DIR}/resources/debian/postinst;${CMAKE_SOURCE_DIR}/resources/debian/prerm")
-
-include(CPack)
