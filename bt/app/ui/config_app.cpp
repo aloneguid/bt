@@ -227,7 +227,7 @@ namespace bt::ui {
             }
 
             if(w::menu m{"General"}; m) {
-                w::small_checkbox("Write clicks to hit_log.csv", g_settings.log_rule_hits);
+                w::small_checkbox("Write clicks to hit_log.csv", g_state.log_rule_hits);
 
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
                     w::small_checkbox("Enabled", g_state.toast_enabled);
@@ -242,20 +242,20 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Picker"}; m) {
-                w::small_checkbox("Close on focus loss", g_settings.picker_close_on_focus_loss);
-                w::small_checkbox("Always on top", g_settings.picker_always_on_top);
+                w::small_checkbox("Close on focus loss", g_state.picker_close_on_focus_loss);
+                w::small_checkbox("Always on top", g_state.picker_always_on_top);
 
                 w::sep("Manual invocation");
-                w::small_checkbox("Ctrl + Shift + Left Click", g_settings.picker_on_key_cs);
-                w::small_checkbox("Ctrl + Alt    + Left Click", g_settings.picker_on_key_ca);
-                w::small_checkbox("Alt  + Shift + Left Click", g_settings.picker_on_key_as);
-                w::small_checkbox("CAPS LOCKS", g_settings.picker_on_key_cl);
+                w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker_on_key_cs);
+                w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker_on_key_ca);
+                w::small_checkbox("Alt  + Shift + Left Click", g_state.picker_on_key_as);
+                w::small_checkbox("CAPS LOCKS", g_state.picker_on_key_cl);
 
                 w::sep("Automatic invocation");
-                w::small_checkbox("Always", g_settings.picker_always);
-                if(!g_settings.picker_always) {
-                    w::small_checkbox("On conflict", g_settings.picker_on_conflict);
-                    w::small_checkbox("On no rule", g_settings.picker_on_no_rule);
+                w::small_checkbox("Always", g_state.picker_always);
+                if(!g_state.picker_always) {
+                    w::small_checkbox("On conflict", g_state.picker_on_conflict);
+                    w::small_checkbox("On no rule", g_state.picker_on_no_rule);
                 }
             }
 
