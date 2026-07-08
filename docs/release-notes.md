@@ -2,16 +2,19 @@
 
 ### Breaking changes
 
-BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as a system browser.
+- BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during the installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as a system browser.
+- todo: config is not compatible
 
-todo:
-- config.
-- debian support.
-- remove sections of setup that install protocols etc.
+## New features
+- todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers. 
+- todo: debian support.
+
+## Bugs fixed
+- todo: see github.
 
 ## 5.6.12
 
-improvement: process name and description can be determined more reliably even with less permissions, but also works better on non-US english systems.
+improvement: process name and description can be determined more reliably even with fewer permissions, but also works better on non-US English systems.
 
 ## 5.6.11
 

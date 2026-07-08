@@ -14,7 +14,7 @@ namespace bt::ui {
         cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
-        app->initial_theme_id = g_settings.theme;
+        app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
 
 #if PLATFORM_WINDOWS
@@ -27,7 +27,7 @@ namespace bt::ui {
         wnd_main
             .no_titlebar()
             .no_resize()
-            .border(g_settings.toast_border_width)
+            .border(g_state.toast_border)
             .no_collapse()
             .fill_viewport()
             //.no_background()
@@ -107,7 +107,7 @@ namespace bt::ui {
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
-            if(show_timer >= g_settings.toast_visible_secs) {
+            if(show_timer >= g_state.toast_visible_secs) {
                 stage = toast_app::anim_stage::shrink;
             }
         }

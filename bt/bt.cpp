@@ -19,9 +19,11 @@
 #include "app/ui/toast_app.h"
 
 // globals.h
-grey::common::config g_settings{APP_SHORT_NAME, "config.ini"};
-bt::script_site g_script{grey::common::fss::get_config_file_path(APP_SHORT_NAME, "scripts.lua"), true};
+#define CONFIG_NAME APP_LONG_NAME
+grey::common::config g_settings{CONFIG_NAME, "config.ini"};
+bt::script_site g_script{grey::common::fss::get_config_file_path(CONFIG_NAME, "scripts.lua"), true};
 bt::url_pipeline g_pipeline{g_settings};
+bt::state g_state{CONFIG_NAME};
 
 using namespace std;
 using namespace grey::common;
@@ -70,7 +72,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
         }
 
-        if(g_settings.toast_on_open) {
+        if(g_state.toast_enabled) {
             bt::ui::toast_app app{up, first_match.bi};
             app.run();
         }

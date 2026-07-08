@@ -696,7 +696,7 @@ namespace bt {
             // if profile is bound to an installation but it's not ours, skip it always
             if(!fp.installation_id.empty() && fp.installation_id != b->instance_id) continue;
 
-            if(fp.installation_id.empty() && !g_settings.firefox_classic_profiles) continue;
+            if(fp.installation_id.empty() && !g_state.discover_firefox_classic_profiles) continue;
 
             string arg_suffix = fp.is_classic
                 ? format("-P \"{}\"", fp.name)
@@ -708,7 +708,7 @@ namespace bt {
             b->instances.push_back(bi);
 
             // containers
-            if(g_settings.firefox_containers) {
+            if(g_state.discover_firefox_containers) {
                 // for each container, add a profile
                 // Leave the "no container" profile as is.
 

@@ -28,6 +28,7 @@
         "implot",
         "nlohmann-json",
         "simpleini",
+        "fkyaml",
         "p-ranav-csv2",
         "tinyxml2",
         "lua",

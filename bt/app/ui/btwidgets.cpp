@@ -44,7 +44,7 @@ namespace bt::ui {
             ? ""
             : (bi->is_incognito && bi->user_icon_path.empty()) ? "incognito" : bi->get_best_icon_path();
 
-        switch(g_settings.icon_overlay) {
+        switch(g_state.icon_overlay) {
             case icon_overlay_mode::browser_only:
                 icon2 = "";
                 break;

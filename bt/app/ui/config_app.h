@@ -87,6 +87,11 @@ namespace bt::ui {
         click_payload pv_cp;
         bool pv_only_matching{false};
 
+        // "Add new browser" window
+        bool add_browser_show{false};
+        grey::widgets::window wnd_add_browser;
+        std::string exe_path;
+
         std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },
@@ -109,19 +114,16 @@ namespace bt::ui {
         void render_browsers();
         void render_card(std::shared_ptr<bt::browser> b, bool is_selected);
         void render_detail(std::shared_ptr<bt::browser> b);
+        void render_add_browser_window();
 
         /**
          * @brief If "path_override" is not empty, it will be used as the icon path. Otherwise, "path1" if not empty, then "path2".
-         * @param path1 
-         * @param path2 
-         * @param path_override 
          */
         void render_icon(const std::string& path_default, bool is_incognito, std::string& path_override);
         void render_rules(std::shared_ptr<browser_instance> bi);
         void refresh_pop_proc_names_items();
 
         void rediscover_browsers();
-        void add_custom_browser_by_asking();
 
         void recalculate_test_url_matches(const click_payload& cp);
 

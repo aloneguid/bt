@@ -25,7 +25,7 @@ namespace bt::ui {
         wnd_main{title, &is_open},
         wnd_settings{"Settings", &is_settings_open} {
 
-        app->initial_theme_id = g_settings.theme;
+        app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
         app->center_on_screen = true;
 
@@ -336,7 +336,7 @@ namespace bt::ui {
             "browser on top of profile",
             "browser only",
             "profile only"
-        }, (unsigned int&)g_settings.icon_overlay);
+        }, (unsigned int&)g_state.icon_overlay);
 
 #if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = false; // never close app when settings are open
@@ -360,7 +360,7 @@ namespace bt::ui {
             g_settings.picker_show_key_hints = true;
             g_settings.picker_border_width = 1;
             g_settings.picker_show_native_chrome = false;
-            g_settings.icon_overlay = icon_overlay_mode::profile_on_browser;
+            g_state.icon_overlay = icon_overlay_mode::profile_on_browser;
             g_settings.picker_opacity = 255;
         }
 

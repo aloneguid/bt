@@ -2,6 +2,7 @@
 #include "app/url_pipeline.h"
 #include "common/config.hpp"
 #include "app/script_site.h"
+#include "state.hpp"
 
 #define ProtoName "BrowserTamerHTM"
 
@@ -40,3 +41,5 @@ extern grey::common::config g_settings;
 extern bt::url_pipeline g_pipeline;
 
 extern bt::script_site g_script;
+
+extern bt::state g_state;

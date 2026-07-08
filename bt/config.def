@@ -1,13 +1,5 @@
-opt(bool,         browsers_show_hidden,     true)
-opt(string,       theme,                    "")
-opt(bool,         firefox_classic_profiles, false)
-opt(bool,         firefox_containers,       false)
 opt(bool,         log_rule_hits,            false)
 opt(string,       default_profile,          "")
-opt(bool,         toast_on_open,            true)
-opt(int,          toast_visible_secs,       3)
-opt(int,          toast_border_width,       1)
-opt_enum(bt::icon_overlay_mode,     icon_overlay,  0, uint)
 
 opt_sect(bool,      picker_on_key_cs,               true,       picker,     on_key_cs)
 opt_sect(bool,      picker_on_key_ca,               false,      picker,     on_key_ca)
