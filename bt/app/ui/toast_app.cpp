@@ -15,8 +15,9 @@ namespace bt::ui {
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_settings.theme;
+        app->can_resize = false;
+
 #if PLATFORM_WINDOWS
-        app->win32_can_resize = false;
         app->win32_always_on_top = true;
         app->win32_title_bar = false;
         app->win32_hide_from_taskbar = true;

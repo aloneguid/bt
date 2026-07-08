@@ -1,6 +1,5 @@
 ﻿#include "picker_app.h"
 #include <memory>
-#include "fss.h"
 #include "../../globals.h"
 #include "../../res.inl"
 #include <format>
@@ -27,9 +26,10 @@ namespace bt::ui {
         wnd_settings{"Settings", &is_settings_open} {
 
         app->initial_theme_id = g_settings.theme;
+        app->can_resize = false;
+        app->center_on_screen = true;
+
 #if PLATFORM_WINDOWS
-        app->win32_can_resize = false;
-        app->win32_center_on_screen = true;
         app->win32_close_on_focus_lost = g_settings.picker_close_on_focus_loss;
         app->win32_always_on_top = g_settings.picker_always_on_top;
         app->win32_title_bar = g_settings.picker_show_native_chrome;

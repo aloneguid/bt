@@ -39,10 +39,8 @@ namespace bt::ui {
 
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_settings.theme;
-#if PLATFORM_WINDOWS
-        app->win32_can_resize = true;
-        app->win32_center_on_screen = true;
-#endif
+        app->can_resize = true;
+        app->center_on_screen = true;
         app->load_fixed_font = true;
 
         wnd_config
