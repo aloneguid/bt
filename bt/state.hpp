@@ -95,6 +95,14 @@ namespace bt {
                    grey::common::stl::vec_equal(browsers, other.browsers);
         }
 
+        void on_copied() {
+            // create copies of browsers
+            browsers = grey::common::stl::vec_deep_copy(browsers);
+            for(auto b : browsers) {
+                b->on_copied();
+            }
+        }
+
         bool operator!=(const state &other) const {
             return !(*this == other);
         }

@@ -65,6 +65,8 @@ namespace bt {
 
         bool operator==(const browser& other) const;
 
+        void on_copied();
+
         // ---- static members
 
         static std::vector<std::shared_ptr<browser_profile>> to_instances(

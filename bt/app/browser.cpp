@@ -30,9 +30,17 @@ namespace bt {
     }
 
     bool browser::operator==(const browser &other) const {
-        return open_cmd == other.open_cmd &&
+        return name == other.name &&
+               open_cmd == other.open_cmd &&
+               engine == other.engine &&
+               is_hidden == other.is_hidden &&
+               icon_path == other.icon_path &&
                data_path == other.data_path &&
                stl::vec_equal(profiles, other.profiles);
+    }
+
+    void browser::on_copied() {
+        profiles = stl::vec_deep_copy(profiles);
     }
 
     size_t browser::get_total_rule_count() const {
