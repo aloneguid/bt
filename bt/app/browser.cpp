@@ -32,12 +32,12 @@ namespace bt {
     bool browser::operator==(const browser &other) const {
         return open_cmd == other.open_cmd &&
                data_path == other.data_path &&
-               stl::vec_equal(instances, other.instances);
+               stl::vec_equal(profiles, other.profiles);
     }
 
     size_t browser::get_total_rule_count() const {
         size_t r{0};
-        for(auto i: instances) {
+        for(auto i: profiles) {
             r += i->rules.size();
         }
         return r;
@@ -47,8 +47,8 @@ namespace bt {
         if(!icon_path.empty()) return icon_path;
 
         if(engine == browser_engine::generic) {
-            if(!instances.empty()) {
-                return instances[0]->get_best_icon_path();
+            if(!profiles.empty()) {
+                return profiles[0]->get_best_icon_path();
             }
         }
 
@@ -56,19 +56,19 @@ namespace bt {
     }
 
     bool browser::is_default() const {
-        for(const auto i: instances) {
+        for(const auto i: profiles) {
             if(i->is_default) return true;
         }
         return false;
     }
 
-    std::vector<std::shared_ptr<browser_instance> > browser::to_instances(
+    std::vector<std::shared_ptr<browser_profile> > browser::to_instances(
         const std::vector<std::shared_ptr<browser> > &browsers,
         bool skip_hidden) {
-        vector<shared_ptr<browser_instance> > r;
+        vector<shared_ptr<browser_profile> > r;
         for(const auto b: browsers) {
             if(skip_hidden && b->is_hidden) continue;
-            for(const auto &bi: b->instances) {
+            for(const auto &bi: b->profiles) {
                 if(skip_hidden && bi->is_hidden) continue;
                 r.push_back(bi);
             }
@@ -84,7 +84,7 @@ namespace bt {
 
         // which browser should we use?
         for(auto b: browsers) {
-            for(auto i: b->instances) {
+            for(auto i: b->profiles) {
                 match_rule mr{""};
                 if(i->is_match(up, script, mr)) {
                     r.emplace_back(i, mr);
@@ -108,24 +108,24 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_default(const std::vector<shared_ptr<browser> > &browsers) {
+    shared_ptr<browser_profile> browser::get_default(const std::vector<shared_ptr<browser> > &browsers) {
         if(browsers.empty()) return nullptr;
 
         for(auto b: browsers) {
-            for(auto &p: b->instances) {
+            for(auto &p: b->profiles) {
                 if(p->is_default) return p;
             }
         }
 
         auto b = browsers.front();
-        if(b->instances.empty()) return nullptr;
-        return b->instances.front();
+        if(b->profiles.empty()) return nullptr;
+        return b->profiles.front();
     }
 
     void browser::set_default(const std::vector<std::shared_ptr<browser> > &browsers,
-                              const std::shared_ptr<browser_instance> &bi) {
+                              const std::shared_ptr<browser_profile> &bi) {
         for(auto b: browsers) {
-            for(auto &p: b->instances) {
+            for(auto &p: b->profiles) {
                 p->is_default = *p == *bi;
             }
         }
@@ -151,13 +151,13 @@ namespace bt {
                 // profiles
 
                 // merge old data into new profiles
-                for(shared_ptr<browser_instance> bi_new: b_new->instances) {
+                for(shared_ptr<browser_profile> bi_new: b_new->profiles) {
                     auto bi_old_it = std::find_if(
-                        b_old->instances.begin(), b_old->instances.end(),
-                        [bi_new](shared_ptr<browser_instance> el) { return el->name == bi_new->name; });
+                        b_old->profiles.begin(), b_old->profiles.end(),
+                        [bi_new](shared_ptr<browser_profile> el) { return el->name == bi_new->name; });
 
-                    if(bi_old_it == b_old->instances.end()) continue;
-                    shared_ptr<browser_instance> bi_old = *bi_old_it;
+                    if(bi_old_it == b_old->profiles.end()) continue;
+                    shared_ptr<browser_profile> bi_old = *bi_old_it;
 
                     // merge user-defined customisations
                     bi_new->user_arg = bi_old->user_arg;
@@ -196,7 +196,7 @@ namespace bt {
         return fs::path{open_cmd}.filename().replace_extension().string();
     }
 
-    browser_instance::browser_instance(
+    browser_profile::browser_profile(
         shared_ptr<browser> b,
         const std::string &name,
         const std::string &launch_arg,
@@ -209,14 +209,14 @@ namespace bt {
           icon_path{icon_path} {
     }
 
-    bool browser_instance::operator==(const browser_instance &other) const {
+    bool browser_profile::operator==(const browser_profile &other) const {
         return name == other.name && stl::vec_equal(rules, other.rules);
     }
 
-    browser_instance::~browser_instance() {
+    browser_profile::~browser_profile() {
     }
 
-    void browser_instance::launch(click_payload up) const {
+    void browser_profile::launch(click_payload up) const {
         string url = up.url;
         string arg = launch_arg;
 
@@ -243,7 +243,7 @@ namespace bt {
         launch_process(b->open_cmd + " " + arg);
     }
 
-    bool browser_instance::is_match(const click_payload &up, match_rule &mr) const {
+    bool browser_profile::is_match(const click_payload &up, match_rule &mr) const {
         for(const auto &rule: rules) {
             if(rule->is_match(up)) {
                 mr = *rule;
@@ -254,7 +254,7 @@ namespace bt {
         return false;
     }
 
-    bool browser_instance::is_match(const click_payload &up, const script_site &ss, match_rule &mr) const {
+    bool browser_profile::is_match(const click_payload &up, const script_site &ss, match_rule &mr) const {
         for(const auto &rule: rules) {
             if(rule->is_match(up, ss)) {
                 mr = *rule;
@@ -265,7 +265,7 @@ namespace bt {
         return false;
     }
 
-    bool browser_instance::add_rule(const std::string &rule_text) {
+    bool browser_profile::add_rule(const std::string &rule_text) {
         auto new_rule = make_shared<match_rule>(rule_text);
 
         for(const auto &rule: rules) {
@@ -278,22 +278,22 @@ namespace bt {
         return true;
     }
 
-    void browser_instance::delete_rule(const std::string &rule_text) {
+    void browser_profile::delete_rule(const std::string &rule_text) {
         std::erase_if(rules, [rule_text](auto r) { return r->value == rule_text; });
     }
 
-    std::string browser_instance::get_best_display_name() const {
+    std::string browser_profile::get_best_display_name() const {
         if(is_incognito) return format("Private {}", b->name);
         return name;
     }
 
-    std::string browser_instance::get_best_icon_path(bool include_override) const {
+    std::string browser_profile::get_best_icon_path(bool include_override) const {
         if(include_override && !user_icon_path.empty()) return user_icon_path;
 
         return icon_path.empty() ? b->open_cmd : icon_path;
     }
 
-    void browser_instance::launch_process(const std::string &cmdline) const {
+    void browser_profile::launch_process(const std::string &cmdline) const {
 #if PLATFORM_WINDOWS
         STARTUPINFO si{};
         si.cb = sizeof(si);

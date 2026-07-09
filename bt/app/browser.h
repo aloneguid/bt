@@ -7,7 +7,7 @@
 
 namespace bt {
 
-    class browser_instance;
+    class browser_profile;
     class browser_match_result;
 
     enum class browser_engine {
@@ -42,7 +42,7 @@ namespace bt {
          */
         std::string data_path;
 
-        std::vector<std::shared_ptr<browser_instance>> instances;
+        std::vector<std::shared_ptr<browser_profile>> profiles;
 
         /**
          * @brief Instance ID, used by Firefox. Not persisted as it's not required after discovery.
@@ -67,7 +67,7 @@ namespace bt {
 
         // ---- static members
 
-        static std::vector<std::shared_ptr<browser_instance>> to_instances(
+        static std::vector<std::shared_ptr<browser_profile>> to_instances(
             const std::vector<std::shared_ptr<browser>>& browsers,
             bool skip_hidden = true);
 
@@ -76,8 +76,8 @@ namespace bt {
             const click_payload& up,
             const script_site& script);
 
-        static std::shared_ptr<browser_instance> get_default(const std::vector<std::shared_ptr<browser>>& browsers);
-        static void set_default(const std::vector<std::shared_ptr<browser>>& browsers, const std::shared_ptr<browser_instance>& bi);
+        static std::shared_ptr<browser_profile> get_default(const std::vector<std::shared_ptr<browser>>& browsers);
+        static void set_default(const std::vector<std::shared_ptr<browser>>& browsers, const std::shared_ptr<browser_profile>& bi);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,
@@ -90,7 +90,7 @@ namespace bt {
         static std::string get_image_name(const std::string& open_cmd);
     };
 
-    class browser_instance {
+    class browser_profile {
     public:
         // profile:
         // - sys name
@@ -99,15 +99,15 @@ namespace bt {
 
         inline static const std::string URL_ARG_NAME{ "%url%" };
 
-        browser_instance(
+        browser_profile(
             std::shared_ptr<browser> b,
             const std::string& name,
             const std::string& launch_arg,
             const std::string& icon_path);
 
-        bool operator==(const browser_instance& other) const;
+        bool operator==(const browser_profile& other) const;
 
-        ~browser_instance();
+        ~browser_profile();
 
         void launch(click_payload up) const;
 
@@ -181,7 +181,7 @@ namespace bt {
     };
 
     struct browser_match_result {
-        std::shared_ptr<browser_instance> bi;
+        std::shared_ptr<browser_profile> bi;
         match_rule rule;
     };
 }

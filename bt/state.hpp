@@ -192,7 +192,7 @@ namespace bt {
                             h.read<string>(pnode, "arg", launch_arg, "");
                             h.read<string>(pnode, "icon", icon, "");
 
-                            auto p = std::make_shared<bt::browser_instance>(b, name, launch_arg, icon);
+                            auto p = std::make_shared<bt::browser_profile>(b, name, launch_arg, icon);
 
                             h.read<bool>(pnode, "default", p->is_default, false);
                             h.read<string>(pnode, "user_arg", p->user_arg, "");
@@ -215,7 +215,7 @@ namespace bt {
                                     p->rules.push_back(r);
                                 }
                             }
-                            b->instances.push_back(p);
+                            b->profiles.push_back(p);
                         }
                     }
                     browsers.push_back(b);
@@ -296,7 +296,7 @@ namespace bt {
                 // profiles
                 bnode["profiles"] = node::sequence();
                 auto& pseq = bnode["profiles"].get_value_ref<node::sequence_type&>();
-                for(auto p : b->instances) {
+                for(auto p : b->profiles) {
                     node pnode = node::mapping();
                     h.write(pnode, "name", p->name);
                     h.write(pnode, "arg", p->launch_arg);

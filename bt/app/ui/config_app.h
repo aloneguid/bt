@@ -121,13 +121,13 @@ namespace bt::ui {
          * @brief If "path_override" is not empty, it will be used as the icon path. Otherwise, "path1" if not empty, then "path2".
          */
         void render_icon(const std::string& path_default, bool is_incognito, std::string& path_override);
-        void render_rules(std::shared_ptr<browser_instance> bi);
+        void render_rules(std::shared_ptr<browser_profile> bi);
         void refresh_pop_proc_names_items();
 
         void rediscover_browsers();
 
         void recalculate_test_url_matches(const click_payload& cp);
 
-        std::shared_ptr<bt::browser_instance> get_selected_browser_instance();
+        std::shared_ptr<bt::browser_profile> get_selected_browser_instance();
     };
 }

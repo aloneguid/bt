@@ -570,7 +570,7 @@ namespace bt::ui {
                     pv.begin_row();
                     auto emp = b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
                     if(w::tree_node node_browser{b->name, true, false, true, emp}; node_browser) {
-                        for(auto i : b->instances) {
+                        for(auto i : b->profiles) {
                             if(pv_only_matching && !i->ui_test_url_matches) continue;
 
                             pv.begin_row();
@@ -613,7 +613,7 @@ namespace bt::ui {
             //        ImGui::TableSetColumnIndex(1);
             //        ImGui::TextDisabled(" ");
             //        if(b_node) {
-            //            for(auto i : b->instances) {
+            //            for(auto i : b->profiles) {
             //                if(pv_only_matching && !i->ui_test_url_matches) continue;
             //                ImGui::TableNextRow();
             //                ImGui::TableSetColumnIndex(0);
@@ -687,8 +687,8 @@ namespace bt::ui {
         size_t ipc{0};
         size_t irc{0};
         for(const auto& b : g_state.browsers) {
-            ipc += b->instances.size();
-            for(const auto& i : b->instances) {
+            ipc += b->profiles.size();
+            for(const auto& i : b->profiles) {
                 irc += i->rules.size();
             }
         }
@@ -795,12 +795,12 @@ namespace bt::ui {
         }
     }
 
-    std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
+    std::shared_ptr<bt::browser_profile> config_app::get_selected_browser_instance() {
         auto browser = g_state.browsers[selected_browser_idx];
         if(browser->engine != browser_engine::generic) {
-            return browser->instances[selected_profile_idx];
+            return browser->profiles[selected_profile_idx];
         } else {
-            return browser->instances[0];
+            return browser->profiles[0];
         }
     }
 
@@ -833,9 +833,9 @@ namespace bt::ui {
             w::cur_set(pos2.x + left_pad, pos2.y);
             //w::move_pos(left_pad, 0);
 
-            if(b->instances.size() > 0) {
-                w::label(format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
-                w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
+            if(b->profiles.size() > 0) {
+                w::label(format("{} {}", ICON_MD_FACE, b->profiles.size()), 0, false);
+                w::tt(str::humanise(b->profiles.size(), "profile", "profiles"));
                 w::sl();
 
                 switch(b->engine) {
@@ -960,13 +960,13 @@ namespace bt::ui {
         } else if(b->engine == browser_engine::generic) {
             w::sl();
             if(w::button(ICON_MD_FAVORITE)) {
-                browser::set_default(g_state.browsers, b->instances[0]);
+                browser::set_default(g_state.browsers, b->profiles[0]);
             }
             w::tt("Make this browser the default one");
 
             w::sl();
             if(w::button(ICON_MD_LAUNCH)) {
-                url_opener::open(b->instances[0], APP_TEST_URL);
+                url_opener::open(b->profiles[0], APP_TEST_URL);
             }
             w::tt("test by opening a link");
 
@@ -998,7 +998,7 @@ namespace bt::ui {
             w::tab_bar tabs{"tabs", true, true};
 
             int idx{0};
-            for(shared_ptr<browser_instance> bi : b->instances) {
+            for(shared_ptr<browser_profile> bi : b->profiles) {
 
                 if(!g_state.show_hidden_browsers && bi->is_hidden) {
                     idx++;
@@ -1036,12 +1036,12 @@ namespace bt::ui {
                         w::icon_checkbox(ICON_MD_VISIBILITY, bi->is_hidden, true, "Show in profile list and picker");
 
                         bool can_move_left = idx != 0;
-                        bool can_move_right = idx != b->instances.size() - 1;
+                        bool can_move_right = idx != b->profiles.size() - 1;
 
                         w::sl();
                         if(w::button(ICON_MD_WEST, w::emphasis::none, can_move_left)) {
-                            // move up one position inside b->instances
-                            std::swap(b->instances[idx], b->instances[idx - 1]);
+                            // move up one position inside b->profiles
+                            std::swap(b->profiles[idx], b->profiles[idx - 1]);
                             set_selected_profile_idx = idx - 1;
                             return;
                         }
@@ -1049,8 +1049,8 @@ namespace bt::ui {
 
                         w::sl();
                         if(w::button(ICON_MD_EAST, w::emphasis::none, can_move_right)) {
-                            // move down one position inside b->instances
-                            std::swap(b->instances[idx], b->instances[idx + 1]);
+                            // move down one position inside b->profiles
+                            std::swap(b->profiles[idx], b->profiles[idx + 1]);
                             set_selected_profile_idx = idx + 1;
                             return;
                         }
@@ -1108,7 +1108,7 @@ namespace bt::ui {
 
             set_selected_profile_idx = -1;
         } else {
-            shared_ptr<browser_instance> bi = b->instances[0];
+            shared_ptr<browser_profile> bi = b->profiles[0];
 
             render_icon(bi->get_best_icon_path(false), bi->is_incognito, bi->user_icon_path);
 
@@ -1176,7 +1176,7 @@ terminal window will be hidden.)");
 
         if(w::button(ICON_MD_ADD " add")) {
             auto b = make_shared<browser>(badd_name, badd_exe_path);
-            b->instances.push_back(make_shared<browser_instance>(b, badd_name, "", ""));
+            b->profiles.push_back(make_shared<browser_profile>(b, badd_name, "", ""));
             g_state.browsers.push_back(b);
             selected_browser_idx = g_state.browsers.size() - 1;
             add_browser_show = false;
@@ -1227,7 +1227,7 @@ terminal window will be hidden.)");
         }
     }
 
-    void config_app::render_rules(std::shared_ptr<browser_instance> bi) {
+    void config_app::render_rules(std::shared_ptr<browser_profile> bi) {
         //w::label("Rules");
         w::sep("Rules");
 
@@ -1383,7 +1383,7 @@ terminal window will be hidden.)");
     void config_app::recalculate_test_url_matches(const click_payload& cp) {
         for(auto b : g_state.browsers) {
             b->ui_test_url_matches = false;
-            for(auto bi : b->instances) {
+            for(auto bi : b->profiles) {
                 bi->ui_test_url_matches = false;
 
                 for(auto r : bi->rules) {

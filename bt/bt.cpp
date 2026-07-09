@@ -153,7 +153,7 @@ void execute(const string& data) {
 #if _DEBUG
     if(command == "toast") {
         up.url = command_data;
-        bt::ui::toast_app app{up, g_state.browsers[0]->instances[0]};
+        bt::ui::toast_app app{up, g_state.browsers[0]->profiles[0]};
         app.run();
         return;
     }

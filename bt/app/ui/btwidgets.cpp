@@ -16,15 +16,15 @@ namespace bt::ui {
             string path = b->get_best_icon_path();
             app.preload_texture(path, fss::get_full_path(path));
 
-            // preload browser instances
-            for(auto& bi : b->instances) {
+            // preload browser profiles
+            for(auto& bi : b->profiles) {
                 string path = bi->get_best_icon_path();
                 app.preload_texture(path, fss::get_full_path(path));
             }
         }
     }
 
-    void btw_icon(grey::app& app, std::shared_ptr<bt::browser_instance> bi, float padding, float icon_size, bool is_active) {
+    void btw_icon(grey::app& app, std::shared_ptr<bt::browser_profile> bi, float padding, float icon_size, bool is_active) {
 
         float box_size = icon_size + padding * 2;
 

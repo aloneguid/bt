@@ -410,10 +410,10 @@ namespace bt {
 
                     // all the data is ready
                     string arg = format("\"{}\" \"--profile-directory={}\"{}",
-                                        browser_instance::URL_ARG_NAME, sys_name,
+                                        browser_profile::URL_ARG_NAME, sys_name,
                                         ChromiumExtraArgs);
 
-                    auto bi = make_shared<browser_instance>(
+                    auto bi = make_shared<browser_profile>(
                         b,
                         name,
                         arg,
@@ -422,7 +422,7 @@ namespace bt {
                     if(profile_pic_j.is_string()) {
                         bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                     }
-                    b->instances.push_back(bi);
+                    b->profiles.push_back(bi);
                 }
             }
         }
@@ -430,31 +430,31 @@ namespace bt {
         {
             if(b->open_cmd.find("msedge.exe") != string::npos) {
                 // Edge is not stupid, it's just different
-                auto inprivate = make_shared<browser_instance>(
+                auto inprivate = make_shared<browser_profile>(
                     b, "InPrivate",
-                    format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
+                    format("\"{}\" --inprivate", browser_profile::URL_ARG_NAME),
                     "");
                 inprivate->is_incognito = true;
-                b->instances.push_back(inprivate);
+                b->profiles.push_back(inprivate);
             } else {
-                auto inprivate = make_shared<browser_instance>(
+                auto inprivate = make_shared<browser_profile>(
                     b, "Incognito",
-                    format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
+                    format("\"{}\" --incognito", browser_profile::URL_ARG_NAME),
                     "");
                 inprivate->is_incognito = true;
-                b->instances.push_back(inprivate);
+                b->profiles.push_back(inprivate);
             }
         }
 
         // Brave additionally supports Tor mode
         if(b->name == "brave") {
-            auto tor = make_shared<browser_instance>(
+            auto tor = make_shared<browser_profile>(
                 b, "Tor",
-                format("\"{}\" --tor", browser_instance::URL_ARG_NAME),
+                format("\"{}\" --tor", browser_profile::URL_ARG_NAME),
                 ""
             );
             tor->is_incognito = true;
-            b->instances.push_back(tor);
+            b->profiles.push_back(tor);
         }
     }
 
@@ -591,10 +591,10 @@ namespace bt {
             string arg_suffix = fp.is_classic
                                     ? format("-P \"{}\"", fp.name)
                                     : format("\"--profile\" \"{}\"", fp.path);
-            string arg = format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
+            string arg = format("\"{}\" -foreground {}", browser_profile::URL_ARG_NAME, arg_suffix);
 
-            auto bi = make_shared<browser_instance>(b, fp.name, arg, "");
-            b->instances.push_back(bi);
+            auto bi = make_shared<browser_profile>(b, fp.name, arg, "");
+            b->profiles.push_back(bi);
 
             // containers
             if(g_state.discover_gecko_containers) {
@@ -609,29 +609,29 @@ namespace bt {
 
                     string arg = format("\"ext+container:name={}&url={}\" {}",
                                         container.name,
-                                        browser_instance::URL_ARG_NAME,
+                                        browser_profile::URL_ARG_NAME,
                                         arg_suffix);
 
                     string id = format("{}+c_{}", fp.id, container.id);
-                    auto bi = make_shared<browser_instance>(b, profile_name, arg, "");
-                    b->instances.push_back(bi);
+                    auto bi = make_shared<browser_profile>(b, profile_name, arg, "");
+                    b->profiles.push_back(bi);
                 }
             }
         }
 
         // Safe Mode starts FF without extensions
-        //auto safe_bi = browser_instance(b, "safemode", "Safe Mode",
+        //auto safe_bi = browser_profile(b, "safemode", "Safe Mode",
         //   arg + " -safe-mode",
         //   b.open_cmd);
 
         // in-private
-        auto private_bi = make_shared<browser_instance>(b, "Private",
+        auto private_bi = make_shared<browser_profile>(b, "Private",
                                                         format("-private-window \"{}\"",
-                                                               browser_instance::URL_ARG_NAME),
+                                                               browser_profile::URL_ARG_NAME),
                                                         b->open_cmd);
         private_bi->is_incognito = true;
 
-        b->instances.push_back(private_bi);
+        b->profiles.push_back(private_bi);
     }
 
     vector<firefox_container> discovery::discover_firefox_containers(const string &roaming_home) {
@@ -719,14 +719,14 @@ namespace bt {
 
 
         string arg("\"");
-        arg += browser_instance::URL_ARG_NAME;
+        arg += browser_profile::URL_ARG_NAME;
         arg += "\"";
 
-        auto bi = make_shared<browser_instance>(b, "Default",
+        auto bi = make_shared<browser_profile>(b, "Default",
                                                 arg,
                                                 icon_path);
 
-        b->instances.push_back(bi);
+        b->profiles.push_back(bi);
     }
 
     bool discovery::is_default_browser(bool &http, bool &https, bool &xbt) {

@@ -10,7 +10,7 @@ namespace w = grey::widgets;
 using namespace grey::common;
 
 namespace bt::ui {
-    toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_instance> bi) :
+    toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_profile> bi) :
         cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {

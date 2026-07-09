@@ -50,8 +50,8 @@ int cmdline::exec_list() {
             wcout << L"  icon:     " << str::to_wstr(b->icon_path) << endl;
         }
 
-        wcout << L"  profiles: " << b->instances.size() << endl;
-        for(const auto& p : b->instances) {
+        wcout << L"  profiles: " << b->profiles.size() << endl;
+        for(const auto& p : b->profiles) {
             wcout << L"    > name:      " << str::to_wstr(p->name) << endl;
             if(!p->launch_arg.empty()) {
                 wcout << L"      args:      " << str::to_wstr(p->launch_arg) << endl;
@@ -109,7 +109,7 @@ int cmdline::exec_set_default(const std::string& data) {
         if(b->name == browser_name) {
             wcout << L"found browser: " << str::to_wstr(b->name) << endl;
             // find profile
-            for(const auto& p : b->instances) {
+            for(const auto& p : b->profiles) {
                 if(p->name == profile_name) {
                     wcout << L"found profile: " << str::to_wstr(p->name) << endl;
                     g_state.serialize();

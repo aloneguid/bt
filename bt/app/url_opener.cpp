@@ -6,11 +6,11 @@
 using namespace grey::common;
 
 namespace bt {
-    void url_opener::open(std::shared_ptr<browser_instance> bi, click_payload up) {
+    void url_opener::open(std::shared_ptr<browser_profile> bi, click_payload up) {
         bi->launch(up);
     }
 
-    void url_opener::open(std::shared_ptr<browser_instance> bi, const std::string& url) {
+    void url_opener::open(std::shared_ptr<browser_profile> bi, const std::string& url) {
         click_payload up{url};
         open(bi, up);
     }
