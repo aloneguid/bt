@@ -3,6 +3,7 @@
 #include <vector>
 #include "model.h"
 #include "common/state_handler.hpp"
+#include "common/stl.hpp"
 #include <magic_enum/magic_enum.hpp>
 #include "app/browser.h"
 
@@ -91,7 +92,7 @@ namespace bt {
                    toast == other.toast &&
                    picker == other.picker &&
                    transforms == other.transforms &&
-                   browsers == other.browsers;
+                   grey::common::stl::vec_equal(browsers, other.browsers);
         }
 
         bool operator!=(const state &other) const {
@@ -193,6 +194,7 @@ namespace bt {
 
                             auto p = std::make_shared<bt::browser_instance>(b, name, launch_arg, icon);
 
+                            h.read<bool>(pnode, "default", p->is_default, false);
                             h.read<string>(pnode, "user_arg", p->user_arg, "");
                             h.read<string>(pnode, "user_icon", p->user_icon_path, "");
                             h.read<bool>(pnode, "incognito", p->is_incognito, false);
@@ -280,7 +282,10 @@ namespace bt {
                 node bnode = node::mapping();
                 h.write(bnode, "name", b->name);
                 h.write(bnode, "cmd", b->open_cmd);
-                h.write(bnode, "visible", !b->is_hidden);
+                if(b->is_hidden)
+                    h.write(bnode, "visible", !b->is_hidden);
+                if(b->is_default())
+                    h.write(bnode, "default", true);
                 if(!b->icon_path.empty())
                     h.write(bnode, "icon", b->icon_path);
                 if(!b->data_path.empty())
@@ -301,8 +306,10 @@ namespace bt {
                         h.write(pnode, "icon", p->icon_path);
                     if(!p->user_icon_path.empty())
                         h.write(pnode, "user_icon", p->user_icon_path);
-                    h.write(pnode, "incognito", p->is_incognito);
-                    h.write(pnode, "visible", !p->is_hidden);
+                    if(p->is_incognito)
+                        h.write(pnode, "incognito", p->is_incognito);
+                    if(p->is_hidden)
+                        h.write(pnode, "visible", !p->is_hidden);
 
                     // rules
                     if(!p->rules.empty()) {

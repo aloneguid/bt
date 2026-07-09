@@ -8,16 +8,20 @@ using namespace std;
 using namespace grey::common;
 
 namespace bt {
-    void match_rule::apply_to(click_payload& up) const {
+    void match_rule::apply_to(click_payload &up) const {
         up.app_mode = app_mode;
     }
 
-    bool match_rule::operator==(const match_rule& other) const {
-        return value == other.value && scope == other.scope;
+    bool match_rule::operator==(const match_rule &other) const {
+        return value == other.value &&
+               loc == other.loc &&
+               scope == other.scope &&
+               is_regex == other.is_regex &&
+               app_mode == other.app_mode &&
+               is_fallback == other.is_fallback;
     }
 
     std::string match_rule::to_string(bool include_type) const {
-
         if(is_fallback) return value;
 
         if(loc == match_location::lua_script) {
@@ -32,8 +36,7 @@ namespace bt {
         r += format("'{}' in ", value);
 
         switch(loc) {
-            case match_location::url:
-            {
+            case match_location::url: {
                 switch(scope) {
                     case match_scope::any:
                         r += "URL";
@@ -66,7 +69,7 @@ namespace bt {
         return is_regex ? "regex" : "substring";
     }
 
-    bool match_rule::parse_url(const string& url, string& proto, string& host, string& path) {
+    bool match_rule::parse_url(const string &url, string &proto, string &host, string &path) {
         const string prot_end("://");
         proto = host = path = "";
 
@@ -77,15 +80,14 @@ namespace bt {
         } else {
             proto = url.substr(0, idx);
             host = idx + prot_end.size() < url.size()
-                ? url.substr(idx + prot_end.size())
-                : "";
+                       ? url.substr(idx + prot_end.size())
+                       : "";
         }
 
         idx = host.find_first_of('/');
         if(idx == string::npos) {
             path = "";
         } else {
-
             path = host.substr(idx + 1);
             host = host.substr(0, idx);
         }
@@ -93,12 +95,12 @@ namespace bt {
         return true;
     }
 
-    bool match_rule::contains(const string& input, const string& value) const {
+    bool match_rule::contains(const string &input, const string &value) const {
         if(is_regex) {
             try {
                 regex r{value, regex_constants::icase};
                 return regex_match(input, r);
-            } catch(const std::regex_error& e) {
+            } catch(const std::regex_error &e) {
                 // most probably invalid regex pattern
                 return false;
             }
@@ -107,15 +109,14 @@ namespace bt {
         }
     }
 
-    bool match_rule::is_match(const click_payload& up, const script_site& script) const {
+    bool match_rule::is_match(const click_payload &up, const script_site &script) const {
         if(loc == match_location::lua_script) {
-            return const_cast<script_site&>(script).call_rule(up, value);
+            return const_cast<script_site &>(script).call_rule(up, value);
         }
         return is_match(up);
     }
 
-    bool match_rule::is_match(const click_payload& up) const {
-
+    bool match_rule::is_match(const click_payload &up) const {
         if(value.empty()) return false;
 
         string src;
@@ -164,7 +165,7 @@ namespace bt {
         return false;
     }
 
-    bool match_rule::is_match(const string& url) const {
+    bool match_rule::is_match(const string &url) const {
         click_payload up{url};
         return is_match(up);
     }

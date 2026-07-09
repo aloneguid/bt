@@ -604,7 +604,8 @@ namespace bt {
                 // add profile for each container
                 vector<firefox_container> containers = discover_firefox_containers(fp.path);
                 for(const auto &container: containers) {
-                    string profile_name = format("{}::{}", fp.name, container.name);
+                    //string profile_name = format("{}::{}", fp.name, container.name);
+                    string profile_name = container.name;
 
                     string arg = format("\"ext+container:name={}&url={}\" {}",
                                         container.name,
