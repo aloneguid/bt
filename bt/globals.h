@@ -43,3 +43,5 @@ extern bt::url_pipeline g_pipeline;
 extern bt::script_site g_script;
 
 extern bt::state g_state;
+
+extern grey::common::state_ticker<bt::state> g_state_ticker;

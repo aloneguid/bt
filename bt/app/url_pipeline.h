@@ -4,6 +4,7 @@
 #include "url_pipeline_step.h"
 #include "common/config.hpp"
 #include "pipeline/replacer.h"
+#include "state.hpp"
 
 namespace bt {
 
@@ -18,7 +19,7 @@ namespace bt {
     */
     class url_pipeline {
     public:
-        url_pipeline(grey::common::config& cfg);
+        url_pipeline(bt::state& cfg);
 
         /**
          * @brief Process the payload in place and change it according to the pipeline steps.
@@ -42,7 +43,7 @@ namespace bt {
         std::shared_ptr<bt::pipeline::replacer> get_replacer_step(size_t idx);
 
     private:
-        grey::common::config& cfg;
+        bt::state& cfg;
         std::vector<std::shared_ptr<url_pipeline_step>> steps;
 
         static void clean(std::string& s);

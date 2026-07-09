@@ -8,7 +8,7 @@ using namespace std;
 
 namespace bt {
 
-    url_pipeline::url_pipeline(grey::common::config& cfg) : cfg{cfg} {
+    url_pipeline::url_pipeline(bt::state& cfg) : cfg{cfg} {
         load();
     }
 
@@ -55,21 +55,23 @@ namespace bt {
     void url_pipeline::load() {
         steps.clear();
 
-        if(cfg.pipeline_unwrap_o365) {
+        if(cfg.transforms.unwrap_o365) {
             steps.push_back(make_shared<bt::pipeline::o365>());
         }
 
-        if(cfg.pipeline_unshorten) {
+        if(cfg.transforms.unshorten) {
             steps.push_back(make_shared<bt::pipeline::unshortener>());
         }
 
-        if(cfg.pipeline_substitute) {
-            for(string s : cfg.pipeline_substitutions) {
-                steps.push_back(make_shared<bt::pipeline::replacer>(s));
+        if(cfg.transforms.substitute) {
+            for(auto sub : cfg.transforms.substitutions) {
+                auto kind = magic_enum::enum_cast<bt::pipeline::replacer_kind>(sub.kind, magic_enum::case_insensitive).value_or(
+                bt::pipeline::replacer_kind::find_replace);
+                steps.push_back(make_shared<bt::pipeline::replacer>(kind, sub.find, sub.replace));
             }
         }
 
-        if(cfg.pipeline_script) {
+        if(cfg.transforms.scripting) {
             for(string fn : g_script.ppl_function_names) {
                 steps.push_back(make_shared<bt::pipeline::script>(fn));
             }

@@ -1,272 +1,241 @@
 #pragma once
 #include <string>
-#include "common/fss.h"
-#include <filesystem>
-#include <fstream>
-#include <fkYAML/node.hpp>
-#include <imgui.h>
+#include <vector>
 #include "model.h"
+#include "common/state_handler.hpp"
+#include <magic_enum/magic_enum.hpp>
 
-// new experimental centralized state
-
-#define prop(type, name) type name, name##_
-#define read(container, type, name, key_name, default_value) name = name##_ = read_##type(container, key_name, default_value)
-#define write(container, type, name, key_name) write_##type(container, key_name, name##_ = name)
 
 namespace bt {
-    class state {
+    class toast_state {
+    public:
+        bool enabled;
+        int visible_seconds;
+        int border_width;
+
+        bool operator==(const toast_state &) const = default;
+    };
+
+    class picker_state {
+    public:
+        // invocation
+        bool on_key_control_shift;
+        bool on_key_control_alt;
+        bool on_key_alt_shift;
+        bool on_key_caps;
+        bool on_rule_conflict;
+        bool on_no_rule;
+        bool always;
+
+        // general
+        float icon_size;
+        float item_padding;
+        float inactive_item_alpha;
+        bool show_key_hints;
+        int border_width;
+        bool show_native_chrome;
+        int opacity;
+        bool close_on_focus_loss;
+        bool always_on_top;
+
+        bool operator==(const picker_state &) const = default;
+    };
+
+    class substitition_state {
+    public:
+        std::string kind;
+        std::string find;
+        std::string replace;
+
+        bool operator==(const substitition_state &) const = default;
+    };
+
+    class transforms_state {
+    public:
+        bool unwrap_o365;
+        bool unshorten;
+        bool substitute;
+        bool scripting;
+        std::vector<substitition_state> substitutions;
+
+        bool operator==(const transforms_state &) const = default;
+    };
+
+    class state : public grey::common::app_state {
     public:
         using node = fkyaml::node;
         using string = std::string;
+        using strings = std::vector<std::string>;
 
-        // Uncategorized
-        prop(bool, log_rule_hits);
+        string ui_theme;
+        bool log_rule_hits;
+        bool show_hidden_browsers;
+        icon_overlay_mode icon_overlay;
+        bool discover_classic_gecko_profiles;
+        bool discover_gecko_containers;
+        toast_state toast;
+        picker_state picker;
+        transforms_state transforms;
+        string pv_last_url;
+        string pv_last_wt;
+        string pv_last_pn;
 
-        // Picker
-        prop(bool, picker_on_key_cs);
-        prop(bool, picker_on_key_ca);
-        prop(bool, picker_on_key_as);
-        prop(bool, picker_on_key_cl);
-        prop(bool, picker_on_conflict);
-        prop(bool, picker_on_no_rule);
-        prop(bool, picker_always);
-        prop(float, picker_icon_size);
-        prop(float, picker_item_padding);
-        prop(float, picker_inactive_item_alpha);
-        prop(bool, picker_show_key_hints);
-        prop(int, picker_border_width);
-        prop(bool, picker_show_native_chrome);
-        prop(int, picker_opacity);
-        prop(bool, picker_close_on_focus_loss);
-        prop(bool, picker_always_on_top);
-
-
-        // UI
-        prop(string, ui_theme);
-        prop(bool, show_hidden_browsers);
-        prop(bool, toast_enabled);
-        prop(int, toast_visible_secs);
-        prop(int, toast_border);
-        prop(icon_overlay_mode, icon_overlay);
-
-        // Discovery
-        prop(bool, discover_firefox_classic_profiles);
-        prop(bool, discover_firefox_containers);
-
-        state(const std::string &application_name) {
-            file_path = (std::filesystem::path{grey::common::fss::get_config_dir(application_name)} / "config.yml").
-                    string();
-
-            // create dir if not exists
-            const std::filesystem::path abs{file_path};
-            std::filesystem::create_directories(abs.parent_path());
-
-            deserialize();
+        bool operator==(const state &other) const {
+            return ui_theme == other.ui_theme &&
+                   log_rule_hits == other.log_rule_hits &&
+                   show_hidden_browsers == other.show_hidden_browsers &&
+                   icon_overlay == other.icon_overlay &&
+                   discover_classic_gecko_profiles == other.discover_classic_gecko_profiles &&
+                   discover_gecko_containers == other.discover_gecko_containers &&
+                   toast == other.toast &&
+                   picker == other.picker &&
+                   transforms == other.transforms;
         }
 
-        ~state() {
-            serialize();
+        bool operator!=(const state &other) const {
+            return !(*this == other);
         }
 
-        bool is_dirty() const {
-            return log_rule_hits != log_rule_hits_ ||
-                   ui_theme != ui_theme_ ||
-                   show_hidden_browsers != show_hidden_browsers_ ||
-                   toast_enabled != toast_enabled_ ||
-                   toast_visible_secs != toast_visible_secs_ ||
-                   toast_border != toast_border_ ||
-                   icon_overlay != icon_overlay_ ||
-                   discover_firefox_classic_profiles != discover_firefox_classic_profiles_ ||
-                   discover_firefox_containers != discover_firefox_containers_ ||
-                   picker_on_key_cs != picker_on_key_cs_ ||
-                   picker_on_key_ca != picker_on_key_ca_ ||
-                   picker_on_key_as != picker_on_key_as_ ||
-                   picker_on_key_cl != picker_on_key_cl_ ||
-                   picker_on_conflict != picker_on_conflict_ ||
-                   picker_on_no_rule != picker_on_no_rule_ ||
-                   picker_always != picker_always_ ||
-                   picker_icon_size != picker_icon_size_ ||
-                   picker_item_padding != picker_item_padding_ ||
-                   picker_inactive_item_alpha != picker_inactive_item_alpha_ ||
-                   picker_show_key_hints != picker_show_key_hints_ ||
-                   picker_border_width != picker_border_width_ ||
-                   picker_show_native_chrome != picker_show_native_chrome_ ||
-                   picker_opacity != picker_opacity_ ||
-                   picker_close_on_focus_loss != picker_close_on_focus_loss_ ||
-                   picker_always_on_top != picker_always_on_top_;
+        state(const std::string &application_name) : h{application_name} {
+            state::deserialize();
         }
 
-        void tick() {
-            float delta_time = ImGui::GetIO().DeltaTime;
-            last_flushed_ago += delta_time;
+        ~state() override {
+            state::serialize();
+        }
 
-            if(last_flushed_ago > 1.f && is_dirty()) {
-                serialize();
-                last_flushed_ago = 0.f;
+        void deserialize() override {
+            h.deserialize();
+
+            string tmp;
+            h.read<string>(h.root, "ui_theme", ui_theme, "");
+            h.read<bool>(h.root, "log_rule_hits", log_rule_hits, false);
+            h.read<bool>(h.root, "show_hidden_browsers", show_hidden_browsers, false);
+            h.read<string>(h.root, "icon_overlay", tmp, "");
+            icon_overlay = magic_enum::enum_cast<icon_overlay_mode>(tmp, magic_enum::case_insensitive).value_or(
+                icon_overlay_mode::profile_on_browser);
+            h.read<bool>(h.root, "discover_classic_gecko_profiles", discover_classic_gecko_profiles, false);
+            h.read<bool>(h.root, "discover_gecko_containers", discover_gecko_containers, true);
+
+            // toast
+            node& toast_node = mp(h.root, "toast");
+            h.read<bool>(toast_node, "enabled", toast.enabled, true);
+            h.read<int>(toast_node, "visible_seconds", toast.visible_seconds, 3);
+            h.read<int>(toast_node, "border_width", toast.border_width, 1);
+
+            // picker
+            node& picker_node = mp(h.root, "picker");
+            node& picker_invoke_node = mp(picker_node, "invoke");
+            h.read<bool>(picker_invoke_node, "on_key_control_shift", picker.on_key_control_shift, false);
+            h.read<bool>(picker_invoke_node, "on_key_control_alt", picker.on_key_control_alt, false);
+            h.read<bool>(picker_invoke_node, "on_key_alt_shift", picker.on_key_alt_shift, false);
+            h.read<bool>(picker_invoke_node, "on_key_caps", picker.on_key_caps, false);
+            h.read<bool>(picker_invoke_node, "on_rule_conflict", picker.on_rule_conflict, false);
+            h.read<bool>(picker_invoke_node, "on_no_rule", picker.on_no_rule, false);
+            h.read<bool>(picker_invoke_node, "always", picker.always, false);
+            h.read<float>(picker_node, "icon_size", picker.icon_size, 32.0f);
+            h.read<float>(picker_node, "item_padding", picker.item_padding,  10.0f);
+            h.read<float>(picker_node, "inactive_icon_alpha", picker.inactive_item_alpha, 0.4f);
+            h.read<bool>(picker_node, "show_key_hints", picker.show_key_hints, true);
+            h.read<int>(picker_node, "border_width", picker.border_width, 1);
+            h.read<bool>(picker_node, "show_native_chrome", picker.show_native_chrome, false);
+            h.read<int>(picker_node, "opacity", picker.opacity, 255);
+            h.read<bool>(picker_node, "close_on_focus_loss", picker.close_on_focus_loss, false);
+            h.read<bool>(picker_node, "always_on_top", picker.always_on_top, false);
+
+            node& pipevis_node = mp(h.root, "pipevis");
+            h.read<string>(pipevis_node, "last_url", pv_last_url, "");
+            h.read<string>(pipevis_node, "last_wt", pv_last_wt, "");
+            h.read<string>(pipevis_node, "last_pn", pv_last_pn, "");
+
+            node& transforms_node = mp(h.root, "transforms");
+            h.read<bool>(transforms_node, "unwrap_o365", transforms.unwrap_o365, true);
+            h.read<bool>(transforms_node, "unshorten", transforms.unshorten, true);
+            h.read<bool>(transforms_node, "substitute", transforms.substitute, true);
+            h.read<bool>(transforms_node, "scripting", transforms.scripting, true);
+            // read sequence of substitutions
+            transforms.substitutions.clear();
+            auto seq = transforms_node["substitutions"];
+            if(seq.is_sequence()) {
+                for(auto& item_node : seq) {
+                    substitition_state item;
+                    h.read<string>(item_node, "kind", item.kind, "");
+                    h.read<string>(item_node, "find", item.find, "");
+                    h.read<string>(item_node, "replace", item.replace, "");
+                    transforms.substitutions.push_back(item);
+                }
             }
         }
 
-        void deserialize() {
-            std::ifstream ifs{file_path, std::ios::in};
-            root = fkyaml::node::deserialize(ifs);
-            if(root.get_type() != fkyaml::node_type::MAPPING)
-                root = fkyaml::node::mapping();
+        void serialize() override {
+            h.write(h.root, "ui_theme", ui_theme);
+            h.write(h.root, "log_rule_hits", log_rule_hits);
+            h.write(h.root, "show_hidden_browsers", show_hidden_browsers);
+            h.write(h.root, "icon_overlay", magic_enum::enum_name(icon_overlay));
+            h.write(h.root, "discover_classic_gecko_profiles", discover_classic_gecko_profiles);
+            h.write(h.root, "discover_gecko_containers", discover_gecko_containers);
 
-            node &picker = mp(root, "picker");
-            node &toast = mp(root, "toast");
-            node &discover = mp(root, "discover");
-            node &discover_firefox = mp(discover, "firefox");
+            node& toast_node = mp(h.root, "toast");
+            h.write(toast_node, "enabled", toast.enabled);
+            h.write(toast_node, "visible_seconds", toast.visible_seconds);
+            h.write(toast_node, "border_width", toast.border_width);
 
-            read(root, bool, log_rule_hits, "log_rule_hits", false);
-            read(root, string, ui_theme, "ui_theme", "");
-            read(root, bool, show_hidden_browsers, "show_hidden_browsers", false);
-            icon_overlay = icon_overlay_ = string_to_icon_overlay_mode(read_string(root, "icon_overlay", ""));
-            read(toast, bool, toast_enabled, "enabled", true);
-            read(toast, int, toast_visible_secs, "visible_secs", 3);
-            read(toast, int, toast_border, "border", 1);
-            read(discover_firefox, bool, discover_firefox_classic_profiles, "classic_profiles", false);
-            read(discover_firefox, bool, discover_firefox_containers, "containers", true);
+            node& picker_node = mp(h.root, "picker");
+            node& picker_invoke_node = mp(picker_node, "invoke");
+            h.write(picker_invoke_node, "on_key_control_shift", picker.on_key_control_shift);
+            h.write(picker_invoke_node, "on_key_control_alt", picker.on_key_control_alt);
+            h.write(picker_invoke_node, "on_key_alt_shift", picker.on_key_alt_shift);
+            h.write(picker_invoke_node, "on_key_caps", picker.on_key_caps);
+            h.write(picker_invoke_node, "on_rule_conflict", picker.on_rule_conflict);
+            h.write(picker_invoke_node, "on_no_rule", picker.on_no_rule);
+            h.write(picker_invoke_node, "always", picker.always);
+            h.write(picker_node, "icon_size", picker.icon_size);
+            h.write(picker_node, "item_padding", picker.item_padding);
+            h.write(picker_node, "inactive_icon_alpha", picker.inactive_item_alpha);
+            h.write(picker_node, "show_key_hints", picker.show_key_hints);
+            h.write(picker_node, "border_width", picker.border_width);
+            h.write(picker_node, "show_native_chrome", picker.show_native_chrome);
+            h.write(picker_node, "opacity", picker.opacity);
+            h.write(picker_node, "close_on_focus_loss", picker.close_on_focus_loss);
+            h.write(picker_node, "always_on_top", picker.always_on_top);
 
-            read(picker, bool, picker_on_key_cs, "on_key_cs", true);
-            read(picker, bool, picker_on_key_ca, "on_key_ca", false);
-            read(picker, bool, picker_on_key_as, "on_key_as", false);
-            read(picker, bool, picker_on_key_cl, "on_key_cl", false);
-            read(picker, bool, picker_on_conflict, "on_conflict", true);
-            read(picker, bool, picker_on_no_rule, "on_no_rule", false);
-            read(picker, bool, picker_always, "always", false);
-            read(picker, float, picker_icon_size, "icon_size", 32.0f);
-            read(picker, float, picker_item_padding, "icon_padding", 10.0f);
-            read(picker, float, picker_inactive_item_alpha, "inactive_icon_alpha", 0.4f);
-            read(picker, bool, picker_show_key_hints, "show_key_hints", true);
-            read(picker, int, picker_border_width, "border_width", 1);
-            read(picker, bool, picker_show_native_chrome, "show_native_chrome", false);
-            read(picker, int, picker_opacity, "opacity", 255);
-            read(picker, bool, picker_close_on_focus_loss, "close_on_focus_loss", false);
-            read(picker, bool, picker_always_on_top, "always_on_top", false);
+            node& pipevis_node = mp(h.root, "pipevis");
+            h.write(pipevis_node, "last_url", pv_last_url);
+            h.write(pipevis_node, "last_wt", pv_last_wt);
+            h.write(pipevis_node, "last_pn", pv_last_pn);
+
+            node& transforms_node = mp(h.root, "transforms");
+            h.write(transforms_node, "unwrap_o365", transforms.unwrap_o365);
+            h.write(transforms_node, "unshorten", transforms.unshorten);
+            h.write(transforms_node, "substitute", transforms.substitute);
+            h.write(transforms_node, "scripting", transforms.scripting);
+            transforms_node["substitutions"] = node::sequence();
+            auto& seq = transforms_node["substitutions"].get_value_ref<node::sequence_type&>();
+            for(auto& item : transforms.substitutions) {
+                node item_node = node::mapping();
+                h.write(item_node, "kind", item.kind);
+                h.write(item_node, "find", item.find);
+                h.write(item_node, "replace", item.replace);
+                seq.push_back(item_node);
+            }
+
+            h.serialize();
         }
 
-        void serialize() {
-            std::ofstream ofs{file_path, std::ios::out};
-
-            node &picker = mp(root, "picker");
-            node &toast = mp(root, "toast");
-            node &discover = mp(root, "discover");
-            node &discover_firefox = mp(discover, "firefox");
-
-            write(root, bool, log_rule_hits, "log_rule_hits");
-            write(root, string, ui_theme, "ui_theme");
-            write(root, bool, show_hidden_browsers, "show_hidden_browsers");
-            write_string(root, "icon_overlay", icon_overlay_mode_to_string(icon_overlay_ = icon_overlay));
-            write(toast, bool, toast_enabled, "enabled");
-            write(toast, int, toast_visible_secs, "visible_secs");
-            write(toast, int, toast_border, "border");
-            write(discover_firefox, bool, discover_firefox_classic_profiles, "classic_profiles");
-            write(discover_firefox, bool, discover_firefox_containers, "containers");
-
-            write(picker, bool, picker_on_key_cs, "on_key_cs");
-            write(picker, bool, picker_on_key_ca, "on_key_ca");
-            write(picker, bool, picker_on_key_as, "on_key_as");
-            write(picker, bool, picker_on_key_cl, "on_key_cl");
-            write(picker, bool, picker_on_conflict, "on_conflict");
-            write(picker, bool, picker_on_no_rule, "on_no_rule");
-            write(picker, bool, picker_always, "always");
-            write(picker, float, picker_icon_size, "icon_size");
-            write(picker, float, picker_item_padding, "icon_padding");
-            write(picker, float, picker_inactive_item_alpha, "inactive_icon_alpha");
-            write(picker, bool, picker_show_key_hints, "show_key_hints");
-            write(picker, int, picker_border_width, "border_width");
-            write(picker, bool, picker_show_native_chrome, "show_native_chrome");
-            write(picker, int, picker_opacity, "opacity");
-            write(picker, bool, picker_close_on_focus_loss, "close_on_focus_loss");
-            write(picker, bool, picker_always_on_top, "always_on_top");
-
-            ofs << root;
+        std::filesystem::file_time_type get_last_write_time() const override {
+            return h.get_last_write_time();
         }
 
     private:
-        std::string file_path;
-        fkyaml::node root;
+        grey::common::state_handler h;
         float last_flushed_ago{0.f};
 
-        node &mp(node &parent, const std::string &key) {
+        static node &mp(node &parent, const std::string &key) {
             if(!parent.contains(key)) {
                 parent[key] = fkyaml::node::mapping();
             }
 
             return parent[key];
-        }
-
-        string read_string(node &n, const std::string &key, const string &default_value) {
-            node &value_node = n[key];
-            if(value_node.is_string())
-                return value_node.get_value<string>();
-            return default_value;
-        }
-
-        void write_string(node &n, const string &key, const string &value) {
-            n[key] = value;
-        }
-
-        bool read_bool(node &n, const std::string &key, bool default_value) {
-            node &value_node = n[key];
-            if(value_node.is_boolean())
-                return value_node.get_value<bool>();
-            return default_value;
-        }
-
-        void write_bool(node &n, const string &key, bool value) {
-            n[key] = value;
-        }
-
-        int read_int(node &n, const std::string &key, int default_value) {
-            node &value_node = n[key];
-            if(value_node.is_integer())
-                return value_node.get_value<int>();
-            return default_value;
-        }
-
-        void write_int(node &n, const string &key, int value) {
-            n[key] = value;
-        }
-
-        float read_float(node &n, const std::string &key, float default_value) {
-            node &value_node = n[key];
-            if(value_node.is_float_number())
-                return value_node.get_value<float>();
-            return default_value;
-        }
-
-        void write_float(node &n, const string &key, float value) {
-            n[key] = value;
-        }
-
-        // custom converters
-        string icon_overlay_mode_to_string(icon_overlay_mode mode) {
-            switch(mode) {
-                case icon_overlay_mode::profile_on_browser:
-                    return "profile_on_browser";
-                case icon_overlay_mode::browser_on_profile:
-                    return "browser_on_profile";
-                case icon_overlay_mode::browser_only:
-                    return "browser";
-                case icon_overlay_mode::profile_only:
-                    return "profile";
-                default:
-                    return "profile_on_browser";
-            }
-        }
-
-        icon_overlay_mode string_to_icon_overlay_mode(const std::string &name) {
-            if(name == "profile_on_browser")
-                return icon_overlay_mode::profile_on_browser;
-            if(name == "browser_on_profile")
-                return icon_overlay_mode::browser_on_profile;
-            if(name == "browser")
-                return icon_overlay_mode::browser_only;
-            if(name == "profile")
-                return icon_overlay_mode::profile_only;
-
-            return icon_overlay_mode::profile_on_browser;
         }
     };
 }

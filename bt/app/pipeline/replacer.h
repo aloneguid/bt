@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <vector>
 #include "../url_pipeline_step.h"
 
 namespace bt::pipeline {
@@ -18,7 +17,6 @@ namespace bt::pipeline {
         std::string replace;
 
         replacer(replacer_kind kind, const std::string& find, const std::string& replace);
-        replacer(const std::string& rule);
 
         std::string serialise();
 

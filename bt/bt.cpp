@@ -22,8 +22,9 @@
 #define CONFIG_NAME APP_LONG_NAME
 grey::common::config g_settings{CONFIG_NAME, "config.ini"};
 bt::script_site g_script{grey::common::fss::get_config_file_path(CONFIG_NAME, "scripts.lua"), true};
-bt::url_pipeline g_pipeline{g_settings};
 bt::state g_state{CONFIG_NAME};
+grey::common::state_ticker<bt::state> g_state_ticker{g_state, 1.f};
+bt::url_pipeline g_pipeline{g_state};
 
 using namespace std;
 using namespace grey::common;
@@ -35,18 +36,18 @@ void open(bt::click_payload up, bool force_picker = false) {
     bool show_picker{force_picker};
     string pick_reason;
     if(!show_picker) {
-        if(g_state.picker_always) {
+        if(g_state.picker.always) {
             show_picker = true;
             pick_reason = "always";
         } else if(bt::ui::picker_app::is_hotkey_down()) {
             show_picker = true;
             pick_reason = "hotkey";
-        } else if(g_state.picker_on_conflict || g_state.picker_on_no_rule) {
+        } else if(g_state.picker.on_rule_conflict || g_state.picker.on_no_rule) {
             auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
-            if(g_state.picker_on_conflict && matches.size() > 1) {
+            if(g_state.picker.on_rule_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
-            } else if(g_state.picker_on_no_rule && matches[0].rule.is_fallback) {
+            } else if(g_state.picker.on_no_rule && matches[0].rule.is_fallback) {
                 show_picker = true;
                 pick_reason = "no rule";
             }
@@ -72,7 +73,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
         }
 
-        if(g_state.toast_enabled) {
+        if(g_state.toast.enabled) {
             bt::ui::toast_app app{up, first_match.bi};
             app.run();
         }

@@ -170,11 +170,11 @@ namespace bt::ui {
         if(add_browser_show)
             render_add_browser_window();
 
+        if(g_state_ticker.tick(ImGui::GetIO().DeltaTime)) {
+            w::notify_info("state changed");
+        }
+
         w::notify_render_frame();
-
-        //g_appconfig.tick();
-
-        g_state.tick();
 
         return is_open;
     }
@@ -185,10 +185,7 @@ namespace bt::ui {
         if(w::menu_bar menu; menu) {
 
             if(w::menu m_file{"File"}; m_file) {
-                if(w::mi("Save configuration", true, ICON_MD_SAVE)) {
-                    g_settings.commit();
-                    w::notify_info("Configuration saved.");
-                }
+
                 if(w::mi("Add custom browser", true, ICON_MD_ADD_CIRCLE)) {
                     add_browser_show = true;
                 }
@@ -221,8 +218,8 @@ namespace bt::ui {
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
                     rediscover_browsers();
                 }
-                w::small_checkbox("Discover classic Firefox profiles", g_state.discover_firefox_classic_profiles);
-                w::small_checkbox("Discover Firefox containers", g_state.discover_firefox_containers);
+                w::small_checkbox("Discover classic Firefox profiles", g_state.discover_classic_gecko_profiles);
+                w::small_checkbox("Discover Firefox containers", g_state.discover_gecko_containers);
 
             }
 
@@ -230,9 +227,9 @@ namespace bt::ui {
                 w::small_checkbox("Write clicks to hit_log.csv", g_state.log_rule_hits);
 
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
-                    w::small_checkbox("Enabled", g_state.toast_enabled);
-                    w::slider(g_state.toast_visible_secs, 0, 30, "stays visible (seconds)");
-                    w::slider(g_state.toast_border, 0, 6, "border width");
+                    w::small_checkbox("Enabled", g_state.toast.enabled);
+                    w::slider(g_state.toast.visible_seconds, 0, 30, "stays visible (seconds)");
+                    w::slider(g_state.toast.border_width, 0, 6, "border width");
                 }
 
                 w::mi_themes([this](const string& theme_id) {
@@ -242,39 +239,40 @@ namespace bt::ui {
             }
 
             if(w::menu m{"Picker"}; m) {
-                w::small_checkbox("Close on focus loss", g_state.picker_close_on_focus_loss);
-                w::small_checkbox("Always on top", g_state.picker_always_on_top);
+                w::small_checkbox("Close on focus loss", g_state.picker.close_on_focus_loss);
+                w::small_checkbox("Always on top", g_state.picker.always_on_top);
 
                 w::sep("Manual invocation");
-                w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker_on_key_cs);
-                w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker_on_key_ca);
-                w::small_checkbox("Alt  + Shift + Left Click", g_state.picker_on_key_as);
-                w::small_checkbox("CAPS LOCKS", g_state.picker_on_key_cl);
+                w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker.on_key_control_shift);
+                w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker.on_key_control_alt);
+                w::small_checkbox("Alt  + Shift + Left Click", g_state.picker.on_key_alt_shift);
+                w::small_checkbox("CAPS LOCKS", g_state.picker.on_key_caps);
 
                 w::sep("Automatic invocation");
-                w::small_checkbox("Always", g_state.picker_always);
-                if(!g_state.picker_always) {
-                    w::small_checkbox("On conflict", g_state.picker_on_conflict);
-                    w::small_checkbox("On no rule", g_state.picker_on_no_rule);
+                w::small_checkbox("Always", g_state.picker.always);
+                if(!g_state.picker.always) {
+                    w::small_checkbox("On conflict", g_state.picker.on_rule_conflict);
+                    w::small_checkbox("On no rule", g_state.picker.on_no_rule);
                 }
             }
 
-            if(w::menu m{"Pipeline"}; m) {
-                if(w::small_checkbox("Unwrap Office 365 links", g_settings.pipeline_unwrap_o365)) {
+            if(w::menu m{"Transforms"}; m) {
+                if(w::small_checkbox("Unwrap Office 365 links", g_state.transforms.unwrap_o365)) {
                     g_pipeline.load();
                 }
-                if(w::small_checkbox("Unshorten links", g_settings.pipeline_unshorten)) {
+                if(w::small_checkbox("Unshorten links", g_state.transforms.unshorten)) {
                     g_pipeline.load();
                 }
-                if(w::small_checkbox("Substitute substrings", g_settings.pipeline_substitute)) {
+                if(w::small_checkbox("Substitute substrings", g_state.transforms.substitute)) {
                     g_pipeline.load();
                 }
-                if(w::small_checkbox("Scripting", g_settings.pipeline_script)) {
-                    g_pipeline.load();
+                if(g_state.transforms.substitute) {
+                    if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
+                        show_subs = !show_subs;
+                    }
                 }
-                w::sep();
-                if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
-                    show_subs = !show_subs;
+                if(w::small_checkbox("Scripting", g_state.transforms.scripting)) {
+                    g_pipeline.load();
                 }
             }
 
@@ -340,7 +338,7 @@ namespace bt::ui {
         bool recompute{false};
 
         if(w::button(ICON_MD_ADD " add", w::emphasis::primary)) {
-            g_settings.pipeline_substitutions.push_back("");
+            g_state.transforms.substitutions.push_back({});
             g_pipeline.load();
             recompute = true;
         }
@@ -361,7 +359,7 @@ namespace bt::ui {
         {
             w::guard g{scr};
             
-            for(int i = 0; i < g_settings.pipeline_substitutions.size(); i++) {
+            for(int i = 0; i < g_state.transforms.substitutions.size(); i++) {
                 if(i > 0) w::sep();
                 string suffix = "##" + to_string(i);
 
@@ -381,7 +379,7 @@ namespace bt::ui {
                 // "delete" button to the right
                 w::sl(pad + iw + 70 * app->scale);
                 if(w::button(ICON_MD_DELETE + suffix, w::emphasis::error)) {
-                    g_settings.pipeline_substitutions.erase(g_settings.pipeline_substitutions.begin() + i);
+                    g_state.transforms.substitutions.erase(g_state.transforms.substitutions.begin() + i);
                     g_pipeline.load();
                     recompute = true;
                     break;
@@ -395,11 +393,11 @@ namespace bt::ui {
         if(recompute) {
 
             // sync state back to config
-            g_settings.pipeline_substitutions.clear();
+            g_state.transforms.substitutions.clear();
             for(auto& r : g_pipeline.get_steps()) {
                 if(r->type == url_pipeline_step_type::find_replace) {
-                    auto rr = std::static_pointer_cast<bt::pipeline::replacer>(r);
-                    g_settings.pipeline_substitutions.push_back(rr->serialise());
+                    auto rr = std::static_pointer_cast<pipeline::replacer>(r);
+                    g_state.transforms.substitutions.emplace_back(string{magic_enum::enum_name(rr->kind)}, rr->find, rr->replace);
                 }
             }
 
@@ -454,9 +452,9 @@ namespace bt::ui {
                     script_terminal += format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
 
                     click_payload up;
-                    up.url = g_settings.pv_last_url;
-                    up.window_title = g_settings.pv_last_wt;
-                    up.process_name = g_settings.pv_last_pn;
+                    up.url = g_state.pv_last_url;
+                    up.window_title = g_state.pv_last_wt;
+                    up.process_name = g_state.pv_last_pn;
 
                     if(is_ppl) {
                         string out_url = g_script.call_ppl(up, func_name);
@@ -465,7 +463,7 @@ namespace bt::ui {
                     } else {
 
                         g_pipeline.process(up);
-                        if(up.url != g_settings.pv_last_url) {
+                        if(up.url != g_state.pv_last_url) {
                             script_terminal += format("pipeline changed URL to '{}'\n", up.url);
                         }
 
@@ -480,10 +478,10 @@ namespace bt::ui {
 
             // test input
             if(!func_name.empty()) {
-                w::input(g_settings.pv_last_url, ICON_MD_LINK " URL", true);
+                w::input(g_state.pv_last_url, ICON_MD_LINK " URL", true);
                 if(!is_ppl) {
-                    w::input(g_settings.pv_last_wt, ICON_MD_WINDOW " window", true);
-                    w::input(g_settings.pv_last_pn, ICON_MD_MEMORY " process", true);
+                    w::input(g_state.pv_last_wt, ICON_MD_WINDOW " window", true);
+                    w::input(g_state.pv_last_pn, ICON_MD_MEMORY " process", true);
                 }
             }
 
@@ -506,13 +504,13 @@ namespace bt::ui {
     void config_app::render_pipe_visualiser_window() {
         w::guard gw{wnd_pv};
 
-        bool i0 = w::input(g_settings.pv_last_url, ICON_MD_LINK " URL");
-        bool i1 = w::input(g_settings.pv_last_wt, ICON_MD_WINDOW " window", true, 300.0f * app->scale);
+        bool i0 = w::input(g_state.pv_last_url, ICON_MD_LINK " URL");
+        bool i1 = w::input(g_state.pv_last_wt, ICON_MD_WINDOW " window", true, 300.0f * app->scale);
         w::sl();
-        bool i2 = w::input(g_settings.pv_last_pn, ICON_MD_MEMORY " process", true, 150.0f * app->scale);
+        bool i2 = w::input(g_state.pv_last_pn, ICON_MD_MEMORY " process", true, 150.0f * app->scale);
 
         if(w::button(ICON_MD_CLEAR_ALL " clear", w::emphasis::error)) {
-            g_settings.pv_last_url = g_settings.pv_last_wt = g_settings.pv_last_pn = "";
+            g_state.pv_last_url = g_state.pv_last_wt = g_state.pv_last_pn = "";
         }
 
         w::sl();
@@ -524,9 +522,9 @@ namespace bt::ui {
 
         if(pv_pipeline_steps.empty() || refresh || i0 || i1 || i2) {
             pv_cp.clear();
-            pv_cp.url = g_settings.pv_last_url;
-            pv_cp.window_title = g_settings.pv_last_wt;
-            pv_cp.process_name = g_settings.pv_last_pn;
+            pv_cp.url = g_state.pv_last_url;
+            pv_cp.window_title = g_state.pv_last_wt;
+            pv_cp.process_name = g_state.pv_last_pn;
             pv_pipeline_steps = g_pipeline.process_debug(pv_cp);
 
         }
@@ -539,7 +537,7 @@ namespace bt::ui {
             pv.begin_row();
             w::label("URL");
             pv.next_column();
-            w::label(g_settings.pv_last_url);
+            w::label(g_state.pv_last_url);
 
             // pipeline steps
             if(!pv_pipeline_steps.empty()) {
@@ -1081,7 +1079,7 @@ namespace bt::ui {
 
                         if(!b->open_cmd.empty()) {
                             if(b->engine == bt::browser_engine::gecko) {
-                                if(g_state.discover_firefox_containers) {
+                                if(g_state.discover_gecko_containers) {
                                     w::sl();
                                     w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
                                 }

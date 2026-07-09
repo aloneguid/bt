@@ -27,7 +27,7 @@ namespace bt::ui {
         wnd_main
             .no_titlebar()
             .no_resize()
-            .border(g_state.toast_border)
+            .border(g_state.toast.border_width)
             .no_collapse()
             .fill_viewport()
             //.no_background()
@@ -107,7 +107,7 @@ namespace bt::ui {
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
-            if(show_timer >= g_state.toast_visible_secs) {
+            if(show_timer >= g_state.toast.visible_seconds) {
                 stage = toast_app::anim_stage::shrink;
             }
         }

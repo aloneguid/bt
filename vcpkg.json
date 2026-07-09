@@ -29,6 +29,7 @@
         "nlohmann-json",
         "simpleini",
         "fkyaml",
+        "magic-enum",
         "p-ranav-csv2",
         "tinyxml2",
         "lua",
