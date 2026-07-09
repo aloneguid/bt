@@ -19,7 +19,6 @@
 #include "app/ui/toast_app.h"
 
 // globals.h
-#define CONFIG_NAME APP_LONG_NAME
 bt::script_site g_script{grey::common::fss::get_config_file_path(CONFIG_NAME, "scripts.lua"), true};
 bt::state g_state{CONFIG_NAME};
 grey::common::state_ticker<bt::state> g_state_ticker{g_state, 1.f};

@@ -40,7 +40,7 @@ namespace bt::ui {
         w::cur_set(x0 + padding, y0 + padding);
 
         string icon1 = bi->b->get_best_icon_path();
-        string icon2 = bi->is_singular()
+        string icon2 = bi->b->engine == browser_engine::generic
             ? ""
             : (bi->is_incognito && bi->user_icon_path.empty()) ? "incognito" : bi->get_best_icon_path();
 

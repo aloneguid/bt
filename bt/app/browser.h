@@ -11,7 +11,7 @@ namespace bt {
     class browser_match_result;
 
     enum class browser_engine {
-        unknown,
+        generic,
         chromium,
         gecko
     };
@@ -19,17 +19,13 @@ namespace bt {
     class browser {
     public:
 
-        static const std::string UwpCmdPrefix;
-
         browser(
-            const std::string& id,
             const std::string& name,
             const std::string& open_cmd);
 
-        std::string id;
         std::string name;
         std::string open_cmd;
-        browser_engine engine{browser_engine::unknown};
+        browser_engine engine{browser_engine::generic};
 
         /**
          * @brief when true, this browser is part of the system i.e not a user defined one.
@@ -66,32 +62,19 @@ namespace bt {
 
         bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
 
-        bool is_wellknown() const { return engine != browser_engine::unknown; }
-
-        bool is_msstore() const { return open_cmd.starts_with(UwpCmdPrefix); }
+        bool is_wellknown() const { return engine != browser_engine::generic; }
 
         std::string get_best_icon_path() const;
 
-        bool contains_profile_id(const std::string& long_id) const;
         bool is_default() const;
 
-        friend bool operator==(const browser& b1, const browser& b2);
+        bool operator==(const browser& other) const;
 
         // ---- static members
 
         static std::vector<std::shared_ptr<browser_instance>> to_instances(
             const std::vector<std::shared_ptr<browser>>& browsers,
             bool skip_hidden = true);
-
-        /**
-         * @brief Finds and returns profile by it's long id. If not found, returns the first profile or the first browser.
-         * @param browsers 
-         * @param long_sys_name 
-         * @param found 
-         * @return 
-         */
-        static std::shared_ptr<browser_instance> find_profile_by_long_id(
-            const std::vector<std::shared_ptr<browser>>& browsers, const std::string& long_sys_name, bool& found);
 
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
@@ -123,10 +106,11 @@ namespace bt {
 
         browser_instance(
             std::shared_ptr<browser> b,
-            const std::string& id,
             const std::string& name,
             const std::string& launch_arg,
             const std::string& icon_path);
+
+        bool operator==(const browser_instance& other) const;
 
         ~browser_instance();
 
@@ -147,7 +131,6 @@ namespace bt {
 
         std::shared_ptr<browser> b;     // browser it belongs to
 
-        const std::string id;
         std::string name;               // how it's called by the user
 
         std::string launch_arg;
@@ -193,10 +176,6 @@ namespace bt {
          * @brief Whether this profile has https://github.com/honsiorovskyi/open-url-in-container installed.
         */
         bool has_firefox_ouic_addon{false};
-
-        std::string long_id() const { return b->id + ":" + id; }
-
-        bool is_singular() const; // whether this is a singular instance browser (private mode is not taken into account)
 
         std::string get_best_display_name() const;
 

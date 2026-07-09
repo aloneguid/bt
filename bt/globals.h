@@ -17,6 +17,8 @@
 
 #define APP_LONG_NAME "Browser Tamer"
 
+#define CONFIG_NAME "Browser Tamer"
+
 #define APP_URL "https://www.aloneguid.uk/projects/bt/"
 
 #define APP_TEST_URL "https://www.aloneguid.uk/other/bt-test-page/"

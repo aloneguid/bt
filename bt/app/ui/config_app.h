@@ -90,7 +90,8 @@ namespace bt::ui {
         // "Add new browser" window
         bool add_browser_show{false};
         grey::widgets::window wnd_add_browser;
-        std::string exe_path;
+        std::string badd_exe_path;
+        std::string badd_name;
 
         std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
         std::vector<std::pair<std::string, std::string>> url_scopes{

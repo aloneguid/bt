@@ -40,8 +40,7 @@ int cmdline::exec_list() {
     wcout << L"browsers: " << g_state.browsers.size() << endl << endl;
 
     for(const auto& b : g_state.browsers) {
-        wcout << str::to_wstr(b->id) << endl;
-        wcout << L"  name:             " << str::to_wstr(b->name) << endl;
+        wcout << str::to_wstr(b->name) << endl;
         wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
         wcout << L"  autodiscovered:   " << (b->is_autodiscovered ? L"yes" : L"no") << endl;
         wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
@@ -64,8 +63,7 @@ int cmdline::exec_list() {
 
         wcout << L"  profiles: " << b->instances.size() << endl;
         for(const auto& p : b->instances) {
-            wcout << L"    > id:        " << str::to_wstr(p->id) << endl;
-            wcout << L"      name:      " << str::to_wstr(p->name) << endl;
+            wcout << L"    > name:      " << str::to_wstr(p->name) << endl;
             if(!p->launch_arg.empty()) {
                 wcout << L"      args:      " << str::to_wstr(p->launch_arg) << endl;
             }
@@ -92,17 +90,17 @@ int cmdline::exec_get_default() {
 
     auto def = bt::browser::get_default(g_state.browsers);
 
-    wcout << str::to_wstr(def->b->id) << L"." << str::to_wstr(def->id) << endl;
+    wcout << str::to_wstr(def->b->name) << L"." << str::to_wstr(def->name) << endl;
 
     return 0;
 }
 
 int cmdline::exec_set_default(const std::string& data) {
-    // Data is in the following form: "set default <browser_id>.<profile_id>|suffix".
+    // Data is in the following form: "set default <browser_name>.<profile_name>|suffix".
     // Suffix is optional.
     // Extract browser_id and profile_id.
-    string browser_id;
-    string profile_id;
+    string browser_name;
+    string profile_name;
 
     string t = data.substr(12); // skip "set default"
     size_t pos = t.find('|');
@@ -111,21 +109,20 @@ int cmdline::exec_set_default(const std::string& data) {
     }
     size_t dot = t.find('.');
     if(dot != string::npos) {
-        browser_id = t.substr(0, dot);
-        profile_id = t.substr(dot + 1);
+        browser_name = t.substr(0, dot);
+        profile_name = t.substr(dot + 1);
     }
 
-    wcout << L"setting default browser to " << str::to_wstr(browser_id) << L"." << str::to_wstr(profile_id) << endl;
+    wcout << L"setting default browser to " << str::to_wstr(browser_name) << L"." << str::to_wstr(profile_name) << endl;
 
     // find browser
     for(const auto& b : g_state.browsers) {
-        if(b->id == browser_id) {
+        if(b->name == browser_name) {
             wcout << L"found browser: " << str::to_wstr(b->name) << endl;
             // find profile
             for(const auto& p : b->instances) {
-                if(p->id == profile_id) {
+                if(p->name == profile_name) {
                     wcout << L"found profile: " << str::to_wstr(p->name) << endl;
-                    //g_state.default_profile = p->long_id();
                     g_state.serialize();
                     wcout << L"default profile set and saved." << endl;
                     return 0;

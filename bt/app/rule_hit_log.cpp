@@ -37,7 +37,6 @@ namespace bt {
     void rule_hit_log::write(const bt::click_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
-            bi->b->id,
             bi->b->name,
             bi->name,
             up.url,

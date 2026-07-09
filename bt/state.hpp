@@ -175,14 +175,14 @@ namespace bt {
                     string name, cmd;
                     h.read<string>(bnode, "name", name, "");
                     h.read<string>(bnode, "cmd", cmd, "");
-                    auto b = std::make_shared<bt::browser>("", name, cmd);
+                    auto b = std::make_shared<bt::browser>(name, cmd);
                     h.read<bool>(bnode, "visible", b->is_hidden, true);
                     b->is_hidden = !b->is_hidden;
                     h.read<string>(bnode, "icon", b->icon_path, "");
                     h.read<string>(bnode, "data", b->data_path, "");
                     string engine_str;
                     h.read<string>(bnode, "engine", engine_str, "");
-                    b->engine = magic_enum::enum_cast<browser_engine>(engine_str, magic_enum::case_insensitive).value_or(browser_engine::unknown);
+                    b->engine = magic_enum::enum_cast<browser_engine>(engine_str, magic_enum::case_insensitive).value_or(browser_engine::generic);
                     h.read<bool>(bnode, "autodiscovered", b->is_autodiscovered, false);
 
                     if(bnode.contains("profiles") && bnode["profiles"].is_sequence()) {
@@ -192,7 +192,7 @@ namespace bt {
                             h.read<string>(pnode, "arg", launch_arg, "");
                             h.read<string>(pnode, "icon", icon, "");
 
-                            auto p = std::make_shared<bt::browser_instance>(b, "", name, launch_arg, icon);
+                            auto p = std::make_shared<bt::browser_instance>(b, name, launch_arg, icon);
 
                             h.read<string>(pnode, "user_arg", p->user_arg, "");
                             h.read<string>(pnode, "user_icon", p->user_icon_path, "");
@@ -286,7 +286,7 @@ namespace bt {
                     h.write(bnode, "icon", b->icon_path);
                 if(!b->data_path.empty())
                     h.write(bnode, "data", b->data_path);
-                if(b->engine != browser_engine::unknown)
+                if(b->engine != browser_engine::generic)
                     h.write(bnode, "engine", magic_enum::enum_name(b->engine));
                 h.write(bnode, "autodiscovered", b->is_autodiscovered);
 

@@ -184,7 +184,7 @@ namespace bt::ui {
                 }
 
                 if(w::mi("Open configuration directory", true, ICON_MD_FOLDER_OPEN)) {
-                    os::shell_open(grey::common::fss::get_config_dir(APP_SHORT_NAME));
+                    os::shell_open(grey::common::fss::get_config_dir(CONFIG_NAME));
                 }
 
                 w::sep();
@@ -881,7 +881,7 @@ namespace bt::ui {
         } // group end
 
 #if _DEBUG
-        w::tt(format("id: {}\ndisco id: {}", b->id, b->instance_id));
+        w::tt(format("disco id: {}", b->instance_id));
 #endif
 
         auto item_rect = w::item_rect_get();
@@ -900,8 +900,8 @@ namespace bt::ui {
         w::sl();
         w::icon_checkbox(ICON_MD_VISIBILITY, b->is_hidden, true, "Show in browser list and picker");
 
-        bool can_move_up = b->id != (*g_state.browsers.begin())->id;
-        bool can_move_down = b->id != (*g_state.browsers.rbegin())->id;
+        bool can_move_up = *b != *(*g_state.browsers.begin());
+        bool can_move_down = *b != *(*g_state.browsers.rbegin());
 
         w::sl();
         if(w::button(ICON_MD_ARROW_UPWARD, w::emphasis::none, can_move_up)) {
@@ -976,7 +976,7 @@ namespace bt::ui {
                 size_t idx = browser::index_of(g_state.browsers, b);
 
                 // erase and save
-                std::erase_if(g_state.browsers, [b](auto i) { return i->id == b->id; });
+                std::erase_if(g_state.browsers, [b](auto i) { return *i == *b; });
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
@@ -995,7 +995,7 @@ namespace bt::ui {
         // --- profiles start
 
         if(b->is_autodiscovered) {
-            w::tab_bar tabs{b->id, true, true};
+            w::tab_bar tabs{"tabs", true, true};
 
             int idx{0};
             for(shared_ptr<browser_instance> bi : b->instances) {
@@ -1095,10 +1095,8 @@ namespace bt::ui {
                             w::input(bi->launch_arg, "arg", true, 0, true);
                             w::tt("Discovered arguments (read-only)");
 
-                            if(!bi->b->is_msstore()) {
-                                w::input(bi->user_arg, "extra arg");
-                                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
-                            }
+                            w::input(bi->user_arg, "extra arg");
+                            w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
                         }
 
                         w::spc();
@@ -1121,11 +1119,11 @@ namespace bt::ui {
                 w::input(b->open_cmd, "exe", false);
                 w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
-                if(w::input(bi->name, format("name##{}", b->id))) {
+                if(w::input(bi->name, format("name##{}", "todo"))) {
                     b->name = bi->name;
                 }
 
-                w::input(bi->launch_arg, format("arg##{}", b->id));
+                w::input(bi->launch_arg, format("arg##{}", "todo"));
                 w::tt(R"(Argument(s) to pass to the browser.
 It is empty by default and opening url is always passed as an argument.
 If you set this value, it is used as is. Also, 'arg' can contain a
@@ -1146,35 +1144,44 @@ terminal window will be hidden.)");
         w::guard w{wnd_add_browser};
 
         static unsigned int type{0};
-        w::combo("type", {"Generic", "Chromium based", "Gecko based"}, type);
+        static bool do_fetch_name{false};
 
-
-        if(desktop_shell::file_open_dialog_supported()) {
-            if(w::button(ICON_MD_FILE_OPEN)) {
-                string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
-                if(!exe_path_selected.empty()) exe_path = exe_path_selected;
-            }
-            w::sl();
+        if(do_fetch_name) {
+#if PLATFORM_WINDOWS
+            wstring w_product_name = win32::user::get_file_version_info_string(badd_exe_path, "ProductName");
+            if(!w_product_name.empty()) badd_name = str::to_str(w_product_name);
+            do_fetch_name = false;
+#endif
         }
 
-        w::input(exe_path, "path");
+        w::combo("type", {"Generic", "Chromium based", "Gecko based"}, type);
 
-        /*string exe_path = desktop_shell::file_open_dialog("Windows Executable", "*.exe");
-        if(exe_path.empty()) return;
+        if(w::input(badd_exe_path, "path")) {
+            do_fetch_name = true;
+        }
+        w::tt("executable path");
 
-        wstring w_product_name = win32::user::get_file_version_info_string(exe_path, "ProductName");
-        string id = guid::create_guid();
-        string name = str::to_str(w_product_name);
-        auto b = make_shared<browser>(id, name, exe_path);
-        b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
+        if(desktop_shell::file_open_dialog_supported()) {
+            w::sl();
+            if(w::button(ICON_MD_FILE_OPEN)) {
+                string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
+                if(!exe_path_selected.empty()) {
+                    badd_exe_path = exe_path_selected;
+                    do_fetch_name = true;
+                }
+            }
+        }
 
-        g_state.browsers.push_back(b);
+        w::input(badd_name, "name");
 
-        // find this new browser and select it (it won't be the last in the list)
-        size_t idx = browser::index_of(g_state.browsers, b);
-        if(idx != string::npos) {
-            selected_browser_idx = idx;
-        }*/
+        if(w::button(ICON_MD_ADD " add")) {
+            auto b = make_shared<browser>(badd_name, badd_exe_path);
+            b->instances.push_back(make_shared<browser_instance>(b, badd_name, "", ""));
+            g_state.browsers.push_back(b);
+            selected_browser_idx = g_state.browsers.size() - 1;
+            add_browser_show = false;
+            badd_exe_path = badd_name = "";
+        }
     }
 
     void config_app::render_icon(const std::string& path_default, bool is_incognito, string& path_override) {

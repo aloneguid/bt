@@ -21,19 +21,17 @@ namespace bt {
 #if PLATFORM_WINDOWS
     const string lad = win32::shell::get_local_app_data_path();
 #endif
-    const string browser::UwpCmdPrefix = "msstore:";
 
     browser::browser(
-        const std::string& id,
         const std::string& name,
         const std::string& open_cmd)
-        : id{id}, name{ name }, open_cmd{ open_cmd }
+        : name{ name }, open_cmd{ open_cmd }
     {
         str::trim(this->name);
     }
 
-    bool operator==(const browser& b1, const browser& b2) {
-        return b1.id == b2.id;
+    bool browser::operator==(const browser& other) const {
+        return open_cmd == other.open_cmd && data_path == other.data_path;
     }
 
     size_t browser::get_total_rule_count() const {
@@ -57,13 +55,6 @@ namespace bt {
         return open_cmd;
     }
 
-    bool browser::contains_profile_id(const std::string& long_id) const {
-        for(const auto i : instances) {
-            if(i->long_id() == long_id) return true;
-        }
-        return false;
-    }
-
     bool browser::is_default() const {
         for(const auto i : instances) {
             if(i->is_default) return true;
@@ -84,24 +75,6 @@ namespace bt {
         }
         return r;
 
-    }
-
-    std::shared_ptr<browser_instance> browser::find_profile_by_long_id(const vector<shared_ptr<browser>>& browsers,
-        const std::string& long_id, bool& found) {
-        found = false;
-
-        // try to find
-        for (auto b : browsers) {
-            for (auto& p : b->instances) {
-                if (p->long_id() == long_id) {
-                    found = true;
-                    return p;
-                }
-            }
-        }
-
-        // return default
-        return browsers[0]->instances[0];
     }
 
     std::vector<browser_match_result> browser::match(
@@ -154,7 +127,7 @@ namespace bt {
         const std::shared_ptr<browser_instance> &bi) {
         for (auto b : browsers) {
             for (auto& p : b->instances) {
-                p->is_default = p->long_id() == bi->long_id();
+                p->is_default = *p == *bi;
             }
         }
     }
@@ -183,7 +156,7 @@ namespace bt {
                 for (shared_ptr<browser_instance> bi_new : b_new->instances) {
                     auto bi_old_it = std::find_if(
                         b_old->instances.begin(), b_old->instances.end(),
-                        [bi_new](shared_ptr<browser_instance> el) {return el->id == bi_new->id; });
+                        [bi_new](shared_ptr<browser_instance> el) {return *el == *bi_new; });
 
                     if (bi_old_it == b_old->instances.end()) continue;
                     shared_ptr<browser_instance> bi_old = *bi_old_it;
@@ -213,13 +186,8 @@ namespace bt {
     }
 
     size_t browser::index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b) {
-        string id = b->id;
-        auto bit = std::find_if(browsers.begin(), browsers.end(),
-            [id](const shared_ptr<browser>& i) {return i->id == id; });
-
-        if(bit != browsers.end()) {
-            size_t idx = bit - browsers.begin();
-            return idx;
+        for(size_t i = 0; i < browsers.size(); ++i) {
+            if(*browsers[i] == *b) return i;
         }
 
         return string::npos;
@@ -232,17 +200,19 @@ namespace bt {
 
     browser_instance::browser_instance(
         shared_ptr<browser> b,
-        const std::string& id,
         const std::string& name,
         const std::string& launch_arg,
         const std::string& icon_path)
         : b{ b },
 
-        id{ id },
         name{ name },
 
         launch_arg{ launch_arg },
         icon_path{ icon_path } {
+    }
+
+    bool browser_instance::operator==(const browser_instance &other) const {
+        return *b == *other.b && name == other.name;
     }
 
     browser_instance::~browser_instance() {}
@@ -271,16 +241,7 @@ namespace bt {
             arg += user_arg;
         }
 
-        // if command starts with UWP prefix, launch this as UWP app
-        if(b->open_cmd.starts_with(browser::UwpCmdPrefix)) {
-            string family_name = b->open_cmd.substr(browser::UwpCmdPrefix.size());
-#if PLATFORM_WINDOWS
-            win32::uwp uwp;
-            uwp.launch_uri(family_name, arg);
-#endif
-        } else {
-            launch_process(b->open_cmd + " " + arg);
-        }
+        launch_process(b->open_cmd + " " + arg);
     }
 
     bool browser_instance::is_match(const click_payload& up, match_rule& mr) const {
@@ -322,15 +283,8 @@ namespace bt {
         std::erase_if(rules, [rule_text](auto r) { return r->value == rule_text; });
     }
 
-    bool browser_instance::is_singular() const {
-        return count_if(b->instances.begin(), b->instances.end(), [](auto i) {return !i->is_incognito; }) == 1;
-    }
-
     std::string browser_instance::get_best_display_name() const {
         if(is_incognito) return format("Private {}", b->name);
-
-        if(b->is_autodiscovered && is_singular()) return b->name;
-
         return name;
     }
 
