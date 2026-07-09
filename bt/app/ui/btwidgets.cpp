@@ -12,7 +12,7 @@ namespace bt::ui {
         app.preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
 
         // preload browser icons
-        for(auto& b : g_settings.browsers) {
+        for(auto& b : g_state.browsers) {
             string path = b->get_best_icon_path();
             app.preload_texture(path, fss::get_full_path(path));
 

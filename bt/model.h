@@ -7,13 +7,4 @@ namespace bt {
         browser_only        = 2,
         profile_only        = 3
     };
-
-    struct substitution_pipeline_item_state {
-
-    };
-
-    struct substituion_pipeline_state {
-        bool enabled;
-
-    };
 }

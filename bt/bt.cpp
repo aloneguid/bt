@@ -20,7 +20,6 @@
 
 // globals.h
 #define CONFIG_NAME APP_LONG_NAME
-grey::common::config g_settings{CONFIG_NAME, "config.ini"};
 bt::script_site g_script{grey::common::fss::get_config_file_path(CONFIG_NAME, "scripts.lua"), true};
 bt::state g_state{CONFIG_NAME};
 grey::common::state_ticker<bt::state> g_state_ticker{g_state, 1.f};
@@ -43,7 +42,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             show_picker = true;
             pick_reason = "hotkey";
         } else if(g_state.picker.on_rule_conflict || g_state.picker.on_no_rule) {
-            auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
+            auto matches = bt::browser::match(g_state.browsers, up, g_script);
             if(g_state.picker.on_rule_conflict && matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
@@ -65,7 +64,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             }
         }
     } else {
-        auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
+        auto matches = bt::browser::match(g_state.browsers, up, g_script);
         bt::browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);
@@ -125,9 +124,9 @@ void execute(const string& data) {
             return;
         } else if(command == "discover") {
             vector<shared_ptr<bt::browser>> fresh_browsers = bt::discovery::discover_all_browsers();
-            fresh_browsers = bt::browser::merge(fresh_browsers, g_settings.browsers);
-            g_settings.browsers = fresh_browsers;
-            g_settings.commit();
+            fresh_browsers = bt::browser::merge(fresh_browsers, g_state.browsers);
+            g_state.browsers = fresh_browsers;
+            g_state.serialize();
             return;
         }
     }
@@ -155,7 +154,7 @@ void execute(const string& data) {
 #if _DEBUG
     if(command == "toast") {
         up.url = command_data;
-        bt::ui::toast_app app{up, g_settings.browsers[0]->instances[0]};
+        bt::ui::toast_app app{up, g_state.browsers[0]->instances[0]};
         app.run();
         return;
     }

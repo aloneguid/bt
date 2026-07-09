@@ -30,7 +30,6 @@ namespace bt {
         std::string name;
         std::string open_cmd;
         browser_engine engine{browser_engine::unknown};
-        int sort_order{0};
 
         /**
          * @brief when true, this browser is part of the system i.e not a user defined one.
@@ -74,6 +73,7 @@ namespace bt {
         std::string get_best_icon_path() const;
 
         bool contains_profile_id(const std::string& long_id) const;
+        bool is_default() const;
 
         friend bool operator==(const browser& b1, const browser& b2);
 
@@ -96,24 +96,16 @@ namespace bt {
         static std::vector<browser_match_result> match(
             const std::vector<std::shared_ptr<browser>>& browsers,
             const click_payload& up,
-            const std::string& default_profile_long_id,
             const script_site& script);
 
-        static std::shared_ptr<browser_instance> get_default(
-            const std::vector<std::shared_ptr<browser>>& browsers,
-            const std::string& default_profile_long_id);
+        static std::shared_ptr<browser_instance> get_default(const std::vector<std::shared_ptr<browser>>& browsers);
+        static void set_default(const std::vector<std::shared_ptr<browser>>& browsers, const std::shared_ptr<browser_instance>& bi);
 
         static std::vector<std::shared_ptr<browser>> merge(
             std::vector<std::shared_ptr<browser>> new_set,
             std::vector<std::shared_ptr<browser>> old_set);
 
         static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
-
-        /**
-         * @brief Sort browsers and profiles inside them by sort order.
-         * @param browsers 
-         */
-        static void sort(std::vector<std::shared_ptr<browser>>& browsers);
 
     private:
 
@@ -183,17 +175,12 @@ namespace bt {
         std::string user_icon_path;
 
         /**
-         * @brief When true, terminal window will be hidden when launching this profile.
+         * @brief When true, the terminal window will be hidden when launching this profile.
          */
         bool launch_hide_ui{false};
 
         // UI helpers
         bool ui_test_url_matches;
-
-        /**
-         * @brief Optional sort order
-        */
-        int sort_order{0};
 
         bool is_incognito{false};
 

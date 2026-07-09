@@ -16,7 +16,7 @@ namespace bt {
     }
 
     void url_opener::open(click_payload up) {
-        auto matches = browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
+        auto matches = browser::match(g_state.browsers, up, g_script);
         if(matches.empty()) {
             url::open_in_browser(up.url);;
         } else {

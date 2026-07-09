@@ -94,17 +94,10 @@ namespace bt::ui {
             app->preload_texture("bt_gecko", gecko_icon_png, gecko_icon_png_len);
         };
 
-        // in case config is not set, explicitly set it to default
-        if(!g_settings.browsers.empty()) {
-            g_settings.default_profile =
-                browser::get_default(g_settings.browsers, g_settings.default_profile)->long_id();
-        }
-
         check_health();
     }
 
     config_app::~config_app() {
-        g_settings.commit();
     }
 
     void config_app::run() {
@@ -144,7 +137,7 @@ namespace bt::ui {
 
         render_menu_bar();
 
-        if(g_settings.browsers.empty()) {
+        if(g_state.browsers.empty()) {
             render_no_browsers();
         } else {
             render_browsers();
@@ -571,7 +564,7 @@ namespace bt::ui {
             // browsers
             pv.begin_row();
             if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
-                for(auto b : g_settings.browsers) {
+                for(auto b : g_state.browsers) {
                     if(pv_only_matching && !b->ui_test_url_matches) continue;
 
                     pv.begin_row();
@@ -693,7 +686,7 @@ namespace bt::ui {
 
         size_t ipc{0};
         size_t irc{0};
-        for(const auto& b : g_settings.browsers) {
+        for(const auto& b : g_state.browsers) {
             ipc += b->instances.size();
             for(const auto& i : b->instances) {
                 irc += i->rules.size();
@@ -703,7 +696,7 @@ namespace bt::ui {
         w::sl();
         w::label("|", 0, false);
         w::sl();
-        w::label(format("{} {}", ICON_MD_WEB, g_settings.browsers.size()), 0, false);
+        w::label(format("{} {}", ICON_MD_WEB, g_state.browsers.size()), 0, false);
         w::tt("Browser count");
 
         w::sl();
@@ -727,18 +720,20 @@ namespace bt::ui {
             url_opener::open(APP_BUYMEACOFFEE_URL);
         };
 
-        if(!g_settings.browsers.empty()) {
+        if(!g_state.browsers.empty()) {
             w::sl(); w::label("|", 0, false);
-            const auto dbr = browser::get_default(g_settings.browsers, g_settings.default_profile);
-            w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
-            w::sl(); w::label(dbr->b->name, 0, false);
-            w::tt("Default browser");
+            const auto dbr = browser::get_default(g_state.browsers);
+            if(dbr) {
+                w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
+                w::sl(); w::label(dbr->b->name, 0, false);
+                w::tt("Default browser");
 
-            if(dbr->b->is_autodiscovered) {
-                w::sl(); w::label("|", 0, false);
-                w::sl(); w::label(ICON_MD_TAB, 0, false);
-                w::sl(); w::label(dbr->name, 0, false);
-                w::tt("Default profile");
+                if(dbr->b->is_autodiscovered) {
+                    w::sl(); w::label("|", 0, false);
+                    w::sl(); w::label(ICON_MD_TAB, 0, false);
+                    w::sl(); w::label(dbr->name, 0, false);
+                    w::tt("Default profile");
+                }
             }
         }
     }
@@ -776,8 +771,8 @@ namespace bt::ui {
             w::icon_checkbox(ICON_MD_VISIBILITY, g_state.show_hidden_browsers);
             w::tt("Show hidden browsers");
 
-            for(int i = 0; i < g_settings.browsers.size(); i++) {
-                auto br = g_settings.browsers[i];
+            for(int i = 0; i < g_state.browsers.size(); i++) {
+                auto br = g_state.browsers[i];
                 if(!g_state.show_hidden_browsers && br->is_hidden) {
                     continue;
                 }
@@ -794,14 +789,14 @@ namespace bt::ui {
         {
             w::guard g{w_right_panel};
 
-            if(selected_browser_idx < g_settings.browsers.size()) {
-                render_detail(g_settings.browsers[selected_browser_idx]);
+            if(selected_browser_idx < g_state.browsers.size()) {
+                render_detail(g_state.browsers[selected_browser_idx]);
             }
         }
     }
 
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
-        auto browser = g_settings.browsers[selected_browser_idx];
+        auto browser = g_state.browsers[selected_browser_idx];
         if(browser->is_autodiscovered) {
             return browser->instances[selected_profile_idx];
         } else {
@@ -870,7 +865,7 @@ namespace bt::ui {
                     w::tt("Hidden");
                 }
 
-                if(b->contains_profile_id(g_settings.default_profile)) {
+                if(b->is_default()) {
                     w::sl();
                     w::label(ICON_MD_FAVORITE, w::emphasis::primary);
                     w::tt("Default browser");
@@ -905,15 +900,15 @@ namespace bt::ui {
         w::sl();
         w::icon_checkbox(ICON_MD_VISIBILITY, b->is_hidden, true, "Show in browser list and picker");
 
-        bool can_move_up = b->id != (*g_settings.browsers.begin())->id;
-        bool can_move_down = b->id != (*g_settings.browsers.rbegin())->id;
+        bool can_move_up = b->id != (*g_state.browsers.begin())->id;
+        bool can_move_down = b->id != (*g_state.browsers.rbegin())->id;
 
         w::sl();
         if(w::button(ICON_MD_ARROW_UPWARD, w::emphasis::none, can_move_up)) {
             // move up one position inside g_config.browsers
-            size_t idx = browser::index_of(g_settings.browsers, b);
+            size_t idx = browser::index_of(g_state.browsers, b);
             if(idx != string::npos && idx > 0) {
-                std::swap(g_settings.browsers[idx], g_settings.browsers[idx - 1]);
+                std::swap(g_state.browsers[idx], g_state.browsers[idx - 1]);
                 selected_browser_idx = idx - 1;
                 return;
             }
@@ -922,10 +917,10 @@ namespace bt::ui {
 
         w::sl();
         if(w::button(ICON_MD_ARROW_DOWNWARD, w::emphasis::none, can_move_down)) {
-            // move down one position inside g_settings.browsers
-            size_t idx = browser::index_of(g_settings.browsers, b);
-            if(idx != string::npos && idx < g_settings.browsers.size() - 1) {
-                std::swap(g_settings.browsers[idx], g_settings.browsers[idx + 1]);
+            // move down one position inside g_state.browsers
+            size_t idx = browser::index_of(g_state.browsers, b);
+            if(idx != string::npos && idx < g_state.browsers.size() - 1) {
+                std::swap(g_state.browsers[idx], g_state.browsers[idx + 1]);
                 selected_browser_idx = idx + 1;
             }
         }
@@ -966,7 +961,7 @@ namespace bt::ui {
         } else {
             w::sl();
             if(w::button(ICON_MD_FAVORITE)) {
-                g_settings.default_profile = b->instances[0]->long_id();
+                browser::set_default(g_state.browsers, b->instances[0]);
             }
             w::tt("Make this browser the default one");
 
@@ -978,15 +973,15 @@ namespace bt::ui {
 
             w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
-                size_t idx = browser::index_of(g_settings.browsers, b);
+                size_t idx = browser::index_of(g_state.browsers, b);
 
                 // erase and save
-                std::erase_if(g_settings.browsers, [b](auto i) { return i->id == b->id; });
+                std::erase_if(g_state.browsers, [b](auto i) { return i->id == b->id; });
 
                 // if possible, select previous browser
                 if(idx != string::npos) {
                     idx -= 1;
-                    if(idx >= 0 && idx < g_settings.browsers.size()) {
+                    if(idx >= 0 && idx < g_state.browsers.size()) {
                         selected_browser_idx = idx;
                     }
                 }
@@ -1028,11 +1023,11 @@ namespace bt::ui {
 
                         // mini toolbar
 
-                        if(bi->long_id() == g_settings.default_profile) {
+                        if(bi->is_default) {
                             w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
                         }
                         else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
-                            g_settings.default_profile = bi->long_id();
+                            browser::set_default(g_state.browsers, bi);
                         }
                         w::tt("Make this browser the default one");
 
@@ -1173,10 +1168,10 @@ terminal window will be hidden.)");
         auto b = make_shared<browser>(id, name, exe_path);
         b->instances.push_back(make_shared<browser_instance>(b, "default", name, "", ""));
 
-        g_settings.browsers.push_back(b);
+        g_state.browsers.push_back(b);
 
         // find this new browser and select it (it won't be the last in the list)
-        size_t idx = browser::index_of(g_settings.browsers, b);
+        size_t idx = browser::index_of(g_state.browsers, b);
         if(idx != string::npos) {
             selected_browser_idx = idx;
         }*/
@@ -1371,15 +1366,15 @@ terminal window will be hidden.)");
 
     void config_app::rediscover_browsers() {
         vector<shared_ptr<browser>> fresh_browsers = discovery::discover_all_browsers();
-        fresh_browsers = browser::merge(fresh_browsers, g_settings.browsers);
-        g_settings.browsers = fresh_browsers;
+        fresh_browsers = browser::merge(fresh_browsers, g_state.browsers);
+        g_state.browsers = fresh_browsers;
 
-        string message = format("Discovered {} browser(s).", g_settings.browsers.size());
+        string message = format("Discovered {} browser(s).", g_state.browsers.size());
         w::notify_info(message);
     }
 
     void config_app::recalculate_test_url_matches(const click_payload& cp) {
-        for(auto b : g_settings.browsers) {
+        for(auto b : g_state.browsers) {
             b->ui_test_url_matches = false;
             for(auto bi : b->instances) {
                 bi->ui_test_url_matches = false;

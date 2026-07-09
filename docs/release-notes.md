@@ -3,11 +3,11 @@
 ### Breaking changes
 
 - BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during the installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as a system browser.
-- todo: config is not compatible
+- Configuration is not backward-compatible with previous versions. It's now stored in the correct config location (Roaming home on Windows, and XDG_HOME on Linux). The format has changed from `.ini` to `.yml` so it's more expressive and less error-prone. YAML also simplifies underlying C++ code.
 
 ## New features
 - todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers. 
-- todo: debian support.
+- todo: An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
 
 ## Bugs fixed
 - todo: see github.

@@ -64,6 +64,13 @@ namespace bt {
         return false;
     }
 
+    bool browser::is_default() const {
+        for(const auto i : instances) {
+            if(i->is_default) return true;
+        }
+        return false;
+    }
+
     std::vector<std::shared_ptr<browser_instance>> browser::to_instances(
         const std::vector<std::shared_ptr<browser>>& browsers,
         bool skip_hidden) {
@@ -100,7 +107,6 @@ namespace bt {
     std::vector<browser_match_result> browser::match(
         const std::vector<shared_ptr<browser>>& browsers,
         const click_payload& up,
-        const string& default_profile_long_id,
         const script_site& script) {
         vector<browser_match_result> r;
 
@@ -117,7 +123,7 @@ namespace bt {
         if (r.empty() && !browsers.empty()) {
             match_rule fbr{"default"};
             fbr.is_fallback = true;
-            r.emplace_back(get_default(browsers, default_profile_long_id), fbr);
+            r.emplace_back(get_default(browsers), fbr);
         }
 
         // sort by priority, descending
@@ -130,13 +136,27 @@ namespace bt {
         return r;
     }
 
-    shared_ptr<browser_instance> browser::get_default(
-        const std::vector<shared_ptr<browser>>& browsers,
-        const string& default_profile_long_id) {
-        bool found;
-        auto bi = find_profile_by_long_id(browsers, default_profile_long_id, found);
+    shared_ptr<browser_instance> browser::get_default(const std::vector<shared_ptr<browser>>& browsers) {
+        if(browsers.empty()) return nullptr;
 
-        return found ? bi : browsers[0]->instances[0];
+        for (auto b : browsers) {
+            for (auto& p : b->instances) {
+                if(p->is_default) return p;
+            }
+        }
+
+        auto b = browsers.front();
+        if(b->instances.empty()) return nullptr;
+        return b->instances.front();
+    }
+
+    void browser::set_default(const std::vector<std::shared_ptr<browser>> &browsers,
+        const std::shared_ptr<browser_instance> &bi) {
+        for (auto b : browsers) {
+            for (auto& p : b->instances) {
+                p->is_default = p->long_id() == bi->long_id();
+            }
+        }
     }
 
     std::vector<std::shared_ptr<browser>> browser::merge(
@@ -156,7 +176,6 @@ namespace bt {
 
                 // merge user data
                 b_new->is_hidden = b_old->is_hidden;
-                b_new->sort_order = b_old->sort_order;
 
                 // profiles
 
@@ -190,8 +209,6 @@ namespace bt {
             r.push_back(b_custom);
         }
 
-        browser::sort(r);
-
         return r;
     }
 
@@ -206,21 +223,6 @@ namespace bt {
         }
 
         return string::npos;
-    }
-
-    void browser::sort(std::vector<std::shared_ptr<browser>>& browsers) {
-        std::sort(browsers.begin(), browsers.end(), [](const shared_ptr<browser>& a, const shared_ptr<browser>& b) {
-            return a->sort_order < b->sort_order;
-        });
-
-        // sort instances by order field
-        for(auto& b : browsers) {
-            std::sort(b->instances.begin(), b->instances.end(),
-                [](const shared_ptr<browser_instance>& a, const shared_ptr<browser_instance>& b) {
-
-                return a->sort_order < b->sort_order;
-            });
-        }
     }
 
     std::string browser::get_image_name(const std::string& open_cmd) {

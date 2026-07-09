@@ -45,7 +45,7 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        choices = browser::to_instances(g_settings.browsers, true);
+        choices = browser::to_instances(g_state.browsers, true);
 
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
@@ -77,7 +77,6 @@ namespace bt::ui {
     }
 
     picker_app::~picker_app() {
-        g_settings.commit();
     }
 
     picker_result picker_app::run() {

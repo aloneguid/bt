@@ -4,7 +4,7 @@
 #include "model.h"
 #include "common/state_handler.hpp"
 #include <magic_enum/magic_enum.hpp>
-
+#include "app/browser.h"
 
 namespace bt {
     class toast_state {
@@ -79,6 +79,7 @@ namespace bt {
         string pv_last_url;
         string pv_last_wt;
         string pv_last_pn;
+        std::vector<std::shared_ptr<bt::browser>> browsers;
 
         bool operator==(const state &other) const {
             return ui_theme == other.ui_theme &&
@@ -217,6 +218,59 @@ namespace bt {
                 h.write(item_node, "find", item.find);
                 h.write(item_node, "replace", item.replace);
                 seq.push_back(item_node);
+            }
+
+            // browsers
+            h.root["browsers"] = node::sequence();
+            auto& bseq = h.root["browsers"].get_value_ref<node::sequence_type&>();
+            for(auto& b : browsers) {
+                node bnode = node::mapping();
+                h.write(bnode, "name", b->name);
+                h.write(bnode, "cmd", b->open_cmd);
+                h.write(bnode, "visible", !b->is_hidden);
+                if(!b->icon_path.empty())
+                    h.write(bnode, "icon", b->icon_path);
+                if(!b->data_path.empty())
+                    h.write(bnode, "data", b->data_path);
+                if(b->engine != browser_engine::unknown)
+                    h.write(bnode, "engine", magic_enum::enum_name(b->engine));
+                h.write(bnode, "autodiscovered", b->is_autodiscovered);
+
+                // profiles
+                bnode["profiles"] = node::sequence();
+                auto& pseq = bnode["profiles"].get_value_ref<node::sequence_type&>();
+                for(auto p : b->instances) {
+                    node pnode = node::mapping();
+                    h.write(pnode, "name", p->name);
+                    h.write(pnode, "arg", p->launch_arg);
+                    if(!p->user_arg.empty())
+                        h.write(pnode, "user_arg", p->user_arg);
+                    if(!p->icon_path.empty())
+                        h.write(pnode, "icon", p->icon_path);
+                    if(!p->user_icon_path.empty())
+                        h.write(pnode, "user_icon", p->user_icon_path);
+                    h.write(pnode, "incognito", p->is_incognito);
+                    h.write(pnode, "visible", !p->is_hidden);
+
+                    // rules
+                    pnode["rules"] = node::sequence();
+                    auto& rseq = pnode["rules"].get_value_ref<node::sequence_type&>();
+                    for(auto& r : p->rules) {
+                        node rnode = node::mapping();
+                        h.write(rnode, "value", r->value);
+                        h.write(rnode, "loc", magic_enum::enum_name(r->loc));
+                        h.write(rnode, "scope", magic_enum::enum_name(r->scope));
+                        h.write(rnode, "priority", r->priority);
+                        h.write(rnode, "is_regex", r->is_regex);
+                        h.write(rnode, "app_mode", r->app_mode);
+                        h.write(rnode, "is_fallback", r->is_fallback);
+                        rseq.push_back(rnode);
+                    }
+
+                    pseq.push_back(pnode);
+                }
+
+                bseq.push_back(bnode);
             }
 
             h.serialize();

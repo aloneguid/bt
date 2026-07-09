@@ -1,2 +1,0 @@
-opt(string,       default_profile,          "")
-opt_custom(std::vector<std::shared_ptr<bt::browser>>, browsers)

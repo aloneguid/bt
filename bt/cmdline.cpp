@@ -37,9 +37,9 @@ int cmdline::exec(const std::string& command, const std::string& data) {
 int cmdline::exec_list() {
     // list all browsers and profiles
 
-    wcout << L"browsers: " << g_settings.browsers.size() << endl << endl;
+    wcout << L"browsers: " << g_state.browsers.size() << endl << endl;
 
-    for(const auto& b : g_settings.browsers) {
+    for(const auto& b : g_state.browsers) {
         wcout << str::to_wstr(b->id) << endl;
         wcout << L"  name:             " << str::to_wstr(b->name) << endl;
         wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
@@ -90,7 +90,7 @@ int cmdline::exec_list() {
 
 int cmdline::exec_get_default() {
 
-    auto def = bt::browser::get_default(g_settings.browsers, g_settings.default_profile);
+    auto def = bt::browser::get_default(g_state.browsers);
 
     wcout << str::to_wstr(def->b->id) << L"." << str::to_wstr(def->id) << endl;
 
@@ -118,15 +118,15 @@ int cmdline::exec_set_default(const std::string& data) {
     wcout << L"setting default browser to " << str::to_wstr(browser_id) << L"." << str::to_wstr(profile_id) << endl;
 
     // find browser
-    for(const auto& b : g_settings.browsers) {
+    for(const auto& b : g_state.browsers) {
         if(b->id == browser_id) {
             wcout << L"found browser: " << str::to_wstr(b->name) << endl;
             // find profile
             for(const auto& p : b->instances) {
                 if(p->id == profile_id) {
                     wcout << L"found profile: " << str::to_wstr(p->name) << endl;
-                    g_settings.default_profile = p->long_id();
-                    g_settings.commit();
+                    //g_state.default_profile = p->long_id();
+                    g_state.serialize();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

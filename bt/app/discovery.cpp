@@ -522,7 +522,6 @@ namespace bt {
                         arg,
                         ""
                     );
-                    bi->sort_order = b->instances.size();
                     if(profile_pic_j.is_string()) {
                         bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                     }
@@ -539,7 +538,6 @@ namespace bt {
                     format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
                     "");
                 inprivate->is_incognito = true;
-                inprivate->sort_order = b->instances.size();
                 b->instances.push_back(inprivate);
             } else {
                 auto inprivate = make_shared<browser_instance>(
@@ -547,7 +545,6 @@ namespace bt {
                 format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
                 "");
                 inprivate->is_incognito = true;
-                inprivate->sort_order = b->instances.size();
                 b->instances.push_back(inprivate);
             }
         }
@@ -560,7 +557,6 @@ namespace bt {
                 ""
             );
             tor->is_incognito = true;
-            tor->sort_order = b->instances.size();
             b->instances.push_back(tor);
         }
     }
@@ -704,7 +700,6 @@ namespace bt {
             string arg = format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
 
             auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
-            bi->sort_order = b->instances.size();
             b->instances.push_back(bi);
 
             // containers
@@ -725,7 +720,6 @@ namespace bt {
 
                     string id = format("{}+c_{}", fp.id, container.id);
                     auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
-                    bi->sort_order = b->instances.size();
                     b->instances.push_back(bi);
                 }
             }
@@ -741,7 +735,6 @@ namespace bt {
             format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
             b->open_cmd);
         private_bi->is_incognito = true;
-        private_bi->sort_order = b->instances.size();
 
         b->instances.push_back(private_bi);
     }

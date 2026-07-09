@@ -2,7 +2,6 @@
 #include <memory>
 #include <vector>
 #include "url_pipeline_step.h"
-#include "common/config.hpp"
 #include "pipeline/replacer.h"
 #include "state.hpp"
 
