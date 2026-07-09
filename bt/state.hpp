@@ -90,7 +90,8 @@ namespace bt {
                    discover_gecko_containers == other.discover_gecko_containers &&
                    toast == other.toast &&
                    picker == other.picker &&
-                   transforms == other.transforms;
+                   transforms == other.transforms &&
+                   browsers == other.browsers;
         }
 
         bool operator!=(const state &other) const {
@@ -164,6 +165,59 @@ namespace bt {
                     h.read<string>(item_node, "find", item.find, "");
                     h.read<string>(item_node, "replace", item.replace, "");
                     transforms.substitutions.push_back(item);
+                }
+            }
+
+            // browsers
+            browsers.clear();
+            if(h.root.contains("browsers") && h.root["browsers"].is_sequence()) {
+                for(auto& bnode : h.root["browsers"]) {
+                    string name, cmd;
+                    h.read<string>(bnode, "name", name, "");
+                    h.read<string>(bnode, "cmd", cmd, "");
+                    auto b = std::make_shared<bt::browser>("", name, cmd);
+                    h.read<bool>(bnode, "visible", b->is_hidden, true);
+                    b->is_hidden = !b->is_hidden;
+                    h.read<string>(bnode, "icon", b->icon_path, "");
+                    h.read<string>(bnode, "data", b->data_path, "");
+                    string engine_str;
+                    h.read<string>(bnode, "engine", engine_str, "");
+                    b->engine = magic_enum::enum_cast<browser_engine>(engine_str, magic_enum::case_insensitive).value_or(browser_engine::unknown);
+                    h.read<bool>(bnode, "autodiscovered", b->is_autodiscovered, false);
+
+                    if(bnode.contains("profiles") && bnode["profiles"].is_sequence()) {
+                        for(auto& pnode : bnode["profiles"]) {
+                            string name, launch_arg, icon;
+                            h.read<string>(pnode, "name", name, "");
+                            h.read<string>(pnode, "arg", launch_arg, "");
+                            h.read<string>(pnode, "icon", icon, "");
+
+                            auto p = std::make_shared<bt::browser_instance>(b, "", name, launch_arg, icon);
+
+                            h.read<string>(pnode, "user_arg", p->user_arg, "");
+                            h.read<string>(pnode, "user_icon", p->user_icon_path, "");
+                            h.read<bool>(pnode, "incognito", p->is_incognito, false);
+                            h.read<bool>(pnode, "visible", p->is_hidden, true);
+                            p->is_hidden = !p->is_hidden;
+
+                            if(pnode.contains("rules") && pnode["rules"].is_sequence()) {
+                                for(auto& rnode : pnode["rules"]) {
+                                    auto r = std::make_shared<match_rule>();
+                                    h.read<string>(rnode, "value", r->value, "");
+                                    h.read<string>(rnode, "loc", tmp, "");
+                                    r->loc = magic_enum::enum_cast<match_location>(tmp, magic_enum::case_insensitive).value_or(match_location::url);
+                                    h.read<string>(rnode, "scope", tmp, "");
+                                    r->scope = magic_enum::enum_cast<match_scope>(tmp, magic_enum::case_insensitive).value_or(match_scope::any);
+                                    h.read<bool>(rnode, "is_regex", r->is_regex, false);
+                                    h.read<bool>(rnode, "app_mode", r->app_mode, false);
+                                    h.read<bool>(rnode, "is_fallback", r->is_fallback, false);
+                                    p->rules.push_back(r);
+                                }
+                            }
+                            b->instances.push_back(p);
+                        }
+                    }
+                    browsers.push_back(b);
                 }
             }
         }
@@ -253,18 +307,19 @@ namespace bt {
                     h.write(pnode, "visible", !p->is_hidden);
 
                     // rules
-                    pnode["rules"] = node::sequence();
-                    auto& rseq = pnode["rules"].get_value_ref<node::sequence_type&>();
-                    for(auto& r : p->rules) {
-                        node rnode = node::mapping();
-                        h.write(rnode, "value", r->value);
-                        h.write(rnode, "loc", magic_enum::enum_name(r->loc));
-                        h.write(rnode, "scope", magic_enum::enum_name(r->scope));
-                        h.write(rnode, "priority", r->priority);
-                        h.write(rnode, "is_regex", r->is_regex);
-                        h.write(rnode, "app_mode", r->app_mode);
-                        h.write(rnode, "is_fallback", r->is_fallback);
-                        rseq.push_back(rnode);
+                    if(!p->rules.empty()) {
+                        pnode["rules"] = node::sequence();
+                        auto& rseq = pnode["rules"].get_value_ref<node::sequence_type&>();
+                        for(auto& r : p->rules) {
+                            node rnode = node::mapping();
+                            h.write(rnode, "value", r->value);
+                            h.write(rnode, "loc", magic_enum::enum_name(r->loc));
+                            h.write(rnode, "scope", magic_enum::enum_name(r->scope));
+                            h.write(rnode, "is_regex", r->is_regex);
+                            h.write(rnode, "app_mode", r->app_mode);
+                            h.write(rnode, "is_fallback", r->is_fallback);
+                            rseq.push_back(rnode);
+                        }
                     }
 
                     pseq.push_back(pnode);
@@ -293,7 +348,3 @@ namespace bt {
         }
     };
 }
-
-#undef write
-#undef read
-#undef prop

@@ -202,9 +202,6 @@ namespace bt {
 
         std::string get_best_icon_path(bool include_override = true) const;
 
-        std::vector<std::string> get_rules_as_text_clean() const;
-        void set_rules_from_text(std::vector<std::string> rules_txt);
-
     private:
         void launch_process(const std::string& cmdline) const;
     };

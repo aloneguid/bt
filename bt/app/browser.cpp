@@ -341,26 +341,6 @@ namespace bt {
         return icon_path.empty() ? b->open_cmd : icon_path;
     }
 
-    vector<string> browser_instance::get_rules_as_text_clean() const {
-        vector<string> res;
-        for (const auto& r : rules) {
-            string s = r->to_line();
-            if(!s.empty())
-                res.push_back(s);
-        }
-        return res;
-    }
-
-    void browser_instance::set_rules_from_text(std::vector<std::string> rules_txt) {
-        for (const string& rule : rules_txt) {
-            string clean_rule = rule;
-            str::trim(clean_rule);
-            if(!clean_rule.empty()) {
-                add_rule(rule);
-            }
-        }
-    }
-
     void browser_instance::launch_process(const std::string& cmdline) const {
 #if PLATFORM_WINDOWS
         STARTUPINFO si{};

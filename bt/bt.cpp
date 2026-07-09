@@ -69,7 +69,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         first_match.rule.apply_to(up);
         bt::url_opener::open(first_match.bi, up);
         if(g_state.log_rule_hits) {
-            bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
+            bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_string());
         }
 
         if(g_state.toast.enabled) {
