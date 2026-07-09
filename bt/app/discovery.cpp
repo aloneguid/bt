@@ -141,7 +141,6 @@ namespace bt {
                 string id = get_id_from_open_cmd(open_command);
                 auto b = make_shared<browser>(display_name, open_command);
                 b->instance_id = get_instance_id(sub);
-                b->is_autodiscovered = true;
 
                 fingerprint(open_command, b->engine, b->data_path);
 
@@ -373,7 +372,7 @@ namespace bt {
     }
 
     void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
-        if(!(b->is_autodiscovered && b->engine == browser_engine::chromium)) return;
+        if(b->engine != browser_engine::chromium) return;
 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
 
@@ -566,7 +565,7 @@ namespace bt {
     }
 
     void discovery::discover_firefox_profiles(shared_ptr<browser> b) {
-        if(!(b->is_autodiscovered && b->engine == browser_engine::gecko)) return;
+        if(b->engine != browser_engine::gecko) return;
 
         vector<firefox_profile> profiles;
         discover_firefox_profiles(b, profiles);
@@ -713,7 +712,7 @@ namespace bt {
     }
 
     void discovery::discover_other_profiles(shared_ptr<browser> b) {
-        if(!(b->is_autodiscovered && b->instances.empty())) return;
+        if(b->engine != browser_engine::generic) return;
 
         string icon_path = b->icon_path.empty() ? b->open_cmd : b->icon_path;
 

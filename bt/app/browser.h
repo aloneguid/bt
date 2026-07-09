@@ -28,11 +28,6 @@ namespace bt {
         browser_engine engine{browser_engine::generic};
 
         /**
-         * @brief when true, this browser is part of the system i.e not a user defined one.
-        */
-        bool is_autodiscovered{false};
-
-        /**
          * @brief Whether to hide this browser from UI.
         */
         bool is_hidden{false};

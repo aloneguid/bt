@@ -728,7 +728,7 @@ namespace bt::ui {
                 w::sl(); w::label(dbr->b->name, 0, false);
                 w::tt("Default browser");
 
-                if(dbr->b->is_autodiscovered) {
+                if(dbr->b->engine != browser_engine::generic) {
                     w::sl(); w::label("|", 0, false);
                     w::sl(); w::label(ICON_MD_TAB, 0, false);
                     w::sl(); w::label(dbr->name, 0, false);
@@ -797,7 +797,7 @@ namespace bt::ui {
 
     std::shared_ptr<bt::browser_instance> config_app::get_selected_browser_instance() {
         auto browser = g_state.browsers[selected_browser_idx];
-        if(browser->is_autodiscovered) {
+        if(browser->engine != browser_engine::generic) {
             return browser->instances[selected_profile_idx];
         } else {
             return browser->instances[0];
@@ -834,23 +834,22 @@ namespace bt::ui {
             //w::move_pos(left_pad, 0);
 
             if(b->instances.size() > 0) {
-                if(b->is_autodiscovered) {
-                    w::label(format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
-                    w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
-                    //i_where->is_enabled = false;
+                w::label(format("{} {}", ICON_MD_FACE, b->instances.size()), 0, false);
+                w::tt(str::humanise(b->instances.size(), "profile", "profiles"));
+                w::sl();
 
-                    if(b->engine == bt::browser_engine::chromium) {
-                        w::sl();
+                switch(b->engine) {
+                    case browser_engine::chromium:
                         w::icon_image(*app, "bt_chromium");
                         w::tt(strings::ChromiumBased);
-                    } else if(b->engine == bt::browser_engine::gecko) {
-                        w::sl();
+                        break;
+                    case browser_engine::gecko:
                         w::icon_image(*app, "bt_gecko");
                         w::tt(strings::GeckoBased);
-                    }
-                } else {
-                    w::label(ICON_MD_SUPPORT_AGENT, 0, false);
-                    w::tt("User-defined");
+                        break;
+                    default:
+                        w::label(ICON_MD_SUPPORT_AGENT, 0, false);
+                        w::tt("User-defined");
                 }
 
                 if(b->get_supports_frameless_windows()) {
@@ -936,29 +935,29 @@ namespace bt::ui {
             w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
 
-        if(b->is_autodiscovered) {
+        if(!b->data_path.empty()) {
             w::sl();
             if(w::button(ICON_MD_FOLDER_COPY)) {
                 os::shell_open(b->data_path);
             }
             w::tt(strings::BrowserOpenUserDataFolderTooltip);
+        }
 
-            if(b->engine == bt::browser_engine::gecko) {
-                w::sl();
-                if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-                    // todo
-                    // os::shell_open(b->open_cmd, "-P");
-                }
-                w::tt("open Firefox Profile Manager (-P flag)");
-
-                w::sl();
-                if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-                    // todo
-                    // os::shell_open(b->open_cmd, "about:profiles");
-                }
-                w::tt("open Firefox Profile Manager in Firefox itself");
+        if(b->engine == bt::browser_engine::gecko) {
+            w::sl();
+            if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
+                // todo
+                // os::shell_open(b->open_cmd, "-P");
             }
-        } else {
+            w::tt("open Firefox Profile Manager (-P flag)");
+
+            w::sl();
+            if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
+                // todo
+                // os::shell_open(b->open_cmd, "about:profiles");
+            }
+            w::tt("open Firefox Profile Manager in Firefox itself");
+        } else if(b->engine == browser_engine::generic) {
             w::sl();
             if(w::button(ICON_MD_FAVORITE)) {
                 browser::set_default(g_state.browsers, b->instances[0]);
@@ -987,6 +986,7 @@ namespace bt::ui {
                 }
             }
             w::tt("Completely deletes this browser, no questions asked");
+
         }
 
         // --- toolbar end
@@ -994,7 +994,7 @@ namespace bt::ui {
 
         // --- profiles start
 
-        if(b->is_autodiscovered) {
+        if(b->engine != browser_engine::generic) {
             w::tab_bar tabs{"tabs", true, true};
 
             int idx{0};

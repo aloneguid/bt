@@ -46,7 +46,7 @@ namespace bt {
 
         if(!icon_path.empty()) return icon_path;
 
-        if(!is_autodiscovered) {
+        if(engine == browser_engine::generic) {
             if(!instances.empty()) {
                 return instances[0]->get_best_icon_path();
             }
@@ -177,7 +177,7 @@ namespace bt {
 
         // add user browsers from the old set
         for(shared_ptr<browser> b_custom : old_set) {
-            if(b_custom->is_autodiscovered) continue;
+            if(b_custom->engine != browser_engine::generic) continue;
 
             r.push_back(b_custom);
         }

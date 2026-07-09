@@ -183,7 +183,6 @@ namespace bt {
                     string engine_str;
                     h.read<string>(bnode, "engine", engine_str, "");
                     b->engine = magic_enum::enum_cast<browser_engine>(engine_str, magic_enum::case_insensitive).value_or(browser_engine::generic);
-                    h.read<bool>(bnode, "autodiscovered", b->is_autodiscovered, false);
 
                     if(bnode.contains("profiles") && bnode["profiles"].is_sequence()) {
                         for(auto& pnode : bnode["profiles"]) {
@@ -288,7 +287,6 @@ namespace bt {
                     h.write(bnode, "data", b->data_path);
                 if(b->engine != browser_engine::generic)
                     h.write(bnode, "engine", magic_enum::enum_name(b->engine));
-                h.write(bnode, "autodiscovered", b->is_autodiscovered);
 
                 // profiles
                 bnode["profiles"] = node::sequence();

@@ -42,21 +42,8 @@ int cmdline::exec_list() {
     for(const auto& b : g_state.browsers) {
         wcout << str::to_wstr(b->name) << endl;
         wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
-        wcout << L"  autodiscovered:   " << (b->is_autodiscovered ? L"yes" : L"no") << endl;
+        cout <<   "  engine:           " << magic_enum::enum_name(b->engine) << endl;
         wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
-        if(b->is_autodiscovered || b->engine == bt::browser_engine::chromium || b->engine == bt::browser_engine::gecko) {
-            wcout << L"  features: ";
-            if(b->is_autodiscovered) {
-                wcout << L"autodiscovered ";
-            }
-            if(b->engine == bt::browser_engine::chromium) {
-                wcout << L"chromium ";
-            }
-            if(b->engine == bt::browser_engine::gecko) {
-                wcout << L"gecko ";
-            }
-            wcout << endl;
-        }
         if(!b->icon_path.empty()) {
             wcout << L"  icon:     " << str::to_wstr(b->icon_path) << endl;
         }
