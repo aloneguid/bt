@@ -2,6 +2,7 @@
 #include <iostream>
 #include "globals.h"
 #include "str.h"
+#include "common/platform.h"
 
 #if PLATFORM_WINDOWS
 #include <Windows.h>
@@ -40,9 +41,10 @@ int cmdline::exec_list() {
     wcout << L"browsers: " << g_state.browsers.size() << endl << endl;
 
     for(const auto& b : g_state.browsers) {
+        string engine_name{magic_enum::enum_name(b->engine)};
         wcout << str::to_wstr(b->name) << endl;
         wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
-        cout <<   "  engine:           " << magic_enum::enum_name(b->engine) << endl;
+        wcout << L"  engine:           " << str::to_wstr(engine_name) << endl;
         wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
         if(!b->icon_path.empty()) {
             wcout << L"  icon:     " << str::to_wstr(b->icon_path) << endl;
