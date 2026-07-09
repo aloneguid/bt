@@ -59,23 +59,23 @@ TEST(Rules, MatchEmptyRule) {
 
 TEST(Rules, Serialise) {
     match_rule mr1{"r"};
-    EXPECT_EQ("r", mr1.to_line());
+    EXPECT_EQ("r", mr1.to_string());
 
     match_rule mr2{"r"};
     mr2.scope = match_scope::domain;
-    EXPECT_EQ("scope:domain|r", mr2.to_line());
+    EXPECT_EQ("scope:domain|r", mr2.to_string());
 
     match_rule mr3{"r"};
     mr2.scope = match_scope::path;
-    EXPECT_EQ("scope:path|r", mr2.to_line());
+    EXPECT_EQ("scope:path|r", mr2.to_string());
 
     match_rule mr4{"p"};
     mr4.priority = 4;
-    EXPECT_EQ("priority:4|p", mr4.to_line());
+    EXPECT_EQ("priority:4|p", mr4.to_string());
 
     match_rule mr5{"p"};
     mr5.app_mode = true;
-    EXPECT_EQ("mode:app|p", mr5.to_line());
+    EXPECT_EQ("mode:app|p", mr5.to_string());
 }
 
 TEST(Rules, Deserialise) {
