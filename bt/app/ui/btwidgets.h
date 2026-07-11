@@ -8,5 +8,7 @@
 namespace bt::ui {
     void btw_on_app_initialised(grey::app& app);
 
-    void btw_icon(grey::app& app, std::shared_ptr<bt::browser_profile> bi, float padding, float icon_size, bool is_active);
+    void btw_icon(grey::app& app,
+        const profile_selection& selection,
+        float padding, float icon_size, bool is_active);
 }

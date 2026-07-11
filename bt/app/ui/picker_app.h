@@ -8,11 +8,11 @@ namespace bt::ui {
 
     class picker_result {
     public:
-        std::shared_ptr<bt::browser_profile> decision;
+        std::optional<profile_selection> choice;
         std::string url;
 
         operator bool() const {
-            return decision != nullptr;
+            return static_cast<bool>(choice);
         }
     };
 
@@ -60,10 +60,10 @@ namespace bt::ui {
         grey::widgets::window wnd_settings;
         grey::widgets::container cnt_blist;
         grey::widgets::container cnt_top;
-        std::vector<std::shared_ptr<bt::browser_profile>> choices;
+        std::vector<profile_selection> choices;
         ImU32 clear_color;
 
-        std::shared_ptr<bt::browser_profile> decision;
+        std::optional<profile_selection> final_choice;
         int active_idx{0};
         bool url_focused{false};
 

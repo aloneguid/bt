@@ -6,6 +6,7 @@
 #include <format>
 #include "process.h"
 #include "common/stl.hpp"
+#include <ranges>
 
 #if PLATFORM_WINDOWS
 #include "win32/shell.h"
@@ -29,204 +30,9 @@ namespace bt {
         str::trim(this->name);
     }
 
-    bool browser::operator==(const browser &other) const {
-        return name == other.name &&
-               open_cmd == other.open_cmd &&
-               engine == other.engine &&
-               is_hidden == other.is_hidden &&
-               icon_path == other.icon_path &&
-               data_path == other.data_path &&
-               stl::vec_equal(profiles, other.profiles);
-    }
-
-    void browser::on_copied() {
-        profiles = stl::vec_deep_copy(profiles);
-    }
-
-    size_t browser::get_total_rule_count() const {
-        size_t r{0};
-        for(auto i: profiles) {
-            r += i->rules.size();
-        }
-        return r;
-    }
-
-    std::string browser::get_best_icon_path() const {
-        if(!icon_path.empty()) return icon_path;
-
-        if(engine == browser_engine::generic) {
-            if(!profiles.empty()) {
-                return profiles[0]->get_best_icon_path();
-            }
-        }
-
-        return open_cmd;
-    }
-
-    bool browser::is_default() const {
-        for(const auto i: profiles) {
-            if(i->is_default) return true;
-        }
-        return false;
-    }
-
-    std::vector<std::shared_ptr<browser_profile> > browser::to_instances(
-        const std::vector<std::shared_ptr<browser> > &browsers,
-        bool skip_hidden) {
-        vector<shared_ptr<browser_profile> > r;
-        for(const auto b: browsers) {
-            if(skip_hidden && b->is_hidden) continue;
-            for(const auto &bi: b->profiles) {
-                if(skip_hidden && bi->is_hidden) continue;
-                r.push_back(bi);
-            }
-        }
-        return r;
-    }
-
-    std::vector<browser_match_result> browser::match(
-        const std::vector<shared_ptr<browser> > &browsers,
-        const click_payload &up,
-        const script_site &script) {
-        vector<browser_match_result> r;
-
-        // which browser should we use?
-        for(auto b: browsers) {
-            for(auto i: b->profiles) {
-                match_rule mr{""};
-                if(i->is_match(up, script, mr)) {
-                    r.emplace_back(i, mr);
-                }
-            }
-        }
-
-        if(r.empty() && !browsers.empty()) {
-            match_rule fbr{"default"};
-            fbr.is_fallback = true;
-            r.emplace_back(get_default(browsers), fbr);
-        }
-
-        // sort by priority, descending
-        if(r.size() > 1) {
-            std::sort(r.begin(), r.end(), [](const browser_match_result &a, const browser_match_result &b) {
-                return a.rule.priority > b.rule.priority;
-            });
-        }
-
-        return r;
-    }
-
-    shared_ptr<browser_profile> browser::get_default(const std::vector<shared_ptr<browser> > &browsers) {
-        if(browsers.empty()) return nullptr;
-
-        for(auto b: browsers) {
-            for(auto &p: b->profiles) {
-                if(p->is_default) return p;
-            }
-        }
-
-        auto b = browsers.front();
-        if(b->profiles.empty()) return nullptr;
-        return b->profiles.front();
-    }
-
-    void browser::set_default(const std::vector<std::shared_ptr<browser> > &browsers,
-                              const std::shared_ptr<browser_profile> &bi) {
-        for(auto b: browsers) {
-            for(auto &p: b->profiles) {
-                p->is_default = *p == *bi;
-            }
-        }
-    }
-
-    std::vector<std::shared_ptr<browser> > browser::merge(
-        std::vector<std::shared_ptr<browser> > new_set, std::vector<std::shared_ptr<browser> > old_set) {
-        // todo: this would be nice to rewrite in modern functional C++
-        vector<shared_ptr<browser> > r;
-
-        for(shared_ptr<browser> b_new: new_set) {
-            // find corresponding browser by open_cmd
-            auto b_old_it = std::find_if(
-                old_set.begin(), old_set.end(),
-                [b_new](shared_ptr<browser> el) { return el->open_cmd == b_new->open_cmd; });
-
-            if(b_old_it != old_set.end()) {
-                shared_ptr<browser> b_old = *b_old_it;
-
-                // merge user data
-                b_new->is_hidden = b_old->is_hidden;
-
-                // profiles
-
-                // merge old data into new profiles
-                for(shared_ptr<browser_profile> bi_new: b_new->profiles) {
-                    auto bi_old_it = std::find_if(
-                        b_old->profiles.begin(), b_old->profiles.end(),
-                        [bi_new](shared_ptr<browser_profile> el) { return el->name == bi_new->name; });
-
-                    if(bi_old_it == b_old->profiles.end()) continue;
-                    shared_ptr<browser_profile> bi_old = *bi_old_it;
-
-                    // merge user-defined customisations
-                    bi_new->user_arg = bi_old->user_arg;
-                    bi_new->user_icon_path = bi_old->user_icon_path;
-
-                    // merge rules
-                    for(auto &rule: bi_old->rules) {
-                        bi_new->rules.push_back(rule);
-                    }
-                }
-            }
-
-            r.push_back(b_new);
-        }
-
-        // add user browsers from the old set
-        for(shared_ptr<browser> b_custom: old_set) {
-            if(b_custom->engine != browser_engine::generic) continue;
-
-            r.push_back(b_custom);
-        }
-
-        return r;
-    }
-
-    size_t browser::index_of(std::vector<std::shared_ptr<bt::browser> > &browsers, std::shared_ptr<bt::browser> b) {
-        for(size_t i = 0; i < browsers.size(); ++i) {
-            if(*browsers[i] == *b) return i;
-        }
-
-        return string::npos;
-    }
-
-    std::string browser::get_image_name(const std::string &open_cmd) {
-        if(open_cmd.empty()) return open_cmd;
-        return fs::path{open_cmd}.filename().replace_extension().string();
-    }
-
-    browser_profile::browser_profile(
-        shared_ptr<browser> b,
-        const std::string &name,
-        const std::string &launch_arg,
-        const std::string &icon_path)
-        : b{b},
-
-          name{name},
-
-          launch_arg{launch_arg},
-          icon_path{icon_path} {
-    }
-
-    bool browser_profile::operator==(const browser_profile &other) const {
-        return name == other.name && stl::vec_equal(rules, other.rules);
-    }
-
-    browser_profile::~browser_profile() {
-    }
-
-    void browser_profile::launch(click_payload up) const {
+    void browser::launch(click_payload up, const browser_profile &profile) const {
         string url = up.url;
-        string arg = launch_arg;
+        string arg = profile.launch_arg;
 
         if(arg.empty()) {
             arg = url;
@@ -238,74 +44,24 @@ namespace bt {
         }
 
         // works in Chrome only
-        if(b->get_supports_frameless_windows() && up.app_mode) {
+        if(get_supports_frameless_windows() && up.app_mode) {
             arg = format("--app={}", arg);
         }
 
         // add user-defined attributes
-        if(!user_arg.empty()) {
+        if(!profile.user_arg.empty()) {
             arg += " ";
-            arg += user_arg;
+            arg += profile.user_arg;
         }
 
-        launch_process(b->open_cmd + " " + arg);
+        launch_process(open_cmd + " " + arg, profile);
     }
 
-    bool browser_profile::is_match(const click_payload &up, match_rule &mr) const {
-        for(const auto &rule: rules) {
-            if(rule->is_match(up)) {
-                mr = *rule;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool browser_profile::is_match(const click_payload &up, const script_site &ss, match_rule &mr) const {
-        for(const auto &rule: rules) {
-            if(rule->is_match(up, ss)) {
-                mr = *rule;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool browser_profile::add_rule(const std::string &rule_text) {
-        auto new_rule = make_shared<match_rule>(rule_text);
-
-        for(const auto &rule: rules) {
-            if(*rule == *new_rule)
-                return false;
-        }
-
-        rules.push_back(new_rule);
-
-        return true;
-    }
-
-    void browser_profile::delete_rule(const std::string &rule_text) {
-        std::erase_if(rules, [rule_text](auto r) { return r->value == rule_text; });
-    }
-
-    std::string browser_profile::get_best_display_name() const {
-        if(is_incognito) return format("Private {}", b->name);
-        return name;
-    }
-
-    std::string browser_profile::get_best_icon_path(bool include_override) const {
-        if(include_override && !user_icon_path.empty()) return user_icon_path;
-
-        return icon_path.empty() ? b->open_cmd : icon_path;
-    }
-
-    void browser_profile::launch_process(const std::string &cmdline) const {
+    void browser::launch_process(const std::string &cmdline, const browser_profile &profile) const {
 #if PLATFORM_WINDOWS
         STARTUPINFO si{};
         si.cb = sizeof(si);
-        if(launch_hide_ui) {
+        if(profile.launch_hide_ui) {
             si.dwFlags |= STARTF_USESHOWWINDOW;
             si.wShowWindow = SW_HIDE;
         }
@@ -313,7 +69,7 @@ namespace bt {
         DWORD pid{0};
 
         DWORD creation_flags = 0;
-        if(launch_hide_ui) {
+        if(profile.launch_hide_ui) {
             creation_flags |= CREATE_NO_WINDOW;
         }
 
@@ -342,5 +98,231 @@ namespace bt {
 #else
         process::start(cmdline);
 #endif
+    }
+
+
+    size_t browser::get_total_rule_count() const {
+        size_t r{0};
+        for(auto &i: profiles) {
+            r += i.rules.size();
+        }
+        return r;
+    }
+
+    std::string browser::get_best_icon_path() const {
+        if(!icon_path.empty()) return icon_path;
+
+        if(engine == browser_engine::generic) {
+            if(!profiles.empty()) {
+                return get_best_icon_path(profiles[0]);
+            }
+        }
+
+        return open_cmd;
+    }
+
+    bool browser::is_default() const {
+        for(const auto &i: profiles) {
+            if(i.is_default) return true;
+        }
+        return false;
+    }
+
+    std::vector<browser_match_result> browser::match(
+        const std::vector<browser> &browsers,
+        const click_payload &up,
+        const script_site &script) {
+        vector<browser_match_result> r;
+
+        // which browser should we use?
+        // i'm not sure this is correct
+        for(const browser& browser: browsers) {
+            for(const browser_profile& profile: browser.profiles) {
+                match_rule mr{""};
+                if(profile.is_match(up, script, mr)) {
+                    r.emplace_back(profile_selection(browser, 0), mr);
+                }
+            }
+        }
+
+        // if nothing matched, used default profile
+        auto default_profile = get_default(browsers);
+        if(default_profile) {
+            match_rule fbr{"default"};
+            fbr.is_fallback = true;
+        }
+
+        // sort by priority, descending
+        if(r.size() > 1) {
+            std::sort(r.begin(), r.end(), [](const browser_match_result &a, const browser_match_result &b) {
+                return a.rule.priority > b.rule.priority;
+            });
+        }
+
+        return r;
+    }
+
+    optional<profile_selection> browser::get_default(const std::vector<browser> &browsers) {
+        optional<profile_selection> fallback_candidate;
+
+        for(auto &b: browsers) {
+            for(auto [i, profile] : b.profiles | std::views::enumerate) {
+                if(!fallback_candidate) fallback_candidate = profile_selection(b, i);
+                if(profile.is_default) return profile_selection(b, i);
+            }
+        }
+
+        return fallback_candidate;
+    }
+
+    void browser::set_default(std::vector<browser> &browsers,
+                              const browser_profile &profile) {
+        for(auto &b: browsers) {
+            for(browser_profile &p: b.profiles) {
+                p.is_default = p == profile;
+            }
+        }
+    }
+
+    std::vector<browser> browser::merge(
+        std::vector<browser> &new_set, std::vector<browser> &old_set) {
+        // todo: this would be nice to rewrite in modern functional C++
+        vector<browser> r;
+
+        for(browser &b_new: new_set) {
+            // find corresponding browser by open_cmd
+            auto b_old_it = std::find_if(
+                old_set.begin(), old_set.end(),
+                [b_new](browser &el) { return el.open_cmd == b_new.open_cmd; });
+
+            if(b_old_it != old_set.end()) {
+                browser b_old = *b_old_it;
+
+                // merge user data
+                b_new.is_hidden = b_old.is_hidden;
+
+                // profiles
+
+                // merge old data into new profiles
+                for(browser_profile &bi_new: b_new.profiles) {
+                    auto bi_old_it = std::find_if(
+                        b_old.profiles.begin(), b_old.profiles.end(),
+                        [bi_new](const browser_profile &el) { return el.name == bi_new.name; });
+
+                    if(bi_old_it == b_old.profiles.end()) continue;
+                    const browser_profile &bi_old = *bi_old_it;
+
+                    // merge user-defined customisations
+                    bi_new.user_arg = bi_old.user_arg;
+                    bi_new.user_icon_path = bi_old.user_icon_path;
+
+                    // merge rules
+                    for(auto &rule: bi_old.rules) {
+                        bi_new.rules.push_back(rule);
+                    }
+                }
+            }
+
+            r.push_back(b_new);
+        }
+
+        // add user browsers from the old set
+        for(browser &b_custom: old_set) {
+            if(b_custom.engine != browser_engine::generic) continue;
+
+            r.push_back(b_custom);
+        }
+
+        return r;
+    }
+
+    size_t browser::index_of(std::vector<browser> &browsers, browser &b) {
+        for(size_t i = 0; i < browsers.size(); ++i) {
+            if(browsers[i] == b) return i;
+        }
+
+        return string::npos;
+    }
+
+    std::string browser::get_best_display_name(const browser_profile &profile) const {
+        if(profile.is_incognito) return format("Private {}", name);
+        return name;
+    }
+
+    std::string browser::get_best_icon_path(const browser_profile &profile, bool include_override) const {
+        if(include_override && !profile.user_icon_path.empty()) return profile.user_icon_path;
+
+        return icon_path.empty() ? open_cmd : icon_path;
+    }
+
+    std::string browser::get_image_name(const std::string &open_cmd) {
+        if(open_cmd.empty()) return open_cmd;
+        return fs::path{open_cmd}.filename().replace_extension().string();
+    }
+
+    browser_profile::browser_profile(
+        const std::string &name,
+        const std::string &launch_arg,
+        const std::string &icon_path)
+        : name{name},
+
+          launch_arg{launch_arg},
+          icon_path{icon_path} {
+    }
+
+    bool browser_profile::operator==(const browser_profile &other) const {
+        return name == other.name &&
+               launch_arg == other.launch_arg &&
+               icon_path == other.icon_path &&
+               user_arg == other.user_arg &&
+               is_hidden == other.is_hidden &&
+               icon_path == other.icon_path &&
+               user_icon_path == other.user_icon_path &&
+               launch_hide_ui == other.launch_hide_ui &&
+               is_default == other.is_default &&
+               has_firefox_ouic_addon == other.has_firefox_ouic_addon &&
+               rules == other.rules;
+    }
+
+    browser_profile::~browser_profile() {
+    }
+
+    bool browser_profile::is_match(const click_payload &up, match_rule &mr) const {
+        for(const auto &rule: rules) {
+            if(rule.is_match(up)) {
+                mr = rule;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool browser_profile::is_match(const click_payload &up, const script_site &ss, match_rule &mr) const {
+        for(const auto &rule: rules) {
+            if(rule.is_match(up, ss)) {
+                mr = rule;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool browser_profile::add_rule(const std::string &rule_text) {
+        match_rule new_rule{rule_text};
+
+        for(const auto &rule: rules) {
+            if(rule == new_rule)
+                return false;
+        }
+
+        rules.push_back(new_rule);
+
+        return true;
+    }
+
+    void browser_profile::delete_rule(const std::string &rule_text) {
+        std::erase_if(rules, [rule_text](auto r) { return r.value == rule_text; });
     }
 }

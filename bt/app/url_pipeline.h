@@ -3,7 +3,7 @@
 #include <vector>
 #include "url_pipeline_step.h"
 #include "pipeline/replacer.h"
-#include "state.hpp"
+#include "state.h"
 
 namespace bt {
 

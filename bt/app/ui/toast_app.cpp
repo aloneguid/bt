@@ -10,8 +10,8 @@ namespace w = grey::widgets;
 using namespace grey::common;
 
 namespace bt::ui {
-    toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_profile> bi) :
-        cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
+    toast_app::toast_app(const click_payload& cpp, const profile_selection& sel) :
+        cp{cpp}, cp_url_parsed{cpp.url}, sel{sel},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_state.ui_theme;
@@ -135,7 +135,7 @@ namespace bt::ui {
         }
 
         // line 2
-        btw_icon(*app, bi, 0, icon_size, true);
+        btw_icon(*app, sel, 0, icon_size, true);
 
         w::sl(); w::label("");
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);

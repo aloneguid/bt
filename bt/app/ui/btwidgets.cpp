@@ -13,18 +13,20 @@ namespace bt::ui {
 
         // preload browser icons
         for(auto& b : g_state.browsers) {
-            string path = b->get_best_icon_path();
-            app.preload_texture(path, fss::get_full_path(path));
+            string browser_path = b.get_best_icon_path();
+            app.preload_texture(browser_path, fss::get_full_path(browser_path));
 
             // preload browser profiles
-            for(auto& bi : b->profiles) {
-                string path = bi->get_best_icon_path();
-                app.preload_texture(path, fss::get_full_path(path));
+            for(const browser_profile& profile : b.profiles) {
+                string profile_path = b.get_best_icon_path(profile);
+                app.preload_texture(profile_path, fss::get_full_path(profile_path));
             }
         }
     }
 
-    void btw_icon(grey::app& app, std::shared_ptr<bt::browser_profile> bi, float padding, float icon_size, bool is_active) {
+    void btw_icon(grey::app& app,
+        const profile_selection& selection,
+        float padding, float icon_size, bool is_active) {
 
         float box_size = icon_size + padding * 2;
 
@@ -39,10 +41,10 @@ namespace bt::ui {
 
         w::cur_set(x0 + padding, y0 + padding);
 
-        string icon1 = bi->b->get_best_icon_path();
-        string icon2 = bi->b->engine == browser_engine::generic
+        string icon1 = selection.browser.get_best_icon_path(selection.profile());
+        string icon2 = selection.browser.engine == browser_engine::generic
             ? ""
-            : (bi->is_incognito && bi->user_icon_path.empty()) ? "incognito" : bi->get_best_icon_path();
+            : (selection.profile().is_incognito && selection.profile().user_icon_path.empty()) ? "incognito" : selection.browser.get_best_icon_path(selection.profile());
 
         switch(g_state.icon_overlay) {
             case icon_overlay_mode::browser_only:

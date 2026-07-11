@@ -35,18 +35,18 @@ namespace bt {
         /**
          * @brief Scans the system for all the browsers.Also returns custom browser placeholder.
          */
-        static const std::vector<std::shared_ptr<browser>> discover_all_browsers();
+        static const std::vector<browser> discover_all_browsers();
 
     private:
         inline static const int ICON_SIZE = 256;
 
-        static std::vector<std::shared_ptr<browser>> discover_browsers(const std::string& ignore_proto);
+        static std::vector<browser> discover_browsers(const std::string& ignore_proto);
 
-        static void discover_chrome_profiles(std::shared_ptr<browser> b);
+        static void discover_chrome_profiles(browser& b);
 
-        static void discover_firefox_profiles(std::shared_ptr<browser> b, std::vector<firefox_profile>& profiles);
+        static void discover_firefox_profiles(browser& b, std::vector<firefox_profile>& profiles);
 
-        static void discover_firefox_profiles(std::shared_ptr<browser> b);
+        static void discover_firefox_profiles(browser& b);
 
         static void discover_filefox_profile_groups(
             const std::string& parent_id,
@@ -60,7 +60,7 @@ namespace bt {
 
         static std::vector<std::string> get_firefox_addons_installed(const std::string& roaming_home);
 
-        static void discover_other_profiles(std::shared_ptr<browser> b);
+        static void discover_other_profiles(browser& b);
 
         static std::string unmangle_open_cmd(const std::string& open_cmd);
 
@@ -68,12 +68,12 @@ namespace bt {
         static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
 
         static void discover_win32_registry_browsers(grey::common::win32::reg::hive h,
-            std::vector<std::shared_ptr<browser>>& browsers, const std::string& ignore_proto);
+            std::vector<browser>& browsers, const std::string& ignore_proto);
 #endif
 
 #if PLATFORM_LINUX
         static std::string resolve_xdg_icon_path(const std::string& icon);
-        static void discover_xdg_desktop_browsers(std::vector<std::shared_ptr<browser>>& browsers);
+        static void discover_xdg_desktop_browsers(std::vector<browser>& browsers);
 #endif
 
         /**

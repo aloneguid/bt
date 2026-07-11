@@ -18,7 +18,7 @@ namespace bt::ui {
             exit
         };
 
-        toast_app(const click_payload& cp, std::shared_ptr<bt::browser_profile> bi);
+        toast_app(const click_payload& cp, const profile_selection& sel);
 
         void run();
 
@@ -33,7 +33,7 @@ namespace bt::ui {
         const click_payload& cp;
         grey::common::url cp_url_parsed;
         std::string line1;
-        std::shared_ptr<bt::browser_profile> bi;
+        const profile_selection& sel;
         ImVec2 wnd_size{0, 0};
         ImVec2 wnd_size_anim{0, 0};
         ImVec2 mon_mid{0, 0};

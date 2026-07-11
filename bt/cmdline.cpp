@@ -41,32 +41,32 @@ int cmdline::exec_list() {
     wcout << L"browsers: " << g_state.browsers.size() << endl << endl;
 
     for(const auto& b : g_state.browsers) {
-        string engine_name{magic_enum::enum_name(b->engine)};
-        wcout << str::to_wstr(b->name) << endl;
-        wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
+        string engine_name{magic_enum::enum_name(b.engine)};
+        wcout << str::to_wstr(b.name) << endl;
+        wcout << L"  cmd:              " << str::to_wstr(b.open_cmd) << endl;
         wcout << L"  engine:           " << str::to_wstr(engine_name) << endl;
-        wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
-        if(!b->icon_path.empty()) {
-            wcout << L"  icon:     " << str::to_wstr(b->icon_path) << endl;
+        wcout << L"  hidden:           " << (b.is_hidden ? L"yes" : L"no") << endl;
+        if(!b.icon_path.empty()) {
+            wcout << L"  icon:     " << str::to_wstr(b.icon_path) << endl;
         }
 
-        wcout << L"  profiles: " << b->profiles.size() << endl;
-        for(const auto& p : b->profiles) {
-            wcout << L"    > name:      " << str::to_wstr(p->name) << endl;
-            if(!p->launch_arg.empty()) {
-                wcout << L"      args:      " << str::to_wstr(p->launch_arg) << endl;
+        wcout << L"  profiles: " << b.profiles.size() << endl;
+        for(const auto& p : b.profiles) {
+            wcout << L"    > name:      " << str::to_wstr(p.name) << endl;
+            if(!p.launch_arg.empty()) {
+                wcout << L"      args:      " << str::to_wstr(p.launch_arg) << endl;
             }
-            if(!p->user_arg.empty()) {
-                wcout << L"      uargs:     " << str::to_wstr(p->user_arg) << endl;
+            if(!p.user_arg.empty()) {
+                wcout << L"      uargs:     " << str::to_wstr(p.user_arg) << endl;
             }
-            wcout << L"      hidden:    " << (p->is_hidden ? L"yes" : L"no") << endl;
-            if(!p->icon_path.empty()) {
-                wcout << L"      icon:      " << str::to_wstr(p->icon_path) << endl;
+            wcout << L"      hidden:    " << (p.is_hidden ? L"yes" : L"no") << endl;
+            if(!p.icon_path.empty()) {
+                wcout << L"      icon:      " << str::to_wstr(p.icon_path) << endl;
             }
-            if(!p->user_icon_path.empty()) {
-                wcout << L"      uicon:     " << str::to_wstr(p->user_icon_path) << endl;
+            if(!p.user_icon_path.empty()) {
+                wcout << L"      uicon:     " << str::to_wstr(p.user_icon_path) << endl;
             }
-            wcout << L"      incognito: " << (p->is_incognito ? L"yes" : L"no") << endl;
+            wcout << L"      incognito: " << (p.is_incognito ? L"yes" : L"no") << endl;
         }
 
         wcout << endl;
@@ -77,10 +77,12 @@ int cmdline::exec_list() {
 
 int cmdline::exec_get_default() {
 
-    auto def = bt::browser::get_default(g_state.browsers);
-
-    wcout << str::to_wstr(def->b->name) << L"." << str::to_wstr(def->name) << endl;
-
+    optional<bt::profile_selection> ps = bt::browser::get_default(g_state.browsers);
+    if(ps) {
+        wcout << str::to_wstr(ps->browser.name) << L"." << str::to_wstr(ps->profile().name) << endl;
+    } else {
+        wcout << L"no default browser" << endl;
+    }
     return 0;
 }
 
@@ -106,13 +108,13 @@ int cmdline::exec_set_default(const std::string& data) {
 
     // find browser
     for(const auto& b : g_state.browsers) {
-        if(b->name == browser_name) {
-            wcout << L"found browser: " << str::to_wstr(b->name) << endl;
+        if(b.name == browser_name) {
+            wcout << L"found browser: " << str::to_wstr(b.name) << endl;
             // find profile
-            for(const auto& p : b->profiles) {
-                if(p->name == profile_name) {
-                    wcout << L"found profile: " << str::to_wstr(p->name) << endl;
-                    g_state.serialize();
+            for(const auto& p : b.profiles) {
+                if(p.name == profile_name) {
+                    wcout << L"found profile: " << str::to_wstr(p.name) << endl;
+                    g_state_container.serialize();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

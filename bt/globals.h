@@ -1,7 +1,7 @@
 #pragma once
 #include "app/url_pipeline.h"
 #include "app/script_site.h"
-#include "state.hpp"
+#include "state.h"
 
 #define ProtoName "BrowserTamerHTM"
 
@@ -41,6 +41,8 @@ extern bt::url_pipeline g_pipeline;
 
 extern bt::script_site g_script;
 
-extern bt::state g_state;
+extern bt::state_container g_state_container;
+
+extern bt::state& g_state;
 
 extern grey::common::state_ticker<bt::state> g_state_ticker;

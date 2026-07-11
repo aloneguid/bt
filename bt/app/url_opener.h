@@ -1,14 +1,13 @@
 #pragma once
 #include <string>
-#include <memory>
 #include "browser.h"
 #include "click_payload.h"
 
 namespace bt {
     class url_opener {
     public:
-        static void open(std::shared_ptr<browser_profile> bi, click_payload up);
-        static void open(std::shared_ptr<browser_profile> bi, const std::string& url);
+        static void open(const profile_selection& profile, click_payload up);
+        static void open(const profile_selection& profile, const std::string& url);
         static void open(click_payload up);
         static void open(const std::string& url);
     };

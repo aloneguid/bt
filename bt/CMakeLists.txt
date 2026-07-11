@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required (VERSION 3.20)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -16,8 +16,9 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 enable_testing()
 
 file(GLOB core_src
+    "globals.cpp"
     "cmdline.cpp"
-    "config_custom.cpp"
+    "state.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
     "app/pipeline/*.cpp")

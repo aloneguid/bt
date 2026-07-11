@@ -45,7 +45,14 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        choices = browser::to_instances(g_state.browsers, true);
+        choices.clear();
+        for(auto& browser : g_state.browsers) {
+            if(browser.is_hidden) continue;
+            for(size_t i = 0; i < browser.profiles.size(); i++) {
+                if(browser.profiles[i].is_hidden) continue;
+                choices.push_back(profile_selection{browser, i});
+            }
+        }
 
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
@@ -54,7 +61,7 @@ namespace bt::ui {
                 //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
-                .border(g_state.picker.border_width)
+                .border(static_cast<float>(g_state.picker.border_width))
                 .fill_viewport()
                 //.no_background()
                 .no_scroll();
@@ -80,11 +87,11 @@ namespace bt::ui {
     }
 
     picker_result picker_app::run() {
-        app->run([this](const grey::app& app) {
+        app->run([this](const grey::app&) {
             return run_frame();
         });
 
-        return picker_result{decision, url};
+        return picker_result{final_choice, url};
     }
 
     bool picker_app::is_hotkey_down() {
@@ -188,7 +195,7 @@ namespace bt::ui {
             for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
                 if(ImGui::IsKeyPressed((ImGuiKey)key_index)) {
                     active_idx = key_index - ImGuiKey_1;
-                    decision = choices[active_idx];
+                    final_choice = choices[active_idx];
                     is_open = false;
                     break;
                 }
@@ -198,7 +205,7 @@ namespace bt::ui {
         // invoke action on Enter
         if(ImGui::IsKeyPressed(ImGuiKey_Enter)) {
             if(active_idx >= 0 && active_idx < choices.size()) {
-                decision = choices[active_idx];
+                final_choice = choices[active_idx];
                 is_open = false;
             }
         }
@@ -318,11 +325,11 @@ namespace bt::ui {
             }
 
             if(w::is_leftclicked()) {
-                decision = choices[active_idx];
+                final_choice = choices[active_idx];
                 is_open = false;
             }
 
-            w::tt(p->get_best_display_name());
+            w::tt(p.browser.get_best_display_name(p.profile()));
         }
 
         ImGui::PopStyleVar();

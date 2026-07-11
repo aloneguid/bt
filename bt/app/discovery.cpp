@@ -125,7 +125,7 @@ namespace bt {
     }
 
 #if PLATFORM_WINDOWS
-    void discovery::discover_win32_registry_browsers(hive h, vector<shared_ptr<browser> > &browsers,
+    void discovery::discover_win32_registry_browsers(hive h, vector<browser>& browsers,
                                                      const string &ignore_proto) {
         auto subs = enum_subkeys(h, abs_root);
 
@@ -139,23 +139,23 @@ namespace bt {
 
             if(!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
                 string id = get_id_from_open_cmd(open_command);
-                auto b = make_shared<browser>(display_name, open_command);
-                b->instance_id = get_instance_id(sub);
+                browser b(display_name, open_command);
+                b.instance_id = get_instance_id(sub);
 
-                fingerprint(open_command, b->engine, b->data_path);
+                fingerprint(open_command, b.engine, b.data_path);
 
                 // check for duplicates (HKLM & HKCU can have the same browser registered)
-                // this is possible to to operator== on browser class
+                // this is possible to operator== on browser class
 
                 bool is_dupe{false};
-                for(auto bb: browsers) {
-                    if(*bb == *b) {
+                for(auto& bb: browsers) {
+                    if(bb == b) {
                         is_dupe = true;
                         break;
                     }
                 }
                 if(!is_dupe) {
-                    browsers.push_back(b);
+                    browsers.push_back(std::move(b));
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace bt {
         return {};
     }
 
-    void discovery::discover_xdg_desktop_browsers(std::vector<std::shared_ptr<browser> > &browsers) {
+    void discovery::discover_xdg_desktop_browsers(std::vector<browser& > &browsers) {
         const char *home = std::getenv("HOME");
 
         fs::path dirs[] = {
@@ -348,8 +348,8 @@ namespace bt {
 #endif
 
 
-    std::vector<shared_ptr<browser> > discovery::discover_browsers(const std::string &ignore_proto) {
-        vector<shared_ptr<browser> > browsers;
+    std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto) {
+        vector<browser> browsers;
 
 #if PLATFORM_WINDOWS
         discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto);
@@ -362,7 +362,7 @@ namespace bt {
 #endif
 
         // discover various profiles
-        for(shared_ptr<bt::browser> b: browsers) {
+        for(browser& b: browsers) {
             discover_chrome_profiles(b);
             discover_firefox_profiles(b);
             discover_other_profiles(b);
@@ -371,12 +371,12 @@ namespace bt {
         return browsers;
     }
 
-    void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
-        if(b->engine != browser_engine::chromium) return;
+    void discovery::discover_chrome_profiles(browser& b) {
+        if(b.engine != browser_engine::chromium) return;
 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
 
-        fs::path root{b->data_path};
+        fs::path root{b.data_path};
         fs::path lsjf = root / "Local State";
 
         // faster method to discover
@@ -410,51 +410,50 @@ namespace bt {
 
                     // all the data is ready
                     string arg = format("\"{}\" \"--profile-directory={}\"{}",
-                                        browser_profile::URL_ARG_NAME, sys_name,
+                                        browser::URL_ARG_NAME, sys_name,
                                         ChromiumExtraArgs);
 
-                    auto bi = make_shared<browser_profile>(
-                        b,
+                    browser_profile profile(
                         name,
                         arg,
                         ""
                     );
                     if(profile_pic_j.is_string()) {
-                        bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
+                        profile.icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                     }
-                    b->profiles.push_back(bi);
+                    b.profiles.push_back(profile);
                 }
             }
         }
 
         {
-            if(b->open_cmd.find("msedge.exe") != string::npos) {
+            if(b.open_cmd.find("msedge.exe") != string::npos) {
                 // Edge is not stupid, it's just different
-                auto inprivate = make_shared<browser_profile>(
-                    b, "InPrivate",
-                    format("\"{}\" --inprivate", browser_profile::URL_ARG_NAME),
+                browser_profile inprivate(
+                    "InPrivate",
+                    format("\"{}\" --inprivate", browser::URL_ARG_NAME),
                     "");
-                inprivate->is_incognito = true;
-                b->profiles.push_back(inprivate);
+                inprivate.is_incognito = true;
+                b.profiles.push_back(inprivate);
             } else {
-                auto inprivate = make_shared<browser_profile>(
-                    b, "Incognito",
-                    format("\"{}\" --incognito", browser_profile::URL_ARG_NAME),
+                browser_profile inprivate(
+                    "Incognito",
+                    format("\"{}\" --incognito", browser::URL_ARG_NAME),
                     "");
-                inprivate->is_incognito = true;
-                b->profiles.push_back(inprivate);
+                inprivate.is_incognito = true;
+                b.profiles.push_back(inprivate);
             }
         }
 
         // Brave additionally supports Tor mode
-        if(b->name == "brave") {
-            auto tor = make_shared<browser_profile>(
-                b, "Tor",
-                format("\"{}\" --tor", browser_profile::URL_ARG_NAME),
+        if(b.name == "brave") {
+            browser_profile tor(
+                "Tor",
+                format("\"{}\" --tor", browser::URL_ARG_NAME),
                 ""
             );
-            tor->is_incognito = true;
-            b->profiles.push_back(tor);
+            tor.is_incognito = true;
+            b.profiles.push_back(tor);
         }
     }
 
@@ -488,8 +487,8 @@ namespace bt {
     }
 
 
-    void discovery::discover_firefox_profiles(std::shared_ptr<browser> b, std::vector<firefox_profile> &profiles) {
-        fs::path data_folder{b->data_path};
+    void discovery::discover_firefox_profiles(browser& b, std::vector<firefox_profile> &profiles) {
+        fs::path data_folder{b.data_path};
 
         // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
         fs::path ini_path = data_folder / "profiles.ini";
@@ -564,8 +563,8 @@ namespace bt {
         }
     }
 
-    void discovery::discover_firefox_profiles(shared_ptr<browser> b) {
-        if(b->engine != browser_engine::gecko) return;
+    void discovery::discover_firefox_profiles(browser& b) {
+        if(b.engine != browser_engine::gecko) return;
 
         vector<firefox_profile> profiles;
         discover_firefox_profiles(b, profiles);
@@ -584,17 +583,17 @@ namespace bt {
 
         for(firefox_profile &fp: profiles) {
             // if profile is bound to an installation, but it's not ours, skip it always
-            if(!fp.installation_id.empty() && fp.installation_id != b->instance_id) continue;
+            if(!fp.installation_id.empty() && fp.installation_id != b.instance_id) continue;
 
             if(fp.installation_id.empty() && !g_state.discover_classic_gecko_profiles) continue;
 
             string arg_suffix = fp.is_classic
                                     ? format("-P \"{}\"", fp.name)
                                     : format("\"--profile\" \"{}\"", fp.path);
-            string arg = format("\"{}\" -foreground {}", browser_profile::URL_ARG_NAME, arg_suffix);
+            string arg = format("\"{}\" -foreground {}", browser::URL_ARG_NAME, arg_suffix);
 
-            auto bi = make_shared<browser_profile>(b, fp.name, arg, "");
-            b->profiles.push_back(bi);
+            browser_profile bi(fp.name, arg, "");
+            b.profiles.push_back(bi);
 
             // containers
             if(g_state.discover_gecko_containers) {
@@ -609,12 +608,12 @@ namespace bt {
 
                     string arg = format("\"ext+container:name={}&url={}\" {}",
                                         container.name,
-                                        browser_profile::URL_ARG_NAME,
+                                        browser::URL_ARG_NAME,
                                         arg_suffix);
 
                     string id = format("{}+c_{}", fp.id, container.id);
-                    auto bi = make_shared<browser_profile>(b, profile_name, arg, "");
-                    b->profiles.push_back(bi);
+                    browser_profile bi(profile_name, arg, "");
+                    b.profiles.push_back(bi);
                 }
             }
         }
@@ -625,13 +624,13 @@ namespace bt {
         //   b.open_cmd);
 
         // in-private
-        auto private_bi = make_shared<browser_profile>(b, "Private",
-                                                        format("-private-window \"{}\"",
-                                                               browser_profile::URL_ARG_NAME),
-                                                        b->open_cmd);
-        private_bi->is_incognito = true;
+        browser_profile private_bi("Private",
+                                   format("-private-window \"{}\"",
+                                          browser::URL_ARG_NAME),
+                                   b.open_cmd);
+        private_bi.is_incognito = true;
 
-        b->profiles.push_back(private_bi);
+        b.profiles.push_back(private_bi);
     }
 
     vector<firefox_container> discovery::discover_firefox_containers(const string &roaming_home) {
@@ -712,21 +711,21 @@ namespace bt {
         return r;
     }
 
-    void discovery::discover_other_profiles(shared_ptr<browser> b) {
-        if(b->engine != browser_engine::generic) return;
+    void discovery::discover_other_profiles(browser& b) {
+        if(b.engine != browser_engine::generic) return;
 
-        string icon_path = b->icon_path.empty() ? b->open_cmd : b->icon_path;
+        string icon_path = b.icon_path.empty() ? b.open_cmd : b.icon_path;
 
 
         string arg("\"");
-        arg += browser_profile::URL_ARG_NAME;
+        arg += browser::URL_ARG_NAME;
         arg += "\"";
 
-        auto bi = make_shared<browser_profile>(b, "Default",
-                                                arg,
-                                                icon_path);
+        browser_profile bi("Default",
+                           arg,
+                           icon_path);
 
-        b->profiles.push_back(bi);
+        b.profiles.push_back(bi);
     }
 
     bool discovery::is_default_browser(bool &http, bool &https, bool &xbt) {
@@ -750,7 +749,7 @@ namespace bt {
 #endif
     }
 
-    const std::vector<shared_ptr<browser> > discovery::discover_all_browsers() {
+    const std::vector<browser> discovery::discover_all_browsers() {
         return bt::discovery::discover_browsers(ProtoName);
     }
 
