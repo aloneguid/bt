@@ -90,9 +90,10 @@ namespace bt {
             {"scripting", state.scripting},
             {"substitute", state.substitute},
             {"unshorten", state.unshorten},
-            {"unwrap_o365", state.unwrap_o365},
-            {"substitutions", state.substitutions}
+            {"unwrap_o365", state.unwrap_o365}
         };
+        if(!state.substitutions.empty())
+            node["substitutions"] = state.substitutions;
     }
 
     void from_node(const fkyaml::node &node, transforms_state &state) {

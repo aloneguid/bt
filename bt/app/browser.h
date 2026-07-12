@@ -189,16 +189,21 @@ namespace bt {
 
     class profile_selection {
     public:
-        profile_selection(const browser& browser, size_t profile_idx) : browser{browser}, profile_idx{profile_idx} {
+        profile_selection(const browser& browser, size_t profile_idx) : root{browser}, profile_idx{profile_idx} {
 
         }
 
-        browser browser;
-        size_t profile_idx;
+        const browser& browser() const {
+            return root;
+        }
 
         const browser_profile& profile() const {
-            return browser.profiles[profile_idx];
+            return root.profiles[profile_idx];
         }
+
+    private:
+        bt::browser root;
+        size_t profile_idx;
     };
 
     class browser_match_result {

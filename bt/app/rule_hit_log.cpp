@@ -35,7 +35,7 @@ namespace bt {
     void rule_hit_log::write(const click_payload& up, const profile_selection& sel, const std::string& rule) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
-            sel.browser.name,
+            sel.browser().name,
             sel.profile().name,
             up.url,
             "",

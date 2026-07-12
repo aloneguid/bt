@@ -329,7 +329,7 @@ namespace bt::ui {
                 is_open = false;
             }
 
-            w::tt(p.browser.get_best_display_name(p.profile()));
+            w::tt(p.browser().get_best_display_name(p.profile()));
         }
 
         ImGui::PopStyleVar();

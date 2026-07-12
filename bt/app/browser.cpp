@@ -152,13 +152,6 @@ namespace bt {
             fbr.is_fallback = true;
         }
 
-        // sort by priority, descending
-        if(r.size() > 1) {
-            std::sort(r.begin(), r.end(), [](const browser_match_result &a, const browser_match_result &b) {
-                return a.rule.priority > b.rule.priority;
-            });
-        }
-
         return r;
     }
 
@@ -186,7 +179,6 @@ namespace bt {
 
     std::vector<browser> browser::merge(
         std::vector<browser> &new_set, std::vector<browser> &old_set) {
-        // todo: this would be nice to rewrite in modern functional C++
         vector<browser> r;
 
         for(browser &b_new: new_set) {

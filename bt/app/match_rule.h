@@ -30,7 +30,6 @@ namespace bt {
         bool is_regex{false};
         bool app_mode{false};
         bool is_fallback{false};
-        int priority{0};
 
         /**
          * @brief If this rule has extra actions configured (such as opening in a container) you should apply them to the payload.

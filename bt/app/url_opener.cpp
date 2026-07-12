@@ -7,7 +7,7 @@ using namespace grey::common;
 
 namespace bt {
     void url_opener::open(const profile_selection& selection, click_payload up){
-        selection.browser.launch(up, selection.profile());
+        selection.browser().launch(up, selection.profile());
     }
 
     void url_opener::open(const profile_selection& selection, const std::string& url) {
