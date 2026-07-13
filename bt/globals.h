@@ -3,9 +3,13 @@
 #include "app/script_site.h"
 #include "state.h"
 
+#if _DEBUG
+#define ProtoName "BrowserTamerHTMDev"
+#else
 #define ProtoName "BrowserTamerHTM"
+#endif
 
-#define PdfProtoName "BrowserTamerPDF"
+//#define PdfProtoName "BrowserTamerPDF"
 
 #define CustomProtoName "x-bt"
 
@@ -15,7 +19,11 @@
 
 #define APP_SHORT_NAME "bt"
 
+#if _DEBUG
+#define APP_LONG_NAME "Browser Tamer Dev"
+#else
 #define APP_LONG_NAME "Browser Tamer"
+#endif
 
 #define CONFIG_NAME "Browser Tamer"
 

@@ -12,11 +12,14 @@
 
 ## Improvements
 - Configuration is saved and restored seamlessly in the background. There is no button to save it or reload anymore. "It just works".
-- Project upgraded to C++ 23.
-- A lot of code deleted after going over the entire codebase trying to test it on Linux.
+- When clicking on the health check button to set the default browser, BT opens system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
 
 ## Bugs fixed
 - todo: see github.
+
+## Tech stuff
+- Project upgraded to C++ 23.
+- A lot of code deleted after going over the entire codebase trying to test it on Linux.
 
 ## 5.6.12
 

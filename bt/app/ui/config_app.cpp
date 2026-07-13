@@ -682,7 +682,7 @@ namespace bt::ui {
                     recheck = true;
                 }
                 if(w::is_hovered()) w::mouse_cursor(w::mouse_cursor_type::hand);
-                w::tt(format("{}\n{}\n{}\n\nPress here to {}.",
+                w::tt(format("{}\n{}\n{}\n\nClick this warning to {}.",
                     hc.name, hc.description, hc.error_message, hc.fix_description));
             }
         }

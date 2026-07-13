@@ -1,5 +1,4 @@
 #include "setup.h"
-#include "platform.h"
 #include <string>
 #include "fss.h"
 #include "../globals.h"
@@ -22,53 +21,31 @@ namespace bt {
 
 #if PLATFORM_WINDOWS
         return vector {
-            system_check{
-                "sys_browser", "System Browser",
-                "Registered as a virtual browser in Windows.",
-                "automatically register as a virtual browser",
-                [](string& error_message) {
-                    return setup::is_installed_as_browser(APP_LONG_NAME, error_message);
-                },
-                []() { setup::register_as_browser_and_custom_protocol(); return true; }},
-
                 system_check{
-                    "proto_http",
-                    "HTTP Protocol Handler",
-                    "Once set, Windows will forward HTTP links to it.",
-                    "open system settings and set the default browser",
+                    "default_browser",
+                    "System Default Browser",
+                    "Once set, Windows will forward HTTP(S) links to it.",
+                    "open system settings where you can set the default browser",
                     [](string& error_message) {
-                        bool is_http, is_https, is_xbt;
-                        discovery::is_default_browser(is_http, is_https, is_xbt);
-                        if(!is_http) {
-                            string http, https;
-                            discovery::get_default_browser_url_assoc(http, https);
-                            error_message = format("Current handler is {}.", http);
+                        string progid_http = get_shell_url_association_progid("http");
+                        string progid_https = get_shell_url_association_progid("https");
+                        bool myself_http = progid_http == ProtoName;
+                        bool myself_https = progid_https == ProtoName;
+                        bool myself_is_default = myself_http && myself_https;
+
+                        if(!myself_is_default) {
+                            error_message = format(
+                                "Current system settings:\nHTTP:  {} ({})\nHTTPS: {} ({})\nExpected progid: {}",
+                                progid_http,
+                                get_progid_application_name(progid_http),
+                                progid_https,
+                                get_progid_application_name(progid_https),
+                                ProtoName);
                         }
-                        return is_http;
+                        return myself_is_default;
                     },
                     []() {
-                        win32::shell::open_default_apps();
-                        return true;
-                    }
-                },
-
-                system_check{
-                    "proto_https",
-                    "HTTPS Protocol Handler",
-                    "Once set, Windows will forward HTTPS links to it.",
-                    "open system settings and set the default browser",
-                    [](string& error_message) {
-                        bool is_http, is_https, is_xbt;
-                        discovery::is_default_browser(is_http, is_https, is_xbt);
-                        if(!is_https) {
-                            string http, https;
-                            discovery::get_default_browser_url_assoc(http, https);
-                            error_message = format("Current handler is {}.", https);
-                        }
-                        return is_https;
-                    },
-                    []() {
-                        win32::shell::open_default_apps();
+                        win32::shell::open_default_apps(APP_LONG_NAME, true);
                         return true;
                     }
                 }
@@ -78,139 +55,57 @@ namespace bt {
 #endif
     }
 
-    void setup::register_as_browser_and_custom_protocol() {
-        register_protocol();
-
-        register_browser();
-    }
-
-    void setup::unregister_all() {
-
 #if PLATFORM_WINDOWS
-        // unregister protocol
-        string root = get_custom_proto_reg_path();
-        win32::reg::delete_key(win32::reg::hive::current_user, root);
+    string setup::get_shell_url_association_progid(const string& protocol_name) {
+        // There are 3 locations to check:
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest, value of ProdId
+        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice, value of ProdId
+        // If any of those are found, return the value
 
-        // unregister browser
-        root = get_browser_registration_reg_path();
-        win32::reg::delete_key(win32::reg::hive::current_user, root);
-#endif
+        // 1
+        string prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId",
+                protocol_name),
+            "ProgId");
+        if(!prog_id.empty()) return prog_id;
+
+        // 2
+        prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest",
+                protocol_name),
+            "ProgId");
+        if(!prog_id.empty()) return prog_id;
+
+        // 3
+        prog_id = win32::reg::get_value(
+            win32::reg::hive::current_user,
+            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
+            "ProgId");
+        return prog_id;
     }
 
-    std::string setup::get_browser_registration_reg_path() {
-        return format("Software\\Clients\\StartMenuInternet\\{}", APP_LONG_NAME);
-    }
+    std::string setup::get_progid_application_name(const std::string& prog_id) {
+        string app_name = win32::reg::get_value(
+            hive::classes_root,
+            format("{}\\Application", prog_id),
+            "ApplicationName");
 
-    void setup::register_file_association(const std::string& proto_tag, int icon_index, const std::vector<std::string>& extensions) {
-#if PLATFORM_WINDOWS
-        string proto_name = format("BrowserTamer{}", proto_tag);
-        string app_path = fss::get_current_exec_path();
-        string app_root = get_browser_registration_reg_path();
-        string cap_root = format("{}\\Capabilities", app_root);
-
-        // add file association
-        for(const string& ext : extensions) {
-            set_value(hive::current_user, format("{}\\FileAssociations", cap_root), proto_name, ext);
+        if(app_name.empty()) {
+            app_name = win32::reg::get_value(
+                hive::classes_root,
+                format("{}\\shell\\open\\command", prog_id));
         }
 
-        //register handler
-        string handler_path = format("Software\\Classes\\{}", proto_name);
-        set_value(hive::current_user, handler_path, format("{} Document", APP_LONG_NAME));
-        set_value(hive::current_user, handler_path + "\\DefaultIcon", format("{},{}", app_path, icon_index));
-        set_value(hive::current_user, handler_path + "\\Application", APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, handler_path + "\\Application", APP_REG_DESCRIPTION, "ApplicationDescription");
-        set_value(hive::current_user, handler_path + "\\shell\\open\\command", format("\"{}\" %1", app_path));
-#endif
-    }
-
-    void setup::register_browser() {
-#if PLATFORM_WINDOWS
-        string app_path = fss::get_current_exec_path();
-
-        string app_root = get_browser_registration_reg_path();
-        string cap_root = format("{}\\Capabilities", app_root);
-
-        set_value(hive::current_user, app_root, APP_LONG_NAME);
-
-        //add capabilities
-        set_value(hive::current_user, cap_root, APP_LONG_NAME, "ApplicationName");
-        set_value(hive::current_user, cap_root, APP_REG_DESCRIPTION, "ApplicationDescription");
-        set_value(hive::current_user, cap_root, app_path + ",0", "ApplicationIcon");
-
-        //supported protocols
-        vector<string> protocols{"https", "http", CustomProtoName};
-        for(const string& protocol : protocols) {
-            set_value(hive::current_user, cap_root + "\\URLAssociations", ProtoName, protocol);
+        if(app_name.empty()) {
+            app_name = prog_id;
         }
 
-        //supported file extensions
-        delete_key(hive::current_user, cap_root + "\\FileAssociations");
-        register_file_association("HTM", 0, {".svg", ".htm", ".html", ".shtml", ".webp", ".xht", ".xhtml", ".mht", ".mhtml"});
-        register_file_association("PDF", 1, {".pdf"});
-        register_file_association("EPUB", 2, {".epub"});
+        return app_name;
+    }
 
-        //icon and command
-        set_value(hive::current_user,
-           app_root + "\\DefaultIcon",
-           app_path + ",0");
-        set_value(hive::current_user,
-           app_root + "\\shell\\open\\command",
-           format("\"{}\"", app_path));
-
-        //register caps
-        set_value(hive::current_user, "Software\\RegisteredApplications", cap_root, APP_LONG_NAME);
 #endif
-    }
 
-    std::string setup::get_custom_proto_reg_path() {
-        return format("Software\\Classes\\{}", CustomProtoName);
-    }
-
-    void setup::register_protocol() {
-#if PLATFORM_WINDOWS
-        string app_path = fss::get_current_exec_path();
-
-        string root = get_custom_proto_reg_path();
-
-        set_value(hive::current_user, root, format("URL:{}", CustomProtoName));
-        set_value(hive::current_user, root, "", "URL Protocol");
-
-        string command_root = format("{}\\shell\\open\\command", root);
-        string open_command = format("\"{}\" \"%1\"", app_path);
-        set_value(hive::current_user, command_root, open_command);
-#endif
-    }
-
-    void setup::uninstall_as_browser(const std::string& proto_name, const std::string& name) {
-#if PLATFORM_WINDOWS
-        string root = "Software\\Clients\\StartMenuInternet";
-        string app_root = root + "\\" + name;
-        string cap_root = app_root + "\\Capabilities";
-        string handler_path = string("Software\\Classes\\") + proto_name;
-
-        delete_key(hive::current_user, app_root);
-        delete_value(hive::current_user, "Software\\RegisteredApplications", name);
-        delete_key(hive::current_user, handler_path);
-#endif
-    }
-
-    bool setup::is_installed_as_browser(const std::string& name, string& error_message) {
-#if PLATFORM_WINDOWS
-        string root = "Software\\Clients\\StartMenuInternet";
-        string app_root = root + "\\" + name;
-        string soc = app_root + "\\shell\\open\\command";
-
-        string app_path = format("\"{}\"", fss::get_current_exec_path());
-        string reg_app_path = get_value(hive::current_user, soc);
-        bool installed = app_path == reg_app_path;
-        if(installed) {
-            error_message.clear();
-        } else {
-            error_message = format("Expected: {}\nRegistered: {}.", app_path, reg_app_path);
-        }
-        return installed;
-#else
-        return false;
-#endif
-    }
 }

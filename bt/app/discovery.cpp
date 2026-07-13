@@ -59,8 +59,6 @@ vector<map<string, string> > sql_execute(sqlite3 *db, const string &query) {
 
 namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
-    const string apps_root =
-            "Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\PackageRepository\\Packages";
     const string app_user_root =
             "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
 #if PLATFORM_WINDOWS
@@ -79,25 +77,6 @@ namespace bt {
         // compute MD5 hash of the command, because just exe name is not unique enough, especially when almost every browser is named "chrome.exe"
         return hashing::md5(cmd);
     }
-
-#if PLATFORM_WINDOWS
-    bool is_msstore_browser(const string &package_name, string &app_path, string &app_user_model_id) {
-        app_path = win32::reg::get_value(hive::classes_root, apps_root + "\\" + package_name, "Path");
-
-        // the first child, if present, is the "app user model id"
-        auto subkeys = win32::reg::enum_subkeys(hive::classes_root, apps_root + "\\" + package_name);
-        if(subkeys.empty()) return false;
-
-        // the first child, if present, is the "app user model id"
-        app_user_model_id = subkeys[0];
-
-        // it's sufficient to check for the availability of the "https" key to make the decision
-        string https_key_path = format("{}\\{}\\{}\\windows.protocol\\https", apps_root, package_name,
-                                       app_user_model_id);
-        return win32::reg::path_exists(hive::classes_root, https_key_path);
-    }
-
-#endif
 
     string get_instance_id(const string &reg_value) {
         // if this is Firefox, strip out the prefix to get instance ID
@@ -728,63 +707,9 @@ namespace bt {
         b.profiles.push_back(bi);
     }
 
-    bool discovery::is_default_browser(bool &http, bool &https, bool &xbt) {
-#if PLATFORM_WINDOWS
-        http = ProtoName == get_shell_url_association_progid("http");
-        https = ProtoName == get_shell_url_association_progid("https");
-
-        auto xbt_assoc = get_shell_url_association_progid(CustomProtoName);
-        xbt = xbt_assoc.empty() || ProtoName == xbt_assoc;
-
-        return http && https && xbt;
-#else
-        return false;
-#endif
-    }
-
-    void discovery::get_default_browser_url_assoc(std::string &http, std::string &https) {
-#if PLATFORM_WINDOWS
-        http = get_shell_url_association_progid("http");
-        https = get_shell_url_association_progid("https");
-#endif
-    }
-
     const std::vector<browser> discovery::discover_all_browsers() {
         return bt::discovery::discover_browsers(ProtoName);
     }
-
-#if PLATFORM_WINDOWS
-    string discovery::get_shell_url_association_progid(const string &protocol_name) {
-        // There are 3 locations to check:
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest, value of ProdId
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice, value of ProdId
-        // If any of those are found, return the value
-
-        // 1
-        string prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId",
-                   protocol_name),
-            "ProgId");
-        if(!prog_id.empty()) return prog_id;
-
-        // 2
-        prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest",
-                   protocol_name),
-            "ProgId");
-        if(!prog_id.empty()) return prog_id;
-
-        // 3
-        prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
-            "ProgId");
-        return prog_id;
-    }
-#endif
 
     bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
         engine = browser_engine::generic;

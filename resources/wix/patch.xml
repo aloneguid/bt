@@ -25,6 +25,7 @@
             <RegistryValue Type="string" Name="ApplicationDescription" Value="Redirects open URLs to a browser of your choice." />
             <RegistryValue Type="string" Name="ApplicationIcon" Value="[#CM_FP_bt.exe],0" />
         </RegistryKey>
+        
         <RegistryKey Root="HKCU" Key="Software\Clients\StartMenuInternet\BrowserTamer\Capabilities\URLAssociations">
             <RegistryValue Type="string" Name="x-bt" Value="BrowserTamerHTM" />
             <RegistryValue Type="string" Name="http" Value="BrowserTamerHTM" />

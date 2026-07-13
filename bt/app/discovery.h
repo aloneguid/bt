@@ -29,8 +29,6 @@ namespace bt {
      */
     class discovery {
     public:
-        static bool is_default_browser(bool& http, bool& https, bool& xbt);
-        static void get_default_browser_url_assoc(std::string& http, std::string& https);
 
         /**
          * @brief Scans the system for all the browsers.Also returns custom browser placeholder.
@@ -65,7 +63,6 @@ namespace bt {
         static std::string unmangle_open_cmd(const std::string& open_cmd);
 
 #if PLATFORM_WINDOWS
-        static std::string get_shell_url_association_progid(const std::string& protocol_name = "http");
 
         static void discover_win32_registry_browsers(grey::common::win32::reg::hive h,
             std::vector<browser>& browsers, const std::string& ignore_proto);
