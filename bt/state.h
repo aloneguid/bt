@@ -121,7 +121,7 @@ namespace bt {
         using node = fkyaml::node;
         using string = std::string;
         using strings = std::vector<std::string>;
-        state state;
+        state current_state;
 
         state_container(const std::string &application_name) : h{application_name} {
             deserialize();
@@ -132,13 +132,13 @@ namespace bt {
         }
 
         bt::state& get_state() override {
-            return state;
+            return current_state;
         }
 
         void deserialize() override {
             h.deserialize();
 
-            from_node(h.root, state);
+            from_node(h.root, current_state);
 
             // browsers
             /*browsers.clear();
@@ -195,7 +195,7 @@ namespace bt {
         }
 
         void serialize() override {
-            to_node(h.root, state);
+            to_node(h.root, current_state);
 
 /*
             // browsers

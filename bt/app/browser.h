@@ -193,7 +193,7 @@ namespace bt {
 
         }
 
-        const browser& browser() const {
+        const browser& b() const {
             return root;
         }
 

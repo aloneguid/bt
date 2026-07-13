@@ -32,9 +32,9 @@ file(GLOB core_src
     "../grey/grey/common/win32/reg.cpp"
     "../grey/grey/common/win32/user.cpp")
 
-    add_executable (bt WIN32 ${core_src} "bt.cpp" bt.rc)
+    add_executable (${APP_NAME} WIN32 ${core_src} "bt.cpp" bt.rc)
 else()
-    add_executable (bt ${core_src} "bt.cpp")
+    add_executable (${APP_NAME} ${core_src} "bt.cpp")
 endif()
 
 file(GLOB test_src ${core_src} "tests/*.cpp")
@@ -56,17 +56,17 @@ set(COMMON_INCLUDES
         ${P_RANAV_CSV2_INCLUDE_DIRS}
         ${LUA_INCLUDE_DIR})
 
-target_link_libraries(bt PRIVATE ${COMMON_LIBS})
+target_link_libraries(${APP_NAME} PRIVATE ${COMMON_LIBS})
 target_link_libraries(test PRIVATE ${COMMON_LIBS} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
 
 target_include_directories(${APP_NAME} PRIVATE ${COMMON_INCLUDES})
 target_include_directories(test PRIVATE ${COMMON_INCLUDES})
 
 if(WIN32)
-    target_sources(bt PRIVATE dpi-aware.manifest)
+    target_sources(${APP_NAME} PRIVATE dpi-aware.manifest)
 
     # only BT needs windows-specific main function, in order to capture UNICODE command line parameters and not to spawn terminal
-    target_link_options(bt PRIVATE
+    target_link_options(${APP_NAME} PRIVATE
             /SUBSYSTEM:WINDOWS
             /ENTRY:wmainCRTStartup
     )

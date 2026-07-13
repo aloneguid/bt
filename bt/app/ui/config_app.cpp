@@ -731,10 +731,10 @@ namespace bt::ui {
             optional<profile_selection> sel = browser::get_default(g_state.browsers);
             if(sel) {
                 w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
-                w::sl(); w::label(sel->browser().name, 0, false);
+                w::sl(); w::label(sel->b().name, 0, false);
                 w::tt("Default browser");
 
-                if(sel->browser().engine != browser_engine::generic) {
+                if(sel->b().engine != browser_engine::generic) {
                     w::sl(); w::label("|", 0, false);
                     w::sl(); w::label(ICON_MD_TAB, 0, false);
                     w::sl(); w::label(sel->profile().name, 0, false);

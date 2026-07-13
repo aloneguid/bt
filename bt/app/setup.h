@@ -16,7 +16,6 @@ namespace bt {
             fix_description{fix_description},
             perform_check{perform_check},
             mitigate{mitigate} {
-
         }
 
         const std::string id;
@@ -49,8 +48,8 @@ namespace bt {
 
     private:
 #if PLATFORM_WINDOWS
-        static std::string get_shell_url_association_progid(const std::string& protocol_name);
-		static std::string get_progid_application_name(const std::string& prog_id);
+        static std::string get_shell_url_association_prog_id(const std::string& protocol_name);
+		static std::string get_prog_id_application_name(const std::string& prog_id);
 #endif
     };
 }

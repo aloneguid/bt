@@ -222,7 +222,7 @@ namespace bt {
         return {};
     }
 
-    void discovery::discover_xdg_desktop_browsers(std::vector<browser& > &browsers) {
+    void discovery::discover_xdg_desktop_browsers(std::vector<browser> &browsers) {
         const char *home = std::getenv("HOME");
 
         fs::path dirs[] = {
@@ -315,11 +315,10 @@ namespace bt {
                 }
 
                 string id = get_id_from_open_cmd(cmd);
-                auto b = make_shared<browser>(id, name, cmd);
-                b->instance_id = id;
-                b->is_autodiscovered = true;
-                b->icon_path = resolve_xdg_icon_path(icon);
-                fingerprint(cmd, b->engine, b->data_path);
+                browser b{name, cmd};
+                b.instance_id = id;
+                b.icon_path = resolve_xdg_icon_path(icon);
+                fingerprint(cmd, b.engine, b.data_path);
                 browsers.push_back(b);
             }
         }
