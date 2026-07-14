@@ -16,7 +16,7 @@
 #include "extra_widgets.hpp"
 #include "datetime.h"
 #include "common/os.h"
-#include "common/guid.h"
+#include "magic_enum/magic_enum.hpp"
 #include <algorithm>
 #include "common/desktop_shell.h"
 
@@ -163,7 +163,7 @@ namespace bt::ui {
         if(add_browser_show)
             render_add_browser_window();
 
-        if(g_state_ticker.tick(ImGui::GetIO().DeltaTime)) {
+        if(g_config.tick(ImGui::GetIO().DeltaTime)) {
             w::notify_info("state changed");
         }
 

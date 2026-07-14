@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "str.h"
 #include "common/platform.h"
+#include "magic_enum/magic_enum.hpp"
 
 #if PLATFORM_WINDOWS
 #include <Windows.h>
@@ -114,7 +115,7 @@ int cmdline::exec_set_default(const std::string& data) {
             for(const auto& p : b.profiles) {
                 if(p.name == profile_name) {
                     wcout << L"found profile: " << str::to_wstr(p.name) << endl;
-                    g_state_container.serialize();
+                    g_config.serialize();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

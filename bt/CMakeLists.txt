@@ -21,7 +21,14 @@ file(GLOB core_src
     "state.cpp"
     "app/*.cpp"
     "app/ui/*.cpp"
-    "app/pipeline/*.cpp")
+    "app/pipeline/*.cpp"
+    "../grey/grey/common/fss.cpp"
+    "../grey/grey/common/http.cpp"
+    "../grey/grey/common/url.cpp"
+    "../grey/grey/common/datetime.cpp"
+    "../grey/grey/common/desktop_shell.cpp"
+    "../grey/grey/common/process.cpp"
+    "../grey/grey/common/hashing.cpp")
 
 if(WIN32)
 file(GLOB core_src

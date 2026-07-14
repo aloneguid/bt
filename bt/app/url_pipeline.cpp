@@ -3,6 +3,7 @@
 #include "pipeline/o365.h"
 #include "pipeline/script.h"
 #include "../globals.h"
+#include "magic_enum/magic_enum.hpp"
 
 using namespace std;
 

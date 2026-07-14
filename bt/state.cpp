@@ -1,21 +1,10 @@
 #include "state.h"
+#include "magic_enum/magic_enum.hpp"
+
 using namespace std;
+using namespace grey::common;
 
 namespace bt {
-
-    template <typename T>
-    T read(const fkyaml::node& node, const std::string& key, T default_value) {
-        if (!node.contains(key)) {
-            return default_value;
-        }
-        const auto& child = node[key];
-        try {
-            return child.get_value<T>();
-        } catch (const fkyaml::exception&) {
-            return default_value; // wrong type, or conversion failed
-        }
-    }
-
     void to_node(fkyaml::node& node, const toast_state& state) {
         node = fkyaml::node{
                         {"enabled", state.enabled},

@@ -120,7 +120,7 @@ void execute(const string& data) {
             vector<bt::browser> fresh_browsers = bt::discovery::discover_all_browsers();
             fresh_browsers = bt::browser::merge(fresh_browsers, g_state.browsers);
             g_state.browsers = fresh_browsers;
-            g_state_container.serialize();
+            g_config.serialize();
             return;
         }
     }
