@@ -3,10 +3,8 @@
 #include "../../globals.h"
 #include "../../res.inl"
 #include <format>
-
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "btwidgets.h"
+#include "common/clipboard.h"
 
 #if PLATFORM_WINDOWS
 #include "win32/user.h"
@@ -58,12 +56,10 @@ namespace bt::ui {
             btw_on_app_initialised(*app);
 
             wnd_main
-                //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
                 .border(static_cast<float>(g_state.picker.border_width))
                 .fill_viewport()
-                //.no_background()
                 .no_scroll();
 
             cnt_top
@@ -221,7 +217,7 @@ namespace bt::ui {
         box_size = padding + icon_size + padding;
 
         float max_url_width = ImGui::CalcTextSize(url.c_str()).x + action_button_width * (action_menu_items.size() + 2);
-        float max_w_width = box_size * (choices.size() + 1);
+        float max_w_width = box_size * (choices.size() + 1.0f);
         float max_width = max(max_url_width, max_w_width);
 
         float w_width = min(max_width, mon_work_size.x);
@@ -375,13 +371,11 @@ namespace bt::ui {
 
     void picker_app::menu_item_clicked(const std::string& id) {
         if(id == "copy") {
-#if PLATFORM_WINDOWS
-            win32::os::set_clipboard_text(url);
-#endif
+            clipboard::set_text(url);
             is_open = false;
         } else if(id == "email") {
+            clipboard::set_text(url);
 #if PLATFORM_WINDOWS
-            win32::os::set_clipboard_text(url);
             win32::shell::exec(format("mailto:?body={}", url), "");
 #endif
             is_open = false;

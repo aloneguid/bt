@@ -23,6 +23,7 @@ file(GLOB core_src
     "app/ui/*.cpp"
     "app/pipeline/*.cpp"
     "../grey/grey/common/fss.cpp"
+    "../grey/grey/common/clipboard.cpp"
     "../grey/grey/common/http.cpp"
     "../grey/grey/common/url.cpp"
     "../grey/grey/common/datetime.cpp"

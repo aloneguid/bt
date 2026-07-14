@@ -187,7 +187,7 @@ namespace bt::ui {
                 }
 
                 if(w::mi("Open configuration directory", true, ICON_MD_FOLDER_OPEN)) {
-                    os::shell_open(grey::common::fss::get_config_dir(CONFIG_NAME));
+                    desktop_shell::open(grey::common::fss::get_config_dir(CONFIG_NAME));
                 }
 
                 w::sep();
@@ -943,7 +943,7 @@ namespace bt::ui {
             if(w::button(ICON_MD_FOLDER)) {
                 std::filesystem::path p{b.open_cmd};
                 string path = p.parent_path().string();
-                os::shell_open(path);
+                desktop_shell::open(path);
             }
             w::tt(strings::BrowserOpenInstallationFolderTooltip);
         }
@@ -951,7 +951,7 @@ namespace bt::ui {
         if(!b.data_path.empty()) {
             w::sl();
             if(w::button(ICON_MD_FOLDER_COPY)) {
-                os::shell_open(b.data_path);
+                desktop_shell::open(b.data_path);
             }
             w::tt(strings::BrowserOpenUserDataFolderTooltip);
         }
@@ -959,15 +959,13 @@ namespace bt::ui {
         if(b.engine == bt::browser_engine::gecko) {
             w::sl();
             if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-                // todo
-                // os::shell_open(b->open_cmd, "-P");
+                desktop_shell::open(b.open_cmd, "-P");
             }
             w::tt("open Firefox Profile Manager (-P flag)");
 
             w::sl();
             if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-                // todo
-                // os::shell_open(b->open_cmd, "about:profiles");
+                desktop_shell::open(b.open_cmd, "about:profiles");
             }
             w::tt("open Firefox Profile Manager in Firefox itself");
         } else if(b.engine == browser_engine::generic) {
