@@ -146,10 +146,13 @@ namespace bt {
         }
 
         // if nothing matched, used default profile
-        auto default_profile = get_default(browsers);
-        if(default_profile) {
-            match_rule fbr{"default"};
-            fbr.is_fallback = true;
+        if(r.empty()) {
+            auto default_profile = get_default(browsers);
+            if(default_profile) {
+                match_rule fbr{"default"};
+                fbr.is_fallback = true;
+                r.emplace_back(*default_profile, fbr);
+            }
         }
 
         return r;

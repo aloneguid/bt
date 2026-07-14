@@ -29,15 +29,13 @@ using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    config_app::config_app() :
-        title{string{APP_LONG_NAME} + " " + APP_VERSION},
-        wnd_config{title, &is_open},
-        wnd_health_dash{"Health"},
-        wnd_subs{"Substitutions", &show_subs},
-        wnd_scripting{strings::ScriptEditor, &show_scripting},
-        wnd_pv{strings::PipelineDebugger, &pv_show},
-        wnd_add_browser("Add browser", &add_browser_show) {
-
+    config_app::config_app() : title{string{APP_LONG_NAME} + " " + APP_VERSION},
+                               wnd_config{title, &is_open},
+                               wnd_health_dash{"Health"},
+                               wnd_subs{"Substitutions", &show_subs},
+                               wnd_scripting{strings::ScriptEditor, &show_scripting},
+                               wnd_pv{strings::PipelineDebugger, &pv_show},
+                               wnd_add_browser("Add browser", &add_browser_show) {
         app = grey::app::make(title, 900, 500);
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = true;
@@ -45,41 +43,41 @@ namespace bt::ui {
         app->load_fixed_font = true;
 
         wnd_config
-            .has_menubar()
-            .no_titlebar()
-            .border(0)
-            .no_resize()
-            .no_collapse()
-            .fill_viewport()
-            .no_scroll();
+                .has_menubar()
+                .no_titlebar()
+                .border(0)
+                .no_resize()
+                .no_collapse()
+                .fill_viewport()
+                .no_scroll();
 
         wnd_health_dash
-            .border(1)
-            .no_collapse()
-            .center()
-            .no_scroll();
+                .border(1)
+                .no_collapse()
+                .center()
+                .no_scroll();
 
         wnd_subs
-            .size(600, 300)
-            .border(1)
-            .center();
+                .size(600, 300)
+                .border(1)
+                .center();
 
         wnd_scripting
-            .size(800, 600)
-            .border(1)
-            .no_scroll();
+                .size(800, 600)
+                .border(1)
+                .no_scroll();
 
         wnd_pv
-            .size(800, 500)
-            .border(1)
-            .center();
+                .size(800, 500)
+                .border(1)
+                .center();
 
         wnd_add_browser
-            .size(400, 0)
-            .border(1)
-            .no_collapse()
-            .no_resize()
-            .center();
+                .size(400, 0)
+                .border(1)
+                .no_collapse()
+                .no_resize()
+                .center();
 
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{250 * app->scale, -padding_bottom}.resize_x();
@@ -101,12 +99,13 @@ namespace bt::ui {
     }
 
     void config_app::run() {
-        app->run([this](const grey::app&) { return run_frame(); });
+        app->run([this](const grey::app &) { return run_frame(); });
     }
 
     void config_app::refresh_sys_info() {
         si_frame_time += ImGui::GetIO().DeltaTime;
-        if(si_frame_time >= 1) { // update every second
+        if(si_frame_time >= 1) {
+            // update every second
             si_frame_time = 0;
 
             // fetch new info and convert to string to avoid conversion in every frame
@@ -121,7 +120,7 @@ namespace bt::ui {
 
         health_succeeded = health_failed = 0;
 
-        for(auto& sc : health_checks) {
+        for(auto &sc: health_checks) {
             sc.recheck();
 
             if(sc.is_ok) {
@@ -182,9 +181,7 @@ namespace bt::ui {
         //w::menu_bar menu{menu_items, [this](const string& id) { handle_menu_click(id); }};
 
         if(w::menu_bar menu; menu) {
-
             if(w::menu m_file{"File"}; m_file) {
-
                 if(w::mi("Add custom browser", true, ICON_MD_ADD_CIRCLE)) {
                     add_browser_show = true;
                 }
@@ -219,7 +216,6 @@ namespace bt::ui {
                 }
                 w::small_checkbox("Discover classic Firefox profiles", g_state.discover_classic_gecko_profiles);
                 w::small_checkbox("Discover Firefox containers", g_state.discover_gecko_containers);
-
             }
 
             if(w::menu m{"General"}; m) {
@@ -231,7 +227,7 @@ namespace bt::ui {
                     w::slider(g_state.toast.border_width, 0, 6, "border width");
                 }
 
-                w::mi_themes([this](const string& theme_id) {
+                w::mi_themes([this](const string &theme_id) {
                     app->set_theme(theme_id);
                     g_state.ui_theme = theme_id;
                 });
@@ -294,9 +290,15 @@ namespace bt::ui {
                 w::sep(ICON_MD_MONITOR " system info");
                 {
                     float offset = 100 * app->scale;
-                    w::label("FPS"); w::sl(offset); w::label(si_fps);
-                    w::label("Scale"); w::sl(offset); w::label(si_scale);
-                    w::label("DPI"); w::sl(offset); w::label(si_dpi);
+                    w::label("FPS");
+                    w::sl(offset);
+                    w::label(si_fps);
+                    w::label("Scale");
+                    w::sl(offset);
+                    w::label(si_scale);
+                    w::label("DPI");
+                    w::sl(offset);
+                    w::label(si_dpi);
                 }
             }
         }
@@ -304,29 +306,27 @@ namespace bt::ui {
 
     void config_app::startup_health_warning() {
         if(health_failed > 0) {
-
             string title = "Health warning";
 
-            if (!startup_health_opened) {
+            if(!startup_health_opened) {
                 ImGui::OpenPopup(title.c_str());
                 startup_health_opened = true;
             }
 
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-            if (ImGui::BeginPopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            if(ImGui::BeginPopupModal(title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
                 string msg = format(
                     "There are {} issues preventing " APP_SHORT_NAME " from working properly.", health_failed);
 
-                if (w::button("Close", w::emphasis::error)) {
+                if(w::button("Close", w::emphasis::error)) {
                     ImGui::CloseCurrentPopup();
                     startup_health_warned = true;
                 }
 
                 ImGui::EndPopup();
             }
-        }
-        else {
+        } else {
             startup_health_warned = true;
         }
     }
@@ -342,7 +342,8 @@ namespace bt::ui {
             recompute = true;
         }
 
-        w::sl(); ww::help_link("url-proc.html#substitutions");
+        w::sl();
+        ww::help_link("url-proc.html#substitutions");
 
         // testing stuff
         w::sep("Test");
@@ -357,7 +358,7 @@ namespace bt::ui {
         scr.border();
         {
             w::guard g{scr};
-            
+
             for(int i = 0; i < g_state.transforms.substitutions.size(); i++) {
                 if(i > 0) w::sep();
                 string suffix = "##" + to_string(i);
@@ -368,9 +369,9 @@ namespace bt::ui {
                 float iw = 250.0f * app->scale;
 
                 w::combo("##kind" + suffix,
-                    replacer_kinds,
-                    (unsigned int&)replacer->kind,
-                    100);
+                         replacer_kinds,
+                         (unsigned int &) replacer->kind,
+                         100);
 
                 w::sl(pad);
                 if(w::input(replacer->find, "find" + suffix, true, iw)) recompute = true;
@@ -384,19 +385,20 @@ namespace bt::ui {
                     break;
                 }
 
-                w::label(""); w::sl(pad);
+                w::label("");
+                w::sl(pad);
                 if(w::input(replacer->replace, "replace" + suffix, true, iw)) recompute = true;
             }
         }
 
         if(recompute) {
-
             // sync state back to config
             g_state.transforms.substitutions.clear();
-            for(auto& r : g_pipeline.get_steps()) {
+            for(auto &r: g_pipeline.get_steps()) {
                 if(r->type == url_pipeline_step_type::find_replace) {
                     auto rr = std::static_pointer_cast<pipeline::replacer>(r);
-                    g_state.transforms.substitutions.emplace_back(string{magic_enum::enum_name(rr->kind)}, rr->find, rr->replace);
+                    g_state.transforms.substitutions.emplace_back(string{magic_enum::enum_name(rr->kind)}, rr->find,
+                                                                  rr->replace);
                 }
             }
 
@@ -406,7 +408,6 @@ namespace bt::ui {
             g_pipeline.process(url_subs_up);
             recompute = false;
         }
-
     }
 
     void config_app::render_scripting_window() {
@@ -460,7 +461,6 @@ namespace bt::ui {
                         script_terminal += g_script.print_buffer;
                         script_terminal += format("result: {}\n------------\n", out_url);
                     } else {
-
                         g_pipeline.process(up);
                         if(up.url != g_state.pipevis.url) {
                             script_terminal += format("pipeline changed URL to '{}'\n", up.url);
@@ -525,7 +525,6 @@ namespace bt::ui {
             pv_cp.window_title = g_state.pipevis.window_title;
             pv_cp.process_name = g_state.pipevis.process_name;
             pv_pipeline_steps = g_pipeline.process_debug(pv_cp);
-
         }
 
         // do it continuously
@@ -546,7 +545,7 @@ namespace bt::ui {
                     pv.next_column();
                     w::label(" ");
                     if(node_pipeline) {
-                        for(auto& s : pv_pipeline_steps) {
+                        for(auto &s: pv_pipeline_steps) {
                             pv.begin_row();
                             string text = url_pipeline_step::to_string(s.step->type);
                             {
@@ -561,7 +560,7 @@ namespace bt::ui {
                                 }
                                 w::sl();
                                 w::label(s.after.url);
-                            }   // step_node
+                            } // step_node
                         }
                     }
                 } // node_pipeline
@@ -570,13 +569,13 @@ namespace bt::ui {
             // browsers
             pv.begin_row();
             if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
-                for(auto& b : g_state.browsers) {
+                for(auto &b: g_state.browsers) {
                     if(pv_only_matching && !b.ui_test_url_matches) continue;
 
                     pv.begin_row();
                     auto emp = b.ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
                     if(w::tree_node node_browser{b.name, true, false, true, emp}; node_browser) {
-                        for(auto& i : b.profiles) {
+                        for(auto &i: b.profiles) {
                             if(pv_only_matching && !i.ui_test_url_matches) continue;
 
                             pv.begin_row();
@@ -592,13 +591,14 @@ namespace bt::ui {
                             // rules
                             if(node_profile) {
                                 int idx = 0;
-                                for(auto r : i.rules) {
+                                for(auto r: i.rules) {
                                     if(pv_only_matching && !r.ui_test_url_matches) continue;
                                     pv.begin_row();
                                     auto emp = r.ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
                                     w::tree_node node_rule{
                                         format("{}##{}", r.get_type_string(), idx++),
-                                        false, true, true, emp};
+                                        false, true, true, emp
+                                    };
                                     pv.next_column();
                                     w::label(r.to_string(false), emp);
                                 }
@@ -610,53 +610,53 @@ namespace bt::ui {
         }
 
 
-            //    for(auto b : g_config.browsers) {
-            //        if(pv_only_matching && !b->ui_test_url_matches) continue;
-            //        ImGui::TableNextRow();
-            //        ImGui::TableSetColumnIndex(0);
-            //        {
-            //        w::tree_node b_node(b->name, true, false, true, b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none);
-            //        ImGui::TableSetColumnIndex(1);
-            //        ImGui::TextDisabled(" ");
-            //        if(b_node) {
-            //            for(auto i : b->profiles) {
-            //                if(pv_only_matching && !i->ui_test_url_matches) continue;
-            //                ImGui::TableNextRow();
-            //                ImGui::TableSetColumnIndex(0);
-            //                auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
-            //                bool i_open = w::tree_node(i->name, true, false, true, emp);
-            //                ImGui::TableSetColumnIndex(1);
+        //    for(auto b : g_config.browsers) {
+        //        if(pv_only_matching && !b->ui_test_url_matches) continue;
+        //        ImGui::TableNextRow();
+        //        ImGui::TableSetColumnIndex(0);
+        //        {
+        //        w::tree_node b_node(b->name, true, false, true, b->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none);
+        //        ImGui::TableSetColumnIndex(1);
+        //        ImGui::TextDisabled(" ");
+        //        if(b_node) {
+        //            for(auto i : b->profiles) {
+        //                if(pv_only_matching && !i->ui_test_url_matches) continue;
+        //                ImGui::TableNextRow();
+        //                ImGui::TableSetColumnIndex(0);
+        //                auto emp = i->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+        //                bool i_open = w::tree_node(i->name, true, false, true, emp);
+        //                ImGui::TableSetColumnIndex(1);
 
-            //                if(i->rules.empty()) {
-            //                    w::label("no rules", 0, false);
-            //                } else {
-            //                    w::label(format("{} rule(s)", i->rules.size()), 0, false);
-            //                }
+        //                if(i->rules.empty()) {
+        //                    w::label("no rules", 0, false);
+        //                } else {
+        //                    w::label(format("{} rule(s)", i->rules.size()), 0, false);
+        //                }
 
-            //                if(i_open) {
+        //                if(i_open) {
 
-            //                    // rules
-            //                    int idx = 0;
-            //                    for(auto r : i->rules) {
-            //                        if(pv_only_matching && !r->ui_test_url_matches) continue;
-            //                        ImGui::TableNextRow();
-            //                        ImGui::TableSetColumnIndex(0);
-            //                        auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
-            //                        w::tree_node(
-            //                            format("{}##{}", r->get_type_string(), idx++),
-            //                            false, true, true, emp);
-            //                        ImGui::TableSetColumnIndex(1);
-            //                        w::label(r->to_string(false), emp);
-            //                    }
-            //                }
-            //            }
+        //                    // rules
+        //                    int idx = 0;
+        //                    for(auto r : i->rules) {
+        //                        if(pv_only_matching && !r->ui_test_url_matches) continue;
+        //                        ImGui::TableNextRow();
+        //                        ImGui::TableSetColumnIndex(0);
+        //                        auto emp = r->ui_test_url_matches ? w::emphasis::primary : w::emphasis::none;
+        //                        w::tree_node(
+        //                            format("{}##{}", r->get_type_string(), idx++),
+        //                            false, true, true, emp);
+        //                        ImGui::TableSetColumnIndex(1);
+        //                        w::label(r->to_string(false), emp);
+        //                    }
+        //                }
+        //            }
 
-            //            ImGui::TreePop();
-            //        }
-            //        }
-            //    }
+        //            ImGui::TreePop();
+        //        }
+        //        }
+        //    }
     }
-    
+
     void config_app::render_status_bar() {
         w::status_bar sb;
 
@@ -669,7 +669,7 @@ namespace bt::ui {
 
         bool recheck{false};
         int i = 0;
-        for(system_check& hc : health_checks) {
+        for(system_check &hc: health_checks) {
             w::sl();
             w::id_frame idf{i++};
 
@@ -683,7 +683,7 @@ namespace bt::ui {
                 }
                 if(w::is_hovered()) w::mouse_cursor(w::mouse_cursor_type::hand);
                 w::tt(format("{}\n{}\n{}\n\nClick this warning to {}.",
-                    hc.name, hc.description, hc.error_message, hc.fix_description));
+                             hc.name, hc.description, hc.error_message, hc.fix_description));
             }
         }
         if(recheck) {
@@ -692,9 +692,9 @@ namespace bt::ui {
 
         size_t ipc{0};
         size_t irc{0};
-        for(const auto& b : g_state.browsers) {
+        for(const auto &b: g_state.browsers) {
             ipc += b.profiles.size();
-            for(const auto& profile : b.profiles) {
+            for(const auto &profile: b.profiles) {
                 irc += profile.rules.size();
             }
         }
@@ -727,17 +727,23 @@ namespace bt::ui {
         };
 
         if(!g_state.browsers.empty()) {
-            w::sl(); w::label("|", 0, false);
+            w::sl();
+            w::label("|", 0, false);
             optional<profile_selection> sel = browser::get_default(g_state.browsers);
             if(sel) {
-                w::sl(); w::label(ICON_MD_LAPTOP, 0, false);
-                w::sl(); w::label(sel->b().name, 0, false);
+                w::sl();
+                w::label(ICON_MD_LAPTOP, 0, false);
+                w::sl();
+                w::label(sel->b().name, 0, false);
                 w::tt("Default browser");
 
                 if(sel->b().engine != browser_engine::generic) {
-                    w::sl(); w::label("|", 0, false);
-                    w::sl(); w::label(ICON_MD_TAB, 0, false);
-                    w::sl(); w::label(sel->profile().name, 0, false);
+                    w::sl();
+                    w::label("|", 0, false);
+                    w::sl();
+                    w::label(ICON_MD_TAB, 0, false);
+                    w::sl();
+                    w::label(sel->profile().name, 0, false);
                     w::tt("Default profile");
                 }
             }
@@ -748,13 +754,16 @@ namespace bt::ui {
         for(int i = 0; i < 5; i++)
             w::label("");
 
-        w::label(string(90, ' ')); w::sl();
+        w::label(string(90, ' '));
+        w::sl();
         w::label("Currently there are no browsers registered.", w::emphasis::primary);
 
-        w::label(string(70, ' ')); w::sl();
+        w::label(string(70, ' '));
+        w::sl();
         w::label("Press the button below to scan your system for installed browsers.");
         w::label("");
-        w::label(string(100, ' ')); w::sl();
+        w::label(string(100, ' '));
+        w::sl();
         if(w::button("discover system browsers", w::emphasis::error)) {
             exec_rediscover = true;
         }
@@ -778,7 +787,7 @@ namespace bt::ui {
             w::tt("Show hidden browsers");
 
             for(int i = 0; i < g_state.browsers.size(); i++) {
-                auto& br = g_state.browsers[i];
+                auto &br = g_state.browsers[i];
                 if(!g_state.show_hidden_browsers && br.is_hidden) {
                     continue;
                 }
@@ -802,7 +811,7 @@ namespace bt::ui {
     }
 
     browser_profile config_app::get_selected_browser_instance() {
-        auto& browser = g_state.browsers[selected_browser_idx];
+        auto &browser = g_state.browsers[selected_browser_idx];
         if(browser.engine != browser_engine::generic) {
             return browser.profiles[selected_profile_idx];
         } else {
@@ -810,8 +819,7 @@ namespace bt::ui {
         }
     }
 
-    void config_app::render_card(browser& b, bool is_selected) {
-
+    void config_app::render_card(browser &b, bool is_selected) {
         {
             w::group g{true};
 
@@ -875,7 +883,6 @@ namespace bt::ui {
                     w::label(ICON_MD_FAVORITE, w::emphasis::primary);
                     w::tt("Default browser");
                 }
-
             } else {
                 w::label(ICON_MD_FACE, 0, false);
                 w::tt("no profiles");
@@ -891,14 +898,14 @@ namespace bt::ui {
 
         auto item_rect = w::item_rect_get();
         if(w::is_hovered() || is_selected) {
-            ImDrawList* fdl = ImGui::GetWindowDrawList();
+            ImDrawList *fdl = ImGui::GetWindowDrawList();
             auto style = ImGui::GetStyle();
-            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0, style.WindowBorderSize * 2);
+            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0,
+                         style.WindowBorderSize * 2);
         }
     }
 
-    void config_app::render_detail(browser& b) {
-
+    void config_app::render_detail(browser &b) {
         // begin toolbar
 
         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
@@ -994,7 +1001,6 @@ namespace bt::ui {
                 }
             }
             w::tt("Completely deletes this browser, no questions asked");
-
         }
 
         // --- toolbar end
@@ -1006,8 +1012,7 @@ namespace bt::ui {
             w::tab_bar tabs{"tabs", true, true};
 
             int idx{0};
-            for(browser_profile& bi : b.profiles) {
-
+            for(browser_profile &bi: b.profiles) {
                 if(!g_state.show_hidden_browsers && bi.is_hidden) {
                     idx++;
                     continue;
@@ -1022,9 +1027,9 @@ namespace bt::ui {
 
                 {
                     auto t = tabs.next_tab(tab_title, false,
-                        set_selected_profile_idx == -1
-                        ? false
-                        : idx == set_selected_profile_idx);
+                                           set_selected_profile_idx == -1
+                                               ? false
+                                               : idx == set_selected_profile_idx);
                     if(t) {
                         selected_profile_idx = idx;
                         w::spc();
@@ -1033,8 +1038,7 @@ namespace bt::ui {
 
                         if(bi.is_default) {
                             w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
-                        }
-                        else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
+                        } else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
                             browser::set_default(g_state.browsers, bi);
                         }
                         w::tt("Make this browser the default one");
@@ -1092,7 +1096,7 @@ namespace bt::ui {
                         // end of mini toolbar
 
                         render_icon(b.get_best_icon_path(bi, false), bi.is_incognito, bi.user_icon_path);
-                         
+
                         w::sl();
                         {
                             w::group g;
@@ -1116,7 +1120,7 @@ namespace bt::ui {
 
             set_selected_profile_idx = -1;
         } else if(!b.profiles.empty()) {
-            browser_profile& bi = b.profiles[0];
+            browser_profile &bi = b.profiles[0];
 
             render_icon(b.get_best_icon_path(bi, false), bi.is_incognito, bi.user_icon_path);
 
@@ -1125,7 +1129,8 @@ namespace bt::ui {
                 w::group g;
 
                 w::input(b.open_cmd, "exe", false);
-                w::tt("Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
+                w::tt(
+                    "Full path to browser executable. The only way to change this is to re-create the browser. Sorry ;)");
 
                 if(w::input(bi.name, format("name##{}", "todo"))) {
                     b.name = bi.name;
@@ -1151,7 +1156,7 @@ terminal window will be hidden.)");
     void config_app::render_add_browser_window() {
         w::guard w{wnd_add_browser};
 
-        static unsigned int type{0};
+        static unsigned int type{1};
         static bool do_fetch_name{false};
 
         if(do_fetch_name) {
@@ -1162,15 +1167,18 @@ terminal window will be hidden.)");
 #endif
         }
 
-        w::combo("type", {"Generic", "Chromium based", "Gecko based"}, type);
-
-        if(w::input(badd_exe_path, "path")) {
-            do_fetch_name = true;
+        if(type == 0) {
+            w::label(ICON_MD_DEVICES_OTHER);
+        } else if(type == 1) {
+            w::icon_image(*app, "bt_chromium");
+        } else if(type == 2) {
+            w::icon_image(*app, "bt_gecko");
         }
-        w::tt("executable path");
+
+        w::sl(40 * app->scale);
+        w::combo("type", {"Generic", "Chromium", "Gecko"}, type);
 
         if(desktop_shell::file_open_dialog_supported()) {
-            w::sl();
             if(w::button(ICON_MD_FILE_OPEN)) {
                 string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
                 if(!exe_path_selected.empty()) {
@@ -1178,9 +1186,20 @@ terminal window will be hidden.)");
                     do_fetch_name = true;
                 }
             }
+            w::tt("Use UI dialog to pick the executable path");
+            w::sl(40 * app->scale);
         }
 
+        if(w::input(badd_exe_path, "path")) {
+            do_fetch_name = true;
+        }
+        w::tt("executable path");
+
         w::input(badd_name, "name");
+
+        if(type > 0) {
+            w::input(badd_data_path, "data path");
+        }
 
         if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary)) {
             browser b{badd_name, badd_exe_path};
@@ -1188,17 +1207,18 @@ terminal window will be hidden.)");
             g_state.browsers.push_back(b);
             selected_browser_idx = g_state.browsers.size() - 1;
             add_browser_show = false;
-            badd_exe_path = badd_name = "";
+            type = 0;
+            badd_exe_path = badd_name = badd_data_path = "";
         }
     }
 
-    void config_app::render_icon(const std::string& path_default, bool is_incognito, string& path_override) {
+    void config_app::render_icon(const std::string &path_default, bool is_incognito, string &path_override) {
         {
             w::group g;
             //g
-                //.border(ImGuiCol_Border)
-                //.border_hover(ImGuiCol_ButtonHovered)
-                //.render();
+            //.border(ImGuiCol_Border)
+            //.border_hover(ImGuiCol_ButtonHovered)
+            //.render();
 
             float box_size = 40 * app->scale;
 
@@ -1235,7 +1255,7 @@ terminal window will be hidden.)");
         }
     }
 
-    void config_app::render_rules(browser& b, browser_profile& bi) {
+    void config_app::render_rules(browser &b, browser_profile &bi) {
         //w::label("Rules");
         w::sep("Rules");
 
@@ -1248,7 +1268,8 @@ terminal window will be hidden.)");
             bi.rules.clear();
         }
 
-        w::sl(); ww::help_link("#rules");
+        w::sl();
+        ww::help_link("#rules");
 
         // scrollable area with list of rules
         {
@@ -1256,18 +1277,17 @@ terminal window will be hidden.)");
             w::guard g{c};
 
             for(int i = 0; i < bi.rules.size(); i++) {
-                auto& rule = bi.rules[i];
+                auto &rule = bi.rules[i];
                 string si = std::to_string(i);
 
                 // location
-                w::combo(string{"##loc"} + si, 
-                    rule_locations, (unsigned int&)rule.loc, 90);
+                w::combo(string{"##loc"} + si,
+                         rule_locations, (unsigned int &) rule.loc, 90);
 
                 // value
                 w::sl();
                 string val_label = string{"##val"} + si;
                 if(rule.loc == match_location::lua_script) {
-
                     // get selected index
                     unsigned int selected{0};
                     for(unsigned int j = 0; j < g_script.rule_function_names.size(); j++) {
@@ -1284,7 +1304,6 @@ terminal window will be hidden.)");
                     if(!g_script.rule_function_names.empty()) {
                         rule.value = g_script.rule_function_names[selected];
                     }
-
                 } else {
                     w::input(rule.value, val_label, true, 250 * app->scale);
                 }
@@ -1317,7 +1336,7 @@ terminal window will be hidden.)");
                     w::sl();
                     w::label("|", 0, false);
                     w::sl();
-                    w::icon_list(url_scopes, (size_t&)rule.scope);
+                    w::icon_list(url_scopes, (size_t &) rule.scope);
                 }
 
                 // process name selection helper (for "process" rules)
@@ -1335,7 +1354,7 @@ terminal window will be hidden.)");
                             if(w::input(pop_proc_names_filter, "##proc_filter")) {
                                 pop_proc_names_selected = 0;
                                 pop_proc_names_items_filtered.clear();
-                                for(auto& p : pop_proc_names_items) {
+                                for(auto &p: pop_proc_names_items) {
                                     if(str::contains_ic(p, pop_proc_names_filter)) {
                                         pop_proc_names_items_filtered.push_back(p);
                                     }
@@ -1361,7 +1380,7 @@ terminal window will be hidden.)");
     void config_app::refresh_pop_proc_names_items() {
         auto procs = process::enumerate();
         pop_proc_names_items.clear();
-        for(process& p : procs) {
+        for(process &p: procs) {
             if(!p.is_valid()) continue;
             string name = p.get_name();
             if(!name.empty()) {
@@ -1388,13 +1407,13 @@ terminal window will be hidden.)");
         w::notify_info(message);
     }
 
-    void config_app::recalculate_test_url_matches(const click_payload& cp) {
-        for(auto& b : g_state.browsers) {
+    void config_app::recalculate_test_url_matches(const click_payload &cp) {
+        for(auto &b: g_state.browsers) {
             b.ui_test_url_matches = false;
-            for(auto& bi : b.profiles) {
+            for(auto &bi: b.profiles) {
                 bi.ui_test_url_matches = false;
 
-                for(auto& r : bi.rules) {
+                for(auto &r: bi.rules) {
                     r.ui_test_url_matches = false;
                     if(r.is_match(cp, g_script)) {
                         r.ui_test_url_matches = true;

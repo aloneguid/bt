@@ -118,10 +118,10 @@ namespace bt {
         state.discover_classic_gecko_profiles = read<bool>(node, "discover_classic_gecko_profiles", false);
         state.discover_gecko_containers = read<bool>(node, "discover_gecko_containers", true);
 
-        state.toast = read<toast_state>(node, "toast", toast_state{});
-        state.picker = read<picker_state>(node, "picker", picker_state{});
-        state.transforms = read<transforms_state>(node, "transforms", transforms_state{});
-        state.pipevis = read<pipevis_state>(node, "pipevis", pipevis_state{});
+        state.toast = read<toast_state>(node, "toast");
+        state.picker = read<picker_state>(node, "picker");
+        state.transforms = read<transforms_state>(node, "transforms");
+        state.pipevis = read<pipevis_state>(node, "pipevis");
 
         // browser does not have a default constructor
         //state.browsers = read<std::vector<browser>>(node, "browsers", std::vector<browser>{});

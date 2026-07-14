@@ -92,6 +92,7 @@ namespace bt::ui {
         grey::widgets::window wnd_add_browser;
         std::string badd_exe_path;
         std::string badd_name;
+        std::string badd_data_path;
 
         // executions for the end of the loop
         bool exec_rediscover{false};
