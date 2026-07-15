@@ -8,9 +8,9 @@
 namespace bt {
     class toast_state {
     public:
-        bool enabled;
-        int visible_seconds;
-        int border_width;
+        bool enabled{true};
+        int visible_seconds{5};
+        int border_width{1};
 
         bool operator==(const toast_state &) const = default;
     };
@@ -21,13 +21,11 @@ namespace bt {
 
     class picker_invoke_state {
     public:
-        bool on_key_control_shift;
-        bool on_key_control_alt;
-        bool on_key_alt_shift;
-        bool on_key_caps;
-        bool on_rule_conflict;
-        bool on_no_rule;
-        bool always;
+        bool on_key_control_shift{false};
+        bool on_key_control_alt{false};
+        bool on_key_alt_shift{false};
+        bool on_key_caps_locks{false};
+        bool on_no_rule{false};
 
         bool operator==(const picker_invoke_state &) const = default;
     };
@@ -38,15 +36,15 @@ namespace bt {
 
     class picker_state {
     public:
-        float icon_size;
-        float item_padding;
-        float inactive_item_alpha;
-        bool show_key_hints;
-        int border_width;
-        bool show_native_chrome;
-        int opacity;
-        bool close_on_focus_loss;
-        bool always_on_top;
+        float icon_size{32.0f};
+        float item_padding{10.0f};
+        float inactive_item_alpha{0.4f};
+        bool show_key_hints{true};
+        int border_width{1};
+        bool show_native_chrome{false};
+        int opacity{255};
+        bool close_on_focus_loss{true};
+        bool always_on_top{false};
 
         picker_invoke_state invoke;
 
@@ -72,10 +70,10 @@ namespace bt {
 
     class transforms_state {
     public:
-        bool unwrap_o365;
-        bool unshorten;
-        bool substitute;
-        bool scripting;
+        bool unwrap_o365{true};
+        bool unshorten{true};
+        bool substitute{true};
+        bool scripting{true};
         std::vector<substitition_state> substitutions;
 
         bool operator==(const transforms_state &) const = default;
@@ -105,11 +103,11 @@ namespace bt {
     class state {
     public:
         std::string ui_theme;
-        bool log_rule_hits;
-        bool show_hidden_browsers;
-        icon_overlay_mode icon_overlay;
-        bool discover_classic_gecko_profiles;
-        bool discover_gecko_containers;
+        bool log_rule_hits{false};
+        bool show_hidden_browsers{false};
+        icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
+        bool discover_classic_gecko_profiles{false};
+        bool discover_gecko_containers{true};
         toast_state toast;
         picker_state picker;
         transforms_state transforms;

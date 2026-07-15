@@ -101,7 +101,7 @@ namespace bt::ui {
             (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
             (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
             (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
-            (g_state.picker.invoke.on_key_caps && k_caps);
+            (g_state.picker.invoke.on_key_caps_locks && k_caps);
 #else
         return false;
 #endif

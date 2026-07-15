@@ -29,15 +29,12 @@ void open(bt::click_payload up, bool force_picker = false) {
     bool show_picker{force_picker};
     string pick_reason;
     if(!show_picker) {
-        if(g_state.picker.invoke.always) {
-            show_picker = true;
-            pick_reason = "always";
-        } else if(ui::picker_app::is_hotkey_down()) {
+        if(ui::picker_app::is_hotkey_down()) {
             show_picker = true;
             pick_reason = "hotkey";
-        } else if(g_state.picker.invoke.on_rule_conflict || g_state.picker.invoke.on_no_rule) {
+        } else if(g_state.picker.invoke.on_no_rule) {
             auto matches = bt::browser::match(g_state.browsers, up, g_script);
-            if(g_state.picker.invoke.on_rule_conflict && matches.size() > 1) {
+            if(matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
             } else if(g_state.picker.invoke.on_no_rule && matches[0].rule.is_fallback) {
