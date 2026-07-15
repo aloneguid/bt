@@ -20,6 +20,9 @@ namespace bt {
 
     class match_rule {
     public:
+        match_rule() = default;
+        match_rule(const std::string& value) : value{value} {}
+
         bool is_match(const click_payload& up, const script_site& script) const;
         bool is_match(const click_payload& up) const;
         bool is_match(const std::string& url) const;

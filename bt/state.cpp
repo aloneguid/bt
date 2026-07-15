@@ -5,21 +5,21 @@ using namespace std;
 using namespace grey::common;
 
 namespace bt {
-    void to_node(fkyaml::node& node, const toast_state& state) {
+    void to_node(fkyaml::node &node, const toast_state &state) {
         node = fkyaml::node{
-                        {"enabled", state.enabled},
-                        {"visible_seconds", state.visible_seconds},
-                        {"border_width", state.border_width}
+            {"enabled", state.enabled},
+            {"visible_seconds", state.visible_seconds},
+            {"border_width", state.border_width}
         };
     }
 
-    void from_node(const fkyaml::node& node, toast_state& state) {
+    void from_node(const fkyaml::node &node, toast_state &state) {
         state.enabled = read<bool>(node, "enabled", true);
         state.visible_seconds = read<int>(node, "visible_seconds", 5);
         state.border_width = read<int>(node, "border_width", 1);
     }
 
-    void to_node(fkyaml::node &node, const picker_state &state) {
+    void to_node(fkyaml::node &node, const picker_invoke_state &state) {
         node = fkyaml::node{
             {"on_key_control_shift", state.on_key_control_shift},
             {"on_key_control_alt", state.on_key_control_alt},
@@ -27,8 +27,22 @@ namespace bt {
             {"on_key_caps", state.on_key_caps},
             {"on_rule_conflict", state.on_rule_conflict},
             {"on_no_rule", state.on_no_rule},
-            {"always", state.always},
+            {"always", state.always}
+        };
+    }
 
+    void from_node(const fkyaml::node &node, picker_invoke_state &state) {
+        state.on_key_control_shift = read<bool>(node, "on_key_control_shift", false);
+        state.on_key_control_alt = read<bool>(node, "on_key_control_alt", false);
+        state.on_key_alt_shift = read<bool>(node, "on_key_alt_shift", false);
+        state.on_key_caps = read<bool>(node, "on_key_caps", false);
+        state.on_rule_conflict = read<bool>(node, "on_rule_conflict", false);
+        state.on_no_rule = read<bool>(node, "on_no_rule", false);
+        state.always = read<bool>(node, "always", false);
+    }
+
+    void to_node(fkyaml::node &node, const picker_state &state) {
+        node = fkyaml::node{
             {"icon_size", state.icon_size},
             {"item_padding", state.item_padding},
             {"inactive_icon_alpha", state.inactive_item_alpha},
@@ -37,18 +51,12 @@ namespace bt {
             {"show_native_chrome", state.show_native_chrome},
             {"opacity", state.opacity},
             {"close_on_focus_loss", state.close_on_focus_loss},
-            {"always_on_top", state.always_on_top}
+            {"always_on_top", state.always_on_top},
+            {"invoke", state.invoke}
         };
     }
 
     void from_node(const fkyaml::node &node, picker_state &state) {
-        state.on_key_control_shift = read<bool>(node, "on_key_control_shift", false);
-        state.on_key_control_alt = read<bool>(node, "on_key_control_alt", false);
-        state.on_key_alt_shift = read<bool>(node, "on_key_alt_shift", false);
-        state.on_key_caps = read<bool>(node, "on_key_caps", false);
-        state.on_rule_conflict = read<bool>(node, "on_rule_conflict", false);
-        state.on_no_rule = read<bool>(node, "on_no_rule", false);
-        state.always = read<bool>(node, "always", false);
         state.icon_size = read<float>(node, "icon_size", 32.0f);
         state.item_padding = read<float>(node, "item_padding", 10.0f);
         state.inactive_item_alpha = read<float>(node, "inactive_icon_alpha", 0.4f);
@@ -58,6 +66,7 @@ namespace bt {
         state.opacity = read<int>(node, "opacity", 255);
         state.close_on_focus_loss = read<bool>(node, "close_on_focus_loss", false);
         state.always_on_top = read<bool>(node, "always_on_top", false);
+        state.invoke = read<picker_invoke_state>(node, "invoke", picker_invoke_state{});
     }
 
     void to_node(fkyaml::node &node, const substitition_state &state) {
@@ -90,7 +99,8 @@ namespace bt {
         state.substitute = read<bool>(node, "substitute", true);
         state.unshorten = read<bool>(node, "unshorten", true);
         state.unwrap_o365 = read<bool>(node, "unwrap_o365", true);
-        state.substitutions = read<std::vector<substitition_state>>(node, "substitutions", std::vector<substitition_state>{});
+        state.substitutions = read<std::vector<substitition_state> >(node, "substitutions",
+                                                                     std::vector<substitition_state>{});
     }
 
     void to_node(fkyaml::node &node, const pipevis_state &state) {
@@ -111,9 +121,10 @@ namespace bt {
         state.ui_theme = read<string>(node, "ui_theme", "");
         state.log_rule_hits = read<bool>(node, "log_rule_hits", false);
         state.show_hidden_browsers = read<bool>(node, "show_hidden_browsers", false);
-        
+
         string tmp = read<string>(node, "icon_overlay", "");
-        state.icon_overlay = magic_enum::enum_cast<icon_overlay_mode>(tmp, magic_enum::case_insensitive).value_or(icon_overlay_mode::profile_on_browser);
+        state.icon_overlay = magic_enum::enum_cast<icon_overlay_mode>(tmp, magic_enum::case_insensitive).value_or(
+            icon_overlay_mode::profile_on_browser);
 
         state.discover_classic_gecko_profiles = read<bool>(node, "discover_classic_gecko_profiles", false);
         state.discover_gecko_containers = read<bool>(node, "discover_gecko_containers", true);
@@ -127,7 +138,7 @@ namespace bt {
         //state.browsers = read<std::vector<browser>>(node, "browsers", std::vector<browser>{});
         state.browsers.clear();
         if(node.contains("browsers") && node["browsers"].is_sequence()) {
-            for(auto& bnode : node["browsers"]) {
+            for(auto &bnode: node["browsers"]) {
                 string name = read<string>(bnode, "name", "");
                 string cmd = read<string>(bnode, "cmd", "");
                 browser b{name, cmd};
@@ -152,18 +163,18 @@ namespace bt {
         node["browsers"] = state.browsers;
     }
 
-    void from_node(const fkyaml::node& node, match_rule& state) {
+    void from_node(const fkyaml::node &node, match_rule &state) {
         state.value = read<string>(node, "value", "");
         state.loc = magic_enum::enum_cast<match_location>(
-            read<string>(node, "loc", ""), magic_enum::case_insensitive)
-            .value_or(match_location::url);
+                    read<string>(node, "loc", ""), magic_enum::case_insensitive)
+                .value_or(match_location::url);
         state.scope = magic_enum::enum_cast<match_scope>(read<string>(node, "scope", ""), magic_enum::case_insensitive)
-            .value_or(match_scope::any);
+                .value_or(match_scope::any);
         state.is_regex = read<bool>(node, "is_regex", false);
         state.app_mode = read<bool>(node, "app_mode", false);
     }
 
-    void to_node(fkyaml::node& node, const match_rule& state) {
+    void to_node(fkyaml::node &node, const match_rule &state) {
         node = {
             {"value", state.value},
             {"loc", magic_enum::enum_name(state.loc)},
@@ -177,15 +188,15 @@ namespace bt {
             node["app_mode"] = true;
     }
 
-    void from_node(const fkyaml::node& node, browser_profile& state) {
+    void from_node(const fkyaml::node &node, browser_profile &state) {
         state.user_arg = read<string>(node, "user_arg", "");
         state.user_icon_path = read<string>(node, "user_icon", "");
         state.is_incognito = read<bool>(node, "incognito", false);
         state.is_hidden = !read<bool>(node, "visible", true);
-        state.rules = read<vector<match_rule>>(node, "rules", vector<match_rule>{});
+        state.rules = read<vector<match_rule> >(node, "rules", vector<match_rule>{});
     }
 
-    void to_node(fkyaml::node& node, const browser_profile& state) {
+    void to_node(fkyaml::node &node, const browser_profile &state) {
         node = {
             {"name", state.name},
             {"arg", state.launch_arg}
@@ -210,13 +221,14 @@ namespace bt {
         state.is_hidden = !read<bool>(node, "visible", true);
         state.icon_path = read<std::string>(node, "icon", "");
         state.data_path = read<std::string>(node, "data", "");
-        state.engine = magic_enum::enum_cast<browser_engine>(read<std::string>(node, "engine", "")).value_or(browser_engine::generic);
+        state.engine = magic_enum::enum_cast<browser_engine>(read<std::string>(node, "engine", "")).value_or(
+            browser_engine::generic);
 
         // profiles do not have a default constructor
         //state.profiles = read<std::vector<browser_profile>>(node, "profiles", {});
         state.profiles.clear();
         if(node.contains("profiles") && node["profiles"].is_sequence()) {
-            for(const fkyaml::node& bnode : node["profiles"]) {
+            for(const fkyaml::node &bnode: node["profiles"]) {
                 string name = read<string>(bnode, "name", "");
                 string launch_arg = read<string>(bnode, "arg", "");
                 string icon_path = read<string>(bnode, "icon", "");
@@ -238,5 +250,4 @@ namespace bt {
         if(!state.data_path.empty()) node["data"] = state.data_path;
         node["profiles"] = state.profiles;
     }
-
 }

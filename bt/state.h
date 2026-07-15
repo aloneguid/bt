@@ -19,9 +19,8 @@ namespace bt {
 
     void from_node(const fkyaml::node& node, toast_state& state);
 
-    class picker_state {
+    class picker_invoke_state {
     public:
-        // invocation
         bool on_key_control_shift;
         bool on_key_control_alt;
         bool on_key_alt_shift;
@@ -30,7 +29,15 @@ namespace bt {
         bool on_no_rule;
         bool always;
 
-        // general
+        bool operator==(const picker_invoke_state &) const = default;
+    };
+
+    void to_node(fkyaml::node& node, const picker_invoke_state& state);
+
+    void from_node(const fkyaml::node& node, picker_invoke_state& state);
+
+    class picker_state {
+    public:
         float icon_size;
         float item_padding;
         float inactive_item_alpha;
@@ -40,6 +47,8 @@ namespace bt {
         int opacity;
         bool close_on_focus_loss;
         bool always_on_top;
+
+        picker_invoke_state invoke;
 
         bool operator==(const picker_state &) const = default;
     };

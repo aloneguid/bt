@@ -21,6 +21,8 @@ namespace bt {
     struct firefox_container {
         std::string id;
         std::string name;
+        std::string icon_name;
+        std::string color_name;
     };
 
     /**
@@ -52,7 +54,7 @@ namespace bt {
             const std::string &data_folder_path,
             std::vector<firefox_profile> &profiles);
 
-        static std::vector<firefox_container> discover_firefox_containers(const std::string &roaming_home);
+        static std::vector<firefox_container> discover_gecko_containers(const std::string &roaming_home);
 
         static std::vector<std::string> get_firefox_addons_installed(const std::string &roaming_home);
 

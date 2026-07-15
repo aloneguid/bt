@@ -238,16 +238,16 @@ namespace bt::ui {
                 w::small_checkbox("Always on top", g_state.picker.always_on_top);
 
                 w::sep("Manual invocation");
-                w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker.on_key_control_shift);
-                w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker.on_key_control_alt);
-                w::small_checkbox("Alt  + Shift + Left Click", g_state.picker.on_key_alt_shift);
-                w::small_checkbox("CAPS LOCKS", g_state.picker.on_key_caps);
+                w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker.invoke.on_key_control_shift);
+                w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker.invoke.on_key_control_alt);
+                w::small_checkbox("Alt  + Shift + Left Click", g_state.picker.invoke.on_key_alt_shift);
+                w::small_checkbox("CAPS LOCKS", g_state.picker.invoke.on_key_caps);
 
                 w::sep("Automatic invocation");
-                w::small_checkbox("Always", g_state.picker.always);
-                if(!g_state.picker.always) {
-                    w::small_checkbox("On conflict", g_state.picker.on_rule_conflict);
-                    w::small_checkbox("On no rule", g_state.picker.on_no_rule);
+                w::small_checkbox("Always", g_state.picker.invoke.always);
+                if(!g_state.picker.invoke.always) {
+                    w::small_checkbox("On conflict", g_state.picker.invoke.on_rule_conflict);
+                    w::small_checkbox("On no rule", g_state.picker.invoke.on_no_rule);
                 }
             }
 

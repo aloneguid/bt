@@ -137,10 +137,10 @@ namespace bt {
         // which browser should we use?
         // i'm not sure this is correct
         for(const browser& browser: browsers) {
-            for(const browser_profile& profile: browser.profiles) {
-                match_rule mr{""};
+            for(auto [i, profile] : browser.profiles | std::views::enumerate) {
+                match_rule mr;
                 if(profile.is_match(up, script, mr)) {
-                    r.emplace_back(profile_selection(browser, 0), mr);
+                    r.emplace_back(profile_selection(browser, i), mr);
                 }
             }
         }
@@ -246,8 +246,9 @@ namespace bt {
 
     std::string browser::get_best_icon_path(const browser_profile &profile, bool include_override) const {
         if(include_override && !profile.user_icon_path.empty()) return profile.user_icon_path;
-
-        return icon_path.empty() ? open_cmd : icon_path;
+        if(!profile.icon_path.empty()) return profile.icon_path;
+        if(!icon_path.empty()) return icon_path;
+        return open_cmd;
     }
 
     std::string browser::get_image_name(const std::string &open_cmd) {

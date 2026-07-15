@@ -579,7 +579,7 @@ namespace bt {
                 // Leave the "no container" profile as is.
 
                 // add profile for each container
-                vector<firefox_container> containers = discover_firefox_containers(fp.path);
+                vector<firefox_container> containers = discover_gecko_containers(fp.path);
                 for(const auto &container: containers) {
                     //string profile_name = format("{}::{}", fp.name, container.name);
                     string profile_name = container.name;
@@ -611,7 +611,7 @@ namespace bt {
         b.profiles.push_back(private_bi);
     }
 
-    vector<firefox_container> discovery::discover_firefox_containers(const string &roaming_home) {
+    vector<firefox_container> discovery::discover_gecko_containers(const string &roaming_home) {
         vector<firefox_container> r;
 
         // detect if "containers" are installed
@@ -632,6 +632,8 @@ namespace bt {
                     auto j_name = identity["name"];
                     auto j_l10nID = identity["l10nID"];
                     auto j_l10nId = identity["l10nId"];
+                    auto j_icon = identity["icon"];
+                    auto j_color = identity["color"];
                     //string t0 = j_name.type_name();
                     //string t1 = j_l10nID.type_name();
 
@@ -659,7 +661,13 @@ namespace bt {
                         }
                     }
 
-                    r.emplace_back(to_string(id), name);
+                    string icon_name;
+                    string color_name;
+                    if(j_icon.is_string()) icon_name = j_icon.get<string>();
+                    if(j_color.is_string()) color_name = j_color.get<string>();
+
+
+                    r.emplace_back(to_string(id), name, icon_name, color_name);
                 }
             }
         }
