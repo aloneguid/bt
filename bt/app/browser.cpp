@@ -240,8 +240,8 @@ namespace bt {
     }
 
     std::string browser::get_best_display_name(const browser_profile &profile) const {
-        if(profile.is_incognito) return format("Private {}", name);
-        return name;
+        if(profile.is_incognito) return "Incognito";
+        return profile.name;
     }
 
     std::string browser::get_best_icon_path(const browser_profile &profile, bool include_override) const {

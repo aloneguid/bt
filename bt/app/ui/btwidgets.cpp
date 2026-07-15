@@ -41,10 +41,14 @@ namespace bt::ui {
 
         w::cur_set(x0 + padding, y0 + padding);
 
-        string icon1 = selection.b().get_best_icon_path(selection.profile());
-        string icon2 = selection.b().engine == browser_engine::generic
-            ? ""
-            : (selection.profile().is_incognito && selection.profile().user_icon_path.empty()) ? "incognito" : selection.b().get_best_icon_path(selection.profile());
+        string icon1 = selection.b().get_best_icon_path();
+        string icon2;
+        if(selection.b().engine != browser_engine::generic) {
+            if(selection.profile().is_incognito && selection.profile().user_icon_path.empty())
+                icon2 = "incognito";
+            else
+                icon2 = selection.b().get_best_icon_path(selection.profile());
+        }
 
         switch(g_state.icon_overlay) {
             case icon_overlay_mode::browser_only:

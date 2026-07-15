@@ -8,9 +8,9 @@
 
 ## New features
 - todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers. 
-- todo: firefox contianer icons.
+- todo: firefox container icons.
 - todo: An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
-- todo: when rule conflicts are detected, picker only shows conflicting choices, not entire browser list.
+- todo: when rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
 
 ## Improvements
 - Configuration is saved and restored seamlessly in the background. There is no button to save it or reload anymore. "It just works".
@@ -21,7 +21,7 @@
 
 ## Tech stuff
 - Project upgraded to C++ 23.
-- A lot of code deleted after going over the entire codebase trying to test it on Linux.
+- A lot of useless code deleted.
 
 ## 5.6.12
 

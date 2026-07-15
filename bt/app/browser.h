@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <memory>
 #include <optional>
 #include "match_rule.h"
 #include "click_payload.h"
@@ -130,9 +129,6 @@ namespace bt {
          */
         bool launch_hide_ui{false};
 
-        // UI helpers
-        bool ui_test_url_matches;
-
         bool is_incognito{false};
 
         /**
@@ -157,6 +153,8 @@ namespace bt {
 
         std::vector<match_rule> rules;
 
+        // UI helpers
+        bool ui_test_url_matches{false};
 
         browser_profile(
             const std::string &name,
