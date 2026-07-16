@@ -1150,14 +1150,12 @@ terminal window will be hidden.)");
     void config_app::render_add_browser_window() {
         w::guard w{wnd_add_browser};
 
-        static browser_engine engine{browser_engine::generic};
-
         //w::sl(40 * app->scale);
         //w::combo("type", engine_names, type);
-        w::enum_combo<browser_engine>("engine", engine);
+        w::enum_combo<browser_engine>("engine", new_browser.engine);
 
 
-        w::input(badd_exe_path, "path");
+        w::input(new_browser.open_cmd, "path");
         w::tt("executable path");
 
         if(desktop_shell::file_open_dialog_supported()) {
@@ -1165,34 +1163,54 @@ terminal window will be hidden.)");
             if(w::button(ICON_MD_MORE_HORIZ, w::emphasis::none, true, true, "pick executable")) {
                 string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
                 if(!exe_path_selected.empty()) {
-                    badd_exe_path = exe_path_selected;
-                    wstring w_product_name = win32::user::get_file_version_info_string(badd_exe_path, "ProductName");
-                    if(!w_product_name.empty()) badd_name = str::to_str(w_product_name);
+                    new_browser.open_cmd = exe_path_selected;
+#if PLATFORM_WINDOWS
+                    wstring w_product_name = win32::user::get_file_version_info_string(new_browser.open_cmd, "ProductName");
+                    if(!w_product_name.empty()) new_browser.name = str::to_str(w_product_name);
+#endif
                 }
             }
         }
 
-        w::input(badd_name, "name");
+        w::input(new_browser.name, "name");
         w::tt("display name to show in the browser list");
 
-        bool needs_data_path = (engine == browser_engine::chromium || engine == browser_engine::gecko);
+        bool needs_data_path = (new_browser.engine == browser_engine::chromium || new_browser.engine == browser_engine::gecko);
 
-        w::input(badd_data_path, "data path", needs_data_path);
+        w::input(new_browser.data_path, "data path", needs_data_path);
         w::tt("path to data folder");
 
         if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary, true, false, "", 100 * app->scale)) {
-            browser b{badd_name, badd_exe_path};
-            b.engine = engine;
-            b.data_path = badd_data_path;
 
-            b.profiles.push_back(browser_profile{badd_name, "", ""});
+            if(new_browser.engine == browser_engine::generic) {
+                new_browser.management = management_extent::none;
+            } else {
+                new_browser.management = management_extent::profiles;
+            }
 
-            g_state.browsers.push_back(b);
-            selected_browser_idx = g_state.browsers.size() - 1;
+            // validation
+            new_browser.ui_validation_error.clear();
+            if(new_browser.open_cmd.empty()) {
+                new_browser.ui_validation_error += "- path is required\n";
+            } else if(!std::filesystem::exists(new_browser.open_cmd)) {
+                new_browser.ui_validation_error += "- path does not exist\n";
+            }
+            if(new_browser.name.empty()) {
+                new_browser.ui_validation_error += "- name is required\n";
+            }
 
-            add_browser_show = false;
-            //type = 0;
-            badd_exe_path = badd_name = badd_data_path = "";
+            // final addition
+            if(new_browser.ui_validation_error.empty()) {
+                g_state.browsers.push_back(new_browser);
+                selected_browser_idx = g_state.browsers.size() - 1;
+                new_browser = browser{"", ""};
+
+                add_browser_show = false;
+            }
+        }
+
+        if(!new_browser.ui_validation_error.empty()) {
+            w::sl(); w::label(ICON_MD_ERROR, w::emphasis::error); w::tt(new_browser.ui_validation_error);
         }
     }
 

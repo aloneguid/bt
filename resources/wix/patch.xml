@@ -32,17 +32,17 @@
             <RegistryValue Type="string" Name="https" Value="BrowserTamerHTM" />
         </RegistryKey>
         <RegistryKey Root="HKCU" Key="Software\Clients\StartMenuInternet\BrowserTamer\Capabilities\FileAssociations">
-            <RegistryValue Type="string" Name="htm" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="html" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="mht" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="mhtml" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="shtml" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="svg" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="webp" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="xht" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="xhtml" Value="BrowserTamerHTM" />
-            <RegistryValue Type="string" Name="pdf" Value="BrowserTamerPDF" />
-            <RegistryValue Type="string" Name="epub" Value="BrowserTamerEPUB" />
+            <RegistryValue Type="string" Name=".htm" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".html" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".mht" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".mhtml" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".shtml" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".svg" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".webp" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".xht" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".xhtml" Value="BrowserTamerHTM" />
+            <RegistryValue Type="string" Name=".pdf" Value="BrowserTamerPDF" />
+            <RegistryValue Type="string" Name=".epub" Value="BrowserTamerEPUB" />
         </RegistryKey>
 
         <!-- protocol handlers referenced in URL/File associations -->

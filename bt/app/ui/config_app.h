@@ -90,9 +90,7 @@ namespace bt::ui {
         // "Add new browser" window
         bool add_browser_show{false};
         grey::widgets::window wnd_add_browser;
-        std::string badd_exe_path;
-        std::string badd_name;
-        std::string badd_data_path;
+        browser new_browser{"", ""};
 
         // executions for the end of the loop
         bool exec_rediscover{false};

@@ -71,28 +71,30 @@ if($InstallAll) {
     )
 
     $fileAssocs = @(
-        "htm",
-        "html",
-        "mht",
-        "mhtml",
-        "shtml",
-        "svg",
-        "webp",
-        "xht",
-        "xhtml",
-        "pdf",
-        "epub"
+        ".htm",
+        ".html",
+        ".mht",
+        ".mhtml",
+        ".shtml",
+        ".svg",
+        ".webp",
+        ".xht",
+        ".xhtml",
+        ".pdf",
+        ".epub"
     )
 
    $urlAssocKey = "$capsKey\URLAssociations"
    New-Item -Path $urlAssocKey -Force | Out-Null
    foreach ($urlAssoc in $urlAssocs) {
+       Write-Host "registering url handler for $urlAssoc"
        Set-ItemProperty -Path $urlAssocKey -Name $urlAssoc -Value $htmClass -Force | Out-Null
    }
 
    $fileAssocKey = "$capsKey\FileAssociations"
    New-Item -Path $fileAssocKey -Force | Out-Null
    foreach ($fileAssoc in $fileAssocs) {
+       Write-Host "registered file handler for $fileAssoc"
        $class = $htmClass
        if($fileAssoc -eq "pdf") {
            $class = $pdfClass
@@ -135,5 +137,5 @@ if($UninstallAll) {
     }
 
     Write-Host "Unregistering application: $name"
-    Remove-ItemProperty -Path "HKCU:\Software\RegisteredApplications\$name" -Force | Out-Null
+    Remove-ItemProperty -Path "HKCU:\Software\RegisteredApplications" -Name $name -Force | Out-Null
 }

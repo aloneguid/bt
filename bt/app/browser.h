@@ -77,6 +77,7 @@ namespace bt {
         // UI helper properties
         bool ui_test_url_matches{false};
         float ui_icon_size_anim{0.0f};
+        std::string ui_validation_error;
 
         void launch(click_payload up, const browser_profile &profile) const;
 
