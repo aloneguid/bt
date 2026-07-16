@@ -21,6 +21,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ${{ matrix.os }}
     # allow Linux build to fail while prototyping
     # continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}

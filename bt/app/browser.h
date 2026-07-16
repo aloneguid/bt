@@ -16,6 +16,26 @@ namespace bt {
         gecko
     };
 
+    /**
+     * What exactly is managed for this browser.
+     */
+    enum class management_extent {
+        /**
+         * No discovery is done, the browser is manually configured.
+         */
+        none,
+
+        /**
+         * Both the browser and all it's profiles are managed.
+         */
+        full,
+
+        /**
+         * Browser is manually added, but profiles are discovered automatically.
+         */
+        profiles
+    };
+
     class browser {
     public:
         inline static const std::string URL_ARG_NAME{"%url%"};
@@ -44,6 +64,8 @@ namespace bt {
          * @brief Location where browser data is stored (e.g. profiles). Depends on the browser.
          */
         std::string data_path;
+
+        management_extent management{management_extent::none};
 
         std::vector<browser_profile> profiles;
 

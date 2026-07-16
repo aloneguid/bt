@@ -1101,6 +1101,8 @@ namespace bt::ui {
 
                             w::input(bi.user_arg, "extra arg");
                             w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+
+                            w::colour("highlight color", bi.color);
                         }
 
                         w::spc();
@@ -1148,58 +1150,48 @@ terminal window will be hidden.)");
     void config_app::render_add_browser_window() {
         w::guard w{wnd_add_browser};
 
-        static unsigned int type{1};
-        static bool do_fetch_name{false};
+        static browser_engine engine{browser_engine::generic};
 
-        if(do_fetch_name) {
-#if PLATFORM_WINDOWS
-            wstring w_product_name = win32::user::get_file_version_info_string(badd_exe_path, "ProductName");
-            if(!w_product_name.empty()) badd_name = str::to_str(w_product_name);
-            do_fetch_name = false;
-#endif
-        }
+        //w::sl(40 * app->scale);
+        //w::combo("type", engine_names, type);
+        w::enum_combo<browser_engine>("engine", engine);
 
-        if(type == 0) {
-            w::label(ICON_MD_DEVICES_OTHER);
-        } else if(type == 1) {
-            w::icon_image(*app, "bt_chromium");
-        } else if(type == 2) {
-            w::icon_image(*app, "bt_gecko");
-        }
 
-        w::sl(40 * app->scale);
-        w::combo("type", {"Generic", "Chromium", "Gecko"}, type);
+        w::input(badd_exe_path, "path");
+        w::tt("executable path");
 
         if(desktop_shell::file_open_dialog_supported()) {
-            if(w::button(ICON_MD_FILE_OPEN)) {
+            w::sl();
+            if(w::button(ICON_MD_MORE_HORIZ, w::emphasis::none, true, true, "pick executable")) {
                 string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
                 if(!exe_path_selected.empty()) {
                     badd_exe_path = exe_path_selected;
-                    do_fetch_name = true;
+                    wstring w_product_name = win32::user::get_file_version_info_string(badd_exe_path, "ProductName");
+                    if(!w_product_name.empty()) badd_name = str::to_str(w_product_name);
                 }
             }
-            w::tt("Use UI dialog to pick the executable path");
-            w::sl(40 * app->scale);
         }
-
-        if(w::input(badd_exe_path, "path")) {
-            do_fetch_name = true;
-        }
-        w::tt("executable path");
 
         w::input(badd_name, "name");
+        w::tt("display name to show in the browser list");
 
-        if(type > 0) {
-            w::input(badd_data_path, "data path");
-        }
+        bool needs_data_path = (engine == browser_engine::chromium || engine == browser_engine::gecko);
 
-        if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary)) {
+        w::input(badd_data_path, "data path", needs_data_path);
+        w::tt("path to data folder");
+
+        if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary, true, false, "", 100 * app->scale)) {
             browser b{badd_name, badd_exe_path};
+            b.engine = engine;
+            b.data_path = badd_data_path;
+
             b.profiles.push_back(browser_profile{badd_name, "", ""});
+
             g_state.browsers.push_back(b);
             selected_browser_idx = g_state.browsers.size() - 1;
+
             add_browser_show = false;
-            type = 0;
+            //type = 0;
             badd_exe_path = badd_name = badd_data_path = "";
         }
     }

@@ -212,6 +212,8 @@ namespace bt::ui {
 
         //ImGui::ShowDemoWindow();
 
+        g_config.tick(ImGui::GetIO().DeltaTime);
+
         return is_open;
     }
 

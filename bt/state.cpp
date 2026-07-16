@@ -1,5 +1,4 @@
 #include "state.h"
-#include "magic_enum/magic_enum.hpp"
 
 using namespace std;
 using namespace grey::common;
@@ -117,11 +116,7 @@ namespace bt {
         read<bool>(node, "log_rule_hits", state.log_rule_hits);
         read<bool>(node, "show_hidden_browsers", state.show_hidden_browsers);
 
-        string tmp;
-        read<string>(node, "icon_overlay", tmp);
-        state.icon_overlay = magic_enum::enum_cast<icon_overlay_mode>(tmp, magic_enum::case_insensitive).value_or(
-            icon_overlay_mode::profile_on_browser);
-
+        read_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         read<bool>(node, "discover_classic_gecko_profiles", state.discover_classic_gecko_profiles);
         read<bool>(node, "discover_gecko_containers", state.discover_gecko_containers);
 
@@ -150,7 +145,7 @@ namespace bt {
         node["ui_theme"] = state.ui_theme;
         node["log_rule_hits"] = state.log_rule_hits;
         node["show_hidden_browsers"] = state.show_hidden_browsers;
-        node["icon_overlay"] = magic_enum::enum_name(state.icon_overlay);
+        write_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         node["discover_classic_gecko_profiles"] = state.discover_classic_gecko_profiles;
         node["discover_gecko_containers"] = state.discover_gecko_containers;
         node["toast"] = state.toast;
@@ -223,11 +218,8 @@ namespace bt {
         if(read<bool>(node, "visible", state.is_hidden)) state.is_hidden = !state.is_hidden;
         read<std::string>(node, "icon", state.icon_path);
         read<std::string>(node, "data", state.data_path);
-        string tmp;
-        if(read<string>(node, "engine", tmp)) {
-            state.engine = magic_enum::enum_cast<browser_engine>(tmp).value_or(
-                browser_engine::generic);
-        }
+        read_enum<browser_engine>(node, "engine", state.engine);
+        read_enum<management_extent>(node, "management", state.management);
 
         // profiles do not have a default constructor
         //state.profiles = read<std::vector<browser_profile>>(node, "profiles", {});
@@ -251,7 +243,8 @@ namespace bt {
         node = {
             {"name", state.name},
             {"cmd", state.open_cmd},
-            {"engine", magic_enum::enum_name(state.engine)}
+            {"engine", magic_enum::enum_name(state.engine)},
+            {"management", magic_enum::enum_name(state.management)}
         };
         if(state.is_hidden) node["visible"] = false;
         if(!state.icon_path.empty()) node["icon"] = state.icon_path;

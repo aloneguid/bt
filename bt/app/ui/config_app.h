@@ -104,6 +104,13 @@ namespace bt::ui {
             { ICON_MD_ROUNDABOUT_LEFT, "Match only in path" }
         };
 
+        std::vector<std::string> engine_names = [] {
+            std::vector<std::string> v;
+            for(auto sv : magic_enum::enum_names<browser_engine>())
+                v.emplace_back(sv);
+            return v;
+        }();
+
         bool run_frame();
         void render_menu_bar();
 

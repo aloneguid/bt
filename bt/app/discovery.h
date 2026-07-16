@@ -35,6 +35,8 @@ namespace bt {
          */
         static const std::vector<browser> discover_all_browsers();
 
+        static const void discover_managed_profiles(std::vector<browser>& browsers);
+
     private:
         inline static constexpr int ICON_SIZE = 256;
 

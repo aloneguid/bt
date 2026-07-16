@@ -221,9 +221,9 @@ namespace bt {
             r.push_back(b_new);
         }
 
-        // add user browsers from the old set
+        // add missing browsers
         for(browser &b_custom: old_set) {
-            if(b_custom.engine != browser_engine::generic) continue;
+            if(b_custom.management == management_extent::full) continue;
 
             r.push_back(b_custom);
         }

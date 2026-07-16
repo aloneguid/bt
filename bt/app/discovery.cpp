@@ -73,6 +73,17 @@ namespace bt {
     // any parameters to add to Chromium-based browsers
     const string ChromiumExtraArgs = " --no-default-browser-check";
 
+    static const std::unordered_map<std::string, std::string> container_names = {
+        {"userContextPersonal.label", "Personal"},
+        {"user-context-personal", "Personal"},
+        {"userContextWork.label", "Work"},
+        {"user-context-work", "Work"},
+        {"userContextBanking.label", "Banking"},
+        {"user-context-banking", "Banking"},
+        {"userContextShopping.label", "Shopping"},
+        {"user-context-shopping", "Shopping"}
+    };
+
     string get_id_from_open_cmd(const std::string &cmd) {
         // compute MD5 hash of the command, because just exe name is not unique enough, especially when almost every browser is named "chrome.exe"
         return hashing::md5(cmd);
@@ -339,12 +350,12 @@ namespace bt {
 
 #endif
 
-        // discover various profiles
+        // mark these as full managed
         for(browser& b: browsers) {
-            discover_chrome_profiles(b);
-            discover_firefox_profiles(b);
-            discover_other_profiles(b);
+            b.management = management_extent::full;
         }
+
+        discover_managed_profiles(browsers);
 
         return browsers;
     }
@@ -603,9 +614,7 @@ namespace bt {
 
         // in-private
         browser_profile private_bi("Private",
-                                   format("-private-window \"{}\"",
-                                          browser::URL_ARG_NAME),
-                                   b.open_cmd);
+                                   format("-private-window \"{}\"", browser::URL_ARG_NAME), "");
         private_bi.is_incognito = true;
 
         b.profiles.push_back(private_bi);
@@ -622,6 +631,18 @@ namespace bt {
             auto identities = j["identities"];
             if(identities.is_array()) {
                 for(json::iterator it = identities.begin(); it != identities.end(); ++it) {
+
+                    /* an example of identity element:
+{
+  "userContextId": 9,
+  "public": true,
+  "icon": "tree",
+  "color": "green",
+  "name": "Braden"
+},
+                     */
+
+
                     auto identity = *it;
                     auto j_is_public = identity["public"];
                     if(!j_is_public.is_boolean() || !j_is_public.get<bool>()) continue;
@@ -645,17 +666,13 @@ namespace bt {
                         name = j_name.get<string>();
                     } else {
                         // there are 4 default containers - Personal, Work, Banking, Shopping.
-                        // They can be deleted, or renamed (in which case they will get "name" property set)
+                        // They can be deleted or renamed (in which case they will get the "name" property set)
 
                         string lid = j_l10nID.is_string() ? j_l10nID.get<string>() : j_l10nId.get<string>();
-                        if(lid == "userContextPersonal.label" || lid == "user-context-personal") {
-                            name = "Personal";
-                        } else if(lid == "userContextWork.label" || lid == "user-context-work") {
-                            name = "Work";
-                        } else if(lid == "userContextBanking.label" || lid == "user-context-banking") {
-                            name = "Banking";
-                        } else if(lid == "userContextShopping.label" || lid == "user-context-shopping") {
-                            name = "Shopping";
+
+                        auto it = container_names.find(lid);
+                        if (it != container_names.end()) {
+                            name = it->second;
                         } else {
                             name = lid;
                         }
@@ -715,7 +732,18 @@ namespace bt {
     }
 
     const std::vector<browser> discovery::discover_all_browsers() {
-        return bt::discovery::discover_browsers(ProtoName);
+        return discover_browsers(ProtoName);
+    }
+
+    const void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
+        // discover various profiles
+        for(browser& b: browsers) {
+            if(b.management == management_extent::full || b.management == management_extent::profiles) {
+                discover_chrome_profiles(b);
+                discover_firefox_profiles(b);
+                discover_other_profiles(b);
+            }
+        }
     }
 
     bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {

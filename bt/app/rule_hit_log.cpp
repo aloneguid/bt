@@ -12,7 +12,7 @@ namespace bt {
     rule_hit_log rule_hit_log::i;
 
     rule_hit_log::rule_hit_log() : 
-        path{grey::common::fss::get_config_file_path(APP_SHORT_NAME, "hit_log.csv")},
+        path{grey::common::fss::get_config_file_path(CONFIG_NAME, "hit_log.csv")},
         stream(path, ofstream::out | ofstream::app | ofstream::ate),
         writer(stream) {
         if(stream.tellp() == 0) {

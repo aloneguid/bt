@@ -20,6 +20,7 @@
 - When clicking on the health check button to set the default browser, BT opens the system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
 
 ## Bugs fixed
+- todo: rework process picker.
 - todo: see GitHub.
 
 ## Tech stuff
