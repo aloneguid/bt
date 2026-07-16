@@ -17,7 +17,7 @@ using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    picker_app::picker_app(const string& url) 
+    picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection>> selections)
         : url{url}, title{APP_LONG_NAME " - Pick"},
         app{grey::app::make(title, 100, 100)},
         wnd_main{title, &is_open},
@@ -43,12 +43,16 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        choices.clear();
-        for(auto& browser : g_state.browsers) {
-            if(browser.is_hidden) continue;
-            for(size_t i = 0; i < browser.profiles.size(); i++) {
-                if(browser.profiles[i].is_hidden) continue;
-                choices.push_back(profile_selection{browser, i});
+        if(selections) {
+            choices = *selections;
+        } else {
+            choices.clear();
+            for(auto& browser : g_state.browsers) {
+                if(browser.is_hidden) continue;
+                for(size_t i = 0; i < browser.profiles.size(); i++) {
+                    if(browser.profiles[i].is_hidden) continue;
+                    choices.push_back(profile_selection{browser, i});
+                }
             }
         }
 
@@ -312,7 +316,7 @@ namespace bt::ui {
                 //w::cur_set(x0 + icon_size + padding * 3, y0 + padding + icon_size / 2 - ImGui::GetTextLineHeight() / 2);
                 //w::label(p->get_best_display_name());
 
-               
+
             }
 
             if(w::is_hovered()) {

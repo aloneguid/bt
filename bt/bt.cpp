@@ -28,43 +28,52 @@ void open(bt::click_payload up, bool force_picker = false) {
     // decision whether to show picker or not
     bool show_picker{force_picker};
     string pick_reason;
-    if(!show_picker) {
+    vector<browser_match_result> rule_matches;
+    if(!force_picker) {
         if(ui::picker_app::is_hotkey_down()) {
             show_picker = true;
             pick_reason = "hotkey";
-        } else if(g_state.picker.invoke.on_no_rule) {
-            auto matches = bt::browser::match(g_state.browsers, up, g_script);
-            if(matches.size() > 1) {
+        } else {
+            rule_matches = browser::match(g_state.browsers, up, g_script);
+            if(rule_matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
-            } else if(g_state.picker.invoke.on_no_rule && matches[0].rule.is_fallback) {
-                show_picker = true;
-                pick_reason = "no rule";
+            } else if(rule_matches.size() == 1) {
+                if(g_state.picker.invoke.on_no_rule && rule_matches[0].rule.is_fallback) {
+                    show_picker = true;
+                    pick_reason = "no rule";
+                }
             }
         }
     }
 
     if(show_picker) {
-        bt::ui::picker_app app{up.url};
+        vector<profile_selection> limited_choices;
+        if(!rule_matches.empty()) {
+            for(auto& match : rule_matches) {
+                limited_choices.push_back(match.profile);
+            }
+        }
+        ui::picker_app app{up.url, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
         auto pr = app.run();
         if(pr) {
             up.url = pr.url;
-            bt::url_opener::open(*pr.choice, up);
+            url_opener::open(*pr.choice, up);
             if(g_state.log_rule_hits) {
-                bt::rule_hit_log::i.write(up, *pr.choice, "picker:" + pick_reason);
+                rule_hit_log::i.write(up, *pr.choice, "picker:" + pick_reason);
             }
         }
     } else {
         auto matches = bt::browser::match(g_state.browsers, up, g_script);
-        bt::browser_match_result& first_match = matches[0];
+        browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
-        bt::url_opener::open(first_match.profile, up);
+        url_opener::open(first_match.profile, up);
         if(g_state.log_rule_hits) {
-            bt::rule_hit_log::i.write(up, first_match.profile, matches[0].rule.to_string());
+            rule_hit_log::i.write(up, first_match.profile, matches[0].rule.to_string());
         }
 
         if(g_state.toast.enabled) {
-            bt::ui::toast_app app{up, first_match.profile};
+            ui::toast_app app{up, first_match.profile};
             app.run();
         }
     }
