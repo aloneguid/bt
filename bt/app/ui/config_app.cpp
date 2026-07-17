@@ -1,6 +1,5 @@
 #include "config_app.h"
 #include "platform.h"
-#include "../../res.inl"
 #include <format>
 #include "process.h"
 #include "str.h"
@@ -12,6 +11,7 @@
 #include "../discovery.h"
 #include "../pipeline/replacer.h"
 #include "../../globals.h"
+#include "../../res.h"
 #include "../strings.h"
 #include "extra_widgets.hpp"
 #include "datetime.h"
@@ -89,7 +89,7 @@ namespace bt::ui {
             app->preload_texture("logo", icon_png, icon_png_len);
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
             app->preload_texture("bt_chromium", chromium_icon_png, chromium_icon_png_len);
-            app->preload_texture("bt_gecko", gecko_icon_png, gecko_icon_png_len);
+            app->preload_texture("bt_gecko", gecko64_icon_png, gecko64_icon_png_len);
         };
 
         check_health();
@@ -841,46 +841,55 @@ namespace bt::ui {
             w::cur_set(pos2.x + left_pad, pos2.y);
             //w::move_pos(left_pad, 0);
 
-            if(b.profiles.size() > 0) {
-                w::label(format("{} {}", ICON_MD_FACE, b.profiles.size()), 0, false);
-                w::tt(str::humanise(b.profiles.size(), "profile", "profiles"));
+            // management level
+            switch(b.management) {
+                case management_extent::full:
+                    w::label(ICON_MD_AUTO_FIX_HIGH);
+                    break;
+                case management_extent::profiles:
+                    w::label(ICON_MD_AUTO_FIX_NORMAL);
+                    break;
+                default:
+                    w::label(ICON_MD_AUTO_FIX_OFF);
+                    break;
+
+            }
+
+            if(b.engine != browser_engine::generic) {
                 w::sl();
+                w::label(format("{} {}", ICON_MD_FACE, b.profiles.size()), 0, false);
 
                 switch(b.engine) {
                     case browser_engine::chromium:
+                        w::sl();
                         w::icon_image(*app, "bt_chromium");
-                        w::tt(strings::ChromiumBased);
                         break;
                     case browser_engine::gecko:
+                        w::sl();
                         w::icon_image(*app, "bt_gecko");
-                        w::tt(strings::GeckoBased);
                         break;
-                    default:
-                        w::label(ICON_MD_SUPPORT_AGENT, 0, false);
-                        w::tt("User-defined");
                 }
 
-                if(b.get_supports_frameless_windows()) {
-                    w::sl();
-                    w::label(ICON_MD_TAB_UNSELECTED, 0, false);
-                    w::tt("Supports frameless windows");
-                }
-
-                if(b.is_hidden) {
-                    w::sl();
-                    w::label(ICON_MD_VISIBILITY_OFF, 0, false);
-                    w::tt("Hidden");
-                }
-
-                if(b.is_default()) {
-                    w::sl();
-                    w::label(ICON_MD_FAVORITE, w::emphasis::primary);
-                    w::tt("Default browser");
-                }
-            } else {
-                w::label(ICON_MD_FACE, 0, false);
-                w::tt("no profiles");
             }
+
+            if(b.is_hidden) {
+                w::sl();
+                w::label(ICON_MD_VISIBILITY_OFF, 0, false);
+                w::tt("Hidden");
+            }
+
+            if(b.get_supports_frameless_windows()) {
+                w::sl();
+                w::label(ICON_MD_TAB_UNSELECTED, 0, false);
+                w::tt("Supports frameless windows");
+            }
+
+            if(b.is_default()) {
+                w::sl();
+                w::label(ICON_MD_FAVORITE, w::emphasis::primary);
+                w::tt("Default browser");
+            }
+
 
             w::spc();
             w::cur_set(pos);
@@ -976,7 +985,9 @@ namespace bt::ui {
                 }
                 w::tt("test by opening a link");
             }
+        }
 
+        if(b.management != management_extent::full) {
             w::sl();
             if(w::button(ICON_MD_DELETE " delete", w::emphasis::error)) {
                 size_t idx = browser::index_of(g_state.browsers, b);
@@ -1149,13 +1160,15 @@ terminal window will be hidden.)");
 
     void config_app::render_add_browser_window() {
         w::guard w{wnd_add_browser};
+        browser& b = new_browser;
 
         //w::sl(40 * app->scale);
         //w::combo("type", engine_names, type);
-        w::enum_combo<browser_engine>("engine", new_browser.engine);
+        w::enum_combo<browser_engine>("engine", b.engine);
+        b.set_management(b.engine);
 
 
-        w::input(new_browser.open_cmd, "path");
+        w::input(b.open_cmd, "path");
         w::tt("executable path");
 
         if(desktop_shell::file_open_dialog_supported()) {
@@ -1163,54 +1176,65 @@ terminal window will be hidden.)");
             if(w::button(ICON_MD_MORE_HORIZ, w::emphasis::none, true, true, "pick executable")) {
                 string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
                 if(!exe_path_selected.empty()) {
-                    new_browser.open_cmd = exe_path_selected;
+                    b.open_cmd = exe_path_selected;
 #if PLATFORM_WINDOWS
-                    wstring w_product_name = win32::user::get_file_version_info_string(new_browser.open_cmd, "ProductName");
-                    if(!w_product_name.empty()) new_browser.name = str::to_str(w_product_name);
+                    wstring w_product_name = win32::user::get_file_version_info_string(b.open_cmd, "ProductName");
+                    if(!w_product_name.empty()) b.name = str::to_str(w_product_name);
 #endif
                 }
             }
         }
 
-        w::input(new_browser.name, "name");
+        w::input(b.name, "name");
         w::tt("display name to show in the browser list");
 
-        bool needs_data_path = (new_browser.engine == browser_engine::chromium || new_browser.engine == browser_engine::gecko);
+        bool needs_data_path = (b.engine == browser_engine::chromium || b.engine == browser_engine::gecko);
 
-        w::input(new_browser.data_path, "data path", needs_data_path);
+        w::input(b.data_path, "data path", needs_data_path);
         w::tt("path to data folder");
 
         if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary, true, false, "", 100 * app->scale)) {
 
-            if(new_browser.engine == browser_engine::generic) {
-                new_browser.management = management_extent::none;
+            if(b.engine == browser_engine::generic) {
+                b.management = management_extent::none;
             } else {
-                new_browser.management = management_extent::profiles;
+                b.management = management_extent::profiles;
             }
 
             // validation
-            new_browser.ui_validation_error.clear();
-            if(new_browser.open_cmd.empty()) {
-                new_browser.ui_validation_error += "- path is required\n";
-            } else if(!std::filesystem::exists(new_browser.open_cmd)) {
-                new_browser.ui_validation_error += "- path does not exist\n";
+            b.ui_validation_error.clear();
+            if(b.open_cmd.empty()) {
+                b.ui_validation_error += "- path is required\n";
+            } else if(!std::filesystem::exists(b.open_cmd)) {
+                b.ui_validation_error += "- path does not exist\n";
             }
-            if(new_browser.name.empty()) {
-                new_browser.ui_validation_error += "- name is required\n";
+            if(b.name.empty()) {
+                b.ui_validation_error += "- name is required\n";
+            }
+            if(needs_data_path) {
+                if(b.data_path.empty()) {
+                    b.ui_validation_error += "- data path is required\n";
+                } else {
+                    discovery::discover_managed_profiles(b);
+                    if(b.profiles.size() < 2) {
+                        // there needs to be at least two valid profiles (incognito + at least the default)
+                        b.ui_validation_error += "- invlid data path\n";
+                    }
+                }
             }
 
             // final addition
-            if(new_browser.ui_validation_error.empty()) {
-                g_state.browsers.push_back(new_browser);
+            if(b.ui_validation_error.empty()) {
+                g_state.browsers.push_back(b);
                 selected_browser_idx = g_state.browsers.size() - 1;
-                new_browser = browser{"", ""};
+                b = browser{"", ""};
 
                 add_browser_show = false;
             }
         }
 
-        if(!new_browser.ui_validation_error.empty()) {
-            w::sl(); w::label(ICON_MD_ERROR, w::emphasis::error); w::tt(new_browser.ui_validation_error);
+        if(!b.ui_validation_error.empty()) {
+            w::sl(); w::label(ICON_MD_ERROR, w::emphasis::error); w::tt(b.ui_validation_error);
         }
     }
 

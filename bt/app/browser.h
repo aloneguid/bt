@@ -93,6 +93,14 @@ namespace bt {
 
         bool is_default() const;
 
+        void set_management(browser_engine engine) {
+            if(engine == browser_engine::generic) {
+                management = management_extent::none;
+            } else {
+                management = management_extent::profiles;
+            }
+        }
+
         // ---- static members
 
         static std::vector<browser_match_result> match(

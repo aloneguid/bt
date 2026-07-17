@@ -1,6 +1,6 @@
 #include "toast_app.h"
 #include "../../globals.h"
-#include "../../res.inl"
+#include "../../res.h"
 #include "btwidgets.h"
 #include "platform.h"
 #include <cmath>

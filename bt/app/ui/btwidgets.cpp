@@ -1,6 +1,6 @@
 #include "btwidgets.h"
-#include "../../res.inl"
 #include "../../globals.h"
+#include "../../res.h"
 #include "fss.h"
 
 using namespace std;

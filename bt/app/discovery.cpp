@@ -738,11 +738,15 @@ namespace bt {
     const void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
         // discover various profiles
         for(browser& b: browsers) {
-            if(b.management == management_extent::full || b.management == management_extent::profiles) {
-                discover_chrome_profiles(b);
-                discover_firefox_profiles(b);
-                discover_other_profiles(b);
-            }
+            discover_managed_profiles(b);
+        }
+    }
+
+    const void discovery::discover_managed_profiles(browser& b) {
+        if(b.management == management_extent::full || b.management == management_extent::profiles) {
+            discover_chrome_profiles(b);
+            discover_firefox_profiles(b);
+            discover_other_profiles(b);
         }
     }
 

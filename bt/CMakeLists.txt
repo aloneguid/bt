@@ -16,6 +16,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 enable_testing()
 
 file(GLOB core_src
+    "res.cpp"
     "globals.cpp"
     "cmdline.cpp"
     "state.cpp"
