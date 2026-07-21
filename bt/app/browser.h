@@ -118,8 +118,7 @@ namespace bt {
 
         static size_t index_of(std::vector<browser> &browsers, browser &b);
 
-        std::string get_best_display_name(const browser_profile &profile) const;
-
+        [[nodiscard]] std::string get_best_display_name(const browser_profile &profile) const;
     private:
         static std::string get_image_name(const std::string &open_cmd);
 

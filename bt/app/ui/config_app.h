@@ -31,7 +31,6 @@ namespace bt::ui {
         std::unique_ptr<grey::app> app;
         std::string title;
         grey::widgets::window wnd_config;
-        grey::widgets::window wnd_health_dash;
         grey::widgets::popup pop_proc_names{"pop_proc_names"};
         std::vector<std::string> pop_proc_names_items;
         std::string pop_proc_names_filter;
@@ -48,6 +47,7 @@ namespace bt::ui {
         int set_selected_profile_idx{-1};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
+        grey::widgets::container w_browser_toolbar;
 
         // System Information in "Help" menu
         float si_frame_time{60.0f};

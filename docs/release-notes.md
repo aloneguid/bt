@@ -16,6 +16,7 @@
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
 
 ## Improvements
+- Slightly redesigned, more ergonomic user interface.
 - Configuration is saved and restored seamlessly in the background. There is no button to save it or reload anymore. "It just works".
 - When clicking on the health check button to set the default browser, BT opens the system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
 
@@ -25,7 +26,10 @@
 
 ## Tech stuff
 - Project upgraded to C++ 23.
-- A lot of useless code is deleted.
+- Cleanup: a lot of legacy code is deleted.
+
+todo:
+- custom sort of browsers and profiles is broken
 
 ## 5.6.12
 

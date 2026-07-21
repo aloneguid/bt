@@ -115,7 +115,7 @@ namespace bt {
     }
 
 #if PLATFORM_WINDOWS
-    void discovery::discover_win32_registry_browsers(hive h, vector<browser>& browsers,
+    void discovery::discover_win32_registry_browsers(hive h, vector<browser> &browsers,
                                                      const string &ignore_proto) {
         auto subs = enum_subkeys(h, abs_root);
 
@@ -138,7 +138,7 @@ namespace bt {
                 // this is possible to operator== on browser class
 
                 bool is_dupe{false};
-                for(auto& bb: browsers) {
+                for(auto &bb: browsers) {
                     if(bb == b) {
                         is_dupe = true;
                         break;
@@ -350,8 +350,8 @@ namespace bt {
 
 #endif
 
-        // mark these as full managed
-        for(browser& b: browsers) {
+        // mark these as fully managed
+        for(browser &b: browsers) {
             b.management = management_extent::full;
         }
 
@@ -360,7 +360,7 @@ namespace bt {
         return browsers;
     }
 
-    void discovery::discover_chrome_profiles(browser& b) {
+    void discovery::discover_chrome_profiles(browser &b) {
         if(b.engine != browser_engine::chromium) return;
 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
@@ -446,7 +446,7 @@ namespace bt {
         }
     }
 
-    void discovery::discover_filefox_profile_groups(
+    void discovery::discover_gecko_profile_groups(
         const string &parent_id,
         const string &installation_id,
         const string &store_id,
@@ -476,7 +476,7 @@ namespace bt {
     }
 
 
-    void discovery::discover_firefox_profiles(browser& b, std::vector<firefox_profile> &profiles) {
+    void discovery::discover_gecko_profiles(browser &b, std::vector<firefox_profile> &profiles) {
         fs::path data_folder{b.data_path};
 
         // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
@@ -538,7 +538,7 @@ namespace bt {
                 fs::path sqlite_db_path = data_folder / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
                 // profile definitions i.e. "new profiles" are now stored in the sqlite database
                 if(fs::exists(sqlite_db_path)) {
-                    discover_filefox_profile_groups(section_name,
+                    discover_gecko_profile_groups(section_name,
                                                     installation_id,
                                                     c_nested_store_id,
                                                     sqlite_db_path.string(),
@@ -552,11 +552,11 @@ namespace bt {
         }
     }
 
-    void discovery::discover_firefox_profiles(browser& b) {
+    void discovery::discover_gecko_profiles(browser &b) {
         if(b.engine != browser_engine::gecko) return;
 
         vector<firefox_profile> profiles;
-        discover_firefox_profiles(b, profiles);
+        discover_gecko_profiles(b, profiles);
 
         // sort profiles using the following rules: is_classic, has installation_id, name
         std::sort(profiles.begin(), profiles.end(),
@@ -631,7 +631,6 @@ namespace bt {
             auto identities = j["identities"];
             if(identities.is_array()) {
                 for(json::iterator it = identities.begin(); it != identities.end(); ++it) {
-
                     /* an example of identity element:
 {
   "userContextId": 9,
@@ -671,7 +670,7 @@ namespace bt {
                         string lid = j_l10nID.is_string() ? j_l10nID.get<string>() : j_l10nId.get<string>();
 
                         auto it = container_names.find(lid);
-                        if (it != container_names.end()) {
+                        if(it != container_names.end()) {
                             name = it->second;
                         } else {
                             name = lid;
@@ -714,38 +713,33 @@ namespace bt {
         return r;
     }
 
-    void discovery::discover_other_profiles(browser& b) {
+    void discovery::discover_other_profiles(browser &b) {
         if(b.engine != browser_engine::generic) return;
 
         string icon_path = b.icon_path.empty() ? b.open_cmd : b.icon_path;
 
-
-        string arg("\"");
-        arg += browser::URL_ARG_NAME;
-        arg += "\"";
-
-        browser_profile bi("Default",
-                           arg,
-                           icon_path);
+        const browser_profile bi("Default",
+                                 format("\"{}\"", browser::URL_ARG_NAME),
+                                 icon_path);
 
         b.profiles.push_back(bi);
     }
 
-    const std::vector<browser> discovery::discover_all_browsers() {
+    std::vector<browser> discovery::discover_all_browsers() {
         return discover_browsers(ProtoName);
     }
 
-    const void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
+    void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
         // discover various profiles
-        for(browser& b: browsers) {
+        for(browser &b: browsers) {
             discover_managed_profiles(b);
         }
     }
 
-    const void discovery::discover_managed_profiles(browser& b) {
+    void discovery::discover_managed_profiles(browser &b) {
         if(b.management == management_extent::full || b.management == management_extent::profiles) {
             discover_chrome_profiles(b);
-            discover_firefox_profiles(b);
+            discover_gecko_profiles(b);
             discover_other_profiles(b);
         }
     }

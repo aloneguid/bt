@@ -24,6 +24,4 @@ namespace bt::strings {
 
     const std::string BrowserMoveUpTooltip{"Move up (affects the picker)"};
     const std::string BrowserMoveDownTooltip{"Move down (affects the picker)"};
-    const std::string BrowserOpenInstallationFolderTooltip{"Open installation folder in Explorer."};
-    const std::string BrowserOpenUserDataFolderTooltip{"Open application data folder in Explorer."};
 }

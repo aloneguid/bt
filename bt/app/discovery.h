@@ -33,24 +33,26 @@ namespace bt {
         /**
          * @brief Scans the system for all the browsers.Also returns custom browser placeholder.
          */
-        static const std::vector<browser> discover_all_browsers();
+        static std::vector<browser> discover_all_browsers();
 
-        static const void discover_managed_profiles(std::vector<browser>& browsers);
+        static void discover_managed_profiles(std::vector<browser> &browsers);
 
-        static const void discover_managed_profiles(browser& browser);
+        static void discover_managed_profiles(browser &browser);
+
+        static void discover_other_profiles(browser &b);
 
     private:
-        inline static constexpr int ICON_SIZE = 256;
+        static constexpr int ICON_SIZE = 256;
 
         static std::vector<browser> discover_browsers(const std::string &ignore_proto);
 
         static void discover_chrome_profiles(browser &b);
 
-        static void discover_firefox_profiles(browser &b, std::vector<firefox_profile> &profiles);
+        static void discover_gecko_profiles(browser &b, std::vector<firefox_profile> &profiles);
 
-        static void discover_firefox_profiles(browser &b);
+        static void discover_gecko_profiles(browser &b);
 
-        static void discover_filefox_profile_groups(
+        static void discover_gecko_profile_groups(
             const std::string &parent_id,
             const std::string &installation_id,
             const std::string &store_id,
@@ -61,8 +63,6 @@ namespace bt {
         static std::vector<firefox_container> discover_gecko_containers(const std::string &roaming_home);
 
         static std::vector<std::string> get_firefox_addons_installed(const std::string &roaming_home);
-
-        static void discover_other_profiles(browser &b);
 
         static std::string unmangle_open_cmd(const std::string &open_cmd);
 
