@@ -20,7 +20,8 @@ namespace bt {
 
     class match_rule {
     public:
-        explicit match_rule(const std::string& line);
+        match_rule() = default;
+        match_rule(const std::string& value) : value{value} {}
 
         bool is_match(const click_payload& up, const script_site& script) const;
         bool is_match(const click_payload& up) const;
@@ -29,7 +30,6 @@ namespace bt {
         std::string value;
         match_location loc{match_location::url};
         match_scope scope{match_scope::any};
-        int priority{0};
         bool is_regex{false};
         bool app_mode{false};
         bool is_fallback{false};
@@ -46,13 +46,8 @@ namespace bt {
         bool operator==(const match_rule& other) const;
 
         std::string to_string(bool include_type = true) const;
-        std::string to_line() const;
-        std::string get_type_string() const;
 
-        static std::string to_string(match_scope s);
-        static std::string to_string(match_location s);
-        static match_scope to_match_scope(const std::string& s);
-        static match_location to_match_location(const std::string& s);
+        std::string get_type_string() const;
 
         static bool parse_url(const std::string& url, std::string& proto, std::string& host, std::string& path);
 

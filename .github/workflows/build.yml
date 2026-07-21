@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - master
-      - xplat/linux
+      - linux
     tags:
       - 'v*'              # release only when pushing a version tag
   workflow_dispatch:
@@ -21,9 +21,11 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: ${{ matrix.os }}
     # allow Linux build to fail while prototyping
-    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
+    # continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -33,11 +35,13 @@ jobs:
             vcpkg_triplet: x64-windows-static
             vcpkg_config: Release
             artifact_suffix: -win-x64
+            artifact_pattern: '*.msi'
           - os: ubuntu-latest
             name: Linux x64
             vcpkg_triplet: x64-linux
             vcpkg_config: MinSizeRel
             artifact_suffix: -linux-x64
+            artifact_pattern: '*.deb'
 
     name: 'build: ${{ matrix.name }}'
     env:
@@ -46,42 +50,41 @@ jobs:
 
     steps:
 
-    - name: Linux dependencies
+    - name: 🐧 Dependencies
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool      
+        sudo apt-get --yes install cmake g++ gdb make ninja-build rsync zip libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config autoconf autoconf-archive automake libtool dpkg-dev imagemagick xvfb
+
+    - name: 🪟 Dependencies
+      if: runner.os == 'Windows'
+      run: |
+        dotnet tool install --global wix
+        wix eula accept wix7
+        wix extension add --global WixToolset.UI.wixext
 
     - uses: actions/checkout@v6
       with:
         submodules: true
 
-    - name: create variables
+    - name: Create variables
       run: |
         $VERSION = (Get-Content docs/release-notes.md -Head 1).Trim() -replace '[ #]', ''
         Add-Content -Path $env:GITHUB_ENV -Value "VERSION=$VERSION"
-      shell: pwsh
-
-    - name: print variables
-      run: |
         Write-Host "VERSION: ${{ env.VERSION }}"
       shell: pwsh
 
+    # below seems to work on Linux, it looks like GHA has powershell/linux available already
     - name: pre-build patch script
-      run: .\pre-build.ps1
+      run: .\resources\ci\pre-build.ps1
       shell: pwsh
 
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
         committish: ${{ env.VCPKG_HASH }} 
-        # set to false to clear any cache in case of build errors
+        # set it to false to clear any cache in case of build errors
         cache: false
-
-    # - name: Setup Python
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: '3.11' 
 
     - name: ⚙️ configure
       run: >
@@ -89,94 +92,82 @@ jobs:
         -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -D "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake"
         -D "VCPKG_TARGET_TRIPLET=${{ env.VCPKG_TRIPLET }}"
+        -D "CPACK_PACKAGE_VERSION=${{ env.VERSION }}"
       working-directory: . 
 
     - name: 🏭 build
       run: cmake --build build --config ${{ matrix.vcpkg_config }}
       working-directory: . 
 
-    - name: debug
-      run: ls -R
-      working-directory: build/bt
+#    - name: debug
+#      run: ls -R
+#      working-directory: build/bt
 
-    - name: 🧪 unit tests
+    - name: 🪟 🧪 unit tests
       if: runner.os == 'Windows'
       run: |
           .\test.exe
       working-directory: build/bt/Release
 
-    - name: 🧪 unit tests
+    - name: 🐧 🧪 unit tests
       if: runner.os == 'Linux'
       run: |
           ./test
       working-directory: build/bt
 
-    - name: Create artifacts directory
-      run: mkdir atf        
+    - name: 📦 Package Installer
+      run: |
+        cpack -C ${{ matrix.vcpkg_config }}
+      working-directory: build
 
-    - name: '🖥️ Screenshots'
-      if: runner.os == 'Windows'
+    - name: 📋 Dump WiX log on failure
+      if: failure() && runner.os == 'Windows'
       shell: pwsh
       run: |
-        Add-Type -AssemblyName System.Drawing
-        Add-Type -AssemblyName System.Windows.Forms
+        $log = "build/_CPack_Packages/win64/WIX/wix.log"
+        if (Test-Path $log) { Get-Content $log }
 
-        New-Item -ItemType Directory -Path screenshots -Force | Out-Null
-
-        function Save-Screenshot([string]$Path) {
-          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
-          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
-          $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
-          $graphics.Dispose()
-          $bitmap.Dispose()
-        }
-
-        $processPath = "build/bt/Release/bt.exe"
-
-        $pick = Start-Process -FilePath $processPath -ArgumentList "discover" -PassThru
-        Start-Sleep -Seconds 3
-
-        $bt = Start-Process -FilePath $processPath -PassThru
-        Start-Sleep -Seconds 3
-        Save-Screenshot "$PWD\screenshots\config.png"
-        if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
-
-        $pick = Start-Process -FilePath $processPath -ArgumentList "pick", "https://bbc.co.uk" -PassThru
-        Start-Sleep -Seconds 3
-        Save-Screenshot "$PWD\screenshots\picker.png"
-
-        if ($pick -and -not $pick.HasExited) { Stop-Process -Id $pick.Id -Force }
-        if ($bt -and -not $bt.HasExited) { Stop-Process -Id $bt.Id -Force }
-
-    # put the following inside "atf" subdir:
-    # 1. msi installer, renamed after version number (removed in 5.5.1)
-    # 2. zipped .exe
-    # 3. version.txt containing version number
     - name: prep artifacts
-      if: runner.os == 'Windows'
       run: |
-        cp build/bt/Release/bt.exe atf/
-        cp build/bt/Release/bt.pdb atf/
-        "${{ env.VERSION }}" | Out-File atf/version.txt -NoNewline
+        mkdir atf
+        cp build/${{ matrix.artifact_pattern }} atf/
+        echo -n "${{ env.VERSION }}" > atf/version.txt
         cp docs/release-notes.md atf/
         cp docs/instructions.md atf/
-        cp screenshots/*.png atf/
 
     - uses: actions/upload-artifact@v7
       name: collect binaries
-      if: runner.os == 'Windows'
       with:
         name: bin${{ matrix.artifact_suffix }}
         path: atf/*
         if-no-files-found: error
         compression-level: 9
 
+  release-artifacts:
+    runs-on: ubuntu-latest
+    name: '📦 Prepare Release Artifacts'
+    needs: [build]
+    steps:
+      - name: ⬇️ Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true  # overwrites duplicate files
+
+      - name: debug
+        run: ls -R
+
+      - uses: actions/upload-artifact@v7
+        name: ⬆️ Upload as a single artifact
+        with:
+          name: bin-all
+          path: '*'
+          if-no-files-found: error
+          compression-level: 9
+
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [build]
+    needs: [release-artifacts]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
@@ -187,10 +178,17 @@ jobs:
 
     steps:
 
-      - name: ⬇️ Download binaries
+      - name: ⬇️ Download binaries (Windows)
         uses: actions/download-artifact@v8
         with:
           name: bin-win-x64
+          path: win
+
+      - name: ⬇️ Download binaries (Linux)
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-linux-x64
+          path: linux
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -202,6 +200,11 @@ jobs:
 
       - name: 🔢 prep release notes / artifacts
         run: |
+          cp win/instructions.md .
+          cp win/release-notes.md .
+          cp win/bt.exe .
+          cp win/bt.pdb .
+          cp linux/*.deb .
           envsubst < instructions.md > g.tmp && mv g.tmp instructions.md
           grep -m 2 -B 1000 '^## ' release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat instructions.md >> final_notes.md
@@ -224,4 +227,5 @@ jobs:
           files: |
             bt.zip
             bt.pdb.zip
+            *.deb
           body_path: final_notes.md

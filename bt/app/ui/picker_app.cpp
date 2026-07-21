@@ -1,13 +1,9 @@
 ﻿#include "picker_app.h"
 #include <memory>
-#include "fss.h"
 #include "../../globals.h"
-#include "../../res.inl"
 #include <format>
-
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "btwidgets.h"
+#include "common/clipboard.h"
 
 #if PLATFORM_WINDOWS
 #include "win32/user.h"
@@ -20,19 +16,20 @@ using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    picker_app::picker_app(const string& url) 
+    picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection>> selections)
         : url{url}, title{APP_LONG_NAME " - Pick"},
         app{grey::app::make(title, 100, 100)},
         wnd_main{title, &is_open},
         wnd_settings{"Settings", &is_settings_open} {
 
-        app->initial_theme_id = g_settings.theme;
+        app->initial_theme_id = g_state.ui_theme;
+        app->can_resize = false;
+        app->center_on_screen = true;
+
 #if PLATFORM_WINDOWS
-        app->win32_can_resize = false;
-        app->win32_center_on_screen = true;
-        app->win32_close_on_focus_lost = g_settings.picker_close_on_focus_loss;
-        app->win32_always_on_top = g_settings.picker_always_on_top;
-        app->win32_title_bar = g_settings.picker_show_native_chrome;
+        app->win32_close_on_focus_lost = g_state.picker.close_on_focus_loss;
+        app->win32_always_on_top = g_state.picker.always_on_top;
+        app->win32_title_bar = g_state.picker.show_native_chrome;
 #endif
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
@@ -45,18 +42,27 @@ namespace bt::ui {
             this->url = up.url;
         }
 
-        choices = browser::to_instances(g_settings.browsers, true);
+        if(selections) {
+            choices = *selections;
+        } else {
+            choices.clear();
+            for(auto& browser : g_state.browsers) {
+                if(browser.is_hidden) continue;
+                for(size_t i = 0; i < browser.profiles.size(); i++) {
+                    if(browser.profiles[i].is_hidden) continue;
+                    choices.push_back(profile_selection{browser, i});
+                }
+            }
+        }
 
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
 
             wnd_main
-                //.size(wnd_width, wnd_height_normal)
                 .no_titlebar()
                 .no_resize()
-                .border(g_settings.picker_border_width)
+                .border(static_cast<float>(g_state.picker.border_width))
                 .fill_viewport()
-                //.no_background()
                 .no_scroll();
 
             cnt_top
@@ -77,15 +83,14 @@ namespace bt::ui {
     }
 
     picker_app::~picker_app() {
-        g_settings.commit();
     }
 
     picker_result picker_app::run() {
-        app->run([this](const grey::app& app) {
+        app->run([this](const grey::app&) {
             return run_frame();
         });
 
-        return picker_result{decision, url};
+        return picker_result{final_choice, url};
     }
 
     bool picker_app::is_hotkey_down() {
@@ -96,10 +101,10 @@ namespace bt::ui {
         bool k_caps = win32::user::is_kbd_caps_locks_on();
 
         return
-            (g_settings.picker_on_key_as && (k_alt && k_shift)) ||
-            (g_settings.picker_on_key_ca && (k_ctrl && k_alt)) ||
-            (g_settings.picker_on_key_cs && (k_ctrl && k_shift)) ||
-            (g_settings.picker_on_key_cl && k_caps);
+            (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
+            (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
+            (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
+            (g_state.picker.invoke.on_key_caps_locks && k_caps);
 #else
         return false;
 #endif
@@ -108,7 +113,7 @@ namespace bt::ui {
     bool picker_app::run_frame() {
 
 #if PLATFORM_WINDOWS
-        app->win32_transparency_window_alpha = g_settings.picker_opacity;
+        app->win32_transparency_window_alpha = g_state.picker.opacity;
 #endif
 
         // get monitor dimensions
@@ -189,7 +194,7 @@ namespace bt::ui {
             for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
                 if(ImGui::IsKeyPressed((ImGuiKey)key_index)) {
                     active_idx = key_index - ImGuiKey_1;
-                    decision = choices[active_idx];
+                    final_choice = choices[active_idx];
                     is_open = false;
                     break;
                 }
@@ -199,23 +204,25 @@ namespace bt::ui {
         // invoke action on Enter
         if(ImGui::IsKeyPressed(ImGuiKey_Enter)) {
             if(active_idx >= 0 && active_idx < choices.size()) {
-                decision = choices[active_idx];
+                final_choice = choices[active_idx];
                 is_open = false;
             }
         }
 
         //ImGui::ShowDemoWindow();
 
+        g_config.tick(ImGui::GetIO().DeltaTime);
+
         return is_open;
     }
 
     void picker_app::recalc() {
-        padding = g_settings.picker_item_padding * app->scale;
-        icon_size = g_settings.picker_icon_size * app->scale;
+        padding = g_state.picker.item_padding * app->scale;
+        icon_size = g_state.picker.icon_size * app->scale;
         box_size = padding + icon_size + padding;
 
         float max_url_width = ImGui::CalcTextSize(url.c_str()).x + action_button_width * (action_menu_items.size() + 2);
-        float max_w_width = box_size * (choices.size() + 1);
+        float max_w_width = box_size * (choices.size() + 1.0f);
         float max_width = max(max_url_width, max_w_width);
 
         float w_width = min(max_width, mon_work_size.x);
@@ -295,7 +302,7 @@ namespace bt::ui {
                 btw_icon(*app, p, padding, icon_size, is_active);
 
                 // draw key highlight
-                if(g_settings.picker_show_key_hints && i < 9) {
+                if(g_state.picker.show_key_hints && i < 9) {
                     string label = format("{}", i + 1);
                     ImVec2 wsz = ImGui::CalcTextSize(label.c_str());
 
@@ -310,7 +317,7 @@ namespace bt::ui {
                 //w::cur_set(x0 + icon_size + padding * 3, y0 + padding + icon_size / 2 - ImGui::GetTextLineHeight() / 2);
                 //w::label(p->get_best_display_name());
 
-               
+
             }
 
             if(w::is_hovered()) {
@@ -319,11 +326,11 @@ namespace bt::ui {
             }
 
             if(w::is_leftclicked()) {
-                decision = choices[active_idx];
+                final_choice = choices[active_idx];
                 is_open = false;
             }
 
-            w::tt(p->get_best_display_name());
+            w::tt(p.b().get_best_display_name(p.profile()));
         }
 
         ImGui::PopStyleVar();
@@ -336,32 +343,32 @@ namespace bt::ui {
             "browser on top of profile",
             "browser only",
             "profile only"
-        }, (unsigned int&)g_settings.icon_overlay);
+        }, (unsigned int&)g_state.icon_overlay);
 
 #if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = false; // never close app when settings are open
 #endif
 
-        w::slider(g_settings.picker_icon_size, 5, 256, "icon size");
-        w::slider(g_settings.picker_item_padding, 0, 100, "padding");
-        w::slider(g_settings.picker_inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
-        w::checkbox("show key hints (1-9)", g_settings.picker_show_key_hints);
-        if(w::slider(g_settings.picker_border_width, 0, 10, "border width", 1, true)) {
-            wnd_main.border(g_settings.picker_border_width);
+        w::slider(g_state.picker.icon_size, 5, 256, "icon size");
+        w::slider(g_state.picker.item_padding, 0, 100, "padding");
+        w::slider(g_state.picker.inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
+        w::checkbox("show key hints (1-9)", g_state.picker.show_key_hints);
+        if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
+            wnd_main.border(g_state.picker.border_width);
         }
-        w::slider(g_settings.picker_opacity, 50, 255, "window opacity");
-        w::checkbox("show native window chrome", g_settings.picker_show_native_chrome);
+        w::slider(g_state.picker.opacity, 50, 255, "window opacity");
+        w::checkbox("show native window chrome", g_state.picker.show_native_chrome);
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         if(w::button("reset", w::emphasis::error)) {
-            g_settings.picker_icon_size = 32;
-            g_settings.picker_item_padding = 10;
-            g_settings.picker_inactive_item_alpha = 0.4f;
-            g_settings.picker_show_key_hints = true;
-            g_settings.picker_border_width = 1;
-            g_settings.picker_show_native_chrome = false;
-            g_settings.icon_overlay = icon_overlay_mode::profile_on_browser;
-            g_settings.picker_opacity = 255;
+            g_state.picker.icon_size = 32;
+            g_state.picker.item_padding = 10;
+            g_state.picker.inactive_item_alpha = 0.4f;
+            g_state.picker.show_key_hints = true;
+            g_state.picker.border_width = 1;
+            g_state.picker.show_native_chrome = false;
+            g_state.icon_overlay = icon_overlay_mode::profile_on_browser;
+            g_state.picker.opacity = 255;
         }
 
         w::spc(3);
@@ -369,13 +376,11 @@ namespace bt::ui {
 
     void picker_app::menu_item_clicked(const std::string& id) {
         if(id == "copy") {
-#if PLATFORM_WINDOWS
-            win32::os::set_clipboard_text(url);
-#endif
+            clipboard::set_text(url);
             is_open = false;
         } else if(id == "email") {
+            clipboard::set_text(url);
 #if PLATFORM_WINDOWS
-            win32::os::set_clipboard_text(url);
             win32::shell::exec(format("mailto:?body={}", url), "");
 #endif
             is_open = false;

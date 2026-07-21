@@ -18,13 +18,9 @@
 #include "app/ui/picker_app.h"
 #include "app/ui/toast_app.h"
 
-// globals.h
-grey::common::config g_settings{APP_SHORT_NAME, "config.ini"};
-bt::script_site g_script{grey::common::fss::get_config_file_path(APP_SHORT_NAME, "scripts.lua"), true};
-bt::url_pipeline g_pipeline{g_settings};
-
 using namespace std;
 using namespace grey::common;
+using namespace bt;
 
 void open(bt::click_payload up, bool force_picker = false) {
     g_pipeline.process(up);
@@ -32,46 +28,52 @@ void open(bt::click_payload up, bool force_picker = false) {
     // decision whether to show picker or not
     bool show_picker{force_picker};
     string pick_reason;
-    if(!show_picker) {
-        if(g_settings.picker_always) {
-            show_picker = true;
-            pick_reason = "always";
-        } else if(bt::ui::picker_app::is_hotkey_down()) {
+    vector<browser_match_result> rule_matches;
+    if(!force_picker) {
+        if(ui::picker_app::is_hotkey_down()) {
             show_picker = true;
             pick_reason = "hotkey";
-        } else if(g_settings.picker_on_conflict || g_settings.picker_on_no_rule) {
-            auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
-            if(g_settings.picker_on_conflict && matches.size() > 1) {
+        } else {
+            rule_matches = browser::match(g_state.browsers, up, g_script);
+            if(rule_matches.size() > 1) {
                 show_picker = true;
                 pick_reason = "conflict";
-            } else if(g_settings.picker_on_no_rule && matches[0].rule.is_fallback) {
-                show_picker = true;
-                pick_reason = "no rule";
+            } else if(rule_matches.size() == 1) {
+                if(g_state.picker.invoke.on_no_rule && rule_matches[0].rule.is_fallback) {
+                    show_picker = true;
+                    pick_reason = "no rule";
+                }
             }
         }
     }
 
     if(show_picker) {
-        bt::ui::picker_app app{up.url};
-        auto bi = app.run();
-        if(bi) {
-            up.url = bi.url;
-            bt::url_opener::open(bi.decision, up);
-            if(g_settings.log_rule_hits) {
-                bt::rule_hit_log::i.write(up, bi.decision, "picker:" + pick_reason);
+        vector<profile_selection> limited_choices;
+        if(!rule_matches.empty()) {
+            for(auto& match : rule_matches) {
+                limited_choices.push_back(match.profile);
+            }
+        }
+        ui::picker_app app{up.url, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
+        auto pr = app.run();
+        if(pr) {
+            up.url = pr.url;
+            url_opener::open(*pr.choice, up);
+            if(g_state.log_rule_hits) {
+                rule_hit_log::i.write(up, *pr.choice, "picker:" + pick_reason);
             }
         }
     } else {
-        auto matches = bt::browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
-        bt::browser_match_result& first_match = matches[0];
+        auto matches = bt::browser::match(g_state.browsers, up, g_script);
+        browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(up);
-        bt::url_opener::open(first_match.bi, up);
-        if(g_settings.log_rule_hits) {
-            bt::rule_hit_log::i.write(up, first_match.bi, matches[0].rule.to_line());
+        url_opener::open(first_match.profile, up);
+        if(g_state.log_rule_hits) {
+            rule_hit_log::i.write(up, first_match.profile, matches[0].rule.to_string());
         }
 
-        if(g_settings.toast_on_open) {
-            bt::ui::toast_app app{up, first_match.bi};
+        if(g_state.toast.enabled) {
+            ui::toast_app app{up, first_match.profile};
             app.run();
         }
     }
@@ -121,10 +123,10 @@ void execute(const string& data) {
             c.exec(command, command_data);
             return;
         } else if(command == "discover") {
-            vector<shared_ptr<bt::browser>> fresh_browsers = bt::discovery::discover_all_browsers();
-            fresh_browsers = bt::browser::merge(fresh_browsers, g_settings.browsers);
-            g_settings.browsers = fresh_browsers;
-            g_settings.commit();
+            vector<bt::browser> fresh_browsers = bt::discovery::discover_all_browsers();
+            fresh_browsers = bt::browser::merge(fresh_browsers, g_state.browsers);
+            g_state.browsers = fresh_browsers;
+            g_config.serialize();
             return;
         }
     }
@@ -152,7 +154,7 @@ void execute(const string& data) {
 #if _DEBUG
     if(command == "toast") {
         up.url = command_data;
-        bt::ui::toast_app app{up, g_settings.browsers[0]->instances[0]};
+        bt::ui::toast_app app{up, browser::get_default(g_state.browsers).value()};
         app.run();
         return;
     }

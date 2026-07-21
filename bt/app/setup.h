@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include "platform.h"
 
 namespace bt {
     class system_check {
@@ -15,7 +16,6 @@ namespace bt {
             fix_description{fix_description},
             perform_check{perform_check},
             mitigate{mitigate} {
-
         }
 
         const std::string id;
@@ -46,29 +46,10 @@ namespace bt {
 
         static std::vector<system_check> get_checks();
 
-        /**
-         * @brief Registers as browser, and registers browser protocol
-        */
-        static void register_as_browser_and_custom_protocol();
-
-        static void unregister_all();
-
-        static std::string get_custom_proto_reg_path();
-
-        static std::string get_browser_registration_reg_path();
-
-        static void register_protocol();
-
-        static void register_file_association(const std::string& proto_name, int icon_index, const std::vector<std::string>& extensions);
-
-        static void register_browser();
-
     private:
-
-        static bool is_installed_as_browser(const std::string& name, std::string& error_message);
-
-        static void uninstall_as_browser(
-            const std::string& proto_name,
-            const std::string& name);
+#if PLATFORM_WINDOWS
+        static std::string get_shell_url_association_prog_id(const std::string& protocol_name);
+		static std::string get_prog_id_application_name(const std::string& prog_id);
+#endif
     };
 }

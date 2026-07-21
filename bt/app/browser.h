@@ -1,41 +1,54 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <memory>
+#include <optional>
 #include "match_rule.h"
 #include "click_payload.h"
 
 namespace bt {
-
-    class browser_instance;
+    class browser_profile;
     class browser_match_result;
+    class profile_selection;
 
     enum class browser_engine {
-        unknown,
+        generic,
         chromium,
         gecko
     };
 
-    class browser {
-    public:
-
-        static const std::string UwpCmdPrefix;
-
-        browser(
-            const std::string& id,
-            const std::string& name,
-            const std::string& open_cmd);
-
-        std::string id;
-        std::string name;
-        std::string open_cmd;
-        browser_engine engine{browser_engine::unknown};
-        int sort_order{0};
+    /**
+     * What exactly is managed for this browser.
+     */
+    enum class management_extent {
+        /**
+         * No discovery is done, the browser is manually configured.
+         */
+        none,
 
         /**
-         * @brief when true, this browser is part of the system i.e not a user defined one.
-        */
-        bool is_autodiscovered{false};
+         * Both the browser and all it's profiles are managed.
+         */
+        full,
+
+        /**
+         * Browser is manually added, but profiles are discovered automatically.
+         */
+        profiles
+    };
+
+    class browser {
+    public:
+        inline static const std::string URL_ARG_NAME{"%url%"};
+
+        browser(
+            const std::string &name,
+            const std::string &open_cmd);
+
+        bool operator==(const browser &other) const = default;
+
+        std::string name;
+        std::string open_cmd;
+        browser_engine engine{browser_engine::generic};
 
         /**
          * @brief Whether to hide this browser from UI.
@@ -52,7 +65,9 @@ namespace bt {
          */
         std::string data_path;
 
-        std::vector<std::shared_ptr<browser_instance>> instances;
+        management_extent management{management_extent::none};
+
+        std::vector<browser_profile> profiles;
 
         /**
          * @brief Instance ID, used by Firefox. Not persisted as it's not required after discovery.
@@ -62,101 +77,56 @@ namespace bt {
         // UI helper properties
         bool ui_test_url_matches{false};
         float ui_icon_size_anim{0.0f};
+        std::string ui_validation_error;
 
-        size_t get_total_rule_count() const;
+        void launch(click_payload up, const browser_profile &profile) const;
 
-        bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
+        [[nodiscard]] size_t get_total_rule_count() const;
 
-        bool is_wellknown() const { return engine != browser_engine::unknown; }
+        [[nodiscard]] bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
 
-        bool is_msstore() const { return open_cmd.starts_with(UwpCmdPrefix); }
+        [[nodiscard]] bool is_wellknown() const { return engine != browser_engine::generic; }
 
-        std::string get_best_icon_path() const;
+        [[nodiscard]] std::string get_best_icon_path() const;
 
-        bool contains_profile_id(const std::string& long_id) const;
+        [[nodiscard]] std::string get_best_icon_path(const browser_profile &profile, bool include_override = true) const;
 
-        friend bool operator==(const browser& b1, const browser& b2);
+        [[nodiscard]] bool is_default() const;
+
+        void set_management(browser_engine engine) {
+            management = engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
+        }
 
         // ---- static members
 
-        static std::vector<std::shared_ptr<browser_instance>> to_instances(
-            const std::vector<std::shared_ptr<browser>>& browsers,
-            bool skip_hidden = true);
-
-        /**
-         * @brief Finds and returns profile by it's long id. If not found, returns the first profile or the first browser.
-         * @param browsers 
-         * @param long_sys_name 
-         * @param found 
-         * @return 
-         */
-        static std::shared_ptr<browser_instance> find_profile_by_long_id(
-            const std::vector<std::shared_ptr<browser>>& browsers, const std::string& long_sys_name, bool& found);
-
         static std::vector<browser_match_result> match(
-            const std::vector<std::shared_ptr<browser>>& browsers,
-            const click_payload& up,
-            const std::string& default_profile_long_id,
-            const script_site& script);
+            const std::vector<browser> &browsers,
+            const click_payload &up,
+            const script_site &script);
 
-        static std::shared_ptr<browser_instance> get_default(
-            const std::vector<std::shared_ptr<browser>>& browsers,
-            const std::string& default_profile_long_id);
+        static std::optional<profile_selection> get_default(const std::vector<browser> &browsers);
 
-        static std::vector<std::shared_ptr<browser>> merge(
-            std::vector<std::shared_ptr<browser>> new_set,
-            std::vector<std::shared_ptr<browser>> old_set);
+        static void set_default(std::vector<browser> &browsers, const browser_profile &profile);
 
-        static size_t index_of(std::vector<std::shared_ptr<bt::browser>>& browsers, std::shared_ptr<bt::browser> b);
+        static std::vector<browser> merge(
+            std::vector<browser> &new_set,
+            std::vector<browser> &old_set);
 
-        /**
-         * @brief Sort browsers and profiles inside them by sort order.
-         * @param browsers 
-         */
-        static void sort(std::vector<std::shared_ptr<browser>>& browsers);
+        static size_t index_of(std::vector<browser> &browsers, browser &b);
 
+        [[nodiscard]] std::string get_best_display_name(const browser_profile &profile) const;
     private:
+        static std::string get_image_name(const std::string &open_cmd);
 
-        static std::string get_image_name(const std::string& open_cmd);
+        void launch_process(const std::string &cmdline, const browser_profile &profile) const;
     };
 
-    class browser_instance {
+    class browser_profile {
     public:
-        // profile:
-        // - sys name
-        // - display name
-        // - icon (HICON)
-
-        inline static const std::string URL_ARG_NAME{ "%url%" };
-
-        browser_instance(
-            std::shared_ptr<browser> b,
-            const std::string& id,
-            const std::string& name,
-            const std::string& launch_arg,
-            const std::string& icon_path);
-
-        ~browser_instance();
-
-        void launch(click_payload up) const;
-
-        bool is_match(const click_payload& up, match_rule& mr) const;
-
-        bool is_match(const click_payload& up, const script_site& ss, match_rule& mr) const;
-
-        /// <summary>
-        /// Adds a rule from text. Does not persist.
-        /// </summary>
-        /// <param name="rule_text"></param>
-        /// <returns>true if rule was added - if duplicate is found it's not added.</returns>
-        bool add_rule(const std::string& rule_text);
-
-        void delete_rule(const std::string& rule_text);
-
-        std::shared_ptr<browser> b;     // browser it belongs to
-
-        const std::string id;
-        std::string name;               // how it's called by the user
+        /**
+         * @brief Name given by the user
+         */
+        std::string name;
 
         std::string launch_arg;
 
@@ -164,8 +134,6 @@ namespace bt {
          * @brief user-defined argument, added after launch_arg. Only separate from launch_arg to be able to store independently in the config file.
         */
         std::string user_arg;
-
-        std::vector<std::shared_ptr<match_rule>> rules;
 
         /**
          * @brief Whether to hide this profile from UI.
@@ -176,26 +144,30 @@ namespace bt {
          * @brief Optionally sets a custom profile icon if known.
         */
         std::string icon_path;
-        
+
         /**
          * @brief User can override the built-in icon with a custom one.
          */
         std::string user_icon_path;
 
         /**
-         * @brief When true, terminal window will be hidden when launching this profile.
+         * @brief When true, the terminal window will be hidden when launching this profile.
          */
         bool launch_hide_ui{false};
 
-        // UI helpers
-        bool ui_test_url_matches;
+        bool is_incognito{false};
 
         /**
-         * @brief Optional sort order
-        */
-        int sort_order{0};
+         * @brief Some profiles (like Firefox containers) have color attribute
+         */
+        unsigned int color{0};
+        bool use_color{false};
 
-        bool is_incognito{false};
+        /**
+         * @brief User-defined color override
+         */
+        unsigned int user_color{0};
+        bool use_user_color{false};
 
         /**
          * @brief If this is the default browser profile in this browser. Doesn't have to do anything with user's default choice in BT.
@@ -207,23 +179,82 @@ namespace bt {
         */
         bool has_firefox_ouic_addon{false};
 
-        std::string long_id() const { return b->id + ":" + id; }
+        std::vector<match_rule> rules;
 
-        bool is_singular() const; // whether this is a singular instance browser (private mode is not taken into account)
+        // UI helpers
+        bool ui_test_url_matches{false};
 
-        std::string get_best_display_name() const;
+        browser_profile(
+            const std::string &name,
+            const std::string &launch_arg,
+            const std::string &icon_path);
 
-        std::string get_best_icon_path(bool include_override = true) const;
+        bool operator==(const browser_profile &other) const;
 
-        std::vector<std::string> get_rules_as_text_clean() const;
-        void set_rules_from_text(std::vector<std::string> rules_txt);
+        browser_profile &operator=(const browser_profile &other) {
+            name = other.name;
+            launch_arg = other.launch_arg;
+            user_arg = other.user_arg;
+            rules = other.rules;
+            icon_path = other.icon_path;
+            is_hidden = other.is_hidden;
+            user_icon_path = other.user_icon_path;
+            launch_hide_ui = other.launch_hide_ui;
+            ui_test_url_matches = other.ui_test_url_matches;
+            is_incognito = other.is_incognito;
+            is_default = other.is_default;
+            has_firefox_ouic_addon = other.has_firefox_ouic_addon;
+            use_color = other.use_color;
+            color = other.color;
+            use_user_color = other.use_user_color;
+            user_color = other.user_color;
+            return *this;
+        }
 
-    private:
-        void launch_process(const std::string& cmdline) const;
+        ~browser_profile();
+
+        bool is_match(const click_payload &up, match_rule &mr) const;
+
+        bool is_match(const click_payload &up, const script_site &ss, match_rule &mr) const;
+
+        /// <summary>
+        /// Adds a rule from text. Does not persist.
+        /// </summary>
+        /// <param name="rule_text"></param>
+        /// <returns>true if rule was added - if duplicate is found it's not added.</returns>
+        bool add_rule(const std::string &rule_text);
+
+        void delete_rule(const std::string &rule_text);
     };
 
-    struct browser_match_result {
-        std::shared_ptr<browser_instance> bi;
+    class profile_selection {
+    public:
+        profile_selection(const browser& browser, size_t profile_idx) : root{browser}, profile_idx{profile_idx} {
+
+        }
+
+        const browser& b() const {
+            return root;
+        }
+
+        const browser_profile& profile() const {
+            return root.profiles[profile_idx];
+        }
+
+    private:
+        bt::browser root;
+        size_t profile_idx;
+    };
+
+    class browser_match_result {
+    public:
+        browser_match_result(const profile_selection& selection, const match_rule &rule)
+            : profile{selection}, rule(rule) {
+        }
+
+        browser_match_result(const browser_match_result &other) = default;
+
+        profile_selection profile;
         match_rule rule;
     };
 }

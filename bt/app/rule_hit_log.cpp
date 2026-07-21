@@ -9,12 +9,10 @@ namespace fs = std::filesystem;
 using namespace grey::common;
 
 namespace bt {
-
-    const string HitLogFileName = "hit_log.csv";
     rule_hit_log rule_hit_log::i;
 
     rule_hit_log::rule_hit_log() : 
-        path{grey::common::fss::get_config_file_path(APP_SHORT_NAME, HitLogFileName)},
+        path{grey::common::fss::get_config_file_path(CONFIG_NAME, "hit_log.csv")},
         stream(path, ofstream::out | ofstream::app | ofstream::ate),
         writer(stream) {
         if(stream.tellp() == 0) {
@@ -34,12 +32,11 @@ namespace bt {
         }
     }
 
-    void rule_hit_log::write(const bt::click_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule) {
+    void rule_hit_log::write(const click_payload& up, const profile_selection& sel, const std::string& rule) {
         writer.write_row(vector<string>{
             datetime::to_iso_8601(),
-            bi->b->id,
-            bi->b->name,
-            bi->name,
+            sel.b().name,
+            sel.profile().name,
             up.url,
             "",
             up.url,

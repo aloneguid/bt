@@ -1,8 +1,15 @@
 cmake_minimum_required (VERSION 3.20)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project ("BrowserTamer")
+project ("BrowserTamer" VERSION 6.0.0)
+
+# Application metadata - shared between main build and packaging
+set(APP_NAME bt)
+set(APP_LONG_NAME "Browser Tamer")
+set(APP_URL "https://www.aloneguid.uk/projects/bt/")
+set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
+set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
 add_compile_definitions(UNICODE)    # required for WIN32 API to use correct versions
 if(WIN32)

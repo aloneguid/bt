@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <optional>
 #include "grey.h"
 #include "../browser.h"
 
@@ -8,11 +9,11 @@ namespace bt::ui {
 
     class picker_result {
     public:
-        std::shared_ptr<bt::browser_instance> decision;
+        std::optional<profile_selection> choice;
         std::string url;
 
         operator bool() const {
-            return decision != nullptr;
+            return static_cast<bool>(choice);
         }
     };
 
@@ -25,7 +26,7 @@ namespace bt::ui {
             std::string tooltip;
         };
 
-        picker_app(const std::string& url);
+        picker_app(const std::string& url, std::optional<std::vector<profile_selection>> selections = std::nullopt);
         ~picker_app();
 
         picker_result run();
@@ -60,10 +61,10 @@ namespace bt::ui {
         grey::widgets::window wnd_settings;
         grey::widgets::container cnt_blist;
         grey::widgets::container cnt_top;
-        std::vector<std::shared_ptr<bt::browser_instance>> choices;
+        std::vector<profile_selection> choices;
         ImU32 clear_color;
 
-        std::shared_ptr<bt::browser_instance> decision;
+        std::optional<profile_selection> final_choice;
         int active_idx{0};
         bool url_focused{false};
 

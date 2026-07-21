@@ -6,23 +6,23 @@
 using namespace grey::common;
 
 namespace bt {
-    void url_opener::open(std::shared_ptr<browser_instance> bi, click_payload up) {
-        bi->launch(up);
+    void url_opener::open(const profile_selection& selection, click_payload up){
+        selection.b().launch(up, selection.profile());
     }
 
-    void url_opener::open(std::shared_ptr<browser_instance> bi, const std::string& url) {
+    void url_opener::open(const profile_selection& selection, const std::string& url) {
         click_payload up{url};
-        open(bi, up);
+        open(selection, up);
     }
 
     void url_opener::open(click_payload up) {
-        auto matches = browser::match(g_settings.browsers, up, g_settings.default_profile, g_script);
+        auto matches = browser::match(g_state.browsers, up, g_script);
         if(matches.empty()) {
             url::open_in_browser(up.url);;
         } else {
             browser_match_result& first_match = matches[0];
             up.app_mode = first_match.rule.app_mode;
-            open(first_match.bi, up);
+            open(first_match.profile, up);
         }
     }
 

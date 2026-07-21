@@ -1,11 +1,37 @@
-## 5.7
+## 6.0.0
 
-todo:
-- config
+### Breaking changes
+
+- BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during the installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as a system browser.
+- Configuration is not backward-compatible with previous versions. It's now stored in the correct config location (Roaming home on Windows, and XDG_HOME on Linux). The format has changed from `.ini` to `.yml` so it's more expressive and less error-prone. YAML also simplifies underlying C++ code.
+- Support for UWP browsers is removed. Damn it, UWP is one of the shittiest technologies of all time.
+- Removed legacy picker invocation options:
+  - "Always" – there's no use case for this.
+  - "On rule conflict" – picker is always invoked on rule conflict now.
+
+## New features
+- You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.
+- Profiles can be configured to have a custom highlight color. When set, the picker will draw a circle around the icon with the specified color.
+- todo: firefox container icons.
+- todo: An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
+- When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
+
+## Improvements
+- Slightly redesigned, more ergonomic user interface.
+- Configuration is saved and restored seamlessly in the background. There is no button to save it or reload anymore. "It just works".
+- When clicking on the health check button to set the default browser, BT opens the system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
+
+## Bugs fixed
+- Process picker would randomly not open at all.
+- todo: see GitHub.
+
+## Tech stuff
+- Project upgraded to C++ 23.
+- Cleanup: a lot of legacy code is deleted.
 
 ## 5.6.12
 
-improvement: process name and description can be determined more reliably even with less permissions, but also works better on non-US english systems.
+improvement: process name and description can be determined more reliably even with fewer permissions, but also works better on non-US English systems.
 
 ## 5.6.11
 
@@ -17,8 +43,8 @@ bug fixed: Toast width calculation was wrong, it was using URL text which is not
 - Toast has bolder coloring, and only displays domain part for the URL (you can still hover over to get the full URL).
 
 ### Bugs fixed
-- UI: Rounded corners woudl disappear when non-main window is re-opened.
-- When settings are open when picker is open and "close on focus loss" is **on**, settings and picker will forec-close immediately, because picker has lost the focus. Therefore you weren't able to access picker settings at all (#210).
+- UI: Rounded corners would disappear when the non-main window is re-opened.
+- When settings are open, when the picker is open and "close on focus loss" is **on**, settings and picker will forec-close immediately, because picker has lost the focus. Therefore you weren't able to access picker settings at all (#210).
 
 
 ## 5.6.9

@@ -1,6 +1,6 @@
 #include "toast_app.h"
 #include "../../globals.h"
-#include "../../res.inl"
+#include "../../res.h"
 #include "btwidgets.h"
 #include "platform.h"
 #include <cmath>
@@ -10,13 +10,14 @@ namespace w = grey::widgets;
 using namespace grey::common;
 
 namespace bt::ui {
-    toast_app::toast_app(const click_payload& cpp, std::shared_ptr<bt::browser_instance> bi) :
-        cp{cpp}, cp_url_parsed{cpp.url}, bi{bi},
+    toast_app::toast_app(const click_payload& cpp, const profile_selection& sel) :
+        cp{cpp}, cp_url_parsed{cpp.url}, sel{sel},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
-        app->initial_theme_id = g_settings.theme;
+        app->initial_theme_id = g_state.ui_theme;
+        app->can_resize = false;
+
 #if PLATFORM_WINDOWS
-        app->win32_can_resize = false;
         app->win32_always_on_top = true;
         app->win32_title_bar = false;
         app->win32_hide_from_taskbar = true;
@@ -26,7 +27,7 @@ namespace bt::ui {
         wnd_main
             .no_titlebar()
             .no_resize()
-            .border(g_settings.toast_border_width)
+            .border(g_state.toast.border_width)
             .no_collapse()
             .fill_viewport()
             //.no_background()
@@ -106,7 +107,7 @@ namespace bt::ui {
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
-            if(show_timer >= g_settings.toast_visible_secs) {
+            if(show_timer >= g_state.toast.visible_seconds) {
                 stage = toast_app::anim_stage::shrink;
             }
         }
@@ -134,7 +135,7 @@ namespace bt::ui {
         }
 
         // line 2
-        btw_icon(*app, bi, 0, icon_size, true);
+        btw_icon(*app, sel, 0, icon_size, true);
 
         w::sl(); w::label("");
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);

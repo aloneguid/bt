@@ -57,55 +57,21 @@ TEST(Rules, MatchEmptyRule) {
 
 // --- serialisation ----
 
-TEST(Rules, Serialise) {
+TEST(Rules, ToString) {
     match_rule mr1{"r"};
-    EXPECT_EQ("r", mr1.to_line());
+    EXPECT_EQ("substring 'r' in URL", mr1.to_string());
 
     match_rule mr2{"r"};
     mr2.scope = match_scope::domain;
-    EXPECT_EQ("scope:domain|r", mr2.to_line());
+    EXPECT_EQ("substring 'r' in domain part of the URL", mr2.to_string());
 
     match_rule mr3{"r"};
     mr2.scope = match_scope::path;
-    EXPECT_EQ("scope:path|r", mr2.to_line());
-
-    match_rule mr4{"p"};
-    mr4.priority = 4;
-    EXPECT_EQ("priority:4|p", mr4.to_line());
+    EXPECT_EQ("substring 'r' in query part of the URL", mr2.to_string());
 
     match_rule mr5{"p"};
     mr5.app_mode = true;
-    EXPECT_EQ("mode:app|p", mr5.to_line());
-}
-
-TEST(Rules, Deserialise) {
-    match_rule mr1{"r"};
-    EXPECT_EQ("r", mr1.value);
-    EXPECT_EQ(match_scope::any, mr1.scope);
-
-    match_rule mr11{"scope:any|r"};
-    EXPECT_EQ("r", mr11.value);
-    EXPECT_EQ(match_scope::any, mr11.scope);
-
-    match_rule mr2{"scope:domain|r"};
-    EXPECT_EQ("r", mr2.value);
-    EXPECT_EQ(match_scope::domain, mr2.scope);
-
-    match_rule mr3{"scope:path|r"};
-    EXPECT_EQ("r", mr3.value);
-    EXPECT_EQ(match_scope::path, mr3.scope);
-
-    match_rule mr4{"priority:4|p"};
-    EXPECT_EQ("p", mr4.value);
-    EXPECT_EQ(4, mr4.priority);
-
-    match_rule mr5{"mode:app|p"};
-    EXPECT_EQ("p", mr5.value);
-    EXPECT_EQ(true, mr5.app_mode);
-
-    match_rule mr6{"just a co:lon"};
-    EXPECT_EQ("just a co:lon", mr6.value);
-    EXPECT_EQ(match_scope::any, mr6.scope);
+    EXPECT_EQ("substring 'p' in URL", mr5.to_string());
 }
 
 // --- parse URL ---

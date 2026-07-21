@@ -2,6 +2,8 @@
 #include <iostream>
 #include "globals.h"
 #include "str.h"
+#include "common/platform.h"
+#include "magic_enum/magic_enum.hpp"
 
 #if PLATFORM_WINDOWS
 #include <Windows.h>
@@ -37,49 +39,35 @@ int cmdline::exec(const std::string& command, const std::string& data) {
 int cmdline::exec_list() {
     // list all browsers and profiles
 
-    wcout << L"browsers: " << g_settings.browsers.size() << endl << endl;
+    wcout << L"browsers: " << g_state.browsers.size() << endl << endl;
 
-    for(const auto& b : g_settings.browsers) {
-        wcout << str::to_wstr(b->id) << endl;
-        wcout << L"  name:             " << str::to_wstr(b->name) << endl;
-        wcout << L"  cmd:              " << str::to_wstr(b->open_cmd) << endl;
-        wcout << L"  autodiscovered:   " << (b->is_autodiscovered ? L"yes" : L"no") << endl;
-        wcout << L"  hidden:           " << (b->is_hidden ? L"yes" : L"no") << endl;
-        if(b->is_autodiscovered || b->engine == bt::browser_engine::chromium || b->engine == bt::browser_engine::gecko) {
-            wcout << L"  features: ";
-            if(b->is_autodiscovered) {
-                wcout << L"autodiscovered ";
-            }
-            if(b->engine == bt::browser_engine::chromium) {
-                wcout << L"chromium ";
-            }
-            if(b->engine == bt::browser_engine::gecko) {
-                wcout << L"gecko ";
-            }
-            wcout << endl;
-        }
-        if(!b->icon_path.empty()) {
-            wcout << L"  icon:     " << str::to_wstr(b->icon_path) << endl;
+    for(const auto& b : g_state.browsers) {
+        string engine_name{magic_enum::enum_name(b.engine)};
+        wcout << str::to_wstr(b.name) << endl;
+        wcout << L"  cmd:              " << str::to_wstr(b.open_cmd) << endl;
+        wcout << L"  engine:           " << str::to_wstr(engine_name) << endl;
+        wcout << L"  hidden:           " << (b.is_hidden ? L"yes" : L"no") << endl;
+        if(!b.icon_path.empty()) {
+            wcout << L"  icon:     " << str::to_wstr(b.icon_path) << endl;
         }
 
-        wcout << L"  profiles: " << b->instances.size() << endl;
-        for(const auto& p : b->instances) {
-            wcout << L"    > id:        " << str::to_wstr(p->id) << endl;
-            wcout << L"      name:      " << str::to_wstr(p->name) << endl;
-            if(!p->launch_arg.empty()) {
-                wcout << L"      args:      " << str::to_wstr(p->launch_arg) << endl;
+        wcout << L"  profiles: " << b.profiles.size() << endl;
+        for(const auto& p : b.profiles) {
+            wcout << L"    > name:      " << str::to_wstr(p.name) << endl;
+            if(!p.launch_arg.empty()) {
+                wcout << L"      args:      " << str::to_wstr(p.launch_arg) << endl;
             }
-            if(!p->user_arg.empty()) {
-                wcout << L"      uargs:     " << str::to_wstr(p->user_arg) << endl;
+            if(!p.user_arg.empty()) {
+                wcout << L"      uargs:     " << str::to_wstr(p.user_arg) << endl;
             }
-            wcout << L"      hidden:    " << (p->is_hidden ? L"yes" : L"no") << endl;
-            if(!p->icon_path.empty()) {
-                wcout << L"      icon:      " << str::to_wstr(p->icon_path) << endl;
+            wcout << L"      hidden:    " << (p.is_hidden ? L"yes" : L"no") << endl;
+            if(!p.icon_path.empty()) {
+                wcout << L"      icon:      " << str::to_wstr(p.icon_path) << endl;
             }
-            if(!p->user_icon_path.empty()) {
-                wcout << L"      uicon:     " << str::to_wstr(p->user_icon_path) << endl;
+            if(!p.user_icon_path.empty()) {
+                wcout << L"      uicon:     " << str::to_wstr(p.user_icon_path) << endl;
             }
-            wcout << L"      incognito: " << (p->is_incognito ? L"yes" : L"no") << endl;
+            wcout << L"      incognito: " << (p.is_incognito ? L"yes" : L"no") << endl;
         }
 
         wcout << endl;
@@ -90,19 +78,21 @@ int cmdline::exec_list() {
 
 int cmdline::exec_get_default() {
 
-    auto def = bt::browser::get_default(g_settings.browsers, g_settings.default_profile);
-
-    wcout << str::to_wstr(def->b->id) << L"." << str::to_wstr(def->id) << endl;
-
+    optional<bt::profile_selection> ps = bt::browser::get_default(g_state.browsers);
+    if(ps) {
+        wcout << str::to_wstr(ps->b().name) << L"." << str::to_wstr(ps->profile().name) << endl;
+    } else {
+        wcout << L"no default browser" << endl;
+    }
     return 0;
 }
 
 int cmdline::exec_set_default(const std::string& data) {
-    // Data is in the following form: "set default <browser_id>.<profile_id>|suffix".
+    // Data is in the following form: "set default <browser_name>.<profile_name>|suffix".
     // Suffix is optional.
     // Extract browser_id and profile_id.
-    string browser_id;
-    string profile_id;
+    string browser_name;
+    string profile_name;
 
     string t = data.substr(12); // skip "set default"
     size_t pos = t.find('|');
@@ -111,22 +101,21 @@ int cmdline::exec_set_default(const std::string& data) {
     }
     size_t dot = t.find('.');
     if(dot != string::npos) {
-        browser_id = t.substr(0, dot);
-        profile_id = t.substr(dot + 1);
+        browser_name = t.substr(0, dot);
+        profile_name = t.substr(dot + 1);
     }
 
-    wcout << L"setting default browser to " << str::to_wstr(browser_id) << L"." << str::to_wstr(profile_id) << endl;
+    wcout << L"setting default browser to " << str::to_wstr(browser_name) << L"." << str::to_wstr(profile_name) << endl;
 
     // find browser
-    for(const auto& b : g_settings.browsers) {
-        if(b->id == browser_id) {
-            wcout << L"found browser: " << str::to_wstr(b->name) << endl;
+    for(const auto& b : g_state.browsers) {
+        if(b.name == browser_name) {
+            wcout << L"found browser: " << str::to_wstr(b.name) << endl;
             // find profile
-            for(const auto& p : b->instances) {
-                if(p->id == profile_id) {
-                    wcout << L"found profile: " << str::to_wstr(p->name) << endl;
-                    g_settings.default_profile = p->long_id();
-                    g_settings.commit();
+            for(const auto& p : b.profiles) {
+                if(p.name == profile_name) {
+                    wcout << L"found profile: " << str::to_wstr(p.name) << endl;
+                    g_config.serialize();
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

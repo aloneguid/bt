@@ -11,7 +11,7 @@
 #include <sqlite3.h>
 #include <unordered_set>
 #include <fstream>
-#include "common/hashing.h"
+#include "fonts/MaterialIcons.h"
 
 using namespace grey::common;
 
@@ -33,10 +33,10 @@ using json = nlohmann::json;
  * @param query SQL query string to execute.
  * @return Vector of maps, where each map represents a row with column names as keys.
  */
-vector<map<string, string>> sql_execute(sqlite3* db, const string& query) {
-    vector<map<string, string>> results;
+vector<map<string, string> > sql_execute(sqlite3 *db, const string &query) {
+    vector<map<string, string> > results;
 
-    sqlite3_stmt* stmt = nullptr;
+    sqlite3_stmt *stmt = nullptr;
     if(sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         return results;
     }
@@ -46,8 +46,8 @@ vector<map<string, string>> sql_execute(sqlite3* db, const string& query) {
     while(sqlite3_step(stmt) == SQLITE_ROW) {
         map<string, string> row;
         for(int i = 0; i < col_count; ++i) {
-            const char* col_name = sqlite3_column_name(stmt, i);
-            const char* col_value = reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
+            const char *col_name = sqlite3_column_name(stmt, i);
+            const char *col_value = reinterpret_cast<const char *>(sqlite3_column_text(stmt, i));
             row[col_name ? col_name : ""] = col_value ? col_value : "";
         }
         results.push_back(std::move(row));
@@ -59,8 +59,8 @@ vector<map<string, string>> sql_execute(sqlite3* db, const string& query) {
 
 namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
-    const string apps_root = "Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\PackageRepository\\Packages";
-    const string app_user_root = "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
+    const string app_user_root =
+            "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
 #if PLATFORM_WINDOWS
     const string ad = win32::shell::get_app_data_folder();
     const string lad = win32::shell::get_local_app_data_path();
@@ -70,133 +70,47 @@ namespace bt {
 #endif
 
     const string FirefoxInstancePrefix = "Firefox-";
-    // any parameters to add to Chromium-based browsers
-    const string ChromiumExtraArgs = " --no-default-browser-check";
 
-    string get_id_from_open_cmd(const std::string& cmd) {
-        // compute MD5 hash of the command, because just exe name is not unique enough, especially when almost every browser is named "chrome.exe"
-        return hashing::md5(cmd);
-    }
+    static const std::unordered_map<std::string, std::string> gecko_container_names = {
+        {"userContextPersonal.label", "Personal"},
+        {"user-context-personal", "Personal"},
+        {"userContextWork.label", "Work"},
+        {"user-context-work", "Work"},
+        {"userContextBanking.label", "Banking"},
+        {"user-context-banking", "Banking"},
+        {"userContextShopping.label", "Shopping"},
+        {"user-context-shopping", "Shopping"}
+    };
 
-#if PLATFORM_WINDOWS
-    bool is_msstore_browser(const string& package_name, string& app_path, string& app_user_model_id) {
+    static const std::unordered_map<std::string, std::string> gecko_container_icons = {
+        {"fingerprint", ICON_MD_FINGERPRINT},
+        {"briefcase",   ICON_MD_WORK},
+        {"dollar",      ICON_MD_ATTACH_MONEY},
+        {"cart",        ICON_MD_SHOPPING_CART},
+        {"circle",      ICON_MD_CIRCLE},
+        {"gift",        ICON_MD_REDEEM},
+        {"vacation",    ICON_MD_BEACH_ACCESS},
+        {"food",        ICON_MD_RESTAURANT},
+        {"fruit",       ICON_MD_RESTAURANT},
+        {"pet",         ICON_MD_PETS},
+        {"tree",        ICON_MD_PARK},
+        {"chill",       ICON_MD_SELF_IMPROVEMENT},
+        {"fence",       ICON_MD_FENCE},
+    };
 
-        app_path = win32::reg::get_value(hive::classes_root, apps_root + "\\" + package_name, "Path");
+    static const std::unordered_map<std::string, ImU32> gecko_container_colors = {
+        {"blue",      IM_COL32(0x37, 0xAD, 0xFF, 0xFF)},
+        {"turquoise", IM_COL32(0x00, 0xC7, 0x9A, 0xFF)},
+        {"green",     IM_COL32(0x51, 0xCD, 0x00, 0xFF)},
+        {"yellow",    IM_COL32(0xFF, 0xCB, 0x00, 0xFF)},
+        {"orange",    IM_COL32(0xFF, 0x9F, 0x00, 0xFF)},
+        {"red",       IM_COL32(0xFF, 0x61, 0x3D, 0xFF)},
+        {"pink",      IM_COL32(0xFF, 0x4B, 0xDA, 0xFF)},
+        {"purple",    IM_COL32(0xAF, 0x51, 0xF5, 0xFF)},
+        {"toolbar",   IM_COL32(0x7C, 0x7C, 0x80, 0xFF)},
+    };
 
-        // the first child, if present, is the "app user model id"
-        auto subkeys = win32::reg::enum_subkeys(hive::classes_root, apps_root + "\\" + package_name);
-        if(subkeys.empty()) return false;
-
-        // the first child, if present, is the "app user model id"
-        app_user_model_id = subkeys[0];
-
-        // it's sufficient to check for the availability of the "https" key to make the decision
-        string https_key_path = format("{}\\{}\\{}\\windows.protocol\\https", apps_root, package_name, app_user_model_id);
-        return win32::reg::path_exists(hive::classes_root, https_key_path);
-    }
-
-    string get_appx_app_id(const string& package_name) {
-        string path     = app_user_root + "\\" + package_name;
-        auto usubs = win32::reg::enum_subkeys(hive::current_user, path);
-        if(usubs.empty()) return "";
-
-        string appx_id = win32::reg::get_value(hive::current_user,
-            format("{}\\{}\\Capabilities\\URLAssociations", path, usubs[0]),
-            "https");
-
-        return appx_id;
-    }
-
-    void read_appx_manifest(const string& app_folder, string& display_name, string& icon_path) {
-        string manifest_path = app_folder + "\\AppxManifest.xml";
-
-        tinyxml2::XMLDocument doc;
-        doc.LoadFile(manifest_path.c_str());
-
-        tinyxml2::XMLElement* x_root = doc.FirstChildElement("Package");
-        if(!x_root) return;
-
-        tinyxml2::XMLElement* x_properties = x_root->FirstChildElement("Properties");
-        if(!x_properties) return;
-
-        // try to get display name
-        tinyxml2::XMLElement* x_display_name = x_properties->FirstChildElement("DisplayName");
-        if(x_display_name) {
-            display_name = x_display_name->GetText();
-        }
-
-        // try to get icon path
-        tinyxml2::XMLElement* x_logo = x_properties->FirstChildElement("Logo");
-        if(x_logo) {
-            string logo = x_logo->GetText();
-            icon_path = app_folder + "\\" + logo;
-
-            // check if the file exists, and if not, try to find the best match
-            if(!fs::exists(icon_path)) {
-                // try to find the best match
-                fs::path p{icon_path};
-                icon_path.clear();  // clear result as it's not valid
-                string ext = p.extension().string();
-                string name = p.stem().string();
-                string dir = p.parent_path().string();
-
-                // try to find the best match
-                for(const string& candidate : {".scale-100", ".scale-125", ".scale-150", ".scale-200"}) {
-                    auto candidate_path = fs::path{dir} / (name + candidate + ext);
-                    if(fs::exists(candidate_path)) {
-                        icon_path = candidate_path.string();
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    void discover_msstore_browsers(vector<shared_ptr<browser>>& browsers) {
-
-        // hint: this might be easier for future HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Extensions\windows.protocol\https
-
-        // 1. List packages under HKCU\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages
-
-        auto package_names = win32::reg::enum_subkeys(hive::classes_root, apps_root);
-
-        for(const string& package_name : package_names) {
-
-            string app_folder;  // this is where the app is installed
-            string app_user_model_id;  // this is the app user model id
-
-            if(!is_msstore_browser(package_name, app_folder, app_user_model_id)) continue;
-            string appx_id = get_appx_app_id(package_name);
-
-            // get properties from manifest
-            string display_name, icon_path;
-            read_appx_manifest(app_folder, display_name, icon_path);
-
-            if(!appx_id.empty()) {
-                // go to HKCR/id to get shell/open/command
-                string open_command = win32::reg::get_value(hive::classes_root,
-                    format("{}\\shell\\open\\command", appx_id));
-
-                // this command can be used to set full path to executable (de-obfuscated in "browser" constructor)
-                auto b = make_shared<browser>(app_user_model_id, display_name, open_command);
-                b->icon_path = icon_path;
-
-                if(!b->is_wellknown()) {
-                    // not sure how to handle it, so we will use msstore open method
-
-                    // get app family id, which is model id without the "!" and everything after it
-                    string app_family_id = app_user_model_id.substr(0, app_user_model_id.find('!'));
-
-                    b->open_cmd = format("{}{}", browser::UwpCmdPrefix, app_family_id);
-                }
-
-                browsers.push_back(b);
-            }
-        }
-    }
-#endif
-
-    string get_instance_id(const string& reg_value) {
+    string get_instance_id(const string &reg_value) {
         // if this is Firefox, strip out the prefix to get instance ID
         if(reg_value.starts_with(FirefoxInstancePrefix)) {
             return reg_value.substr(FirefoxInstancePrefix.size());
@@ -205,8 +119,7 @@ namespace bt {
         return reg_value;
     }
 
-    std::string discovery::unmangle_open_cmd(const std::string& open_cmd) {
-
+    std::string discovery::unmangle_open_cmd(const std::string &open_cmd) {
         string r = open_cmd;
 
         // if open_cmd starts with quote ("), remove it, and substring up to first next quote
@@ -223,46 +136,44 @@ namespace bt {
     }
 
 #if PLATFORM_WINDOWS
-    void discovery::discover_win32_registry_browsers(hive h, vector<shared_ptr<browser>>& browsers, const string& ignore_proto) {
+    void discovery::discover_win32_registry_browsers(hive h, vector<browser> &browsers,
+                                                     const string &ignore_proto) {
         auto subs = enum_subkeys(h, abs_root);
 
-        for (const string& sub : subs) {
+        for(const string &sub: subs) {
             string root = abs_root + "\\" + sub;
             string display_name = get_value(h, root);
             string open_command = get_value(h, root + "\\shell\\open\\command");
             open_command = unmangle_open_cmd(open_command);
             string http_url_assoc = get_value(h,
-                root + "\\Capabilities\\URLAssociations", "http");
+                                              root + "\\Capabilities\\URLAssociations", "http");
 
-            if (!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
-                string id = get_id_from_open_cmd(open_command);
-                auto b = make_shared<browser>(id, display_name, open_command);
-                b->instance_id = get_instance_id(sub);
-                b->is_autodiscovered = true;
+            if(!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
+                browser b(display_name, open_command);
+                b.instance_id = get_instance_id(sub);
 
-                fingerprint(open_command, b->engine, b->data_path);
+                fingerprint(open_command, b.engine, b.data_path);
 
                 // check for duplicates (HKLM & HKCU can have the same browser registered)
-                // this is possible to to operator== on browser class
+                // this is possible to operator== on browser class
 
                 bool is_dupe{false};
-                for(auto bb : browsers) {
-                    if(bb->id == b->id) {
+                for(auto &bb: browsers) {
+                    if(bb == b) {
                         is_dupe = true;
                         break;
                     }
                 }
                 if(!is_dupe) {
-                    browsers.push_back(b);
+                    browsers.push_back(std::move(b));
                 }
-
             }
         }
     }
 #endif
 
 #if PLATFORM_LINUX
-    std::string discovery::resolve_xdg_icon_path(const std::string& icon) {
+    std::string discovery::resolve_xdg_icon_path(const std::string &icon) {
         if(icon.empty()) {
             return {};
         }
@@ -275,11 +186,11 @@ namespace bt {
 
         // Share dirs to search, in priority order
         std::vector<fs::path> share_dirs;
-        if(const char* h = std::getenv("HOME")) {
+        if(const char *h = std::getenv("HOME")) {
             share_dirs.emplace_back(fs::path(h) / ".local/share");
             share_dirs.emplace_back(fs::path(h) / ".local/share/flatpak/exports/share");
         }
-        if(const char* xdg = std::getenv("XDG_DATA_DIRS")) {
+        if(const char *xdg = std::getenv("XDG_DATA_DIRS")) {
             for(std::string_view sv = xdg; !sv.empty();) {
                 auto end = sv.find(':');
                 share_dirs.emplace_back(sv.substr(0, end));
@@ -292,15 +203,15 @@ namespace bt {
         share_dirs.emplace_back("/var/lib/flatpak/exports/share");
         share_dirs.emplace_back("/var/lib/snapd/desktop");
 
-        const char* exts[] = {".png", ".svg", ".xpm"};
+        const char *exts[] = {".png", ".svg", ".xpm"};
 
-        for(const auto& share : share_dirs) {
+        for(const auto &share: share_dirs) {
             // Enumerate all size dirs under hicolor, sorted largest-first
             fs::path hicolor = share / "icons/hicolor";
             std::error_code ec;
 
-            std::vector<std::pair<int, fs::path>> size_dirs; // {size, apps_path}
-            for(const auto& e : fs::directory_iterator(hicolor, ec)) {
+            std::vector<std::pair<int, fs::path> > size_dirs; // {size, apps_path}
+            for(const auto &e: fs::directory_iterator(hicolor, ec)) {
                 if(!fs::is_directory(e.path(), ec)) continue;
                 std::string name = e.path().filename().string();
                 int size = 0;
@@ -312,10 +223,10 @@ namespace bt {
                 size_dirs.emplace_back(size, e.path() / "apps");
             }
             std::sort(size_dirs.begin(), size_dirs.end(),
-                      [](const auto& a, const auto& b) { return a.first > b.first; });
+                      [](const auto &a, const auto &b) { return a.first > b.first; });
 
-            for(const auto& [sz, apps] : size_dirs) {
-                for(const char* ext : exts) {
+            for(const auto &[sz, apps]: size_dirs) {
+                for(const char *ext: exts) {
                     fs::path p = apps / (icon + ext);
                     if(fs::exists(p, ec)) {
                         return p.string();
@@ -324,7 +235,7 @@ namespace bt {
             }
 
             // Fallback: pixmaps
-            for(const char* ext : exts) {
+            for(const char *ext: exts) {
                 fs::path p = share / "pixmaps" / (icon + ext);
                 if(fs::exists(p, ec)) {
                     return p.string();
@@ -342,8 +253,8 @@ namespace bt {
         return {};
     }
 
-    void discovery::discover_xdg_desktop_browsers(std::vector<std::shared_ptr<browser>>& browsers) {
-        const char* home = std::getenv("HOME");
+    void discovery::discover_xdg_desktop_browsers(std::vector<browser> &browsers) {
+        const char *home = std::getenv("HOME");
 
         fs::path dirs[] = {
             home ? fs::path(home) / ".local/share/applications" : fs::path{},
@@ -355,11 +266,11 @@ namespace bt {
 
         std::unordered_set<std::string> seen_exec;
 
-        for(const auto& dir : dirs) {
+        for(const auto &dir: dirs) {
             std::error_code ec;
             if(!fs::is_directory(dir, ec)) continue;
 
-            for(const auto& de : fs::directory_iterator(dir, ec)) {
+            for(const auto &de: fs::directory_iterator(dir, ec)) {
                 if(de.path().extension() != ".desktop") continue;
 
                 std::string name, exec, categories, mimetypes, icon;
@@ -402,7 +313,7 @@ namespace bt {
                 }
 
                 // filter: must be a browser
-                auto has_token = [](const std::string& s, std::string_view tok) {
+                auto has_token = [](const std::string &s, std::string_view tok) {
                     for(size_t p = 0; p <= s.size();) {
                         auto e = s.find(';', p);
                         if(e == std::string::npos) e = s.size();
@@ -434,28 +345,22 @@ namespace bt {
                     cmd.pop_back();
                 }
 
-                string id = get_id_from_open_cmd(cmd);
-                auto b = make_shared<browser>(id, name, cmd);
-                b->instance_id = id;
-                b->is_autodiscovered = true;
-                b->icon_path = resolve_xdg_icon_path(icon);
-                fingerprint(cmd, b->engine, b->data_path);
+                browser b{name, cmd};
+                b.icon_path = resolve_xdg_icon_path(icon);
+                fingerprint(cmd, b.engine, b.data_path);
                 browsers.push_back(b);
             }
         }
-
-
     }
 #endif
 
 
-    std::vector<shared_ptr<browser>> discovery::discover_browsers(const std::string& ignore_proto) {
-        vector<shared_ptr<browser>> browsers;
+    std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto) {
+        vector<browser> browsers;
 
 #if PLATFORM_WINDOWS
         discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto);
         discover_win32_registry_browsers(hive::current_user, browsers, ignore_proto);
-        discover_msstore_browsers(browsers);
 #endif
 
 #if PLATFORM_LINUX
@@ -463,22 +368,22 @@ namespace bt {
 
 #endif
 
-        // discover various profiles
-        for (shared_ptr<bt::browser> b : browsers) {
-            discover_chrome_profiles(b);
-            discover_firefox_profiles(b);
-            discover_other_profiles(b);
+        // mark these as fully managed
+        for(browser &b: browsers) {
+            b.management = management_extent::full;
         }
+
+        discover_managed_profiles(browsers);
 
         return browsers;
     }
 
-    void discovery::discover_chrome_profiles(shared_ptr<browser> b) {
-        if (!(b->is_autodiscovered && b->engine == browser_engine::chromium)) return;
+    void discovery::discover_chrome_profiles(browser &b) {
+        if(b.engine != browser_engine::chromium) return;
 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
 
-        fs::path root{b->data_path};
+        fs::path root{b.data_path};
         fs::path lsjf = root / "Local State";
 
         // faster method to discover
@@ -491,7 +396,7 @@ namespace bt {
             auto j = json::parse(jt);
             auto j_p_ic = j["profile"]["info_cache"];
             if(j_p_ic.is_object()) {
-                for(auto& jp : j_p_ic.items()) {
+                for(auto &jp: j_p_ic.items()) {
                     string sys_name = jp.key();
                     auto profile_pic_j = jp.value()["gaia_picture_file_name"];
 
@@ -511,74 +416,64 @@ namespace bt {
                     }
 
                     // all the data is ready
-                    string arg = format("\"{}\" \"--profile-directory={}\"{}",
-                        browser_instance::URL_ARG_NAME, sys_name,
-                        ChromiumExtraArgs);
+                    string arg = format(R"("{}" "--profile-directory={}" "--user-data-dir={}" --no-default-browser-check)",
+                                        browser::URL_ARG_NAME, sys_name,
+                                        b.data_path);
 
-                    auto bi = make_shared<browser_instance>(
-                        b,
-                        sys_name,
-                        name,
-                        arg,
-                        ""
-                    );
-                    bi->sort_order = b->instances.size();
+                    browser_profile profile{name, arg,""};
                     if(profile_pic_j.is_string()) {
-                        bi->icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
+                        profile.icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
+                        if(!fs::is_regular_file(profile.icon_path)) profile.icon_path.clear();
                     }
-                    b->instances.push_back(bi);
+                    b.profiles.push_back(profile);
                 }
             }
         }
 
         {
-            if(b->open_cmd.find("msedge.exe") != string::npos) {
+            if(b.open_cmd.find("msedge.exe") != string::npos) {
                 // Edge is not stupid, it's just different
-                auto inprivate = make_shared<browser_instance>(
-                    b, "InPrivate", "InPrivate",
-                    format("\"{}\" --inprivate", browser_instance::URL_ARG_NAME),
+                browser_profile inprivate(
+                    "InPrivate",
+                    format("\"{}\" --inprivate", browser::URL_ARG_NAME),
                     "");
-                inprivate->is_incognito = true;
-                inprivate->sort_order = b->instances.size();
-                b->instances.push_back(inprivate);
+                inprivate.is_incognito = true;
+                b.profiles.push_back(inprivate);
             } else {
-                auto inprivate = make_shared<browser_instance>(
-                b, "Incognito", "Incognito",
-                format("\"{}\" --incognito", browser_instance::URL_ARG_NAME),
-                "");
-                inprivate->is_incognito = true;
-                inprivate->sort_order = b->instances.size();
-                b->instances.push_back(inprivate);
+                browser_profile inprivate(
+                    "Incognito",
+                    format("\"{}\" --incognito", browser::URL_ARG_NAME),
+                    "");
+                inprivate.is_incognito = true;
+                b.profiles.push_back(inprivate);
             }
         }
 
         // Brave additionally supports Tor mode
-        if(b->id == "brave") {
-            auto tor = make_shared<browser_instance>(
-                b, "tor", "Tor",
-                format("\"{}\" --tor", browser_instance::URL_ARG_NAME),
+        if(b.name == "brave") {
+            browser_profile tor(
+                "Tor",
+                format("\"{}\" --tor", browser::URL_ARG_NAME),
                 ""
             );
-            tor->is_incognito = true;
-            tor->sort_order = b->instances.size();
-            b->instances.push_back(tor);
+            tor.is_incognito = true;
+            b.profiles.push_back(tor);
         }
     }
 
-    void discovery::discover_filefox_profile_groups(
-        const string& parent_id,
-        const string& installation_id,
-        const string& store_id,
-        const string& sqlite_db_path,
-        const string& data_folder_path,
-        std::vector<firefox_profile>& profiles) {
-
+    void discovery::discover_gecko_profile_groups(
+        const string &parent_id,
+        const string &installation_id,
+        const string &store_id,
+        const string &sqlite_db_path,
+        const string &data_folder_path,
+        std::vector<firefox_profile> &profiles) {
         // select * from Profiles
-        sqlite3* db;
+        sqlite3 *db;
         int rc = sqlite3_open(sqlite_db_path.c_str(), &db);
         if(rc == SQLITE_OK) {
             auto sql_profiles = sql_execute(db, "select * from Profiles");
-            for(const auto& profile : sql_profiles) {
+            for(const auto &profile: sql_profiles) {
                 auto it_id = profile.find("id");
                 auto it_name = profile.find("name");
                 auto it_path = profile.find("path");
@@ -596,9 +491,8 @@ namespace bt {
     }
 
 
-    void discovery::discover_firefox_profiles(std::shared_ptr<browser> b, std::vector<firefox_profile>& profiles) {
-
-        fs::path data_folder{b->data_path};
+    void discovery::discover_gecko_profiles(browser &b, std::vector<firefox_profile> &profiles) {
+        fs::path data_folder{b.data_path};
 
         // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
         fs::path ini_path = data_folder / "profiles.ini";
@@ -611,11 +505,11 @@ namespace bt {
 
         // create a map of profile id to installation id
         map<string, string> profile_to_installation_id;
-        for(CSimpleIni::Entry& section : ir) {
+        for(CSimpleIni::Entry &section: ir) {
             string section_name = section.pItem;
             if(!section_name.starts_with("Install")) continue;
 
-            const char* c_profile_path = ini.GetValue(section.pItem, "Default");
+            const char *c_profile_path = ini.GetValue(section.pItem, "Default");
             if(c_profile_path == nullptr) continue;
 
             string profile_path = c_profile_path;
@@ -627,18 +521,18 @@ namespace bt {
         }
 
         // extract all the profiles
-        for(CSimpleIniA::Entry& e : ir) {
+        for(CSimpleIniA::Entry &e: ir) {
             // a section is a profile if starts with "Profile".
             string section_name{e.pItem};
             if(!section_name.starts_with("Profile")) continue;
 
             // extract display name if possible
-            const char* c_name = ini.GetValue(e.pItem, "Name");
+            const char *c_name = ini.GetValue(e.pItem, "Name");
             string display_name = c_name ? c_name : section_name;
 
             // if is_relative is false, this is an absolute path (not like it matters anyway)
-            const char* c_is_relative = ini.GetValue(e.pItem, "IsRelative");
-            const char* c_path = ini.GetValue(e.pItem, "Path");
+            const char *c_is_relative = ini.GetValue(e.pItem, "IsRelative");
+            const char *c_path = ini.GetValue(e.pItem, "Path");
             bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
             if(!c_path) continue;
             string path{c_path};
@@ -646,25 +540,25 @@ namespace bt {
             // get installation id if possible
             auto it_installation_id = profile_to_installation_id.find(path);
             string installation_id = it_installation_id != profile_to_installation_id.end()
-                ? it_installation_id->second
-                : "";
+                                         ? it_installation_id->second
+                                         : "";
 
             if(is_relative) {
                 path = (data_folder / path).string();
             }
 
             // Check is this is a container for profile groups
-            const char* c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
+            const char *c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
             if(c_nested_store_id) {
                 fs::path sqlite_db_path = data_folder / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
                 // profile definitions i.e. "new profiles" are now stored in the sqlite database
                 if(fs::exists(sqlite_db_path)) {
-                    discover_filefox_profile_groups(section_name,
-                        installation_id,
-                        c_nested_store_id,
-                        sqlite_db_path.string(),
-                        data_folder.string(),
-                        profiles);
+                    discover_gecko_profile_groups(section_name,
+                                                    installation_id,
+                                                    c_nested_store_id,
+                                                    sqlite_db_path.string(),
+                                                    data_folder.string(),
+                                                    profiles);
                 }
             } else {
                 // classic profile
@@ -673,81 +567,79 @@ namespace bt {
         }
     }
 
-    void discovery::discover_firefox_profiles(shared_ptr<browser> b) {
-        if (!(b->is_autodiscovered && b->engine == browser_engine::gecko)) return;
+    void discovery::discover_gecko_profiles(browser &b) {
+        if(b.engine != browser_engine::gecko) return;
 
         vector<firefox_profile> profiles;
-        discover_firefox_profiles(b, profiles);
+        discover_gecko_profiles(b, profiles);
 
         // sort profiles using the following rules: is_classic, has installation_id, name
         std::sort(profiles.begin(), profiles.end(),
-            [](const firefox_profile& a, const firefox_profile& b) {
-                if(a.is_classic != b.is_classic) {
-                    return !a.is_classic; // classic profiles last
-                }
-                if((!a.installation_id.empty()) != (!b.installation_id.empty())) {
-                    return !a.installation_id.empty(); // profiles with installation_id first
-                }
-                return a.name < b.name; // finally by name
-        });
+                  [](const firefox_profile &a, const firefox_profile &b) {
+                      if(a.is_classic != b.is_classic) {
+                          return !a.is_classic; // classic profiles last
+                      }
+                      if((!a.installation_id.empty()) != (!b.installation_id.empty())) {
+                          return !a.installation_id.empty(); // profiles with installation_id first
+                      }
+                      return a.name < b.name; // finally by name
+                  });
 
-        for(firefox_profile& fp : profiles) {
+        for(firefox_profile &fp: profiles) {
+            // if profile is bound to an installation, but it's not ours, skip it always
+            if(!fp.installation_id.empty() && fp.installation_id != b.instance_id) continue;
 
-            // if profile is bound to an installation but it's not ours, skip it always
-            if(!fp.installation_id.empty() && fp.installation_id != b->instance_id) continue;
-
-            if(fp.installation_id.empty() && !g_settings.firefox_classic_profiles) continue;
+            if(fp.installation_id.empty() && !g_state.discover_classic_gecko_profiles) continue;
 
             string arg_suffix = fp.is_classic
-                ? format("-P \"{}\"", fp.name)
-                : format("\"--profile\" \"{}\"", fp.path);
-            string arg = format("\"{}\" -foreground {}", browser_instance::URL_ARG_NAME, arg_suffix);
+                                    ? format("-P \"{}\"", fp.name)
+                                    : format(R"("--profile" "{}")", fp.path);
+            string arg = format("\"{}\" -foreground {}", browser::URL_ARG_NAME, arg_suffix);
 
-            auto bi = make_shared<browser_instance>(b, fp.id, fp.name, arg, "");
-            bi->sort_order = b->instances.size();
-            b->instances.push_back(bi);
+            browser_profile p(fp.name, arg, "");
+            b.profiles.push_back(p);
 
             // containers
-            if(g_settings.firefox_containers) {
+            if(g_state.discover_gecko_containers) {
                 // for each container, add a profile
                 // Leave the "no container" profile as is.
 
                 // add profile for each container
-                vector<firefox_container> containers = discover_firefox_containers(fp.path);
-                for(const auto& container : containers) {
-
-                    string profile_name = format("{}::{}", fp.name, container.name);
+                vector<firefox_container> containers = discover_gecko_containers(fp.path);
+                for(const auto &container: containers) {
+                    //string profile_name = format("{}::{}", fp.name, container.name);
+                    string profile_name = container.name;
 
                     string arg = format("\"ext+container:name={}&url={}\" {}",
-                        container.name,
-                        browser_instance::URL_ARG_NAME,
-                        arg_suffix);
+                                        container.name,
+                                        browser::URL_ARG_NAME,
+                                        arg_suffix);
 
                     string id = format("{}+c_{}", fp.id, container.id);
-                    auto bi = make_shared<browser_instance>(b, id, profile_name, arg, "");
-                    bi->sort_order = b->instances.size();
-                    b->instances.push_back(bi);
+                    browser_profile bi(profile_name, arg, "");
+                    if(container.has_color) {
+                        bi.use_color = true;
+                        bi.color = container.color;
+                    }
+                    b.profiles.push_back(bi);
                 }
             }
         }
 
         // Safe Mode starts FF without extensions
-        //auto safe_bi = browser_instance(b, "safemode", "Safe Mode",
+        //auto safe_bi = browser_profile(b, "safemode", "Safe Mode",
         //   arg + " -safe-mode",
         //   b.open_cmd);
 
         // in-private
-        auto private_bi = make_shared<browser_instance>(b, "private", "Private",
-            format("-private-window \"{}\"", browser_instance::URL_ARG_NAME),
-            b->open_cmd);
-        private_bi->is_incognito = true;
-        private_bi->sort_order = b->instances.size();
+        browser_profile private_bi("Private",
+                                   format("-private-window \"{}\"", browser::URL_ARG_NAME), "");
+        private_bi.is_incognito = true;
 
-        b->instances.push_back(private_bi);
+        b.profiles.push_back(private_bi);
     }
 
-    vector<firefox_container> discovery::discover_firefox_containers(const string& roaming_home) {
-
+    vector<firefox_container> discovery::discover_gecko_containers(const string &roaming_home) {
         vector<firefox_container> r;
 
         // detect if "containers" are installed
@@ -758,6 +650,17 @@ namespace bt {
             auto identities = j["identities"];
             if(identities.is_array()) {
                 for(json::iterator it = identities.begin(); it != identities.end(); ++it) {
+                    /* an example of identity element:
+{
+  "userContextId": 9,
+  "public": true,
+  "icon": "tree",
+  "color": "green",
+  "name": "Braden"
+},
+                     */
+
+
                     auto identity = *it;
                     auto j_is_public = identity["public"];
                     if(!j_is_public.is_boolean() || !j_is_public.get<bool>()) continue;
@@ -768,6 +671,8 @@ namespace bt {
                     auto j_name = identity["name"];
                     auto j_l10nID = identity["l10nID"];
                     auto j_l10nId = identity["l10nId"];
+                    auto j_icon = identity["icon"];
+                    auto j_color = identity["color"];
                     //string t0 = j_name.type_name();
                     //string t1 = j_l10nID.type_name();
 
@@ -779,23 +684,35 @@ namespace bt {
                         name = j_name.get<string>();
                     } else {
                         // there are 4 default containers - Personal, Work, Banking, Shopping.
-                        // They can be deleted, or renamed (in which case they will get "name" property set)
+                        // They can be deleted or renamed (in which case they will get the "name" property set)
 
                         string lid = j_l10nID.is_string() ? j_l10nID.get<string>() : j_l10nId.get<string>();
-                        if(lid == "userContextPersonal.label" || lid == "user-context-personal") {
-                            name = "Personal";
-                        } else if(lid == "userContextWork.label" || lid == "user-context-work") {
-                            name = "Work";
-                        } else if(lid == "userContextBanking.label" || lid == "user-context-banking") {
-                            name = "Banking";
-                        } else if(lid == "userContextShopping.label" || lid == "user-context-shopping") {
-                            name = "Shopping";
+
+                        auto it = gecko_container_names.find(lid);
+                        if(it != gecko_container_names.end()) {
+                            name = it->second;
                         } else {
                             name = lid;
                         }
                     }
 
-                    r.emplace_back(to_string(id), name);
+                    string icon_name;
+                    string color_name;
+                    if(j_icon.is_string()) icon_name = j_icon.get<string>();
+                    if(j_color.is_string()) color_name = j_color.get<string>();
+
+                    string icon;
+                    if(gecko_container_icons.contains(icon_name)) {
+                        icon = gecko_container_icons.at(icon_name);
+                    }
+                    bool has_color{false};
+                    unsigned int color{0};
+                    if(gecko_container_colors.contains(color_name)) {
+                        has_color = true;
+                        color = gecko_container_colors.at(color_name);
+                    }
+
+                    r.emplace_back(to_string(id), name, icon, has_color, color);
                 }
             }
         }
@@ -803,7 +720,7 @@ namespace bt {
         return r;
     }
 
-    std::vector<std::string> discovery::get_firefox_addons_installed(const std::string& roaming_home) {
+    std::vector<std::string> discovery::get_firefox_addons_installed(const std::string &roaming_home) {
         vector<string> r;
 
         fs::path path = fs::path{roaming_home} / "addons.json";
@@ -825,91 +742,39 @@ namespace bt {
         return r;
     }
 
-    void discovery::discover_other_profiles(shared_ptr<browser> b) {
+    void discovery::discover_other_profiles(browser &b) {
+        if(b.engine != browser_engine::generic) return;
 
-        if(!(b->is_autodiscovered && b->instances.empty())) return;
+        string icon_path = b.icon_path.empty() ? b.open_cmd : b.icon_path;
 
-        string icon_path = b->icon_path.empty() ? b->open_cmd : b->icon_path;
+        const browser_profile bi("Default",
+                                 format("\"{}\"", browser::URL_ARG_NAME),
+                                 icon_path);
 
+        b.profiles.push_back(bi);
+    }
 
-        if(b->is_msstore()) {
-            auto bi = make_shared<browser_instance>(b, "default", "Default",
-                browser_instance::URL_ARG_NAME,
-                icon_path);
+    std::vector<browser> discovery::discover_all_browsers() {
+        return discover_browsers(ProtoName);
+    }
 
-            b->instances.push_back(bi);
-        } else {
-            string arg("\"");
-            arg += browser_instance::URL_ARG_NAME;
-            arg += "\"";
-
-            auto bi = make_shared<browser_instance>(b, "default", "Default",
-                arg,
-                icon_path);
-
-            b->instances.push_back(bi);
+    void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
+        // discover various profiles
+        for(browser &b: browsers) {
+            discover_managed_profiles(b);
         }
     }
 
-    bool discovery::is_default_browser(bool& http, bool& https, bool& xbt) {
-#if PLATFORM_WINDOWS
-        http = ProtoName == get_shell_url_association_progid("http");
-        https = ProtoName == get_shell_url_association_progid("https");
-
-        auto xbt_assoc = get_shell_url_association_progid(CustomProtoName);
-        xbt = xbt_assoc.empty() || ProtoName == xbt_assoc;
-
-        return http && https && xbt;
-#else
-        return false;
-#endif
+    void discovery::discover_managed_profiles(browser &b) {
+        if(b.management == management_extent::full || b.management == management_extent::profiles) {
+            discover_chrome_profiles(b);
+            discover_gecko_profiles(b);
+            discover_other_profiles(b);
+        }
     }
 
-    void discovery::get_default_browser_url_assoc(std::string& http, std::string& https) {
-#if PLATFORM_WINDOWS
-        http = get_shell_url_association_progid("http");
-        https = get_shell_url_association_progid("https");
-#endif
-    }
-
-    const std::vector<shared_ptr<browser>> discovery::discover_all_browsers() {
-        return bt::discovery::discover_browsers(ProtoName);
-    }
-
-#if PLATFORM_WINDOWS
-    string discovery::get_shell_url_association_progid(const string& protocol_name) {
-        // There are 3 locations to check:
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest\ProgId, value of ProdId
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoiceLatest, value of ProdId
-        // - HKEY_CURRENT_USER\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice, value of ProdId
-        // If any of those are found, return the value
-
-        // 1
-        string prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest\\ProgId", protocol_name),
-            "ProgId");
-        if(!prog_id.empty()) return prog_id;
-
-        // 2
-        prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoiceLatest", protocol_name),
-            "ProgId");
-        if(!prog_id.empty()) return prog_id;
-
-        // 3
-        prog_id = win32::reg::get_value(
-            win32::reg::hive::current_user,
-            format("Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\{}\\UserChoice", protocol_name),
-            "ProgId");
-        return prog_id;
-    }
-#endif
-
-    bool discovery::fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path) {
-
-        engine = browser_engine::unknown;
+    bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
+        engine = browser_engine::generic;
         data_path.clear();
 
         if(!fs::exists(exe_path)) return false;
@@ -925,7 +790,7 @@ namespace bt {
 
         // Chromium
         // Should have a file *_proxy.exe in the same folder
-        for(const auto& entry : fs::directory_iterator(folder_path)) {
+        for(const auto &entry: fs::directory_iterator(folder_path)) {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
                 if(filename.ends_with("_proxy.exe")) {
@@ -959,7 +824,7 @@ namespace bt {
 
         // Gecko
         // Should have "xul.dll" in the same folder
-        for(const auto& entry : fs::directory_iterator(folder_path)) {
+        for(const auto &entry: fs::directory_iterator(folder_path)) {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
                 if(filename == "xul.dll") {

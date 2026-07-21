@@ -9,7 +9,7 @@ namespace bt {
     public:
         rule_hit_log();
 
-        void write(const bt::click_payload& up, std::shared_ptr<bt::browser_instance> bi, const std::string& rule);
+        void write(const bt::click_payload& up, const profile_selection& sel, const std::string& rule);
 
         std::string get_absolute_path() { return path; }
 

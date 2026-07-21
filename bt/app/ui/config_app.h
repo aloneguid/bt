@@ -31,7 +31,6 @@ namespace bt::ui {
         std::unique_ptr<grey::app> app;
         std::string title;
         grey::widgets::window wnd_config;
-        grey::widgets::window wnd_health_dash;
         grey::widgets::popup pop_proc_names{"pop_proc_names"};
         std::vector<std::string> pop_proc_names_items;
         std::string pop_proc_names_filter;
@@ -48,6 +47,8 @@ namespace bt::ui {
         int set_selected_profile_idx{-1};
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
+        grey::widgets::container w_browser_toolbar;
+        grey::widgets::container w_browser_rest_of_it;
 
         // System Information in "Help" menu
         float si_frame_time{60.0f};
@@ -87,12 +88,27 @@ namespace bt::ui {
         click_payload pv_cp;
         bool pv_only_matching{false};
 
+        // "Add new browser" window
+        bool add_browser_show{false};
+        grey::widgets::window wnd_add_browser;
+        browser new_browser{"", ""};
+
+        // executions for the end of the loop
+        bool exec_rediscover{false};
+
         std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
         std::vector<std::pair<std::string, std::string>> url_scopes{
             { ICON_MD_LANGUAGE, "Match anywhere" },
             { ICON_MD_GITE, "Match only in host name" },
             { ICON_MD_ROUNDABOUT_LEFT, "Match only in path" }
         };
+
+        std::vector<std::string> engine_names = [] {
+            std::vector<std::string> v;
+            for(auto sv : magic_enum::enum_names<browser_engine>())
+                v.emplace_back(sv);
+            return v;
+        }();
 
         bool run_frame();
         void render_menu_bar();
@@ -107,24 +123,21 @@ namespace bt::ui {
         void render_status_bar();
         void render_no_browsers();
         void render_browsers();
-        void render_card(std::shared_ptr<bt::browser> b, bool is_selected);
-        void render_detail(std::shared_ptr<bt::browser> b);
+        void render_card(browser& b, bool is_selected);
+        void render_detail(browser& b);
+        void render_add_browser_window();
 
         /**
          * @brief If "path_override" is not empty, it will be used as the icon path. Otherwise, "path1" if not empty, then "path2".
-         * @param path1 
-         * @param path2 
-         * @param path_override 
          */
-        void render_icon(const std::string& path_default, bool is_incognito, std::string& path_override);
-        void render_rules(std::shared_ptr<browser_instance> bi);
+        void render_icon(browser& b, browser_profile& p);
+        void render_rules(browser& b, browser_profile& bi);
         void refresh_pop_proc_names_items();
 
-        void rediscover_browsers();
-        void add_custom_browser_by_asking();
+        void rediscover_browsers() const;
 
         void recalculate_test_url_matches(const click_payload& cp);
 
-        std::shared_ptr<bt::browser_instance> get_selected_browser_instance();
+        browser_profile get_selected_browser_instance();
     };
 }
