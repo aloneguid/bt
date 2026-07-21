@@ -29,8 +29,7 @@ file(GLOB core_src
     "../grey/grey/common/url.cpp"
     "../grey/grey/common/datetime.cpp"
     "../grey/grey/common/desktop_shell.cpp"
-    "../grey/grey/common/process.cpp"
-    "../grey/grey/common/hashing.cpp")
+    "../grey/grey/common/process.cpp")
 
 if(WIN32)
 file(GLOB core_src

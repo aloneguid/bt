@@ -18,6 +18,8 @@
 #include "common/os.h"
 #include "magic_enum/magic_enum.hpp"
 #include <algorithm>
+
+#include "btwidgets.h"
 #include "common/desktop_shell.h"
 
 #if PLATFORM_WINDOWS
@@ -85,6 +87,7 @@ namespace bt::ui {
             app->preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
             app->preload_texture("bt_chromium", chromium_icon_png, chromium_icon_png_len);
             app->preload_texture("bt_gecko", gecko64_icon_png, gecko64_icon_png_len);
+            btw_on_app_initialised(*app);
         };
 
         check_health();
@@ -950,18 +953,6 @@ namespace bt::ui {
                     desktop_shell::open(b.open_cmd, "\"chrome://flags\"");
                 }
             */
-            } else if(b.engine == browser_engine::generic) {
-                if(w::button(ICON_MD_FAVORITE, "Make this browser the default one")) {
-                    browser::set_default(g_state.browsers, b.profiles[0]);
-                }
-
-                if(!b.profiles.empty()) {
-                    w::sl();
-                    if(w::button(ICON_MD_LAUNCH)) {
-                        url_opener::open(profile_selection{b, 0}, APP_TEST_URL);
-                    }
-                    w::tt("test by opening a link");
-                }
             }
 
             // browser can be deleted if it's not fully managed
@@ -1017,8 +1008,6 @@ namespace bt::ui {
             // --- profiles start
 
             w::spc();
-            w::label("Profiles", w::emphasis::primary);
-
             w::tab_bar tabs{"tabs", true, true};
 
             int idx{0};
@@ -1051,7 +1040,7 @@ namespace bt::ui {
                         } else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
                             browser::set_default(g_state.browsers, bi);
                         }
-                        w::tt("Make this browser the default one");
+                        w::tt("Make this profile the default one");
 
                         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
                         w::sl();
@@ -1207,11 +1196,7 @@ terminal window will be hidden.)");
         w::tt("path to data folder");
 
         if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary, true, false, "", 100 * app->scale)) {
-            if(b.engine == browser_engine::generic) {
-                b.management = management_extent::none;
-            } else {
-                b.management = management_extent::profiles;
-            }
+            b.management = b.engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
 
             // validation
             b.ui_validation_error.clear();
@@ -1227,6 +1212,7 @@ terminal window will be hidden.)");
                 if(b.data_path.empty()) {
                     b.ui_validation_error += "- data path is required\n";
                 } else {
+                    b.profiles.clear();
                     discovery::discover_managed_profiles(b);
                     if(b.profiles.size() < 2) {
                         // there needs to be at least two valid profiles (incognito + at least the default)
@@ -1237,6 +1223,7 @@ terminal window will be hidden.)");
 
             // final addition
             if(b.ui_validation_error.empty()) {
+                b.profiles.clear();
                 if(b.management == management_extent::none) {
                     discovery::discover_other_profiles(b);
                 } else {
@@ -1244,8 +1231,9 @@ terminal window will be hidden.)");
                 }
                 g_state.browsers.push_back(b);
                 selected_browser_idx = g_state.browsers.size() - 1;
-                b = browser{"", ""};
 
+                // reset browser before next operation
+                b = browser{"", ""};
                 add_browser_show = false;
             }
         }
@@ -1260,31 +1248,7 @@ terminal window will be hidden.)");
     void config_app::render_icon(browser& b, browser_profile& p) {
         {
             w::group g;
-
-            const float box_size = 40 * app->scale;
-            ImVec2 cur = w::cur_get();
-
-            if(p.is_incognito) {
-                if(!p.user_icon_path.empty() && app->preload_texture(p.user_icon_path, fss::get_full_path(p.user_icon_path))) {
-                    w::image_rounded(*app, p.user_icon_path, box_size - 1, box_size - 1, box_size / 2);
-                } else {
-                    w::image_rounded(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
-                }
-            } else {
-                string path = p.user_icon_path.empty() ? b.get_best_icon_path(p, false) : p.user_icon_path;
-
-                if(!path.empty() && app->preload_texture(path, fss::get_full_path(path))) {
-                    w::image_rounded(*app, path, box_size - 1, box_size - 1, box_size / 2);
-                } else {
-                    ImGui::Dummy(ImVec2(box_size, box_size));
-                }
-            }
-
-            // draw circle on top with user_color
-            if(p.use_user_color) {
-                ImDrawList* dl = ImGui::GetWindowDrawList();
-                dl->AddCircle(ImVec2(cur.x + box_size / 2, cur.y + box_size / 2), box_size / 2, p.user_color, 0, g_state.highlight_width * app->scale);
-            }
+            btw_icon(*app, b, p, icon_overlay_mode::profile_only, 0, 40 * app->scale, true);
         }
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -1446,10 +1410,20 @@ terminal window will be hidden.)");
         pop_proc_names_filter.clear();
     }
 
-    void config_app::rediscover_browsers() {
+    void config_app::rediscover_browsers() const {
         vector<browser> fresh_browsers = discovery::discover_all_browsers();
+        // rediscover profiles in partially managed browsers
+        for(browser& b : g_state.browsers) {
+            if(b.management != management_extent::profiles) continue;
+            browser nb = b; // create a copy
+            nb.profiles.clear();
+            discovery::discover_managed_profiles(nb);
+            fresh_browsers.push_back(nb);
+        }
+
         fresh_browsers = browser::merge(fresh_browsers, g_state.browsers);
         g_state.browsers = fresh_browsers;
+        btw_on_app_initialised(*app);
 
         string message = format("Discovered {} browser(s).", g_state.browsers.size());
         w::notify_info(message);

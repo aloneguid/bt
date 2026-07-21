@@ -81,24 +81,20 @@ namespace bt {
 
         void launch(click_payload up, const browser_profile &profile) const;
 
-        size_t get_total_rule_count() const;
+        [[nodiscard]] size_t get_total_rule_count() const;
 
-        bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
+        [[nodiscard]] bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
 
-        bool is_wellknown() const { return engine != browser_engine::generic; }
+        [[nodiscard]] bool is_wellknown() const { return engine != browser_engine::generic; }
 
-        std::string get_best_icon_path() const;
+        [[nodiscard]] std::string get_best_icon_path() const;
 
-        std::string get_best_icon_path(const browser_profile &profile, bool include_override = true) const;
+        [[nodiscard]] std::string get_best_icon_path(const browser_profile &profile, bool include_override = true) const;
 
-        bool is_default() const;
+        [[nodiscard]] bool is_default() const;
 
         void set_management(browser_engine engine) {
-            if(engine == browser_engine::generic) {
-                management = management_extent::none;
-            } else {
-                management = management_extent::profiles;
-            }
+            management = engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
         }
 
         // ---- static members
@@ -208,6 +204,10 @@ namespace bt {
             is_incognito = other.is_incognito;
             is_default = other.is_default;
             has_firefox_ouic_addon = other.has_firefox_ouic_addon;
+            use_color = other.use_color;
+            color = other.color;
+            use_user_color = other.use_user_color;
+            user_color = other.user_color;
             return *this;
         }
 

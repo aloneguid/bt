@@ -192,6 +192,8 @@ namespace bt {
         read<string>(node, "user_icon", state.user_icon_path);
         read<bool>(node, "incognito", state.is_incognito);
         if(read<bool>(node, "visible", state.is_hidden)) state.is_hidden = !state.is_hidden;
+        if(read_color(node, "color", state.color))
+            state.use_color = true;
         if(read_color(node, "user_color", state.user_color))
             state.use_user_color = true;
         read<vector<match_rule> >(node, "rules", state.rules);
@@ -214,6 +216,8 @@ namespace bt {
             node["visible"] = false;
         if(!state.rules.empty())
             node["rules"] = state.rules;
+        if(state.use_color)
+            write_color(node, "color", state.color);
         if(state.use_user_color)
             write_color(node, "user_color", state.user_color);
     }

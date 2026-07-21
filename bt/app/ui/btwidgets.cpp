@@ -27,6 +27,14 @@ namespace bt::ui {
     void btw_icon(grey::app& app,
         const profile_selection& selection,
         float padding, float icon_size, bool is_active) {
+        btw_icon(app, selection.b(), selection.profile(), g_state.icon_overlay, padding, icon_size, is_active);
+
+    }
+
+    void btw_icon(grey::app &app, const browser &b, const browser_profile &p,
+        icon_overlay_mode icon_mode,
+        float padding, float icon_size,
+        bool is_active) {
 
         float box_size = icon_size + padding * 2;
 
@@ -41,16 +49,16 @@ namespace bt::ui {
 
         w::cur_set(x0 + padding, y0 + padding);
 
-        string icon1 = selection.b().get_best_icon_path();
+        string icon1 = b.get_best_icon_path();
         string icon2;
-        if(selection.b().engine != browser_engine::generic) {
-            if(selection.profile().is_incognito && selection.profile().user_icon_path.empty())
+        if(b.engine != browser_engine::generic) {
+            if(p.is_incognito && p.user_icon_path.empty())
                 icon2 = "incognito";
             else
-                icon2 = selection.b().get_best_icon_path(selection.profile());
+                icon2 = b.get_best_icon_path(p);
         }
 
-        switch(g_state.icon_overlay) {
+        switch(icon_mode) {
             case icon_overlay_mode::browser_only:
                 icon2 = "";
                 break;
@@ -79,12 +87,15 @@ namespace bt::ui {
 
         ImGui::PopStyleVar();
 
-        if(selection.profile().use_user_color) {
+        if(p.use_color || p.use_user_color) {
+            // user color has priority
+            unsigned color = p.use_user_color ? p.user_color : p.color;
+
             //draw circle around the icon with user color
             auto dl = ImGui::GetWindowDrawList();
             ImVec2 center{x0 + padding + icon_size / 2, y0 + padding + icon_size / 2};
             auto radius = icon_size / 2 + g_state.highlight_width * w::scale;
-            dl->AddCircle(center, radius, selection.profile().user_color, 0, g_state.highlight_width * w::scale);
+            dl->AddCircle(center, radius, color, 0, g_state.highlight_width * w::scale);
         }
     }
 }

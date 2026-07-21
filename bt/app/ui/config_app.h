@@ -134,7 +134,7 @@ namespace bt::ui {
         void render_rules(browser& b, browser_profile& bi);
         void refresh_pop_proc_names_items();
 
-        void rediscover_browsers();
+        void rediscover_browsers() const;
 
         void recalculate_test_url_matches(const click_payload& cp);
 

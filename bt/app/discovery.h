@@ -21,8 +21,9 @@ namespace bt {
     struct firefox_container {
         std::string id;
         std::string name;
-        std::string icon_name;
-        std::string color_name;
+        std::string icon;
+        bool has_color;
+        unsigned int color;
     };
 
     /**

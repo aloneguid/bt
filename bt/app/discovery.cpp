@@ -11,7 +11,7 @@
 #include <sqlite3.h>
 #include <unordered_set>
 #include <fstream>
-#include "common/hashing.h"
+#include "fonts/MaterialIcons.h"
 
 using namespace grey::common;
 
@@ -70,10 +70,8 @@ namespace bt {
 #endif
 
     const string FirefoxInstancePrefix = "Firefox-";
-    // any parameters to add to Chromium-based browsers
-    const string ChromiumExtraArgs = " --no-default-browser-check";
 
-    static const std::unordered_map<std::string, std::string> container_names = {
+    static const std::unordered_map<std::string, std::string> gecko_container_names = {
         {"userContextPersonal.label", "Personal"},
         {"user-context-personal", "Personal"},
         {"userContextWork.label", "Work"},
@@ -84,10 +82,33 @@ namespace bt {
         {"user-context-shopping", "Shopping"}
     };
 
-    string get_id_from_open_cmd(const std::string &cmd) {
-        // compute MD5 hash of the command, because just exe name is not unique enough, especially when almost every browser is named "chrome.exe"
-        return hashing::md5(cmd);
-    }
+    static const std::unordered_map<std::string, std::string> gecko_container_icons = {
+        {"fingerprint", ICON_MD_FINGERPRINT},
+        {"briefcase",   ICON_MD_WORK},
+        {"dollar",      ICON_MD_ATTACH_MONEY},
+        {"cart",        ICON_MD_SHOPPING_CART},
+        {"circle",      ICON_MD_CIRCLE},
+        {"gift",        ICON_MD_REDEEM},
+        {"vacation",    ICON_MD_BEACH_ACCESS},
+        {"food",        ICON_MD_RESTAURANT},
+        {"fruit",       ICON_MD_RESTAURANT},
+        {"pet",         ICON_MD_PETS},
+        {"tree",        ICON_MD_PARK},
+        {"chill",       ICON_MD_SELF_IMPROVEMENT},
+        {"fence",       ICON_MD_FENCE},
+    };
+
+    static const std::unordered_map<std::string, ImU32> gecko_container_colors = {
+        {"blue",      IM_COL32(0x37, 0xAD, 0xFF, 0xFF)},
+        {"turquoise", IM_COL32(0x00, 0xC7, 0x9A, 0xFF)},
+        {"green",     IM_COL32(0x51, 0xCD, 0x00, 0xFF)},
+        {"yellow",    IM_COL32(0xFF, 0xCB, 0x00, 0xFF)},
+        {"orange",    IM_COL32(0xFF, 0x9F, 0x00, 0xFF)},
+        {"red",       IM_COL32(0xFF, 0x61, 0x3D, 0xFF)},
+        {"pink",      IM_COL32(0xFF, 0x4B, 0xDA, 0xFF)},
+        {"purple",    IM_COL32(0xAF, 0x51, 0xF5, 0xFF)},
+        {"toolbar",   IM_COL32(0x7C, 0x7C, 0x80, 0xFF)},
+    };
 
     string get_instance_id(const string &reg_value) {
         // if this is Firefox, strip out the prefix to get instance ID
@@ -128,7 +149,6 @@ namespace bt {
                                               root + "\\Capabilities\\URLAssociations", "http");
 
             if(!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
-                string id = get_id_from_open_cmd(open_command);
                 browser b(display_name, open_command);
                 b.instance_id = get_instance_id(sub);
 
@@ -398,17 +418,14 @@ namespace bt {
                     }
 
                     // all the data is ready
-                    string arg = format("\"{}\" \"--profile-directory={}\"{}",
+                    string arg = format(R"("{}" "--profile-directory={}" "--user-data-dir={}" --no-default-browser-check)",
                                         browser::URL_ARG_NAME, sys_name,
-                                        ChromiumExtraArgs);
+                                        b.data_path);
 
-                    browser_profile profile(
-                        name,
-                        arg,
-                        ""
-                    );
+                    browser_profile profile{name, arg,""};
                     if(profile_pic_j.is_string()) {
                         profile.icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
+                        if(!fs::is_regular_file(profile.icon_path)) profile.icon_path.clear();
                     }
                     b.profiles.push_back(profile);
                 }
@@ -578,11 +595,11 @@ namespace bt {
 
             string arg_suffix = fp.is_classic
                                     ? format("-P \"{}\"", fp.name)
-                                    : format("\"--profile\" \"{}\"", fp.path);
+                                    : format(R"("--profile" "{}")", fp.path);
             string arg = format("\"{}\" -foreground {}", browser::URL_ARG_NAME, arg_suffix);
 
-            browser_profile bi(fp.name, arg, "");
-            b.profiles.push_back(bi);
+            browser_profile p(fp.name, arg, "");
+            b.profiles.push_back(p);
 
             // containers
             if(g_state.discover_gecko_containers) {
@@ -602,6 +619,10 @@ namespace bt {
 
                     string id = format("{}+c_{}", fp.id, container.id);
                     browser_profile bi(profile_name, arg, "");
+                    if(container.has_color) {
+                        bi.use_color = true;
+                        bi.color = container.color;
+                    }
                     b.profiles.push_back(bi);
                 }
             }
@@ -669,8 +690,8 @@ namespace bt {
 
                         string lid = j_l10nID.is_string() ? j_l10nID.get<string>() : j_l10nId.get<string>();
 
-                        auto it = container_names.find(lid);
-                        if(it != container_names.end()) {
+                        auto it = gecko_container_names.find(lid);
+                        if(it != gecko_container_names.end()) {
                             name = it->second;
                         } else {
                             name = lid;
@@ -682,8 +703,18 @@ namespace bt {
                     if(j_icon.is_string()) icon_name = j_icon.get<string>();
                     if(j_color.is_string()) color_name = j_color.get<string>();
 
+                    string icon;
+                    if(gecko_container_icons.contains(icon_name)) {
+                        icon = gecko_container_icons.at(icon_name);
+                    }
+                    bool has_color{false};
+                    unsigned int color{0};
+                    if(gecko_container_colors.contains(color_name)) {
+                        has_color = true;
+                        color = gecko_container_colors.at(color_name);
+                    }
 
-                    r.emplace_back(to_string(id), name, icon_name, color_name);
+                    r.emplace_back(to_string(id), name, icon, has_color, color);
                 }
             }
         }

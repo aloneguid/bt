@@ -10,8 +10,8 @@
   - "On rule conflict" – picker is always invoked on rule conflict now.
 
 ## New features
-- todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.
-- Profiles can be configured to have a custom highlight colour. When set, picker will draw a circle around the icon with the specified colour.
+- You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.
+- Profiles can be configured to have a custom highlight color. When set, the picker will draw a circle around the icon with the specified color.
 - todo: firefox container icons.
 - todo: An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
@@ -22,7 +22,7 @@
 - When clicking on the health check button to set the default browser, BT opens the system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
 
 ## Bugs fixed
-- todo: rework process picker.
+- Process picker would randomly not open at all.
 - todo: see GitHub.
 
 ## Tech stuff

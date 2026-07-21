@@ -24,13 +24,13 @@ namespace bt {
 #endif
 
     browser::browser(
-        const std::string &name,
-        const std::string &open_cmd)
+        const std::string& name,
+        const std::string& open_cmd)
         : name{name}, open_cmd{open_cmd} {
         str::trim(this->name);
     }
 
-    void browser::launch(click_payload up, const browser_profile &profile) const {
+    void browser::launch(click_payload up, const browser_profile& profile) const {
         string url = up.url;
         string arg = profile.launch_arg;
 
@@ -57,7 +57,7 @@ namespace bt {
         launch_process(open_cmd + " " + arg, profile);
     }
 
-    void browser::launch_process(const std::string &cmdline, const browser_profile &profile) const {
+    void browser::launch_process(const std::string& cmdline, const browser_profile& profile) const {
 #if PLATFORM_WINDOWS
         STARTUPINFO si{};
         si.cb = sizeof(si);
@@ -103,7 +103,7 @@ namespace bt {
 
     size_t browser::get_total_rule_count() const {
         size_t r{0};
-        for(auto &i: profiles) {
+        for(auto& i: profiles) {
             r += i.rules.size();
         }
         return r;
@@ -122,22 +122,22 @@ namespace bt {
     }
 
     bool browser::is_default() const {
-        for(const auto &i: profiles) {
+        for(const auto& i: profiles) {
             if(i.is_default) return true;
         }
         return false;
     }
 
     std::vector<browser_match_result> browser::match(
-        const std::vector<browser> &browsers,
-        const click_payload &up,
-        const script_site &script) {
+        const std::vector<browser>& browsers,
+        const click_payload& up,
+        const script_site& script) {
         vector<browser_match_result> r;
 
         // which browser should we use?
         // i'm not sure this is correct
         for(const browser& browser: browsers) {
-            for(auto [i, profile] : browser.profiles | std::views::enumerate) {
+            for(auto [i, profile]: browser.profiles | std::views::enumerate) {
                 match_rule mr;
                 if(profile.is_match(up, script, mr)) {
                     r.emplace_back(profile_selection(browser, i), mr);
@@ -158,11 +158,11 @@ namespace bt {
         return r;
     }
 
-    optional<profile_selection> browser::get_default(const std::vector<browser> &browsers) {
+    optional<profile_selection> browser::get_default(const std::vector<browser>& browsers) {
         optional<profile_selection> fallback_candidate;
 
-        for(auto &b: browsers) {
-            for(auto [i, profile] : b.profiles | std::views::enumerate) {
+        for(auto& b: browsers) {
+            for(auto [i, profile]: b.profiles | std::views::enumerate) {
                 if(!fallback_candidate) fallback_candidate = profile_selection(b, i);
                 if(profile.is_default) return profile_selection(b, i);
             }
@@ -171,31 +171,35 @@ namespace bt {
         return fallback_candidate;
     }
 
-    void browser::set_default(std::vector<browser> &browsers,
-                              const browser_profile &profile) {
-        for(auto &b: browsers) {
-            for(browser_profile &p: b.profiles) {
+    void browser::set_default(std::vector<browser>& browsers,
+                              const browser_profile& profile) {
+        for(auto& b: browsers) {
+            for(browser_profile& p: b.profiles) {
                 p.is_default = p == profile;
             }
         }
     }
 
     std::vector<browser> browser::merge(
-        std::vector<browser> &new_set, std::vector<browser> &old_set) {
+        std::vector<browser>& new_set, std::vector<browser>& old_set) {
         vector<browser> r;
         std::vector<bool> new_processed(new_set.size(), false);
 
         // Pass 1: Iterate old_set, merge into new and add to r
-        for (auto &b_old : old_set) {
+        for(auto& b_old: old_set) {
             auto b_new_it = std::find_if(
                 new_set.begin(), new_set.end(),
-                [&b_old](const browser &el) { return el.open_cmd == b_old.open_cmd; });
+                [&b_old](const browser& el) {
+                    return
+                            el.open_cmd == b_old.open_cmd &&
+                            el.data_path == b_old.data_path;
+                });
 
-            if (b_new_it != new_set.end()) {
+            if(b_new_it != new_set.end()) {
                 size_t idx = std::distance(new_set.begin(), b_new_it);
                 new_processed[idx] = true;
 
-                browser &b_new = *b_new_it;
+                browser& b_new = *b_new_it;
                 // merge user data
                 b_new.is_hidden = b_old.is_hidden;
 
@@ -203,48 +207,50 @@ namespace bt {
                 std::vector<browser_profile> merged_profiles;
                 std::vector<bool> new_profile_processed(b_new.profiles.size(), false);
 
-                for(const browser_profile &bi_old : b_old.profiles) {
+                for(const browser_profile& bi_old: b_old.profiles) {
                     auto bi_new_it = std::find_if(
                         b_new.profiles.begin(), b_new.profiles.end(),
-                        [&bi_old](const browser_profile &el) { return el.name == bi_old.name; });
+                        [&bi_old](const browser_profile& el) { return el.name == bi_old.name; });
 
                     if(bi_new_it != b_new.profiles.end()) {
                         size_t p_idx = std::distance(b_new.profiles.begin(), bi_new_it);
                         new_profile_processed[p_idx] = true;
-                        
-                        browser_profile &bi_new = *bi_new_it;
+
+                        browser_profile& bi_new = *bi_new_it;
                         // merge user-defined customisations
                         bi_new.user_arg = bi_old.user_arg;
                         bi_new.user_icon_path = bi_old.user_icon_path;
+                        bi_new.use_user_color = bi_old.use_color;
+                        bi_new.user_color = bi_old.user_color;
 
                         // merge rules
-                        for(auto &rule: bi_old.rules) {
+                        for(auto& rule: bi_old.rules) {
                             bi_new.rules.push_back(rule);
                         }
                         merged_profiles.push_back(bi_new);
                     }
                     // If profile is in old_set but not new_set, ignore it (existing behavior)
                 }
-                
+
                 // Add remaining profiles from b_new (those not in b_old)
-                for (size_t i = 0; i < b_new.profiles.size(); ++i) {
-                    if (!new_profile_processed[i]) {
+                for(size_t i = 0; i < b_new.profiles.size(); ++i) {
+                    if(!new_profile_processed[i]) {
                         merged_profiles.push_back(b_new.profiles[i]);
                     }
                 }
-                
+
                 b_new.profiles = merged_profiles;
 
                 r.push_back(b_new);
-            } else if (b_old.management != management_extent::full) {
+            } else if(b_old.management != management_extent::full) {
                 // Only in old_set and not full managed
                 r.push_back(b_old);
             }
         }
 
         // Pass 2: Add remaining browsers from new_set (those not in old_set)
-        for (size_t i = 0; i < new_set.size(); ++i) {
-            if (!new_processed[i]) {
+        for(size_t i = 0; i < new_set.size(); ++i) {
+            if(!new_processed[i]) {
                 r.push_back(new_set[i]);
             }
         }
@@ -252,7 +258,7 @@ namespace bt {
         return r;
     }
 
-    size_t browser::index_of(std::vector<browser> &browsers, browser &b) {
+    size_t browser::index_of(std::vector<browser>& browsers, browser& b) {
         for(size_t i = 0; i < browsers.size(); ++i) {
             if(browsers[i] == b) return i;
         }
@@ -260,34 +266,34 @@ namespace bt {
         return string::npos;
     }
 
-    std::string browser::get_best_display_name(const browser_profile &profile) const {
+    std::string browser::get_best_display_name(const browser_profile& profile) const {
         if(profile.is_incognito) return "Incognito";
         return profile.name;
     }
 
-    std::string browser::get_best_icon_path(const browser_profile &profile, bool include_override) const {
+    std::string browser::get_best_icon_path(const browser_profile& profile, bool include_override) const {
         if(include_override && !profile.user_icon_path.empty()) return profile.user_icon_path;
         if(!profile.icon_path.empty()) return profile.icon_path;
         if(!icon_path.empty()) return icon_path;
         return open_cmd;
     }
 
-    std::string browser::get_image_name(const std::string &open_cmd) {
+    std::string browser::get_image_name(const std::string& open_cmd) {
         if(open_cmd.empty()) return open_cmd;
         return fs::path{open_cmd}.filename().replace_extension().string();
     }
 
     browser_profile::browser_profile(
-        const std::string &name,
-        const std::string &launch_arg,
-        const std::string &icon_path)
+        const std::string& name,
+        const std::string& launch_arg,
+        const std::string& icon_path)
         : name{name},
 
           launch_arg{launch_arg},
           icon_path{icon_path} {
     }
 
-    bool browser_profile::operator==(const browser_profile &other) const {
+    bool browser_profile::operator==(const browser_profile& other) const {
         return name == other.name &&
                launch_arg == other.launch_arg &&
                icon_path == other.icon_path &&
@@ -298,6 +304,8 @@ namespace bt {
                launch_hide_ui == other.launch_hide_ui &&
                is_default == other.is_default &&
                has_firefox_ouic_addon == other.has_firefox_ouic_addon &&
+               use_color == other.use_color &&
+               color == other.color &&
                use_user_color == other.use_user_color &&
                user_color == other.user_color &&
                rules == other.rules;
@@ -306,8 +314,8 @@ namespace bt {
     browser_profile::~browser_profile() {
     }
 
-    bool browser_profile::is_match(const click_payload &up, match_rule &mr) const {
-        for(const auto &rule: rules) {
+    bool browser_profile::is_match(const click_payload& up, match_rule& mr) const {
+        for(const auto& rule: rules) {
             if(rule.is_match(up)) {
                 mr = rule;
                 return true;
@@ -317,8 +325,8 @@ namespace bt {
         return false;
     }
 
-    bool browser_profile::is_match(const click_payload &up, const script_site &ss, match_rule &mr) const {
-        for(const auto &rule: rules) {
+    bool browser_profile::is_match(const click_payload& up, const script_site& ss, match_rule& mr) const {
+        for(const auto& rule: rules) {
             if(rule.is_match(up, ss)) {
                 mr = rule;
                 return true;
@@ -328,10 +336,10 @@ namespace bt {
         return false;
     }
 
-    bool browser_profile::add_rule(const std::string &rule_text) {
+    bool browser_profile::add_rule(const std::string& rule_text) {
         match_rule new_rule{rule_text};
 
-        for(const auto &rule: rules) {
+        for(const auto& rule: rules) {
             if(rule == new_rule)
                 return false;
         }
@@ -341,7 +349,7 @@ namespace bt {
         return true;
     }
 
-    void browser_profile::delete_rule(const std::string &rule_text) {
+    void browser_profile::delete_rule(const std::string& rule_text) {
         std::erase_if(rules, [rule_text](auto r) { return r.value == rule_text; });
     }
 }
