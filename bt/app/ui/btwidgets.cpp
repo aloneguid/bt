@@ -78,5 +78,13 @@ namespace bt::ui {
         }
 
         ImGui::PopStyleVar();
+
+        if(selection.profile().use_user_color) {
+            //draw circle around the icon with user color
+            auto dl = ImGui::GetWindowDrawList();
+            ImVec2 center{x0 + padding + icon_size / 2, y0 + padding + icon_size / 2};
+            auto radius = icon_size / 2 + g_state.highlight_width * w::scale;
+            dl->AddCircle(center, radius, selection.profile().user_color, 0, g_state.highlight_width * w::scale);
+        }
     }
 }

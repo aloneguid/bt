@@ -298,6 +298,8 @@ namespace bt {
                launch_hide_ui == other.launch_hide_ui &&
                is_default == other.is_default &&
                has_firefox_ouic_addon == other.has_firefox_ouic_addon &&
+               use_user_color == other.use_user_color &&
+               user_color == other.user_color &&
                rules == other.rules;
     }
 

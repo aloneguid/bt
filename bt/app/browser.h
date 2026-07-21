@@ -165,11 +165,13 @@ namespace bt {
          * @brief Some profiles (like Firefox containers) have color attribute
          */
         unsigned int color{0};
+        bool use_color{false};
 
         /**
          * @brief User-defined color override
          */
         unsigned int user_color{0};
+        bool use_user_color{false};
 
         /**
          * @brief If this is the default browser profile in this browser. Doesn't have to do anything with user's default choice in BT.

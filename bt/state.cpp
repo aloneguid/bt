@@ -119,6 +119,7 @@ namespace bt {
         read_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         read<bool>(node, "discover_classic_gecko_profiles", state.discover_classic_gecko_profiles);
         read<bool>(node, "discover_gecko_containers", state.discover_gecko_containers);
+        read<int>(node, "highlight_width", state.highlight_width);
 
         read<toast_state>(node, "toast", state.toast);
         read<picker_state>(node, "picker", state.picker);
@@ -148,6 +149,7 @@ namespace bt {
         write_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         node["discover_classic_gecko_profiles"] = state.discover_classic_gecko_profiles;
         node["discover_gecko_containers"] = state.discover_gecko_containers;
+        node["highlight_width"] = state.highlight_width;
         node["toast"] = state.toast;
         node["picker"] = state.picker;
         node["transforms"] = state.transforms;
@@ -190,6 +192,8 @@ namespace bt {
         read<string>(node, "user_icon", state.user_icon_path);
         read<bool>(node, "incognito", state.is_incognito);
         if(read<bool>(node, "visible", state.is_hidden)) state.is_hidden = !state.is_hidden;
+        if(read_color(node, "user_color", state.user_color))
+            state.use_user_color = true;
         read<vector<match_rule> >(node, "rules", state.rules);
     }
 
@@ -210,6 +214,8 @@ namespace bt {
             node["visible"] = false;
         if(!state.rules.empty())
             node["rules"] = state.rules;
+        if(state.use_user_color)
+            write_color(node, "user_color", state.user_color);
     }
 
     void from_node(const fkyaml::node &node, browser &state) {

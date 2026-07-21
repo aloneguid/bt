@@ -10,7 +10,8 @@
   - "On rule conflict" – picker is always invoked on rule conflict now.
 
 ## New features
-- todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers. 
+- todo: You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.
+- Profiles can be configured to have a custom highlight colour. When set, picker will draw a circle around the icon with the specified colour.
 - todo: firefox container icons.
 - todo: An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
@@ -27,9 +28,6 @@
 ## Tech stuff
 - Project upgraded to C++ 23.
 - Cleanup: a lot of legacy code is deleted.
-
-todo:
-- custom sort of browsers and profiles is broken
 
 ## 5.6.12
 

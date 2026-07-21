@@ -74,8 +74,9 @@ namespace bt::ui {
 
         float padding_bottom = 20 * app->scale;
         w_left_panel = w::container{220 * app->scale, -padding_bottom}.resize_x();
-        w_right_panel = w::container{0, -padding_bottom}.border();
+        w_right_panel = w::container{0, -padding_bottom};
         w_browser_toolbar = w::container{40 * app->scale}.auto_size_y().border();
+        w_browser_rest_of_it = w::container{}.border();
 
         w_script_top_panel = w::container{0, 250 * app->scale}.resize_y();
 
@@ -907,7 +908,6 @@ namespace bt::ui {
             w::guard g{w_browser_toolbar};
 
             // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
-            w::sl(10 * app->scale);
             w::icon_checkbox(ICON_MD_VISIBILITY, b.is_hidden, true, "Show in browser list and picker");
 
             bool can_move_up = b != *g_state.browsers.begin();
@@ -944,11 +944,16 @@ namespace bt::ui {
                     desktop_shell::open(b.open_cmd, "about:profiles");
                 }
                 w::tt("open Firefox Profile Manager in Firefox itself");
+            } else if(b.engine == browser_engine::chromium) {
+                /*
+                if(w::button(ICON_MD_FLAG, "open chromium flags page")) {
+                    desktop_shell::open(b.open_cmd, "\"chrome://flags\"");
+                }
+            */
             } else if(b.engine == browser_engine::generic) {
-                if(w::button(ICON_MD_FAVORITE)) {
+                if(w::button(ICON_MD_FAVORITE, "Make this browser the default one")) {
                     browser::set_default(g_state.browsers, b.profiles[0]);
                 }
-                w::tt("Make this browser the default one");
 
                 if(!b.profiles.empty()) {
                     w::sl();
@@ -984,7 +989,7 @@ namespace bt::ui {
         w::sl();
 
         {
-            w::group g;
+            w::guard g{w_browser_rest_of_it};
 
             // --- browser properties
 
@@ -1089,6 +1094,15 @@ namespace bt::ui {
                             w::tt(strings::ProfileTestLink);
                         }
 
+                        w::sl();
+                        w::icon_checkbox(ICON_MD_PALETTE, bi.use_user_color, false, "set custom highlight color");
+
+                        if(bi.use_user_color) {
+                            w::sl();
+                            w::colour("##bi_user_color", bi.user_color);
+                            w::tt("highlight color");
+                        }
+
                         if(!b.open_cmd.empty()) {
                             if(b.engine == bt::browser_engine::gecko) {
                                 if(g_state.discover_gecko_containers) {
@@ -1100,7 +1114,7 @@ namespace bt::ui {
 
                         // end of mini toolbar
 
-                        render_icon(b.get_best_icon_path(bi, false), bi.is_incognito, bi.user_icon_path);
+                        render_icon(b, bi);
 
                         w::sl();
                         {
@@ -1111,8 +1125,6 @@ namespace bt::ui {
 
                             w::input(bi.user_arg, "extra arg");
                             w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
-
-                            w::colour("highlight color", bi.color);
                         }
 
                         w::spc();
@@ -1245,30 +1257,33 @@ terminal window will be hidden.)");
         }
     }
 
-    void config_app::render_icon(const std::string &path_default, bool is_incognito, string &path_override) {
+    void config_app::render_icon(browser& b, browser_profile& p) {
         {
             w::group g;
-            //g
-            //.border(ImGuiCol_Border)
-            //.border_hover(ImGuiCol_ButtonHovered)
-            //.render();
 
-            float box_size = 40 * app->scale;
+            const float box_size = 40 * app->scale;
+            ImVec2 cur = w::cur_get();
 
-            if(is_incognito) {
-                if(!path_override.empty() && app->preload_texture(path_override, fss::get_full_path(path_override))) {
-                    w::image_rounded(*app, path_override, box_size - 1, box_size - 1, box_size / 2);
+            if(p.is_incognito) {
+                if(!p.user_icon_path.empty() && app->preload_texture(p.user_icon_path, fss::get_full_path(p.user_icon_path))) {
+                    w::image_rounded(*app, p.user_icon_path, box_size - 1, box_size - 1, box_size / 2);
                 } else {
                     w::image_rounded(*app, "incognito", box_size - 1, box_size - 1, box_size / 2);
                 }
             } else {
-                string path = path_override.empty() ? path_default : path_override;
+                string path = p.user_icon_path.empty() ? b.get_best_icon_path(p, false) : p.user_icon_path;
 
                 if(!path.empty() && app->preload_texture(path, fss::get_full_path(path))) {
                     w::image_rounded(*app, path, box_size - 1, box_size - 1, box_size / 2);
                 } else {
                     ImGui::Dummy(ImVec2(box_size, box_size));
                 }
+            }
+
+            // draw circle on top with user_color
+            if(p.use_user_color) {
+                ImDrawList* dl = ImGui::GetWindowDrawList();
+                dl->AddCircle(ImVec2(cur.x + box_size / 2, cur.y + box_size / 2), box_size / 2, p.user_color, 0, g_state.highlight_width * app->scale);
             }
         }
         if(w::is_hovered()) {
@@ -1279,12 +1294,12 @@ terminal window will be hidden.)");
         if(w::is_leftclicked()) {
             string icon_path = desktop_shell::file_open_dialog("Icon", "*.png;*.ico");
             if(!icon_path.empty()) {
-                path_override = icon_path;
+                p.user_icon_path = icon_path;
             }
         }
 
         if(w::is_rightclicked()) {
-            path_override.clear();
+            p.user_icon_path.clear();
         }
     }
 

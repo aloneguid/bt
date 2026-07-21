@@ -48,6 +48,7 @@ namespace bt::ui {
         grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
         grey::widgets::container w_browser_toolbar;
+        grey::widgets::container w_browser_rest_of_it;
 
         // System Information in "Help" menu
         float si_frame_time{60.0f};
@@ -129,7 +130,7 @@ namespace bt::ui {
         /**
          * @brief If "path_override" is not empty, it will be used as the icon path. Otherwise, "path1" if not empty, then "path2".
          */
-        void render_icon(const std::string& path_default, bool is_incognito, std::string& path_override);
+        void render_icon(browser& b, browser_profile& p);
         void render_rules(browser& b, browser_profile& bi);
         void refresh_pop_proc_names_items();
 

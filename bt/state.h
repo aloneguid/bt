@@ -96,6 +96,10 @@ namespace bt {
 
     void from_node(const fkyaml::node& node, pipevis_state& state);
 
+    void from_node(const fkyaml::node& node, browser_profile& state);
+
+    void to_node(fkyaml::node &node, const browser_profile &state);
+
     void from_node(const fkyaml::node& node, browser& state);
 
     void to_node(fkyaml::node &node, const browser &state);
@@ -108,6 +112,7 @@ namespace bt {
         icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
         bool discover_classic_gecko_profiles{false};
         bool discover_gecko_containers{true};
+        int highlight_width{4};
         toast_state toast;
         picker_state picker;
         transforms_state transforms;
