@@ -183,49 +183,70 @@ namespace bt {
     std::vector<browser> browser::merge(
         std::vector<browser> &new_set, std::vector<browser> &old_set) {
         vector<browser> r;
+        std::vector<bool> new_processed(new_set.size(), false);
 
-        for(browser &b_new: new_set) {
-            // find corresponding browser by open_cmd
-            auto b_old_it = std::find_if(
-                old_set.begin(), old_set.end(),
-                [b_new](browser &el) { return el.open_cmd == b_new.open_cmd; });
+        // Pass 1: Iterate old_set, merge into new and add to r
+        for (auto &b_old : old_set) {
+            auto b_new_it = std::find_if(
+                new_set.begin(), new_set.end(),
+                [&b_old](const browser &el) { return el.open_cmd == b_old.open_cmd; });
 
-            if(b_old_it != old_set.end()) {
-                browser b_old = *b_old_it;
+            if (b_new_it != new_set.end()) {
+                size_t idx = std::distance(new_set.begin(), b_new_it);
+                new_processed[idx] = true;
 
+                browser &b_new = *b_new_it;
                 // merge user data
                 b_new.is_hidden = b_old.is_hidden;
 
-                // profiles
+                // profiles - Preserve order of profiles from old_set
+                std::vector<browser_profile> merged_profiles;
+                std::vector<bool> new_profile_processed(b_new.profiles.size(), false);
 
-                // merge old data into new profiles
-                for(browser_profile &bi_new: b_new.profiles) {
-                    auto bi_old_it = std::find_if(
-                        b_old.profiles.begin(), b_old.profiles.end(),
-                        [bi_new](const browser_profile &el) { return el.name == bi_new.name; });
+                for(const browser_profile &bi_old : b_old.profiles) {
+                    auto bi_new_it = std::find_if(
+                        b_new.profiles.begin(), b_new.profiles.end(),
+                        [&bi_old](const browser_profile &el) { return el.name == bi_old.name; });
 
-                    if(bi_old_it == b_old.profiles.end()) continue;
-                    const browser_profile &bi_old = *bi_old_it;
+                    if(bi_new_it != b_new.profiles.end()) {
+                        size_t p_idx = std::distance(b_new.profiles.begin(), bi_new_it);
+                        new_profile_processed[p_idx] = true;
+                        
+                        browser_profile &bi_new = *bi_new_it;
+                        // merge user-defined customisations
+                        bi_new.user_arg = bi_old.user_arg;
+                        bi_new.user_icon_path = bi_old.user_icon_path;
 
-                    // merge user-defined customisations
-                    bi_new.user_arg = bi_old.user_arg;
-                    bi_new.user_icon_path = bi_old.user_icon_path;
-
-                    // merge rules
-                    for(auto &rule: bi_old.rules) {
-                        bi_new.rules.push_back(rule);
+                        // merge rules
+                        for(auto &rule: bi_old.rules) {
+                            bi_new.rules.push_back(rule);
+                        }
+                        merged_profiles.push_back(bi_new);
+                    }
+                    // If profile is in old_set but not new_set, ignore it (existing behavior)
+                }
+                
+                // Add remaining profiles from b_new (those not in b_old)
+                for (size_t i = 0; i < b_new.profiles.size(); ++i) {
+                    if (!new_profile_processed[i]) {
+                        merged_profiles.push_back(b_new.profiles[i]);
                     }
                 }
-            }
+                
+                b_new.profiles = merged_profiles;
 
-            r.push_back(b_new);
+                r.push_back(b_new);
+            } else if (b_old.management != management_extent::full) {
+                // Only in old_set and not full managed
+                r.push_back(b_old);
+            }
         }
 
-        // add missing browsers
-        for(browser &b_custom: old_set) {
-            if(b_custom.management == management_extent::full) continue;
-
-            r.push_back(b_custom);
+        // Pass 2: Add remaining browsers from new_set (those not in old_set)
+        for (size_t i = 0; i < new_set.size(); ++i) {
+            if (!new_processed[i]) {
+                r.push_back(new_set[i]);
+            }
         }
 
         return r;
