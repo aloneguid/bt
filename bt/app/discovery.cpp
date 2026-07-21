@@ -345,9 +345,7 @@ namespace bt {
                     cmd.pop_back();
                 }
 
-                string id = get_id_from_open_cmd(cmd);
                 browser b{name, cmd};
-                b.instance_id = id;
                 b.icon_path = resolve_xdg_icon_path(icon);
                 fingerprint(cmd, b.engine, b.data_path);
                 browsers.push_back(b);
