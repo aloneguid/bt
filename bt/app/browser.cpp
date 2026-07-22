@@ -220,7 +220,7 @@ namespace bt {
                         // merge user-defined customisations
                         bi_new.user_arg = bi_old.user_arg;
                         bi_new.user_icon_path = bi_old.user_icon_path;
-                        bi_new.use_user_color = bi_old.use_color;
+                        bi_new.use_user_color = bi_old.use_user_color;
                         bi_new.user_color = bi_old.user_color;
 
                         // merge rules
@@ -299,9 +299,10 @@ namespace bt {
                icon_path == other.icon_path &&
                user_arg == other.user_arg &&
                is_hidden == other.is_hidden &&
-               icon_path == other.icon_path &&
                user_icon_path == other.user_icon_path &&
                launch_hide_ui == other.launch_hide_ui &&
+               ui_test_url_matches == other.ui_test_url_matches &&
+               is_incognito == other.is_incognito &&
                is_default == other.is_default &&
                has_firefox_ouic_addon == other.has_firefox_ouic_addon &&
                use_color == other.use_color &&
@@ -309,6 +310,26 @@ namespace bt {
                use_user_color == other.use_user_color &&
                user_color == other.user_color &&
                rules == other.rules;
+    }
+
+    browser_profile& browser_profile::operator=(const browser_profile& other) {
+        name = other.name;
+        launch_arg = other.launch_arg;
+        icon_path = other.icon_path;
+        user_arg = other.user_arg;
+        is_hidden = other.is_hidden;
+        user_icon_path = other.user_icon_path;
+        launch_hide_ui = other.launch_hide_ui;
+        ui_test_url_matches = other.ui_test_url_matches;
+        is_incognito = other.is_incognito;
+        is_default = other.is_default;
+        has_firefox_ouic_addon = other.has_firefox_ouic_addon;
+        use_color = other.use_color;
+        color = other.color;
+        use_user_color = other.use_user_color;
+        user_color = other.user_color;
+        rules = other.rules;
+        return *this;
     }
 
     browser_profile::~browser_profile() {

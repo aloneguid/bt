@@ -94,20 +94,19 @@ namespace bt::ui {
     }
 
     bool picker_app::is_hotkey_down() {
-#if PLATFORM_WINDOWS
-        bool k_shift = win32::user::is_kbd_shift_down();
-        bool k_ctrl = win32::user::is_kbd_ctrl_down();
-        bool k_alt = win32::user::is_kbd_alt_down();
-        bool k_caps = win32::user::is_kbd_caps_locks_on();
+        ImGuiIO& io = ImGui::GetIO();
+        bool k_shift = io.KeyShift;
+        bool k_ctrl = io.KeyCtrl;
+        bool k_alt = io.KeyAlt;
+        // ImGui doesn't have a reliable cross-platform way to check Caps Lock toggle state,
+        // using IsKeyDown as a best-effort, though it checks if key is physically held.
+        bool k_caps = ImGui::IsKeyDown(ImGuiKey_CapsLock);
 
         return
             (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
             (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
             (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
             (g_state.picker.invoke.on_key_caps_locks && k_caps);
-#else
-        return false;
-#endif
     }
 
     bool picker_app::run_frame() {
@@ -168,7 +167,6 @@ namespace bt::ui {
         }
 
         if(!url_focused) {
-
             // close on Escape key
             if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
                 is_open = false;
@@ -209,8 +207,6 @@ namespace bt::ui {
             }
         }
 
-        //ImGui::ShowDemoWindow();
-
         g_config.tick(ImGui::GetIO().DeltaTime);
 
         return is_open;
@@ -220,13 +216,18 @@ namespace bt::ui {
         padding = g_state.picker.item_padding * app->scale;
         icon_size = g_state.picker.icon_size * app->scale;
         box_size = padding + icon_size + padding;
+        float max_mon_width = mon_work_size.x * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
 
         float max_url_width = ImGui::CalcTextSize(url.c_str()).x + action_button_width * (action_menu_items.size() + 2);
-        float max_w_width = box_size * (choices.size() + 1.0f);
+        float max_w_width = box_size * (static_cast<float>(choices.size()) + 1.0f);
         float max_width = max(max_url_width, max_w_width);
 
-        float w_width = min(max_width, mon_work_size.x);
+        float w_width = min(max_width, max_mon_width);
         float w_height = pre_menu_height + box_size + padding * 2;
+        if(w_width < max_width) {
+            // compensate for scrollbar
+            w_height += ImGui::GetStyle().ScrollbarSize;
+        }
 
         auto target_window_size = ImVec2{w_width, w_height};
 
@@ -247,25 +248,14 @@ namespace bt::ui {
             w::cur_set(cur);
         }
 
-        float input_width = max_width - (1 + action_menu_items.size()) * action_button_width;
+        float input_width = max_width - static_cast<float>(1 + action_menu_items.size()) * action_button_width;
         w::input(url, "##url", true, input_width);
         url_focused = w::is_focused();
 
-        if(w::is_hovered()) {
-            /*w::sl();
-            ImVec2 pos = w::cur_get();
-            w::cur_set(ImVec2(pos.x - button_width, pos.y));
-            if(w::button(ICON_MD_OPEN_IN_NEW, w::emphasis::secondary, true, true, "expand")) {
-                url_popup.open();
-            }
-            w::mouse_cursor(w::mouse_cursor_type::hand);
-            w::cur_set(pos);*/
-        }
-
-        for(const action_menu_item& ami : action_menu_items) {
+        for(const auto& [id, icon, tooltip] : action_menu_items) {
             w::sl();
-            if(w::button(ami.icon, w::emphasis::none, true, false, ami.tooltip)) {
-                menu_item_clicked(ami.id);
+            if(w::button(icon, w::emphasis::none, true, false, tooltip)) {
+                menu_item_clicked(id);
             }
         }
 
@@ -306,22 +296,23 @@ namespace bt::ui {
                     string label = format("{}", i + 1);
                     ImVec2 wsz = ImGui::CalcTextSize(label.c_str());
 
+                    // Calculate center for the circle
+                    ImVec2 circle_center = ImVec2(x0 + box_size / 2.0f, y0 + wsz.y / 2.0f);
+                    float radius = max(wsz.x, wsz.y) / 2.0f;
+
+                    // Draw the circle
+                    ImVec4 col = ImGui::GetStyle().Colors[ImGuiCol_FrameBg];
+                    ImU32 circle_color = ImGui::GetColorU32(col);
+                    ImGui::GetWindowDrawList()->AddCircleFilled(circle_center, radius, circle_color);
+
                     // label in the middle-top
                     w::cur_set(x0 + box_size / 2.0f - wsz.x / 2, y0);
-                    w::label(label.c_str());
+                    w::label(label, w::emphasis::none, 0, true);
                 }
-
-                //ImGui::PopStyleVar();
-
-                // draw label
-                //w::cur_set(x0 + icon_size + padding * 3, y0 + padding + icon_size / 2 - ImGui::GetTextLineHeight() / 2);
-                //w::label(p->get_best_display_name());
-
-
             }
 
             if(w::is_hovered()) {
-                active_idx = (int)i;
+                active_idx = static_cast<int>(i);
                 w::mouse_cursor(w::mouse_cursor_type::hand);
             }
 
@@ -352,6 +343,7 @@ namespace bt::ui {
         w::slider(g_state.picker.icon_size, 5, 256, "icon size");
         w::slider(g_state.picker.item_padding, 0, 100, "padding");
         w::slider(g_state.picker.inactive_item_alpha, 0.1f, 1.0f, "inactive item alpha");
+        w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
         w::checkbox("show key hints (1-9)", g_state.picker.show_key_hints);
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
             wnd_main.border(g_state.picker.border_width);
@@ -361,14 +353,7 @@ namespace bt::ui {
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         if(w::button("reset", w::emphasis::error)) {
-            g_state.picker.icon_size = 32;
-            g_state.picker.item_padding = 10;
-            g_state.picker.inactive_item_alpha = 0.4f;
-            g_state.picker.show_key_hints = true;
-            g_state.picker.border_width = 1;
-            g_state.picker.show_native_chrome = false;
-            g_state.icon_overlay = icon_overlay_mode::profile_on_browser;
-            g_state.picker.opacity = 255;
+            g_state.picker = picker_state{};
         }
 
         w::spc(3);

@@ -984,7 +984,11 @@ namespace bt::ui {
 
             // --- browser properties
 
-            w::input(b.open_cmd, "cmd", true, 0, true);
+            if(b.management != management_extent::full) {
+                w::input(b.name, "name");
+            }
+
+            w::input(b.open_cmd, "cmd", true, 0, b.management == management_extent::full);
             w::tt("Location of the executable");
             w::sl();
             if(w::button(ICON_MD_LAUNCH "##open_install", w::emphasis::none, true, true, "open")) {
@@ -1025,7 +1029,7 @@ namespace bt::ui {
                 string tab_title = format(" {}{} ", tab_icon, bi.name);
 
                 {
-                    auto t = tabs.next_tab(tab_title, false,
+                    auto t = tabs.next_tab(tab_title, bi.is_default,
                                            set_selected_profile_idx == -1
                                                ? false
                                                : idx == set_selected_profile_idx);
@@ -1035,12 +1039,12 @@ namespace bt::ui {
 
                         // mini toolbar
 
-                        if(bi.is_default) {
-                            w::button(ICON_MD_FAVORITE, w::emphasis::none, false);
-                        } else if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
-                            browser::set_default(g_state.browsers, bi);
+                        if(!bi.is_default) {
+                            if(w::button(ICON_MD_FAVORITE, w::emphasis::primary)) {
+                                browser::set_default(g_state.browsers, bi);
+                            }
                         }
-                        w::tt("Make this profile the default one");
+                        w::tt("Set as default profile");
 
                         // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
                         w::sl();
@@ -1164,18 +1168,18 @@ terminal window will be hidden.)");
         w::guard w{wnd_add_browser};
         browser &b = new_browser;
 
-        //w::sl(40 * app->scale);
-        //w::combo("type", engine_names, type);
+        w::input(b.name, "name");
+        w::tt("display name to show in the browser list");
+
         w::enum_combo<browser_engine>("engine", b.engine);
         b.set_management(b.engine);
-
 
         w::input(b.open_cmd, "path");
         w::tt("executable path");
 
         if(desktop_shell::file_open_dialog_supported()) {
             w::sl();
-            if(w::button(ICON_MD_MORE_HORIZ, w::emphasis::none, true, true, "pick executable")) {
+            if(w::button(ICON_MD_MORE_HORIZ "##pick_exe", w::emphasis::none, true, true, "pick executable")) {
                 string exe_path_selected = desktop_shell::file_open_dialog("Executable", "*.exe");
                 if(!exe_path_selected.empty()) {
                     b.open_cmd = exe_path_selected;
@@ -1187,13 +1191,17 @@ terminal window will be hidden.)");
             }
         }
 
-        w::input(b.name, "name");
-        w::tt("display name to show in the browser list");
-
         bool needs_data_path = (b.engine == browser_engine::chromium || b.engine == browser_engine::gecko);
 
         w::input(b.data_path, "data path", needs_data_path);
         w::tt("path to data folder");
+        if(desktop_shell::directory_open_dialog_supported()) {
+            w::sl();
+            if(w::button(ICON_MD_MORE_HORIZ "##pick_dir", w::emphasis::none, needs_data_path, true, "pick directory")) {
+                string path = desktop_shell::directory_open_dialog();
+                if(!path.empty()) b.data_path = path;
+            }
+        }
 
         if(w::button(ICON_MD_ADD_CIRCLE " add", w::emphasis::primary, true, false, "", 100 * app->scale)) {
             b.management = b.engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
@@ -1259,6 +1267,7 @@ terminal window will be hidden.)");
             string icon_path = desktop_shell::file_open_dialog("Icon", "*.png;*.ico");
             if(!icon_path.empty()) {
                 p.user_icon_path = icon_path;
+                app->preload_texture(icon_path, icon_path);
             }
         }
 

@@ -41,10 +41,10 @@ namespace bt {
         inline static const std::string URL_ARG_NAME{"%url%"};
 
         browser(
-            const std::string &name,
-            const std::string &open_cmd);
+            const std::string& name,
+            const std::string& open_cmd);
 
-        bool operator==(const browser &other) const = default;
+        bool operator==(const browser& other) const = default;
 
         std::string name;
         std::string open_cmd;
@@ -79,7 +79,7 @@ namespace bt {
         float ui_icon_size_anim{0.0f};
         std::string ui_validation_error;
 
-        void launch(click_payload up, const browser_profile &profile) const;
+        void launch(click_payload up, const browser_profile& profile) const;
 
         [[nodiscard]] size_t get_total_rule_count() const;
 
@@ -89,7 +89,8 @@ namespace bt {
 
         [[nodiscard]] std::string get_best_icon_path() const;
 
-        [[nodiscard]] std::string get_best_icon_path(const browser_profile &profile, bool include_override = true) const;
+        [[nodiscard]] std::string
+        get_best_icon_path(const browser_profile& profile, bool include_override = true) const;
 
         [[nodiscard]] bool is_default() const;
 
@@ -100,25 +101,26 @@ namespace bt {
         // ---- static members
 
         static std::vector<browser_match_result> match(
-            const std::vector<browser> &browsers,
-            const click_payload &up,
-            const script_site &script);
+            const std::vector<browser>& browsers,
+            const click_payload& up,
+            const script_site& script);
 
-        static std::optional<profile_selection> get_default(const std::vector<browser> &browsers);
+        static std::optional<profile_selection> get_default(const std::vector<browser>& browsers);
 
-        static void set_default(std::vector<browser> &browsers, const browser_profile &profile);
+        static void set_default(std::vector<browser>& browsers, const browser_profile& profile);
 
         static std::vector<browser> merge(
-            std::vector<browser> &new_set,
-            std::vector<browser> &old_set);
+            std::vector<browser>& new_set,
+            std::vector<browser>& old_set);
 
-        static size_t index_of(std::vector<browser> &browsers, browser &b);
+        static size_t index_of(std::vector<browser>& browsers, browser& b);
 
-        [[nodiscard]] std::string get_best_display_name(const browser_profile &profile) const;
+        [[nodiscard]] std::string get_best_display_name(const browser_profile& profile) const;
+
     private:
-        static std::string get_image_name(const std::string &open_cmd);
+        static std::string get_image_name(const std::string& open_cmd);
 
-        void launch_process(const std::string &cmdline, const browser_profile &profile) const;
+        void launch_process(const std::string& cmdline, const browser_profile& profile) const;
     };
 
     class browser_profile {
@@ -141,7 +143,7 @@ namespace bt {
         bool is_hidden{false};
 
         /**
-         * @brief Optionally sets a custom profile icon if known.
+         * @brief Icon, optional.
         */
         std::string icon_path;
 
@@ -185,52 +187,33 @@ namespace bt {
         bool ui_test_url_matches{false};
 
         browser_profile(
-            const std::string &name,
-            const std::string &launch_arg,
-            const std::string &icon_path);
+            const std::string& name,
+            const std::string& launch_arg,
+            const std::string& icon_path);
 
-        bool operator==(const browser_profile &other) const;
+        bool operator==(const browser_profile& other) const;
 
-        browser_profile &operator=(const browser_profile &other) {
-            name = other.name;
-            launch_arg = other.launch_arg;
-            user_arg = other.user_arg;
-            rules = other.rules;
-            icon_path = other.icon_path;
-            is_hidden = other.is_hidden;
-            user_icon_path = other.user_icon_path;
-            launch_hide_ui = other.launch_hide_ui;
-            ui_test_url_matches = other.ui_test_url_matches;
-            is_incognito = other.is_incognito;
-            is_default = other.is_default;
-            has_firefox_ouic_addon = other.has_firefox_ouic_addon;
-            use_color = other.use_color;
-            color = other.color;
-            use_user_color = other.use_user_color;
-            user_color = other.user_color;
-            return *this;
-        }
+        browser_profile& operator=(const browser_profile& other);
 
         ~browser_profile();
 
-        bool is_match(const click_payload &up, match_rule &mr) const;
+        bool is_match(const click_payload& up, match_rule& mr) const;
 
-        bool is_match(const click_payload &up, const script_site &ss, match_rule &mr) const;
+        bool is_match(const click_payload& up, const script_site& ss, match_rule& mr) const;
 
         /// <summary>
         /// Adds a rule from text. Does not persist.
         /// </summary>
         /// <param name="rule_text"></param>
         /// <returns>true if rule was added - if duplicate is found it's not added.</returns>
-        bool add_rule(const std::string &rule_text);
+        bool add_rule(const std::string& rule_text);
 
-        void delete_rule(const std::string &rule_text);
+        void delete_rule(const std::string& rule_text);
     };
 
     class profile_selection {
     public:
         profile_selection(const browser& browser, size_t profile_idx) : root{browser}, profile_idx{profile_idx} {
-
         }
 
         const browser& b() const {
@@ -248,11 +231,11 @@ namespace bt {
 
     class browser_match_result {
     public:
-        browser_match_result(const profile_selection& selection, const match_rule &rule)
+        browser_match_result(const profile_selection& selection, const match_rule& rule)
             : profile{selection}, rule(rule) {
         }
 
-        browser_match_result(const browser_match_result &other) = default;
+        browser_match_result(const browser_match_result& other) = default;
 
         profile_selection profile;
         match_rule rule;

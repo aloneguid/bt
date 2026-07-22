@@ -76,6 +76,18 @@ namespace bt::ui {
 
         ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_state.picker.inactive_item_alpha);
 
+        if(p.use_color || p.use_user_color) {
+            // user color has priority
+            unsigned color = p.use_user_color ? p.user_color : p.color;
+
+            //draw circle around the icon with user color
+            auto dl = ImGui::GetWindowDrawList();
+            ImVec2 center{x0 + padding + icon_size / 2, y0 + padding + icon_size / 2};
+            auto radius = icon_size / 2 + g_state.highlight_width / 2;
+            //dl->AddCircle(center, radius, color, 0, g_state.highlight_width);
+            dl->AddCircleFilled(center, radius, color);
+        }
+
         w::image_rounded(app, icon1, icon_size, icon_size, icon_size / 2);
 
         // if required, draw overlay icon
@@ -86,16 +98,5 @@ namespace bt::ui {
         }
 
         ImGui::PopStyleVar();
-
-        if(p.use_color || p.use_user_color) {
-            // user color has priority
-            unsigned color = p.use_user_color ? p.user_color : p.color;
-
-            //draw circle around the icon with user color
-            auto dl = ImGui::GetWindowDrawList();
-            ImVec2 center{x0 + padding + icon_size / 2, y0 + padding + icon_size / 2};
-            auto radius = icon_size / 2 + g_state.highlight_width * w::scale;
-            dl->AddCircle(center, radius, color, 0, g_state.highlight_width * w::scale);
-        }
     }
 }

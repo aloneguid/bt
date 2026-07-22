@@ -38,13 +38,14 @@ namespace bt {
     public:
         float icon_size{32.0f};
         float item_padding{10.0f};
-        float inactive_item_alpha{0.4f};
+        float inactive_item_alpha{0.65f};
         bool show_key_hints{true};
         int border_width{1};
         bool show_native_chrome{false};
         int opacity{255};
         bool close_on_focus_loss{true};
         bool always_on_top{false};
+        int max_width_perc{90};
 
         picker_invoke_state invoke;
 

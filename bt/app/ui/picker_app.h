@@ -26,7 +26,7 @@ namespace bt::ui {
             std::string tooltip;
         };
 
-        picker_app(const std::string& url, std::optional<std::vector<profile_selection>> selections = std::nullopt);
+        explicit picker_app(const std::string& url, std::optional<std::vector<profile_selection>> selections = std::nullopt);
         ~picker_app();
 
         picker_result run();

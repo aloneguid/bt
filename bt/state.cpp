@@ -47,6 +47,7 @@ namespace bt {
             {"opacity", state.opacity},
             {"close_on_focus_loss", state.close_on_focus_loss},
             {"always_on_top", state.always_on_top},
+            {"max_width_perc", state.max_width_perc},
             {"invoke", state.invoke}
         };
     }
@@ -61,6 +62,7 @@ namespace bt {
         read<int>(node, "opacity", state.opacity);
         read<bool>(node, "close_on_focus_loss", state.close_on_focus_loss);
         read<bool>(node, "always_on_top", state.always_on_top);
+        read<int>(node, "max_width_perc", state.max_width_perc);
         read<picker_invoke_state>(node, "invoke", state.invoke);
     }
 
@@ -191,6 +193,7 @@ namespace bt {
         read<string>(node, "user_arg", state.user_arg);
         read<string>(node, "user_icon", state.user_icon_path);
         read<bool>(node, "incognito", state.is_incognito);
+        read<bool>(node, "default", state.is_default);
         if(read<bool>(node, "visible", state.is_hidden)) state.is_hidden = !state.is_hidden;
         if(read_color(node, "color", state.color))
             state.use_color = true;
@@ -212,6 +215,8 @@ namespace bt {
             node["user_icon"] = state.user_icon_path;
         if(state.is_incognito)
             node["incognito"] = true;
+        if(state.is_default)
+            node["default"] = true;
         if(state.is_hidden)
             node["visible"] = false;
         if(!state.rules.empty())

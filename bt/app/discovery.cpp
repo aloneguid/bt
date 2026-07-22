@@ -11,7 +11,6 @@
 #include <sqlite3.h>
 #include <unordered_set>
 #include <fstream>
-#include "fonts/MaterialIcons.h"
 
 using namespace grey::common;
 
@@ -83,19 +82,19 @@ namespace bt {
     };
 
     static const std::unordered_map<std::string, std::string> gecko_container_icons = {
-        {"fingerprint", ICON_MD_FINGERPRINT},
-        {"briefcase",   ICON_MD_WORK},
-        {"dollar",      ICON_MD_ATTACH_MONEY},
-        {"cart",        ICON_MD_SHOPPING_CART},
-        {"circle",      ICON_MD_CIRCLE},
-        {"gift",        ICON_MD_REDEEM},
-        {"vacation",    ICON_MD_BEACH_ACCESS},
-        {"food",        ICON_MD_RESTAURANT},
-        {"fruit",       ICON_MD_RESTAURANT},
-        {"pet",         ICON_MD_PETS},
-        {"tree",        ICON_MD_PARK},
-        {"chill",       ICON_MD_SELF_IMPROVEMENT},
-        {"fence",       ICON_MD_FENCE},
+        {"fingerprint", "md_fingerprint"},
+        {"briefcase",   "md_work"},
+        {"dollar",      "md_attach_money"},
+        {"cart",        "md_shopping_cart"},
+        {"circle",      "md_circle"},
+        {"gift",        "md_redeem"},
+        {"vacation",    "md_beach_access"},
+        {"food",        "md_local_dining"},
+        {"fruit",       "md_restaurant"},
+        {"pet",         "md_pets"},
+        {"tree",        "md_park"},
+        {"chill",       "md_self_improvement"},
+        {"fence",       "md_fence"},
     };
 
     static const std::unordered_map<std::string, ImU32> gecko_container_colors = {
@@ -607,16 +606,12 @@ namespace bt {
                 // add profile for each container
                 vector<firefox_container> containers = discover_gecko_containers(fp.path);
                 for(const auto &container: containers) {
-                    //string profile_name = format("{}::{}", fp.name, container.name);
-                    string profile_name = container.name;
-
                     string arg = format("\"ext+container:name={}&url={}\" {}",
                                         container.name,
                                         browser::URL_ARG_NAME,
                                         arg_suffix);
 
-                    string id = format("{}+c_{}", fp.id, container.id);
-                    browser_profile bi(profile_name, arg, "");
+                    browser_profile bi(container.name, arg, "");
                     if(container.has_color) {
                         bi.use_color = true;
                         bi.color = container.color;
