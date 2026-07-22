@@ -344,6 +344,10 @@ namespace bt {
                     cmd.pop_back();
                 }
 
+                if(name.ends_with(" Web Browser")) {
+                    name = name.substr(0, name.size() - 11);
+                }
+
                 browser b{name, cmd};
                 b.icon_path = resolve_xdg_icon_path(icon);
                 fingerprint(cmd, b.engine, b.data_path);
@@ -768,6 +772,7 @@ namespace bt {
         }
     }
 
+#if PLATFORM_WINDOWS
     bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
         engine = browser_engine::generic;
         data_path.clear();
@@ -846,6 +851,35 @@ namespace bt {
 
         return false;
     }
+#elif PLATFORM_LINUX
+    bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
+        engine = browser_engine::generic;
+        data_path.clear();
+        fs::path cd{fss::get_config_dir()};
+
+        // DEB-installed browsers
+        if(exe_path == "/usr/bin/firefox" || exe_path == "firefox") {
+            engine = browser_engine::gecko;
+            data_path = (cd / "mozilla" / "firefox").string();
+            return true;
+        }
+
+        if(exe_path == "/usr/bin/chromium") {
+            engine = browser_engine::chromium;
+            data_path = (cd / "chromium").string();
+            return true;
+        }
+
+        if(exe_path == "/usr/bin/brave-origin-stable") {
+            engine = browser_engine::chromium;
+            data_path = (cd / "BraveSoftware" / "Brave-Origin").string();
+            return true;
+        }
+
+        return false;
+    }
+
+#endif
 
     string get_settings_root() {
         return string("SOFTWARE\\") + APP_LONG_NAME;

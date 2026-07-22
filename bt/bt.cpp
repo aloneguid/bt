@@ -151,10 +151,11 @@ void execute(const string& data) {
     up.process_description = proc.get_description();
 #endif
 
-#if _DEBUG
+#ifndef NDEBUG
     if(command == "toast") {
         up.url = command_data;
-        bt::ui::toast_app app{up, browser::get_default(g_state.browsers).value()};
+        auto selection = browser::get_default(g_state.browsers).value();
+        ui::toast_app app{up, selection};
         app.run();
         return;
     }

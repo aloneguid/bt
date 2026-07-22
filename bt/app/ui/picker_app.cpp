@@ -25,11 +25,11 @@ namespace bt::ui {
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
         app->center_on_screen = true;
+        app->show_title_bar = g_state.picker.show_native_chrome;
 
+        app->always_on_top = g_state.picker.always_on_top;
 #if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = g_state.picker.close_on_focus_loss;
-        app->win32_always_on_top = g_state.picker.always_on_top;
-        app->win32_title_bar = g_state.picker.show_native_chrome;
 #endif
         auto cc = app->get_clear_color();
         ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};

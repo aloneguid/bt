@@ -75,12 +75,12 @@ namespace bt::ui {
                 .center();
 
         float padding_bottom = 20 * app->scale;
-        w_left_panel = w::container{220 * app->scale, -padding_bottom}.resize_x();
+        w_left_panel = w::container{250 * app->scale, -padding_bottom}.resize_x();
         w_right_panel = w::container{0, -padding_bottom};
         w_browser_toolbar = w::container{40 * app->scale}.auto_size_y().border();
         w_browser_rest_of_it = w::container{}.border();
 
-        w_script_top_panel = w::container{0, 250 * app->scale}.resize_y();
+        w_script_top_panel = w::container{0, 220 * app->scale}.resize_y();
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
