@@ -1,5 +1,7 @@
 ## 6.0.0
 
+V6 is new, so expect bugs for the next few minor releases.
+
 ### Breaking changes
 
 - BT is moving off _portable version_ to make **your** life easier. From small touches like application icon available in the uninstaller, medium like having a start menu shortcut, to big ones like having BT already registered as a protocol handler during the installation phase. MSI installer also makes sure BT is uninstalled correctly, including all the registry keys it needs to create to register as a system browser.

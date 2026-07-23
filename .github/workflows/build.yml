@@ -36,6 +36,12 @@ jobs:
             vcpkg_config: Release
             artifact_suffix: -win-x64
             artifact_pattern: '*.msi'
+          - os: windows-11-arm
+            name: Windows ARM64
+            vcpkg_triplet: arm64-windows-static
+            vcpkg_config: Release
+            artifact_suffix: -win-arm64
+            artifact_pattern: '*.msi'
           - os: ubuntu-latest
             name: Linux x64
             vcpkg_triplet: x64-linux
@@ -178,17 +184,10 @@ jobs:
 
     steps:
 
-      - name: ⬇️ Download binaries (Windows)
+      - name: ⬇️ Download binaries
         uses: actions/download-artifact@v8
         with:
-          name: bin-win-x64
-          path: win
-
-      - name: ⬇️ Download binaries (Linux)
-        uses: actions/download-artifact@v8
-        with:
-          name: bin-linux-x64
-          path: linux
+          name: bin-all
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -200,32 +199,23 @@ jobs:
 
       - name: 🔢 prep release notes / artifacts
         run: |
-          cp win/instructions.md .
-          cp win/release-notes.md .
-          cp win/bt.exe .
-          cp win/bt.pdb .
-          cp linux/*.deb .
           envsubst < instructions.md > g.tmp && mv g.tmp instructions.md
           grep -m 2 -B 1000 '^## ' release-notes.md | tail -n +3 | head -n -2 > final_notes.md
           cat instructions.md >> final_notes.md
           cat final_notes.md
-          zip -9 bt.zip bt.exe
-          zip -9 bt.pdb.zip bt.pdb
 
       - name: 🔍 view artifacts to be used
         run: ls -R
         working-directory: .
 
-
       # https://github.com/softprops/action-gh-release
-      - name: 📦 create release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ env.VERSION }}
-          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-          name: ${{ env.VERSION }}
-          files: |
-            bt.zip
-            bt.pdb.zip
-            *.deb
-          body_path: final_notes.md
+#      - name: 📦 create release
+#        uses: softprops/action-gh-release@v3
+#        with:
+#          tag_name: ${{ env.VERSION }}
+#          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+#          name: ${{ env.VERSION }}
+#          files: |
+#            *.msi
+#            *.deb
+#          body_path: final_notes.md
