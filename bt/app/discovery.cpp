@@ -589,10 +589,14 @@ namespace bt {
                   });
 
         for(firefox_profile &fp: profiles) {
-            // if profile is bound to an installation, but it's not ours, skip it always
-            if(!fp.installation_id.empty() && fp.installation_id != b.instance_id) continue;
 
-            if(fp.installation_id.empty() && !g_state.discover_classic_gecko_profiles) continue;
+            // Only perform this check if Installation ID is known
+            if(!b.instance_id.empty()) {
+                // if profile is bound to an installation, but it's not ours, skip it always
+                if(!fp.installation_id.empty() && fp.installation_id != b.instance_id) continue;
+
+                if(fp.installation_id.empty() && !g_state.discover_classic_gecko_profiles) continue;
+            }
 
             string arg_suffix = fp.is_classic
                                     ? format("-P \"{}\"", fp.name)
