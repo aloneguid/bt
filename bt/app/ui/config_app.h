@@ -123,7 +123,7 @@ namespace bt::ui {
         void render_status_bar();
         void render_no_browsers();
         void render_browsers();
-        void render_card(browser& b, bool is_selected);
+        void render_card(browser& b, bool is_selected) const;
         void render_detail(browser& b);
         void render_add_browser_window();
 
@@ -138,6 +138,6 @@ namespace bt::ui {
 
         void recalculate_test_url_matches(const click_payload& cp);
 
-        browser_profile get_selected_browser_instance();
+        browser_profile get_selected_browser_instance() const;
     };
 }

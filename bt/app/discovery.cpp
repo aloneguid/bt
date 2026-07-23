@@ -794,7 +794,6 @@ namespace bt {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
                 if(filename.ends_with("_proxy.exe")) {
-                    engine = browser_engine::chromium;
 
                     // we don't know where data folders are exactly, so this is the best we can do
 
@@ -811,13 +810,17 @@ namespace bt {
                         }
                     } else if(exe_name == "vivaldi.exe") {
                         data_path = (root / "Vivaldi" / "User Data").string();
+                    } else if(exe_path == R"(C:\Program Files\BraveSoftware\Brave-Origin\Application\brave.exe)") {
+                        data_path = (root / "BraveSoftware" / "Brave-Origin" / "User Data").string();
                     } else if(exe_name == "brave.exe") {
                         data_path = (root / "BraveSoftware" / "Brave-Browser" / "User Data").string();
                     } else if(exe_name == "thorium.exe") {
                         data_path = (root / "Thorium" / "User Data").string();
                     }
 
-                    return true;
+                    const bool is_valid_data_path = fs::exists(data_path);
+                    if(is_valid_data_path) engine = browser_engine::chromium;
+                    return is_valid_data_path;
                 }
             }
         }
@@ -832,7 +835,7 @@ namespace bt {
 
                     // as with chromium, we don't know exact data folder path
 
-                    fs::path root = fs::path{ad};
+                    const fs::path root{ad};
 
                     if(exe_name == "firefox.exe") {
                         data_path = (root / "Mozilla" / "Firefox").string();
@@ -844,7 +847,9 @@ namespace bt {
                         data_path = (root / "zen").string();
                     }
 
-                    return true;
+                    const bool is_valid_data_path = fs::exists(data_path);
+                    if(is_valid_data_path) engine = browser_engine::gecko;
+                    return is_valid_data_path;
                 }
             }
         }

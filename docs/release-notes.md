@@ -9,30 +9,28 @@
   - "Always" – there's no use case for this.
   - "On rule conflict" – picker is always invoked on rule conflict now.
 
-## New features
+### New features
 - You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.
 - Profiles can be configured to have a custom highlight color. When set, the picker will draw a circle around the icon with the specified color.
+- [Brave Origin](https://brave.com/origin/) Autodiscovery is supported.
 - Firefox container colors are discovered into highlight color.
 - Picker maximum width in percentage of monitor space is configurable.
 - An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
-- firefox app mode https://github.com/aloneguid/bt/issues/181
 
-## Improvements
+### Improvements
 - Slightly redesigned, more ergonomic user interface.
 - Configuration is saved and restored seamlessly in the background. There is no button to save it or reload anymore. "It just works".
 - When clicking on the health check button to set the default browser, BT opens the system page already navigated to Browser Tamer, so you don't need to look for it (using OS deep-linking)
 - Number keys (1-9) in the picker have circular background so it's easier to spot them.
 
-## Bugs fixed
+### Bugs fixed
+- Autodiscovery would detect new Chromium-based browsers, but if the data folder could not be detected, they would be still marked as Chromium with one profile – "Incognito". Now they are detected as "generic".
 - Process picker would randomly not open at all.
 
-## Tech stuff
+### Tech stuff
 - Project upgraded to C++ 23.
 - Cleanup: a lot of legacy code is deleted.
-
-## todo
-- re-test scripting
 
 ## 5.6.12
 

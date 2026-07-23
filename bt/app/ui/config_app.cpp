@@ -335,7 +335,7 @@ namespace bt::ui {
         }
 
         w::sl();
-        ww::help_link("url-proc.html#substitutions");
+        ww::help_link("#substitutions");
 
         // testing stuff
         w::sep("Test");
@@ -432,7 +432,7 @@ namespace bt::ui {
             bool do_save = w::button(ICON_MD_SAVE " save");
             w::tt("save only");
             w::sl();
-            w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#scripting");
+            ww::help_link("#scripting");
 
             if(do_run || do_save) {
                 g_script.set_code(script_editor.get_text());
@@ -802,7 +802,7 @@ namespace bt::ui {
         }
     }
 
-    browser_profile config_app::get_selected_browser_instance() {
+    browser_profile config_app::get_selected_browser_instance() const {
         auto &browser = g_state.browsers[selected_browser_idx];
         if(browser.engine != browser_engine::generic) {
             return browser.profiles[selected_profile_idx];
@@ -811,7 +811,7 @@ namespace bt::ui {
         }
     }
 
-    void config_app::render_card(browser &b, bool is_selected) {
+    void config_app::render_card(browser &b, bool is_selected) const {
         {
             w::group g{true};
 
@@ -874,7 +874,7 @@ namespace bt::ui {
                 w::tt("Hidden");
             }
 
-            if(b.get_supports_frameless_windows()) {
+            if(b.supports_frameless_windows()) {
                 w::sl();
                 w::label(ICON_MD_TAB_UNSELECTED, 0, false);
                 w::tt("Supports frameless windows");
@@ -1077,7 +1077,7 @@ namespace bt::ui {
                         }
                         w::tt("test by opening a link");
 
-                        if(b.engine == bt::browser_engine::chromium) {
+                        if(b.supports_frameless_windows()) {
                             w::sl();
                             if(w::button(ICON_MD_TAB_UNSELECTED)) {
                                 click_payload up{APP_TEST_URL};
@@ -1100,7 +1100,7 @@ namespace bt::ui {
                             if(b.engine == bt::browser_engine::gecko) {
                                 if(g_state.discover_gecko_containers) {
                                     w::sl();
-                                    w::hyperlink("?", "https://www.aloneguid.uk/projects/bt/#mozilla-firefox");
+                                    ww::help_link("#mozilla-firefox");
                                 }
                             }
                         }
@@ -1346,7 +1346,7 @@ terminal window will be hidden.)");
                 }
 
                 // app mode
-                if(b.engine == bt::browser_engine::chromium) {
+                if(b.supports_frameless_windows()) {
                     w::sl();
                     w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule.app_mode);
                     w::tt("Open in chromeless window");

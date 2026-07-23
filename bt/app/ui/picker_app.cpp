@@ -94,19 +94,20 @@ namespace bt::ui {
     }
 
     bool picker_app::is_hotkey_down() {
-        ImGuiIO& io = ImGui::GetIO();
-        bool k_shift = io.KeyShift;
-        bool k_ctrl = io.KeyCtrl;
-        bool k_alt = io.KeyAlt;
-        // ImGui doesn't have a reliable cross-platform way to check Caps Lock toggle state,
-        // using IsKeyDown as a best-effort, though it checks if key is physically held.
-        bool k_caps = ImGui::IsKeyDown(ImGuiKey_CapsLock);
-
+        // can't check with ImGui, because it's not initialised
+#if PLATFORM_WINDOWS
+        bool k_shift = win32::user::is_kbd_shift_down();
+        bool k_ctrl = win32::user::is_kbd_ctrl_down();
+        bool k_alt = win32::user::is_kbd_alt_down();
+        bool k_caps = win32::user::is_kbd_caps_locks_on();
         return
             (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
             (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
             (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
             (g_state.picker.invoke.on_key_caps_locks && k_caps);
+#else
+        return false;
+#endif
     }
 
     bool picker_app::run_frame() {

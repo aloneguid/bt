@@ -9,7 +9,7 @@ namespace bt::ui {
     class ww {
     public:
         static void help_link(const std::string& relative_url) {
-            w::label(ICON_MD_HELP, 0, false);
+            w::label(ICON_MD_LIGHTBULB, 0, false);
             if(w::is_hovered()) {
                 w::tt(bt::strings::OnlineHelpTooltip);
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);

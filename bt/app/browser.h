@@ -83,7 +83,7 @@ namespace bt {
 
         [[nodiscard]] size_t get_total_rule_count() const;
 
-        [[nodiscard]] bool get_supports_frameless_windows() const { return engine == browser_engine::chromium; }
+        [[nodiscard]] bool supports_frameless_windows() const { return engine == browser_engine::chromium; }
 
         [[nodiscard]] bool is_wellknown() const { return engine != browser_engine::generic; }
 

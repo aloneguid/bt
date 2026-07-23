@@ -43,9 +43,12 @@ namespace bt {
             }
         }
 
-        // works in Chrome only
-        if(get_supports_frameless_windows() && up.app_mode) {
-            arg = format("--app={}", arg);
+        if(supports_frameless_windows() && up.app_mode) {
+            if(engine == browser_engine::chromium) {
+                arg = format("--app={}", arg);
+            } else if(engine == browser_engine::gecko) {
+                arg = format("-taskbar-tab 0 -new-window {}", arg);
+            }
         }
 
         // add user-defined attributes
@@ -218,6 +221,7 @@ namespace bt {
 
                         browser_profile& bi_new = *bi_new_it;
                         // merge user-defined customisations
+                        bi_new.is_default = bi_old.is_default;
                         bi_new.user_arg = bi_old.user_arg;
                         bi_new.user_icon_path = bi_old.user_icon_path;
                         bi_new.use_user_color = bi_old.use_user_color;
