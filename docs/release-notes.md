@@ -17,7 +17,8 @@ V6 is new, so expect bugs for the next few minor releases.
 - [Brave Origin](https://brave.com/origin/) Autodiscovery is supported.
 - Firefox container colors are discovered into highlight color.
 - Picker maximum width in percentage of monitor space is configurable.
-- An early version of Browser Tamer is available to install on Debian-compatible Linux distros.
+- An early version of Browser Tamer is available to install on Debian-compatible Linux x64 distros, just use the provided `.deb` package.
+- Native Windows ARM build available.
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
 
 ### Improvements

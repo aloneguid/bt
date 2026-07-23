@@ -114,6 +114,12 @@ if(WIN32)
     # then install wix ui extension required by cpack:
     # wix extension add --global WixToolset.UI.wixext
 
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+        set(CPACK_SYSTEM_NAME "win-arm64")
+    else()
+        set(CPACK_SYSTEM_NAME "win64")
+    endif()
+
     set(CPACK_GENERATOR WIX)
 
     # "4" is required in order not to use the legacy WIX 3.x generator. It did not matter that I was using WIX 7.
