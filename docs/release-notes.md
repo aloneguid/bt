@@ -18,8 +18,8 @@ V6 is new, so expect bugs for the next few minor releases. There is no WinGet su
 - [Brave Origin](https://brave.com/origin/) Autodiscovery is supported.
 - Firefox container colors are discovered into highlight color.
 - Picker maximum width in percentage of monitor space is configurable.
-- An early version of Browser Tamer is available to install on Debian-compatible Linux x64 distros, just use the provided `.deb` package.
-- Native Windows ARM build available.
+- An early version of Browser Tamer is available to install on Debian-compatible Linux x64 distros, use the provided `.deb` package.
+- Native Windows ARM build is available.
 - When rule conflicts are detected, the picker only shows conflicting choices, not the entire browser list.
 
 ### Improvements
@@ -35,6 +35,10 @@ V6 is new, so expect bugs for the next few minor releases. There is no WinGet su
 ### Tech stuff
 - Project upgraded to C++ 23.
 - Cleanup: a lot of legacy code is deleted.
+
+### Linux todo:
+- hotkeys not detected
+- invoked process not detected
 
 ## 5.6.12
 

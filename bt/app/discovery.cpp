@@ -797,13 +797,17 @@ namespace bt {
         for(const auto &entry: fs::directory_iterator(folder_path)) {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
+
                 if(filename.ends_with("_proxy.exe")) {
 
                     // we don't know where data folders are exactly, so this is the best we can do
 
                     fs::path root = fs::path{lad};
+                    fs::path pf{fss::get_program_files_dir()};
+                    fs::path pf32{fss::get_program_files_dir(true)};
 
-                    if(exe_name == "msedge.exe") {
+                    if(exe_path == (pf / "Microsoft" / "Edge" / "Application" / "msedge.exe").string() ||
+                        exe_path == (pf32 / "Microsoft" / "Edge" / "Application" / "msedge.exe").string()) {
                         data_path = (root / "Microsoft" / "Edge" / "User Data").string();
                     } else if(exe_name == "chrome.exe") {
                         // Helium is also "chrome.exe", so we need to check path substring
@@ -814,9 +818,9 @@ namespace bt {
                         }
                     } else if(exe_name == "vivaldi.exe") {
                         data_path = (root / "Vivaldi" / "User Data").string();
-                    } else if(exe_path == R"(C:\Program Files\BraveSoftware\Brave-Origin\Application\brave.exe)") {
+                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Origin" / "Application" / "brave.exe").string()) {
                         data_path = (root / "BraveSoftware" / "Brave-Origin" / "User Data").string();
-                    } else if(exe_name == "brave.exe") {
+                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Browser" / "Application" / "brave.exe").string()) {
                         data_path = (root / "BraveSoftware" / "Brave-Browser" / "User Data").string();
                     } else if(exe_name == "thorium.exe") {
                         data_path = (root / "Thorium" / "User Data").string();
