@@ -38,7 +38,6 @@ V6 is new, so expect bugs for the next few minor releases. There is no WinGet su
 
 ### Linux todo:
 - hotkeys not detected
-- invoked process not detected
 
 ## 5.6.12
 

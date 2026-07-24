@@ -1,4 +1,4 @@
-name: Submit release to the WinGet community repository
+name: Update on WinGet
 
 on:
   release:

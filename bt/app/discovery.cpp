@@ -870,10 +870,15 @@ namespace bt {
         data_path.clear();
         fs::path cd{fss::get_config_dir()};
 
-        // DEB-installed browsers
         if(exe_path == "/usr/bin/firefox" || exe_path == "firefox") {
             engine = browser_engine::gecko;
             data_path = (cd / "mozilla" / "firefox").string();
+            return true;
+        }
+
+        if(exe_path == "/snap/bin/firefox") {
+            engine = browser_engine::gecko;
+            data_path = (cd / "snap"/ "firefox"/ "common" / ".mozilla" / "firefox").string();
             return true;
         }
 
@@ -886,6 +891,12 @@ namespace bt {
         if(exe_path == "/usr/bin/brave-origin-stable") {
             engine = browser_engine::chromium;
             data_path = (cd / "BraveSoftware" / "Brave-Origin").string();
+            return true;
+        }
+
+        if(exe_path == "/usr/bin/microsoft-edge-stable") {
+            engine = browser_engine::chromium;
+            data_path = (cd / "microsoft-edge").string();
             return true;
         }
 

@@ -97,21 +97,16 @@ string get_command(const string& data, string& command_data) {
 }
 
 void execute(const string& data) {
-
     // will be set to "true" if "pick" command is detected
     bool force_picker{false};
     string clean_data = data; // copy of the data, will be used for further processing
 
-
     if(data.empty() || data.starts_with(ArgSplitter)) {
-        // if data starts with argsplitter that means command line is empty
-
-        bt::ui::config_app app;
+        // if data starts with ArgSplitter that means command line is empty, so we invoke the configuratio util
+        ui::config_app app;
         app.run();
-
         return;
     }
-
 
     // try to extract command from the data, which is the first word in the data string
     string command_data;
@@ -134,23 +129,31 @@ void execute(const string& data) {
         }
     }
 
-
-
     // if we reached this point, it's a normal operation mode
     // 0 - url
     // 1 - HWND
     auto parts = str::split(clean_data, ArgSplitter, true);
-    bt::click_payload up{parts[0]};
+    click_payload up{parts[0]};
 
-    up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
 
 #if PLATFORM_WINDOWS
-    grey::common::win32::window win{up.source_window_handle};
+    up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
+    win32::window win{up.source_window_handle};
     up.window_title = win.get_text();
-
-    process proc{win.get_pid()};
+    auto pid = win.get_pid();
+    up.process_id = std::to_string(pid);
+    process proc{pid};
     up.process_path = proc.get_module_filename();
     up.process_name = proc.get_name();
+    up.process_description = proc.get_description();
+#endif
+
+#if PLATFORM_LINUX
+    int pid = str::to_int(parts[1]);
+    process proc{pid};
+    up.process_id = std::to_string(pid);
+    up.process_name = proc.get_name();
+    up.process_path = proc.get_module_filename();
     up.process_description = proc.get_description();
 #endif
 
@@ -167,61 +170,59 @@ void execute(const string& data) {
     open(up, force_picker);   // open-up hahaha
 }
 
+string get_parent_arg() {
+#if PLATFORM_WINDOWS
+    return format("{:x}", (DWORD)(win32::window::get_foreground().get_handle()));
+#elif PLATFORM_LINUX
+    // on Linux we can use parent process ID
+    process proc;
+    auto parent = proc.get_parent();
+    return format("{}", parent.get_pid());
+#endif
+}
+
 /**
  * @brief Parses incoming arguments and shapes them into universal command format.
- * @param argc 
- * @param argv 
+ * @param args
  * @return 
  */
-
-#if PLATFORM_WINDOWS
-string parse_args(int argc, wchar_t* argv[]) {
+string parse_args(const vector<string>& args) {
     string arg;
 
-    for(int i = 1; i < argc; i++) {
-        string pt = str::to_str(wstring(argv[i]));
-        if(!arg.empty()) arg += " ";
+    for(int i = 0; i < args.size(); i++) {
+        const string pt = args[i];
+        if(!arg.empty()) arg += ' ';
         arg += pt;
     }
 
-    arg = format("{}{}{:x}",
+    string parent_arg = get_parent_arg();
+
+    return format("{}{}{}",
       arg,
       ArgSplitter,
-      (DWORD)(grey::common::win32::window::get_foreground().get_handle()));
-
-    return arg;
+      parent_arg);
 }
 
+#if PLATFORM_WINDOWS
+
 int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
-    string arg = parse_args(argc, argv);
-    execute(arg);
+    vector<string> args;
+    for(int i = 1; i < argc; i++) {
+        args.push_back(str::to_str(wstring(argv[i])));
+    }
+
+    execute(parse_args(args));
     return 0;
 }
 
 #else
 
-string parse_args(int argc, char* argv[]) {
-    string arg;
-
-    for(int i = 1; i < argc; i++) {
-        string pt{argv[i]};
-        if(!arg.empty()) arg += " ";
-        arg += pt;
-    }
-
-    arg = format("{}{}{:x}",
-      arg,
-      ArgSplitter,
-      123);
-
-    return arg;
-}
-
 int main(int argc, char* argv[]) {
-    string arg = parse_args(argc, argv);
-
-    execute(arg);
-
+    vector<string> args;
+    for (int i = 1; i < argc; i++) {
+        args.push_back(string(argv[i]));
+    }
+    execute(parse_args(args));
     return 0;
 }
 

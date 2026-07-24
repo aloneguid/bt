@@ -16,8 +16,9 @@ namespace bt {
         void* source_window_handle;
 #endif
 
-        // everything below is populated from HWND
+        // everything below is populated from source_window_handle
         std::string window_title;
+        std::string process_id;
         std::string process_path;
         std::string process_name;
         std::string process_description;
