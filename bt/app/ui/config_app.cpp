@@ -217,7 +217,7 @@ namespace bt::ui {
             }
 
             if(w::menu m{"General"}; m) {
-                w::small_checkbox("Write clicks to hit_log.csv", g_state.log_rule_hits);
+                w::small_checkbox("Log to clicks.csv", g_state.log_rule_hits);
 
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
                     w::small_checkbox("Enabled", g_state.toast.enabled);

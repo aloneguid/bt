@@ -10,6 +10,7 @@ V6 is new, so expect bugs for the next few minor releases. There is no WinGet su
 - Removed legacy picker invocation options:
   - "Always" – there's no use case for this.
   - "On rule conflict" – picker is always invoked on rule conflict now.
+- `hit_log.csv` is replaced by `clicks.csv` and includes much more information about browser launches, rule conflicts, and rule hits.
 
 ### New features
 - You can add a custom browser not just by path but by type (Chromium or Gecko) as well. This allows specifying data directory for browsers that are not auto-discovered for one or another reason, for instance, portable browsers.

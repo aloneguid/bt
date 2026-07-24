@@ -22,29 +22,32 @@ using namespace std;
 using namespace grey::common;
 using namespace bt;
 
-void open(bt::click_payload up, bool force_picker = false) {
+void open(click_payload up, bool force_picker = false) {
     g_pipeline.process(up);
 
     // decision whether to show picker or not
     bool show_picker{force_picker};
-    string pick_reason;
+    optional<picker_invoked_reason> picker_reason;
+
     vector<browser_match_result> rule_matches;
     if(!force_picker) {
         if(ui::picker_app::is_hotkey_down()) {
             show_picker = true;
-            pick_reason = "hotkey";
+            picker_reason = picker_invoked_reason::hotkey_down;
         } else {
             rule_matches = browser::match(g_state.browsers, up, g_script);
             if(rule_matches.size() > 1) {
                 show_picker = true;
-                pick_reason = "conflict";
+                picker_reason = picker_invoked_reason::rule_conflict;
             } else if(rule_matches.size() == 1) {
                 if(g_state.picker.invoke.on_no_rule && rule_matches[0].rule.is_fallback) {
                     show_picker = true;
-                    pick_reason = "no rule";
+                    picker_reason = picker_invoked_reason::no_rule_defined;
                 }
             }
         }
+    } else {
+        picker_reason = picker_invoked_reason::forced;
     }
 
     if(show_picker) {
@@ -60,7 +63,7 @@ void open(bt::click_payload up, bool force_picker = false) {
             up.url = pr.url;
             url_opener::open(*pr.choice, up);
             if(g_state.log_rule_hits) {
-                rule_hit_log::i.write(up, *pr.choice, "picker:" + pick_reason);
+                rule_hit_log::i.write(up, *pr.choice, picker_reason, nullopt);
             }
         }
     } else {
@@ -69,7 +72,7 @@ void open(bt::click_payload up, bool force_picker = false) {
         first_match.rule.apply_to(up);
         url_opener::open(first_match.profile, up);
         if(g_state.log_rule_hits) {
-            rule_hit_log::i.write(up, first_match.profile, matches[0].rule.to_string());
+            rule_hit_log::i.write(up, first_match.profile, std::nullopt, matches[0]);
         }
 
         if(g_state.toast.enabled) {

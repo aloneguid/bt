@@ -7,4 +7,12 @@ namespace bt {
         browser_only        = 2,
         profile_only        = 3
     };
+
+    enum class picker_invoked_reason {
+        not_invoked,
+        hotkey_down,
+        rule_conflict,
+        no_rule_defined,
+        forced
+    };
 }
