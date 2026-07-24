@@ -209,13 +209,13 @@ jobs:
         working-directory: .
 
       # https://github.com/softprops/action-gh-release
-#      - name: 📦 create release
-#        uses: softprops/action-gh-release@v3
-#        with:
-#          tag_name: ${{ env.VERSION }}
-#          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-#          name: ${{ env.VERSION }}
-#          files: |
-#            *.msi
-#            *.deb
-#          body_path: final_notes.md
+      - name: 📦 create release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.VERSION }}
+          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          name: ${{ env.VERSION }}
+          files: |
+            *.msi
+            *.deb
+          body_path: final_notes.md
