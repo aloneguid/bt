@@ -36,9 +36,6 @@ V6 is new, so expect bugs for the next few minor releases. There is no WinGet su
 - Project upgraded to C++ 23.
 - Cleanup: a lot of legacy code is deleted.
 
-### Linux todo:
-- hotkeys not detected
-
 ## 5.6.12
 
 improvement: process name and description can be determined more reliably even with fewer permissions, but also works better on non-US English systems.
