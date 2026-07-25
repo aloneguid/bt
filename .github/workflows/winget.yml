@@ -1,8 +1,9 @@
 name: Update on WinGet
 
-on:
-  release:
-    types: [published]
+# uncomment when v6 releases are sorted out
+# on:
+#   release:
+#     types: [published]
 
 jobs:
   publish-winget:
@@ -15,7 +16,7 @@ jobs:
 
     # winget-create is only supported on Windows
     runs-on: windows-latest
-      
+
     # winget-create will read the following environment variable to access the GitHub token needed for submitting a PR
     # See https://aka.ms/winget-create-token
     env:
@@ -26,16 +27,16 @@ jobs:
         run: |
           # Set the package ID based on the release info
           $packageId = "aloneguid.bt"
-          
+
           # Get installer info from release event
           $assets = '${{ toJSON(github.event.release.assets) }}' | ConvertFrom-Json
           $packageVersion = (${{ toJSON(github.event.release.tag_name) }})
-          
+
           # Find the download URLs for the x64 and arm64 installers separately
           # This allows overrides to be used so that wingetcreate does not have to guess the architecture from the filename
           $installerUrlx64 = $assets | Where-Object -Property name -like '*win64.msi' | Select-Object -ExpandProperty browser_download_url
           $installerUrlArm64 = $assets | Where-Object -Property name -like '*arm64.zip' | Select-Object -ExpandProperty browser_download_url
-          
+
           # Update package using wingetcreate
           curl.exe -JLO https://aka.ms/wingetcreate/latest
           .\wingetcreate.exe update $packageId `
