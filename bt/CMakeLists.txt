@@ -139,6 +139,7 @@ if(WIN32)
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
     set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libopengl0")
 
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"

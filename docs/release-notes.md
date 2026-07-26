@@ -1,3 +1,8 @@
+## 6.0.1
+
+### Bug fixes
+- Linux: included OpenGL dependency in deb manifest.
+
 ## 6.0.0
 
 V6 is new, so expect bugs for the next few minor releases. There is no WinGet support yet due to architecture changes (see below).
