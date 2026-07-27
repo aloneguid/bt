@@ -4,6 +4,7 @@ The first set of hotfixes, here we go:
 - Unexpected error in the UI, thanks to @egreenie in #232.
 - "state changed" notification wasn't supposed to show all the time – this was for development only.
 - Linux: included OpenGL dependency in the `.deb` manifest.
+- Linux: Firefox installed via Snap wasn't detecting the correct data folder.
 
 ## 6.0.0
 

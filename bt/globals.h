@@ -44,7 +44,7 @@
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
-#define APP_VERSION "6.0.0"
+#define APP_VERSION "6.0.1"
 
 extern bt::url_pipeline g_pipeline;
 

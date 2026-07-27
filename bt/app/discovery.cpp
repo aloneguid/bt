@@ -868,6 +868,7 @@ namespace bt {
     bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
         engine = browser_engine::generic;
         data_path.clear();
+        fs::path hd{fss::get_home_dir()};
         fs::path cd{fss::get_config_dir()};
 
         if(exe_path == "/usr/bin/firefox" || exe_path == "firefox") {
@@ -878,7 +879,7 @@ namespace bt {
 
         if(exe_path == "/snap/bin/firefox") {
             engine = browser_engine::gecko;
-            data_path = (cd / "snap"/ "firefox"/ "common" / ".mozilla" / "firefox").string();
+            data_path = (hd / "snap"/ "firefox"/ "common" / ".mozilla" / "firefox").string();
             return true;
         }
 
