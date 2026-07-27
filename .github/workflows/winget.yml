@@ -22,6 +22,7 @@ jobs:
       WINGET_CREATE_GITHUB_TOKEN: ${{ secrets.WINGET_CREATE_GITHUB_TOKEN }}
 
     steps:
+      - run: echo "<[fim-middle]>"
       # uncomment when v6 releases are sorted out
       # - name: Submit package using wingetcreate
       #   run: |
