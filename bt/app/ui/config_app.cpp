@@ -161,7 +161,7 @@ namespace bt::ui {
             render_add_browser_window();
 
         if(g_config.tick(ImGui::GetIO().DeltaTime)) {
-            w::notify_info("state changed");
+            //w::notify_info("state changed");
         }
 
         w::notify_render_frame();
@@ -1299,15 +1299,13 @@ terminal window will be hidden.)");
 
             for(int i = 0; i < bi.rules.size(); i++) {
                 auto &rule = bi.rules[i];
-                string si = std::to_string(i);
+                w::id_frame idg{i};
 
                 // location
-                w::combo(string{"##loc"} + si,
-                         rule_locations, (unsigned int &) rule.loc, 90);
+                w::combo("##loc", rule_locations, (unsigned int &) rule.loc, 90);
 
                 // value
                 w::sl();
-                string val_label = string{"##val"} + si;
                 if(rule.loc == match_location::lua_script) {
                     // get selected index
                     unsigned int selected{0};
@@ -1318,7 +1316,7 @@ terminal window will be hidden.)");
                         }
                     }
 
-                    w::combo(val_label, g_script.rule_function_names, selected, 250);
+                    w::combo("##val", g_script.rule_function_names, selected, 250);
                     w::tt(strings::LuaScriptTooltip);
 
                     // reassign value
@@ -1326,7 +1324,7 @@ terminal window will be hidden.)");
                         rule.value = g_script.rule_function_names[selected];
                     }
                 } else {
-                    w::input(rule.value, val_label, true, 250 * app->scale);
+                    w::input(rule.value, "##val", true, 250 * app->scale);
                 }
 
                 // up/down logic is very custom and is bound to the textbox itself
@@ -1363,7 +1361,7 @@ terminal window will be hidden.)");
                 // process name selection helper (for "process" rules)
                 if(rule.loc == match_location::process_name) {
                     w::sl();
-                    if(w::button(format("{}##{}", ICON_MD_DEVELOPER_BOARD, si))) {
+                    if(w::button(ICON_MD_DEVELOPER_BOARD)) {
                         refresh_pop_proc_names_items();
                         pop_proc_names.open();
                     }

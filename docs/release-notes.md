@@ -1,7 +1,9 @@
 ## 6.0.1
 
-### Bug fixes
-- Linux: included OpenGL dependency in deb manifest.
+The first set of hotfixes, here we go:
+- Unexpected error in the UI, thanks to @egreenie in #232.
+- "state changed" notification wasn't supposed to show all the time – this was for development only.
+- Linux: included OpenGL dependency in the `.deb` manifest.
 
 ## 6.0.0
 
