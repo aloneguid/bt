@@ -60,15 +60,6 @@ namespace bt {
     const string abs_root = "SOFTWARE\\Clients\\StartMenuInternet";
     const string app_user_root =
             "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\Repository\\Packages";
-#if PLATFORM_WINDOWS
-    const string ad = win32::shell::get_app_data_folder();
-    const string lad = win32::shell::get_local_app_data_path();
-#else
-    const string ad = "todo";
-    const string lad = "todo";
-#endif
-
-    const string FirefoxInstancePrefix = "Firefox-";
 
     static const std::unordered_map<std::string, std::string> gecko_container_names = {
         {"userContextPersonal.label", "Personal"},
@@ -109,10 +100,10 @@ namespace bt {
         {"toolbar",   IM_COL32(0x7C, 0x7C, 0x80, 0xFF)},
     };
 
-    string get_instance_id(const string &reg_value) {
-        // if this is Firefox, strip out the prefix to get instance ID
-        if(reg_value.starts_with(FirefoxInstancePrefix)) {
-            return reg_value.substr(FirefoxInstancePrefix.size());
+    static string get_instance_id(const string &reg_value) {
+        // if this is Firefox, strip out the prefix to get instance ID. Browser might be Firefox based so, strip everything before (including) first hyphen.
+        if(size_t pos = reg_value.find('-'); pos != string::npos) {
+            return reg_value.substr(pos + 1);
         }
 
         return reg_value;
@@ -788,6 +779,12 @@ namespace bt {
         fs::path folder_path = p.parent_path();
         if(!fs::exists(folder_path)) return false;
 
+        fs::path lad{win32::shell::get_local_app_data_path()};
+        fs::path ad{win32::shell::get_app_data_folder()};
+        fs::path pf{fss::get_program_files_dir()};
+        fs::path pf32{fss::get_program_files_dir(true)};
+
+
         // get executable name
         auto exe_name = p.filename().string();
         str::lower(exe_name);
@@ -801,29 +798,24 @@ namespace bt {
                 if(filename.ends_with("_proxy.exe")) {
 
                     // we don't know where data folders are exactly, so this is the best we can do
-
-                    fs::path root = fs::path{lad};
-                    fs::path pf{fss::get_program_files_dir()};
-                    fs::path pf32{fss::get_program_files_dir(true)};
-
                     if(exe_path == (pf / "Microsoft" / "Edge" / "Application" / "msedge.exe").string() ||
                         exe_path == (pf32 / "Microsoft" / "Edge" / "Application" / "msedge.exe").string()) {
-                        data_path = (root / "Microsoft" / "Edge" / "User Data").string();
+                        data_path = (lad / "Microsoft" / "Edge" / "User Data").string();
                     } else if(exe_name == "chrome.exe") {
                         // Helium is also "chrome.exe", so we need to check path substring
                         if(str::contains_ic(exe_path, "\\Helium\\")) {
-                            data_path = (root / "imput" / "Helium" / "User Data").string();
+                            data_path = (lad / "imput" / "Helium" / "User Data").string();
                         } else {
-                            data_path = (root / "Google" / "Chrome" / "User Data").string();
+                            data_path = (lad / "Google" / "Chrome" / "User Data").string();
                         }
                     } else if(exe_name == "vivaldi.exe") {
-                        data_path = (root / "Vivaldi" / "User Data").string();
+                        data_path = (lad / "Vivaldi" / "User Data").string();
                     } else if(exe_path == (pf / "BraveSoftware" / "Brave-Origin" / "Application" / "brave.exe").string()) {
-                        data_path = (root / "BraveSoftware" / "Brave-Origin" / "User Data").string();
+                        data_path = (lad / "BraveSoftware" / "Brave-Origin" / "User Data").string();
                     } else if(exe_path == (pf / "BraveSoftware" / "Brave-Browser" / "Application" / "brave.exe").string()) {
-                        data_path = (root / "BraveSoftware" / "Brave-Browser" / "User Data").string();
+                        data_path = (lad / "BraveSoftware" / "Brave-Browser" / "User Data").string();
                     } else if(exe_name == "thorium.exe") {
-                        data_path = (root / "Thorium" / "User Data").string();
+                        data_path = (lad / "Thorium" / "User Data").string();
                     }
 
                     const bool is_valid_data_path = fs::exists(data_path);
@@ -843,16 +835,14 @@ namespace bt {
 
                     // as with chromium, we don't know exact data folder path
 
-                    const fs::path root{ad};
-
                     if(exe_name == "firefox.exe") {
-                        data_path = (root / "Mozilla" / "Firefox").string();
+                        data_path = (ad / "Mozilla" / "Firefox").string();
                     } else if(exe_name == "waterfox.exe") {
-                        data_path = (root / "Waterfox").string();
+                        data_path = (ad / "Waterfox").string();
                     } else if(exe_name == "librewolf.exe") {
-                        data_path = (root / "Librewolf").string();
+                        data_path = (ad / "Librewolf").string();
                     } else if(exe_name == "zen.exe") {
-                        data_path = (root / "zen").string();
+                        data_path = (ad / "zen").string();
                     }
 
                     const bool is_valid_data_path = fs::exists(data_path);
