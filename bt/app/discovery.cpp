@@ -339,6 +339,11 @@ namespace bt {
                     name = name.substr(0, name.size() - 11);
                 }
 
+                // skip self
+                if (cmd == "bt" || cmd == "/usr/bin/bt") {
+                    continue;
+                }
+
                 browser b{name, cmd};
                 b.icon_path = resolve_xdg_icon_path(icon);
                 fingerprint(cmd, b.engine, b.data_path);
