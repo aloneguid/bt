@@ -1302,7 +1302,7 @@ terminal window will be hidden.)");
                 w::id_frame idg{i};
 
                 // location
-                w::combo("##loc", rule_locations, (unsigned int &) rule.loc, 90);
+                w::combo("##loc", rule_locations, reinterpret_cast<unsigned int&>(rule.loc), 90);
 
                 // value
                 w::sl();

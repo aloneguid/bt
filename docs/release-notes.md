@@ -1,3 +1,7 @@
+## 6.0.2
+More hotfixes
+- Hidden profiles become visible again after rediscovery in #233 by @morgaesis.
+
 ## 6.0.1
 
 The first set of hotfixes, here we go:
