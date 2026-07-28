@@ -222,6 +222,7 @@ namespace bt {
                         browser_profile& bi_new = *bi_new_it;
                         // merge user-defined customisations
                         bi_new.is_default = bi_old.is_default;
+                        bi_new.is_hidden = bi_old.is_hidden;
                         bi_new.user_arg = bi_old.user_arg;
                         bi_new.user_icon_path = bi_old.user_icon_path;
                         bi_new.use_user_color = bi_old.use_user_color;
