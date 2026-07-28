@@ -1,6 +1,8 @@
 ## 6.0.2
-More hotfixes
+More hotfixes, mostly done by @morgaesis. I dedicate this release to you!
+
 - Hidden profiles become visible again after rediscovery in #233 by @morgaesis.
+- On rule conflict, only the default browser profile was shown in the picker in #229 by @morgaesis.
 
 ## 6.0.1
 

@@ -51,8 +51,9 @@ void open(click_payload up, bool force_picker = false) {
     }
 
     if(show_picker) {
+        // choice narrows down only on rule conflict
         vector<profile_selection> limited_choices;
-        if(!rule_matches.empty()) {
+        if(picker_reason == picker_invoked_reason::rule_conflict) {
             for(auto& match : rule_matches) {
                 limited_choices.push_back(match.profile);
             }
@@ -82,7 +83,7 @@ void open(click_payload up, bool force_picker = false) {
     }
 }
 
-string get_command(const string& data, string& command_data) {
+static string get_command(const string& data, string& command_data) {
     // Find the position of the first space character
     size_t pos = data.find(' ');
 
@@ -96,13 +97,13 @@ string get_command(const string& data, string& command_data) {
     return data.substr(0, pos);
 }
 
-void execute(const string& data) {
+static void execute(const string& data) {
     // will be set to "true" if "pick" command is detected
     bool force_picker{false};
     string clean_data = data; // copy of the data, will be used for further processing
 
     if(data.empty() || data.starts_with(ArgSplitter)) {
-        // if data starts with ArgSplitter that means command line is empty, so we invoke the configuratio util
+        // if data starts with ArgSplitter that means command line is empty, so we invoke the configuration util
         ui::config_app app;
         app.run();
         return;
@@ -137,7 +138,7 @@ void execute(const string& data) {
 
 
 #if PLATFORM_WINDOWS
-    up.source_window_handle = (HWND)(DWORD)str::to_ulong(parts[1], 16);
+    up.source_window_handle = reinterpret_cast<HWND>(str::to_ulong(parts[1], 16));
     win32::window win{up.source_window_handle};
     up.window_title = win.get_text();
     auto pid = win.get_pid();
