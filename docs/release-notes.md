@@ -1,7 +1,8 @@
 ## 6.0.3
+
 More hotfixes:
-- Linux: do not include myself (bt) in the list of autodiscovered browsers.
-- Linux: libopengl0 depdendency wasn't installed.
+- Linux: do not include myself (bt) in the list of auto-discovered browsers.
+- Linux: libopengl0 dependency wasn't installed.
 
 ## 6.0.2
 More hotfixes, mostly done by @morgaesis. I dedicate this release to you!

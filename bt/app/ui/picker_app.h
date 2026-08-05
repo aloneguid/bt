@@ -39,12 +39,15 @@ namespace bt::ui {
         ImVec2 mon_work_size;
 
         // flexi sizing
-        float padding;
-        float icon_size;
-        float box_size;
-        float pre_menu_height{0.0f};
         ImVec2 window_size;
+        float header_height{0.0f};
         float action_button_width{0.0f};
+        float box_size_scaled{0.0f};
+        float padding_scaled{0.0f};
+        ImVec2 text_size{};
+        ImVec2 label_text_size{};
+        size_t items_per_w{0};
+        size_t lines_total{0};
 
         std::string url;
         std::string title;

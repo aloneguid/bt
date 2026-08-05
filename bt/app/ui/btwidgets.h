@@ -11,10 +11,12 @@ namespace bt::ui {
 
     void btw_icon(grey::app& app,
         const profile_selection& selection,
-        float padding, float icon_size, bool is_active);
+        float padding_x, float padding_y,
+        float icon_size);
 
     void btw_icon(grey::app& app,
         const browser& b, const browser_profile& p,
         icon_overlay_mode icon_mode,
-        float padding, float icon_size, bool is_active);
+        float padding_x, float padding_y,
+        float icon_size);
 }

@@ -122,7 +122,7 @@ static void execute(const string& data) {
             c.exec(command, command_data);
             return;
         } else if(command == "discover") {
-            vector<bt::browser> fresh_browsers = bt::discovery::discover_all_browsers();
+            vector<browser> fresh_browsers = bt::discovery::discover_all_browsers();
             fresh_browsers = bt::browser::merge(fresh_browsers, g_state.browsers);
             g_state.browsers = fresh_browsers;
             g_config.serialize();

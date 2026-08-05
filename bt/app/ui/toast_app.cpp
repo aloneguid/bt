@@ -135,7 +135,7 @@ namespace bt::ui {
         }
 
         // line 2
-        btw_icon(*app, sel, 0, icon_size, true);
+        btw_icon(*app, sel, 0, 0, icon_size);
 
         w::sl(); w::label("");
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);

@@ -216,11 +216,11 @@ namespace bt {
         profile_selection(const browser& browser, size_t profile_idx) : root{browser}, profile_idx{profile_idx} {
         }
 
-        const browser& b() const {
+        [[nodiscard]] const browser& b() const {
             return root;
         }
 
-        const browser_profile& profile() const {
+        [[nodiscard]] const browser_profile& profile() const {
             return root.profiles[profile_idx];
         }
 

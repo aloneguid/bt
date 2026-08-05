@@ -36,12 +36,14 @@ namespace bt {
 
     class picker_state {
     public:
-        float icon_size{32.0f};
-        float item_padding{10.0f};
-        float inactive_item_alpha{0.65f};
+        // box size, not including padding
+        float box_size{60.0f};
+        // padding between boxes
+        float item_padding{15.0f};
         bool show_key_hints{true};
         int border_width{1};
         bool show_native_chrome{false};
+        float label_size{-4.0f};
         int opacity{255};
         bool close_on_focus_loss{true};
         bool always_on_top{false};

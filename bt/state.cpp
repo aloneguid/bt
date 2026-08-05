@@ -38,12 +38,12 @@ namespace bt {
 
     void to_node(fkyaml::node &node, const picker_state &state) {
         node = fkyaml::node{
-            {"icon_size", state.icon_size},
+            {"box_size", state.box_size},
             {"item_padding", state.item_padding},
-            {"inactive_icon_alpha", state.inactive_item_alpha},
             {"show_key_hints", state.show_key_hints},
             {"border_width", state.border_width},
             {"show_native_chrome", state.show_native_chrome},
+            {"label_size", state.label_size},
             {"opacity", state.opacity},
             {"close_on_focus_loss", state.close_on_focus_loss},
             {"always_on_top", state.always_on_top},
@@ -53,12 +53,12 @@ namespace bt {
     }
 
     void from_node(const fkyaml::node &node, picker_state &state) {
-        read<float>(node, "icon_size", state.icon_size);
+        read<float>(node, "box_size", state.box_size);
         read<float>(node, "item_padding", state.item_padding);
-        read<float>(node, "inactive_icon_alpha", state.inactive_item_alpha);
         read<bool>(node, "show_key_hints", state.show_key_hints);
         read<int>(node, "border_width", state.border_width);
         read<bool>(node, "show_native_chrome", state.show_native_chrome);
+        read<float>(node, "label_size", state.label_size);
         read<int>(node, "opacity", state.opacity);
         read<bool>(node, "close_on_focus_loss", state.close_on_focus_loss);
         read<bool>(node, "always_on_top", state.always_on_top);

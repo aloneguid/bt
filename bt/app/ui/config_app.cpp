@@ -1256,7 +1256,8 @@ terminal window will be hidden.)");
     void config_app::render_icon(browser& b, browser_profile& p) {
         {
             w::group g;
-            btw_icon(*app, b, p, icon_overlay_mode::profile_only, 0, 40 * app->scale, true);
+            btw_icon(*app, b, p, icon_overlay_mode::profile_only, 0,
+                40 * app->scale, 40 * app->scale);
         }
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);

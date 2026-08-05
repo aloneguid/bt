@@ -26,17 +26,17 @@ namespace bt::ui {
 
     void btw_icon(grey::app& app,
         const profile_selection& selection,
-        float padding, float icon_size, bool is_active) {
-        btw_icon(app, selection.b(), selection.profile(), g_state.icon_overlay, padding, icon_size, is_active);
+        float padding_x, float padding_y, float icon_size) {
+        btw_icon(app, selection.b(), selection.profile(), g_state.icon_overlay, padding_x, padding_y, icon_size);
 
     }
 
     void btw_icon(grey::app &app, const browser &b, const browser_profile &p,
         icon_overlay_mode icon_mode,
-        float padding, float icon_size,
-        bool is_active) {
+        float padding_x, float padding_y,
+        float icon_size) {
 
-        float box_size = icon_size + padding * 2;
+        ImVec2 box_size{icon_size + padding_x * 2, icon_size + padding_y * 2};
 
         w::group g;
 
@@ -44,10 +44,9 @@ namespace bt::ui {
         float x0, y0;
         w::cur_get(x0, y0);
 
-        // dummy
-        ImGui::Dummy(ImVec2{box_size, box_size});
+        w::dummy(box_size);
 
-        w::cur_set(x0 + padding, y0 + padding);
+        w::cur_set(x0 + padding_x, y0 + padding_y);
 
         string icon1 = b.get_best_icon_path();
         string icon2;
@@ -74,15 +73,13 @@ namespace bt::ui {
         if(icon2 == icon1)
             icon2.clear();
 
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, is_active ? 1 : g_state.picker.inactive_item_alpha);
-
         if(p.use_color || p.use_user_color) {
             // user color has priority
             unsigned color = p.use_user_color ? p.user_color : p.color;
 
             //draw circle around the icon with user color
             auto dl = ImGui::GetWindowDrawList();
-            ImVec2 center{x0 + padding + icon_size / 2, y0 + padding + icon_size / 2};
+            ImVec2 center{x0 + padding_x + icon_size / 2, y0 + padding_y + icon_size / 2};
             auto radius = icon_size / 2 + g_state.highlight_width / 2;
             //dl->AddCircle(center, radius, color, 0, g_state.highlight_width);
             dl->AddCircleFilled(center, radius, color);
@@ -92,11 +89,9 @@ namespace bt::ui {
 
         // if required, draw overlay icon
         if(!icon2.empty()) {
-            w::cur_set(x0 + padding + icon_size / 2, y0 + padding + icon_size / 2);
+            w::cur_set(x0 + padding_x + icon_size / 2, y0 + padding_y + icon_size / 2);
             float isz = icon_size / 2;
             w::image_rounded(app, icon2, isz, isz, isz);
         }
-
-        ImGui::PopStyleVar();
     }
 }

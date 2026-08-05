@@ -85,13 +85,13 @@ if(WIN32)
        target_compile_options(${APP_NAME} PRIVATE /Zi)
 
        # Tell linker to include symbol data
-        set_target_properties(${APP_NAME} PROPERTIES 
+        set_target_properties(${APP_NAME} PROPERTIES
             LINK_FLAGS "/INCREMENTAL:NO /DEBUG /OPT:REF /OPT:ICF"
         )
 
         # Set file name & location
-        set_target_properties(${APP_NAME} PROPERTIES 
-            COMPILE_PDB_NAME ${APP_NAME} 
+        set_target_properties(${APP_NAME} PROPERTIES
+            COMPILE_PDB_NAME ${APP_NAME}
             COMPILE_PDB_OUTPUT_DIR ${CMAKE_BINARY_DIR}
         )
     endif()
@@ -139,7 +139,6 @@ if(WIN32)
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
     set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libopengl0")
 
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
             PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
@@ -149,6 +148,7 @@ elseif(UNIX AND NOT APPLE)
     set(CPACK_GENERATOR DEB)
 
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libopengl0")
 
     install(FILES "${CMAKE_SOURCE_DIR}/resources/xdg/bt.desktop"
             DESTINATION share/applications)
