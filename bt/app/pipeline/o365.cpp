@@ -12,9 +12,10 @@ namespace bt::pipeline {
         if(u.host.ends_with(".safelinks.protection.outlook.com") ||
             u.host == "statics.teams.cdn.office.net") {
             for(const auto& p : u.parameters) {
-                if(p.first == "url") {
-                    string url = p.second;
+                if(p.first == "url" || p.first == "data") {
+                    const string url = p.second;
                     up.url = str::url_decode(url);
+                    return; // Found and processed
                 }
             }
         }

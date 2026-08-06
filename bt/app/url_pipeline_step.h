@@ -17,6 +17,7 @@ namespace bt {
 
     class url_pipeline_step {
     public:
+        virtual ~url_pipeline_step() = default;
 
         const url_pipeline_step_type type;
 

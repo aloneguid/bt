@@ -3,6 +3,9 @@
 New:
 - Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically.
 
+Improved:
+- Microsoft Teams safelinks - more formats supported, thanks to @jorupp in #221.
+
 More hotfixes:
 - Linux: do not include myself (bt) in the list of auto-discovered browsers.
 - Linux: libopengl0 dependency wasn't installed.
