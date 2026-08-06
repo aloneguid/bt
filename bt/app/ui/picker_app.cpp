@@ -50,7 +50,7 @@ namespace bt::ui {
                 if(browser.is_hidden) continue;
                 for(size_t i = 0; i < browser.profiles.size(); i++) {
                     if(browser.profiles[i].is_hidden) continue;
-                    choices.push_back(profile_selection{browser, i});
+                    choices.emplace_back(browser, i);
                 }
             }
         }
@@ -118,13 +118,10 @@ namespace bt::ui {
         }
 
         {
-            // window padding off for full use of space and more correct size calculations
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
             w::guard gw{wnd_main};
 
             if(choices.empty()) {
-                w::label("no browsers", w::emphasis::error);
+                w::label("no browsers", w::emphasis::error, 0, true, 0, true, true);
             } else {
                 ImVec2 cur1 = w::cur_get();
 
@@ -141,7 +138,6 @@ namespace bt::ui {
                                render_list();
                 );
             }
-            ImGui::PopStyleVar();
         }
 
         if(is_settings_open) {
@@ -196,7 +192,6 @@ namespace bt::ui {
     }
 
     void picker_app::recalc() {
-
         ImGuiStyle& style = ImGui::GetStyle();
         box_size_scaled = g_state.picker.box_size * app->scale;
         padding_scaled = g_state.picker.item_padding * app->scale;
@@ -207,7 +202,7 @@ namespace bt::ui {
         // padding should only be used to space out items, not for any calculations inside
         float max_mon_width = mon_work_size.x * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
         float max_url_width = url_size.x + action_button_width * (action_menu_items.size() + 2);
-        float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f);
+        float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f) + style.WindowPadding.x * 2;
         float max_width = max(max_url_width, max_w_width);
         float w_width = min(max_width, max_mon_width);
 
@@ -219,7 +214,11 @@ namespace bt::ui {
         // how many lines do I need to fit all the choices?
         lines_total = static_cast<size_t>(ceil(static_cast<float>(choices.size()) / static_cast<float>(items_per_w)));
 
-        float w_height = header_height + box_size_total * lines_total + padding_scaled;
+        float w_height = style.WindowPadding.y +
+                         header_height +
+                         box_size_total * lines_total +
+                         // padding_scaled +
+                         style.WindowPadding.y;
         w_height = min(w_height, mon_work_size.y);
 
         auto target_window_size = ImVec2{w_width, w_height};
@@ -234,7 +233,7 @@ namespace bt::ui {
         float max_width = w::avail_x();
         {
             // calculate one action button width
-            ImVec2 cur = w::cur_get();
+            w::point cur = w::cur_get();
             w::button(ICON_MD_SETTINGS "##measure");
             w::sl();
             action_button_width = max_width - w::avail_x();
@@ -362,7 +361,7 @@ namespace bt::ui {
                 ImVec2 max = ImGui::GetItemRectMax();
                 ImU32 bc = ImGui::GetColorU32(ImGuiCol_Border);
                 draw_list->ChannelsSetCurrent(0); //background channel
-                draw_list->AddRectFilled(min, max, bc, ImGui::GetStyle().FrameRounding);
+                draw_list->AddRectFilled(min, max, bc, g_state.picker.item_rounding);
                 draw_list->ChannelsMerge();
             }
         }
@@ -384,6 +383,7 @@ namespace bt::ui {
 
         w::slider(g_state.picker.box_size, 5, 256, "item size");
         w::slider(g_state.picker.item_padding, 0, 100, "padding");
+        w::slider(g_state.picker.item_rounding, 0, 100, "item rounding");
         w::slider(g_state.picker.label_size, -15.0f, 15.0f, "label size");
         w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
         w::checkbox("show key hints (1-9)", g_state.picker.show_key_hints);

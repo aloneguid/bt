@@ -40,6 +40,7 @@ namespace bt {
         node = fkyaml::node{
             {"box_size", state.box_size},
             {"item_padding", state.item_padding},
+            {"item_rounding", state.item_rounding},
             {"show_key_hints", state.show_key_hints},
             {"border_width", state.border_width},
             {"show_native_chrome", state.show_native_chrome},
@@ -55,6 +56,7 @@ namespace bt {
     void from_node(const fkyaml::node &node, picker_state &state) {
         read<float>(node, "box_size", state.box_size);
         read<float>(node, "item_padding", state.item_padding);
+        read<float>(node, "item_rounding", state.item_rounding);
         read<bool>(node, "show_key_hints", state.show_key_hints);
         read<int>(node, "border_width", state.border_width);
         read<bool>(node, "show_native_chrome", state.show_native_chrome);

@@ -1,10 +1,9 @@
 ## 6.1.0
 
-New:
-- Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically.
+**New:** Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically. New options to customise this, such as label font size, item rounding etc. was added to settings as well:
 
 Improved:
-- Microsoft Teams safelinks - more formats supported, thanks to @jorupp in #221.
+- Microsoft Teams "safelinks" - more formats are supported, thanks to @jorupp in #221.
 
 More hotfixes:
 - Linux: do not include myself (bt) in the list of auto-discovered browsers.

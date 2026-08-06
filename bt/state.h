@@ -40,6 +40,7 @@ namespace bt {
         float box_size{60.0f};
         // padding between boxes
         float item_padding{15.0f};
+        float item_rounding{2.0f};
         bool show_key_hints{true};
         int border_width{1};
         bool show_native_chrome{false};
