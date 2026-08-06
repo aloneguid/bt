@@ -1,9 +1,12 @@
 ## 6.1.0
 
-**New:** Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically. New options to customise this, such as label font size, item rounding etc. was added to settings as well:
+**New:** Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically. New options to customise this, such as label font size, item rounding, etc. were added to settings as well:
+
+<img width="1901" height="576" alt="image" src="https://github.com/user-attachments/assets/23367a99-42e7-4659-8e1b-17aa12317cfd" />
+
 
 Improved:
-- Microsoft Teams "safelinks" - more formats are supported, thanks to @jorupp in #221.
+- Microsoft Teams "safelinks" – more formats are supported, thanks to @jorupp in #221.
 
 More hotfixes:
 - Tools/Open Windows Default opens focused at BT instead of the full list. It's also excluded for the Linux builds.
