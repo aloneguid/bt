@@ -6,6 +6,7 @@ Improved:
 - Microsoft Teams "safelinks" - more formats are supported, thanks to @jorupp in #221.
 
 More hotfixes:
+- Tools/Open Windows Default opens focused at BT instead of the full list. It's also excluded for the Linux builds.
 - Linux: do not include myself (bt) in the list of auto-discovered browsers.
 - Linux: libopengl0 dependency wasn't installed.
 

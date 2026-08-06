@@ -24,6 +24,7 @@
 
 #if PLATFORM_WINDOWS
 #include "common/win32/user.h"
+#include "common/win32/shell.h"
 #endif
 
 using namespace std;
@@ -195,9 +196,11 @@ namespace bt::ui {
             }
 
             if(w::menu m_tools{strings::MenuTools}; m_tools) {
+#if PLATFORM_WINDOWS
                 if(w::mi("Open Windows Defaults", true, ICON_MD_PSYCHOLOGY)) {
-                    desktop_shell::open_default_apps_configuration();
+                    win32::shell::open_default_apps(APP_LONG_NAME, true);
                 }
+#endif
                 if(w::mi(strings::PipelineDebugger, true, ICON_MD_DIRECTIONS_RUN)) {
                     pv_show = !pv_show;
                 }
