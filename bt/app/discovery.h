@@ -45,7 +45,7 @@ namespace bt {
     private:
         static constexpr int ICON_SIZE = 256;
 
-        static std::vector<browser> discover_browsers(const std::string &ignore_proto);
+        static std::vector<browser> discover_browsers(const std::string &ignore_proto_1, const std::string& ignore_proto_2);
 
         static void discover_chrome_profiles(browser &b);
 
@@ -70,7 +70,8 @@ namespace bt {
 #if PLATFORM_WINDOWS
 
         static void discover_win32_registry_browsers(grey::common::win32::reg::hive h,
-                                                     std::vector<browser> &browsers, const std::string &ignore_proto);
+                                                     std::vector<browser> &browsers,
+                                                     const std::string &ignore_proto_1, const std::string& ignore_proto_2);
 #endif
 
 #if PLATFORM_LINUX

@@ -127,7 +127,7 @@ namespace bt {
 
 #if PLATFORM_WINDOWS
     void discovery::discover_win32_registry_browsers(hive h, vector<browser> &browsers,
-                                                     const string &ignore_proto) {
+                                                     const string &ignore_proto_1, const string& ignore_proto_2) {
         auto subs = enum_subkeys(h, abs_root);
 
         for(const string &sub: subs) {
@@ -138,7 +138,7 @@ namespace bt {
             string http_url_assoc = get_value(h,
                                               root + "\\Capabilities\\URLAssociations", "http");
 
-            if(!http_url_assoc.empty() && http_url_assoc != ignore_proto) {
+            if(!http_url_assoc.empty() && http_url_assoc != ignore_proto_1 && http_url_assoc != ignore_proto_2) {
                 browser b(display_name, open_command);
                 b.instance_id = get_instance_id(sub);
 
@@ -354,12 +354,12 @@ namespace bt {
 #endif
 
 
-    std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto) {
+    std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto_1, const std::string& ignore_proto_2) {
         vector<browser> browsers;
 
 #if PLATFORM_WINDOWS
-        discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto);
-        discover_win32_registry_browsers(hive::current_user, browsers, ignore_proto);
+        discover_win32_registry_browsers(hive::local_machine, browsers, ignore_proto_1, ignore_proto_2);
+        discover_win32_registry_browsers(hive::current_user, browsers, ignore_proto_1, ignore_proto_2);
 #endif
 
 #if PLATFORM_LINUX
@@ -754,7 +754,7 @@ namespace bt {
     }
 
     std::vector<browser> discovery::discover_all_browsers() {
-        return discover_browsers(ProtoName);
+        return discover_browsers(ProtoNameDev, ProtoNameRelease);
     }
 
     void discovery::discover_managed_profiles(std::vector<browser> &browsers) {

@@ -4,10 +4,13 @@
 #include "state.h"
 #include "common/config.hpp"
 
+#define ProtoNameDev "BrowserTamerHTMDev"
+#define ProtoNameRelease "BrowserTamerHTM"
+
 #if _DEBUG
-#define ProtoName "BrowserTamerHTMDev"
+#define ProtoName ProtoNameDev
 #else
-#define ProtoName "BrowserTamerHTM"
+#define ProtoName ProtoNameRelease
 #endif
 
 //#define PdfProtoName "BrowserTamerPDF"

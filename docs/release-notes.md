@@ -1,3 +1,8 @@
+## 6.1.1
+
+### Improvements
+- Autodiscovery will skip developer version detection of Browser Tamer.
+
 ## 6.1.0
 
 **New:** Picker shows labels and selection rectangle, and dynamically adjusts to show all profiles horizontally and vertically. New options to customise this, such as label font size, item rounding, etc. were added to settings as well:
