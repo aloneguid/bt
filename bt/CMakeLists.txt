@@ -157,7 +157,7 @@ elseif(UNIX AND NOT APPLE)
             DESTINATION share/icons/hicolor/256x256/apps RENAME BrowserTamer.png)
 
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
-            "${CMAKE_SOURCE_DIR}/resources/xdg/postinst;${CMAKE_SOURCE_DIR}/resources/xdg/postrm")
+            "${CMAKE_SOURCE_DIR}/resources/xdg/postinst.sh;${CMAKE_SOURCE_DIR}/resources/xdg/postrm.sh")
 
 endif()
 include(CPack) # needs to be at the end of install configurations
