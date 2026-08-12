@@ -4,7 +4,8 @@
 
 - During the initial configuration, system message is properly centered and has a better overall look.
 
-![](https://www.aloneguid.uk/projects/bt/no-browsers.png)
+<img width="1653" height="590" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
+
 
 ## 6.1.1
 
