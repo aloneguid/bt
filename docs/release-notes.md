@@ -1,3 +1,11 @@
+## 6.1.2
+
+### Improvements
+
+- During the initial configuration, system message is properly centered and has a better overall look.
+
+![](https://www.aloneguid.uk/projects/bt/no-browsers.png)
+
 ## 6.1.1
 
 - Autodiscovery no longer misidentifies developer builds of itself as a new browser.

@@ -134,13 +134,13 @@ namespace bt::ui {
     bool config_app::run_frame() {
         w::guard gw{wnd_config};
 
-        render_menu_bar();
-
         if(g_state.browsers.empty()) {
             render_no_browsers();
-        } else {
-            render_browsers();
+            return true;
         }
+
+        render_menu_bar();
+        render_browsers();
 
 #if _DEBUG
         if(show_demo) {
@@ -750,17 +750,19 @@ namespace bt::ui {
         for(int i = 0; i < 5; i++)
             w::label("");
 
-        w::label(string(90, ' '));
-        w::sl();
-        w::label("Currently there are no browsers registered.", emphasis::primary);
+        w::label("Currently there are no browsers registered.", emphasis::primary, 0, true, 5, true, false);
+        w::spc();
+        w::label("Press the button below to scan your system for installed browsers.", emphasis::none, 0, true, 0, true, false);
+        w::spc();
 
-        w::label(string(70, ' '));
-        w::sl();
-        w::label("Press the button below to scan your system for installed browsers.");
-        w::label("");
-        w::label(string(100, ' '));
-        w::sl();
-        if(w::button("discover system browsers", emphasis::error)) {
+        string label = ICON_MD_REFRESH "discover system browsers";
+        float button_width = 300 * app->scale;
+        auto cur = w::cur_get();
+        cur.x += w::avail_x() / 2 - button_width / 2;
+        w::cur_set(cur);
+
+        w::font_scaler fs{5};
+        if(w::button(label, emphasis::error, true, false, "", button_width)) {
             exec_rediscover = true;
         }
     }
