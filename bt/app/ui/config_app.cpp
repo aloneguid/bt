@@ -1018,131 +1018,143 @@ namespace bt::ui {
             // --- profiles start
 
             w::spc();
-            w::tab_bar tabs{"tabs",
-                b.management != bt::management_extent::none,
-                b.management != bt::management_extent::none};
 
-            int idx{0};
-            for(browser_profile &bi: b.profiles) {
-                w::id_frame idf{idx};
-                if(!g_state.show_hidden_browsers && bi.is_hidden) {
-                    idx++;
-                    continue;
+            if(b.management == bt::management_extent::none) {
+                // single profile, the first one, no tab bar
+                selected_profile_idx = 0;
+                if(!b.profiles.empty()) {
+                    render_profile(b, *b.profiles.begin(), 0);
                 }
+            } else {
+                w::tab_bar tabs{"tabs", true, true};
 
-                string tab_icon;
-                if(bi.is_incognito) {
-                    tab_icon = format("{} ", ICON_MD_SECURITY);
-                }
-                string tab_title = format(" {}{} ", tab_icon, bi.name);
-
-                {
-                    auto t = tabs.next_tab(tab_title, bi.is_default,
-                                           set_selected_profile_idx == -1
-                                               ? false
-                                               : idx == set_selected_profile_idx);
-                    if(t) {
-                        selected_profile_idx = idx;
-                        w::spc();
-
-                        // mini toolbar
-
-                        if(!bi.is_default) {
-                            if(w::button(ICON_MD_FAVORITE, emphasis::primary)) {
-                                browser::set_default(g_state.browsers, bi);
-                            }
-                        }
-                        w::tt("Set as default profile");
-
-                        // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
-                        w::sl();
-                        w::icon_checkbox(ICON_MD_VISIBILITY, bi.is_hidden, true, "Show in profile list and picker");
-
-                        bool can_move_left = idx != 0;
-                        bool can_move_right = idx != b.profiles.size() - 1;
-
-                        w::sl();
-                        if(w::button(ICON_MD_WEST, emphasis::none, can_move_left)) {
-                            // move up one position inside b->profiles
-                            std::swap(b.profiles[idx], b.profiles[idx - 1]);
-                            set_selected_profile_idx = idx - 1;
-                            return;
-                        }
-                        w::tt(strings::ProfileMoveUpTooltip);
-
-                        w::sl();
-                        if(w::button(ICON_MD_EAST, emphasis::none, can_move_right)) {
-                            // move down one position inside b->profiles
-                            std::swap(b.profiles[idx], b.profiles[idx + 1]);
-                            set_selected_profile_idx = idx + 1;
-                            return;
-                        }
-                        w::tt(strings::ProfileMoveDownTooltip);
-
-                        w::sl();
-                        if(w::button(ICON_MD_LAUNCH)) {
-                            url_opener::open(profile_selection(b, idx), APP_TEST_URL);
-                        }
-                        w::tt("test by opening a link");
-
-                        if(b.supports_frameless_windows()) {
-                            w::sl();
-                            if(w::button(ICON_MD_TAB_UNSELECTED)) {
-                                click_payload up{APP_TEST_URL};
-                                up.app_mode = true;
-                                url_opener::open(profile_selection(b, idx), up);
-                            }
-                            w::tt(strings::ProfileTestLink);
-                        }
-
-                        w::sl();
-                        w::icon_checkbox(ICON_MD_PALETTE, bi.use_user_color, false, "set custom highlight color");
-
-                        if(bi.use_user_color) {
-                            w::sl();
-                            w::colour("##bi_user_color", bi.user_color);
-                            w::tt("highlight color");
-                        }
-
-                        if(!b.open_cmd.empty()) {
-                            if(b.engine == bt::browser_engine::gecko) {
-                                if(g_state.discover_gecko_containers) {
-                                    w::sl();
-                                    ww::help_link("#mozilla-firefox");
-                                }
-                            }
-                        }
-
-                        // end of mini toolbar
-
-                        render_icon(b, bi);
-
-                        w::sl();
-                        {
-                            w::group g;
-
-                            if(b.management == bt::management_extent::none) {
-                                w::input(bi.launch_arg, "arg");
-                                w::tt("Arguments to pass");
-                            } else {
-
-                                w::input(bi.launch_arg, "arg", true, 0, true);
-                                w::tt("Discovered arguments (read-only)");
-
-                                w::input(bi.user_arg, "extra arg");
-                                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
-                            }
-                        }
-
-                        w::spc();
-                        render_rules(b, bi);
+                int idx{0};
+                for(browser_profile& bi : b.profiles) {
+                    w::id_frame idf{idx};
+                    if(!g_state.show_hidden_browsers && bi.is_hidden) {
+                        idx++;
+                        continue;
                     }
+
+                    string tab_icon;
+                    if(bi.is_incognito) {
+                        tab_icon = format("{} ", ICON_MD_SECURITY);
+                    }
+                    string tab_title = format(" {}{} ", tab_icon, bi.name);
+
+                    {
+                        auto t = tabs.next_tab(tab_title, bi.is_default,
+                                               set_selected_profile_idx == -1
+                                                   ? false
+                                                   : idx == set_selected_profile_idx);
+                        if(t) {
+                            selected_profile_idx = idx;
+                            render_profile(b, bi, idx);
+                        }
+                    }
+                    idx++;
                 }
-                idx++;
             }
 
             set_selected_profile_idx = -1;
         }
+    }
+
+    void config_app::render_profile(browser& b, browser_profile& bi, int idx) {
+        w::spc();
+
+        // mini toolbar
+
+        if(!bi.is_default) {
+            if(w::button(ICON_MD_FAVORITE, emphasis::primary)) {
+                browser::set_default(g_state.browsers, bi);
+            }
+        }
+        w::tt("Set as default profile");
+
+        // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
+        w::sl();
+        w::icon_checkbox(ICON_MD_VISIBILITY, bi.is_hidden, true, "Show in profile list and picker");
+
+        bool can_move_left = idx != 0;
+        bool can_move_right = idx != b.profiles.size() - 1;
+
+        w::sl();
+        if(w::button(ICON_MD_WEST, emphasis::none, can_move_left)) {
+            // move up one position inside b->profiles
+            std::swap(b.profiles[idx], b.profiles[idx - 1]);
+            set_selected_profile_idx = idx - 1;
+            return;
+        }
+        w::tt(strings::ProfileMoveUpTooltip);
+
+        w::sl();
+        if(w::button(ICON_MD_EAST, emphasis::none, can_move_right)) {
+            // move down one position inside b->profiles
+            std::swap(b.profiles[idx], b.profiles[idx + 1]);
+            set_selected_profile_idx = idx + 1;
+            return;
+        }
+        w::tt(strings::ProfileMoveDownTooltip);
+
+        w::sl();
+        if(w::button(ICON_MD_LAUNCH)) {
+            url_opener::open(profile_selection(b, idx), APP_TEST_URL);
+        }
+        w::tt("test by opening a link");
+
+        if(b.supports_frameless_windows()) {
+            w::sl();
+            if(w::button(ICON_MD_TAB_UNSELECTED)) {
+                click_payload up{APP_TEST_URL};
+                up.app_mode = true;
+                url_opener::open(profile_selection(b, idx), up);
+            }
+            w::tt(strings::ProfileTestLink);
+        }
+
+        w::sl();
+        w::icon_checkbox(ICON_MD_PALETTE, bi.use_user_color, false, "set custom highlight color");
+
+        if(bi.use_user_color) {
+            w::sl();
+            w::colour("##bi_user_color", bi.user_color);
+            w::tt("highlight color");
+        }
+
+        if(!b.open_cmd.empty()) {
+            if(b.engine == bt::browser_engine::gecko) {
+                if(g_state.discover_gecko_containers) {
+                    w::sl();
+                    ww::help_link("#mozilla-firefox");
+                }
+            }
+        }
+
+        // end of mini toolbar
+
+        render_icon(b, bi);
+
+        w::sl();
+        {
+            w::group g;
+
+            if(b.management == bt::management_extent::none) {
+                w::input(bi.launch_arg, "arg");
+                w::tt("Arguments to pass");
+            } else {
+
+                w::input(bi.launch_arg, "arg", true, 0, true);
+                w::tt("Discovered arguments (read-only)");
+
+                w::input(bi.user_arg, "extra arg");
+                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+            }
+        }
+
+        w::spc();
+        render_rules(b, bi);
+
     }
 
     void config_app::render_add_browser_window() {

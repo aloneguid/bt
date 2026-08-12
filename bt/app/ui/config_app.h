@@ -114,6 +114,7 @@ namespace bt::ui {
         void render_browsers();
         void render_card(browser& b, bool is_selected) const;
         void render_detail(browser& b);
+        void render_profile(browser& b, browser_profile& bi, int idx);
         void render_add_browser_window();
 
         /**

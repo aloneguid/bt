@@ -6,6 +6,7 @@
 
 <img width="1653" height="590" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
 
+- For custom browsers there is only a single profile ever, therefore there is no need to show tabs.
 
 - Custom generic browser "arg" is now editable, and "extra arg" is hidden.
 
