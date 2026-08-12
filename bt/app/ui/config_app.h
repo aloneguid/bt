@@ -31,11 +31,7 @@ namespace bt::ui {
         std::unique_ptr<grey::app> app;
         std::string title;
         grey::widgets::window wnd_config;
-        grey::widgets::popup pop_proc_names{"pop_proc_names"};
-        std::vector<std::string> pop_proc_names_items;
-        std::string pop_proc_names_filter;
-        std::vector<std::string> pop_proc_names_items_filtered;
-        unsigned int pop_proc_names_selected{0};
+
         bool is_open{true};
         std::map<std::string, rule_match_status> id_to_rule_match_status;
 #if _DEBUG
@@ -96,13 +92,6 @@ namespace bt::ui {
         // executions for the end of the loop
         bool exec_rediscover{false};
 
-        std::vector<std::string> rule_locations { "URL", "Title", "Process", strings::LuaScript };
-        std::vector<std::pair<std::string, std::string>> url_scopes{
-            { ICON_MD_LANGUAGE, "Match anywhere" },
-            { ICON_MD_GITE, "Match only in host name" },
-            { ICON_MD_ROUNDABOUT_LEFT, "Match only in path" }
-        };
-
         std::vector<std::string> engine_names = [] {
             std::vector<std::string> v;
             for(auto sv : magic_enum::enum_names<browser_engine>())
@@ -132,7 +121,6 @@ namespace bt::ui {
          */
         void render_icon(browser& b, browser_profile& p);
         void render_rules(browser& b, browser_profile& bi);
-        void refresh_pop_proc_names_items();
 
         void rediscover_browsers() const;
 

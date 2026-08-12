@@ -199,6 +199,7 @@ namespace bt {
                 });
 
             if(b_new_it != new_set.end()) {
+                // browser found
                 size_t idx = std::distance(new_set.begin(), b_new_it);
                 new_processed[idx] = true;
 
@@ -213,26 +214,39 @@ namespace bt {
                 for(const browser_profile& bi_old: b_old.profiles) {
                     auto bi_new_it = std::find_if(
                         b_new.profiles.begin(), b_new.profiles.end(),
-                        [&bi_old](const browser_profile& el) { return el.name == bi_old.name; });
+                        [&bi_old](const browser_profile& el) {
+                            return el.name == bi_old.name &&
+                                el.launch_arg == bi_old.launch_arg;
+                        });
 
                     if(bi_new_it != b_new.profiles.end()) {
                         size_t p_idx = std::distance(b_new.profiles.begin(), bi_new_it);
-                        new_profile_processed[p_idx] = true;
 
-                        browser_profile& bi_new = *bi_new_it;
-                        // merge user-defined customisations
-                        bi_new.is_default = bi_old.is_default;
-                        bi_new.is_hidden = bi_old.is_hidden;
-                        bi_new.user_arg = bi_old.user_arg;
-                        bi_new.user_icon_path = bi_old.user_icon_path;
-                        bi_new.use_user_color = bi_old.use_user_color;
-                        bi_new.user_color = bi_old.user_color;
+                        // Only add to merged_profiles if this new profile hasn't been added yet
+                        if (!new_profile_processed[p_idx]) {
+                            new_profile_processed[p_idx] = true;
 
-                        // merge rules
-                        for(auto& rule: bi_old.rules) {
-                            bi_new.rules.push_back(rule);
+                            browser_profile& bi_new = *bi_new_it;
+                            // merge user-defined customisations
+                            bi_new.is_default = bi_old.is_default;
+                            bi_new.is_hidden = bi_old.is_hidden;
+                            bi_new.user_arg = bi_old.user_arg;
+                            bi_new.user_icon_path = bi_old.user_icon_path;
+                            bi_new.use_user_color = bi_old.use_user_color;
+                            bi_new.user_color = bi_old.user_color;
+
+                            // merge rules
+                            for(auto& rule: bi_old.rules) {
+                                bi_new.rules.push_back(rule);
+                            }
+                            merged_profiles.push_back(bi_new);
+                        } else {
+                            // Already added, but merge rules from current old profile
+                            browser_profile& bi_new = *bi_new_it;
+                            for(auto& rule: bi_old.rules) {
+                                bi_new.rules.push_back(rule);
+                            }
                         }
-                        merged_profiles.push_back(bi_new);
                     }
                     // If profile is in old_set but not new_set, ignore it (existing behavior)
                 }

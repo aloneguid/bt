@@ -13,6 +13,7 @@
 #endif
 
 using namespace std;
+using namespace grey;
 using namespace grey::common;
 namespace w = grey::widgets;
 
@@ -32,7 +33,7 @@ namespace bt::ui {
         app->win32_close_on_focus_lost = g_state.picker.close_on_focus_loss;
 #endif
         auto cc = app->get_clear_color();
-        ImU32 cc1 = w::rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
+        ImU32 cc1 = rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
         clear_color = cc1;
 
         // process URL with pipeline
@@ -121,7 +122,7 @@ namespace bt::ui {
             w::guard gw{wnd_main};
 
             if(choices.empty()) {
-                w::label("no browsers", w::emphasis::error, 0, true, 0, true, true);
+                w::label("no browsers", emphasis::error, 0, true, 0, true, true);
             } else {
                 ImVec2 cur1 = w::cur_get();
 
@@ -233,7 +234,7 @@ namespace bt::ui {
         float max_width = w::avail_x();
         {
             // calculate one action button width
-            w::point cur = w::cur_get();
+            point cur = w::cur_get();
             w::button(ICON_MD_SETTINGS "##measure");
             w::sl();
             action_button_width = max_width - w::avail_x();
@@ -246,13 +247,13 @@ namespace bt::ui {
 
         for(const auto& [id, icon, tooltip]: action_menu_items) {
             w::sl();
-            if(w::button(icon, w::emphasis::none, true, false, tooltip)) {
+            if(w::button(icon, emphasis::none, true, false, tooltip)) {
                 menu_item_clicked(id);
             }
         }
 
         w::sl();
-        if(w::button(ICON_MD_SETTINGS, w::emphasis::none, true, false, "show settings")) {
+        if(w::button(ICON_MD_SETTINGS, emphasis::none, true, false, "show settings")) {
             is_settings_open = !is_settings_open;
         }
     }
@@ -313,7 +314,7 @@ namespace bt::ui {
 
                     // label in the middle-top
                     w::cur_set(circle_center.x - wsz.x / 2, circle_center.y - wsz.y / 2);
-                    w::label(label, w::emphasis::none, 0, true, g_state.picker.label_size);
+                    w::label(label, emphasis::none, 0, true, g_state.picker.label_size);
                 }
 
                 // labels
@@ -337,8 +338,8 @@ namespace bt::ui {
 
                     {
                         w::font_scaler scaler(g_state.picker.label_size);
-                        w::draw_text(line1_pos, w::emphasis::none, p.b().name);
-                        w::draw_text(line2_pos, w::emphasis::none, p.profile().name);
+                        w::draw_text(line1_pos, emphasis::none, p.b().name);
+                        w::draw_text(line2_pos, emphasis::none, p.profile().name);
                     }
                 }
 
@@ -397,7 +398,7 @@ namespace bt::ui {
 
         w::spc(2);
         w::sep();
-        if(w::button(ICON_MD_RESTORE " reset", w::emphasis::error)) {
+        if(w::button(ICON_MD_RESTORE " reset", emphasis::error)) {
             g_state.picker = picker_state{};
         }
         w::spc(5);

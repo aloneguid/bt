@@ -1,7 +1,7 @@
 ## 6.1.1
 
-### Improvements
-- Autodiscovery will skip developer version detection of Browser Tamer.
+- Autodiscovery no longer misidentifies developer builds of itself as a new browser.
+- Fixed Waterfox autodiscovery duplicating "Private" profiles on each scan. **This was not, as initially suspected, an attempt to escape containment.**
 
 ## 6.1.0
 

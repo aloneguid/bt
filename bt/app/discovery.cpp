@@ -13,7 +13,7 @@
 #include <fstream>
 
 using namespace grey::common;
-
+using namespace grey;
 
 #if PLATFORM_WINDOWS
 #include "common/win32/shell.h"
@@ -88,16 +88,16 @@ namespace bt {
         {"fence",       "md_fence"},
     };
 
-    static const std::unordered_map<std::string, ImU32> gecko_container_colors = {
-        {"blue",      IM_COL32(0x37, 0xAD, 0xFF, 0xFF)},
-        {"turquoise", IM_COL32(0x00, 0xC7, 0x9A, 0xFF)},
-        {"green",     IM_COL32(0x51, 0xCD, 0x00, 0xFF)},
-        {"yellow",    IM_COL32(0xFF, 0xCB, 0x00, 0xFF)},
-        {"orange",    IM_COL32(0xFF, 0x9F, 0x00, 0xFF)},
-        {"red",       IM_COL32(0xFF, 0x61, 0x3D, 0xFF)},
-        {"pink",      IM_COL32(0xFF, 0x4B, 0xDA, 0xFF)},
-        {"purple",    IM_COL32(0xAF, 0x51, 0xF5, 0xFF)},
-        {"toolbar",   IM_COL32(0x7C, 0x7C, 0x80, 0xFF)},
+    static const std::unordered_map<std::string, rgb_colour> gecko_container_colors = {
+        {"blue", rgb_colour(0x37, 0xAD, 0xFF, 0xFF)},
+        {"turquoise", rgb_colour(0x00, 0xC7, 0x9A, 0xFF)},
+        {"green", rgb_colour(0x51, 0xCD, 0x00, 0xFF)},
+        {"yellow", rgb_colour(0xFF, 0xCB, 0x00, 0xFF)},
+        {"orange", rgb_colour(0xFF, 0x9F, 0x00, 0xFF)},
+        {"red", rgb_colour(0xFF, 0x61, 0x3D, 0xFF)},
+        {"pink", rgb_colour(0xFF, 0x4B, 0xDA, 0xFF)},
+        {"purple", rgb_colour(0xAF, 0x51, 0xF5, 0xFF)},
+        {"toolbar", rgb_colour(0x7C, 0x7C, 0x80, 0xFF)},
     };
 
     static string get_instance_id(const string &reg_value) {
@@ -705,7 +705,7 @@ namespace bt {
                         icon = gecko_container_icons.at(icon_name);
                     }
                     bool has_color{false};
-                    unsigned int color{0};
+                    rgb_colour color{};
                     if(gecko_container_colors.contains(color_name)) {
                         has_color = true;
                         color = gecko_container_colors.at(color_name);

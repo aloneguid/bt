@@ -19,4 +19,6 @@ namespace bt::ui {
         icon_overlay_mode icon_mode,
         float padding_x, float padding_y,
         float icon_size);
+
+    void btw_rule(browser& b, browser_profile& bi, match_rule& rule, int i);
 }

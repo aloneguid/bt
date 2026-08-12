@@ -4,6 +4,7 @@
 #include <optional>
 #include "match_rule.h"
 #include "click_payload.h"
+#include "../grey/model.h"
 
 namespace bt {
     class browser_profile;
@@ -162,13 +163,13 @@ namespace bt {
         /**
          * @brief Some profiles (like Firefox containers) have color attribute
          */
-        unsigned int color{0};
+        grey::rgb_colour color{};
         bool use_color{false};
 
         /**
          * @brief User-defined color override
          */
-        unsigned int user_color{0};
+        grey::rgb_colour user_color{};
         bool use_user_color{false};
 
         /**

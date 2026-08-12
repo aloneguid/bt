@@ -2,10 +2,22 @@
 #include "../../globals.h"
 #include "../../res.h"
 #include "fss.h"
+#include "../strings.h"
+#include "stl.hpp"
+#include "str.h"
+#include "common/process.h"
 
 using namespace std;
+using namespace grey;
 using namespace grey::common;
 namespace w = grey::widgets;
+
+std::vector<std::string> rule_locations { "URL", "Title", "Process", bt::strings::LuaScript };
+std::vector<std::pair<std::string, std::string>> url_scopes{
+    { ICON_MD_LANGUAGE, "Match anywhere" },
+    { ICON_MD_GITE, "Match only in host name" },
+    { ICON_MD_ROUNDABOUT_LEFT, "Match only in path" }
+};
 
 namespace bt::ui {
     void btw_on_app_initialised(grey::app& app) {
@@ -93,5 +105,127 @@ namespace bt::ui {
             float isz = icon_size / 2;
             w::image_rounded(app, icon2, isz, isz, isz);
         }
+    }
+
+    grey::widgets::popup pop_proc_names{"pop_proc_names"};
+    std::vector<std::string> pop_proc_names_items;
+    std::string pop_proc_names_filter;
+    std::vector<std::string> pop_proc_names_items_filtered;
+    unsigned int pop_proc_names_selected{0};
+
+    void refresh_pop_proc_names_items() {
+        auto procs = process::enumerate();
+        pop_proc_names_items.clear();
+        for(process &p: procs) {
+            if(!p.is_valid()) continue;
+            string name = p.get_name();
+            if(!name.empty()) {
+                pop_proc_names_items.push_back(name);
+            }
+        }
+
+        // deduplicate and sort
+        std::ranges::sort(pop_proc_names_items);
+        pop_proc_names_items.erase(
+            std::unique(pop_proc_names_items.begin(), pop_proc_names_items.end()),
+            pop_proc_names_items.end());
+
+        pop_proc_names_items_filtered = pop_proc_names_items;
+        pop_proc_names_filter.clear();
+    }
+
+
+    void btw_rule( browser& b, browser_profile& bi, match_rule& rule, int i) {
+        // location
+        w::combo("##loc", rule_locations, reinterpret_cast<unsigned int&>(rule.loc), 90);
+
+        // value
+        w::sl();
+        if(rule.loc == match_location::lua_script) {
+            // get selected index
+            unsigned int selected{0};
+            for(unsigned int j = 0; j < g_script.rule_function_names.size(); j++) {
+                if(g_script.rule_function_names[j] == rule.value) {
+                    selected = j;
+                    break;
+                }
+            }
+
+            w::combo("##val", g_script.rule_function_names, selected, 250);
+            w::tt(strings::LuaScriptTooltip);
+
+            // reassign value
+            if(!g_script.rule_function_names.empty()) {
+                rule.value = g_script.rule_function_names[selected];
+            }
+        } else {
+            w::input(rule.value, "##val", true, 250 * w::scale);
+        }
+
+        // up/down logic is very custom and is bound to the textbox itself
+        if(ImGui::IsItemFocused()) {
+            if(ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+                stl::move(bi.rules, i, -1, true);
+            } else if(ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+                stl::move(bi.rules, i, 1, true);
+            }
+        }
+
+        // is regex checkbox (not for Lua)
+        if(rule.loc != match_location::lua_script) {
+            w::sl();
+            w::icon_checkbox(ICON_MD_GRAIN, rule.is_regex);
+            w::tt(strings::RuleIsARegex);
+        }
+
+        // app mode
+        if(b.supports_frameless_windows()) {
+            w::sl();
+            w::icon_checkbox(ICON_MD_TAB_UNSELECTED, rule.app_mode);
+            w::tt("Open in chromeless window");
+        }
+
+        // scope (for "URL" rules)
+        if(rule.loc == match_location::url) {
+            w::sl();
+            w::label("|", 0, false);
+            w::sl();
+            w::icon_list(url_scopes, (size_t &) rule.scope);
+        }
+
+        // process name selection helper (for "process" rules)
+        if(rule.loc == match_location::process_name) {
+            w::sl();
+            if(w::button(ICON_MD_DEVELOPER_BOARD)) {
+                refresh_pop_proc_names_items();
+                pop_proc_names.open();
+            }
+            w::tt(strings::RulePickProcessName);
+
+            {
+                w::guard gpop{pop_proc_names};
+                if(pop_proc_names) {
+                    if(w::input(pop_proc_names_filter, "##proc_filter")) {
+                        pop_proc_names_selected = 0;
+                        pop_proc_names_items_filtered.clear();
+                        for(auto &p: pop_proc_names_items) {
+                            if(str::contains_ic(p, pop_proc_names_filter)) {
+                                pop_proc_names_items_filtered.push_back(p);
+                            }
+                        }
+                    }
+                    w::tt("Filter process names");
+                    if(w::list("##proc", pop_proc_names_items_filtered, pop_proc_names_selected)) {
+                        rule.value = pop_proc_names_items_filtered[pop_proc_names_selected];
+                    }
+                }
+            }
+        }
+
+        w::sl();
+        if(w::button(string{ICON_MD_DELETE} + "##" + to_string(i), emphasis::error)) {
+            bi.delete_rule(rule.value);
+        }
+        w::tt("Delete rule");
     }
 }

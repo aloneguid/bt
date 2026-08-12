@@ -23,7 +23,7 @@ namespace bt {
         std::string name;
         std::string icon;
         bool has_color;
-        unsigned int color;
+        grey::rgb_colour color;
     };
 
     /**

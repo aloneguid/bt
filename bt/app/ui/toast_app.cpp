@@ -7,6 +7,7 @@
 
 using namespace std;
 namespace w = grey::widgets;
+using namespace grey;
 using namespace grey::common;
 
 namespace bt::ui {
@@ -124,14 +125,14 @@ namespace bt::ui {
         w::sl();
 
         if(!cp.process_description.empty()) {
-            w::label(cp.process_description, w::emphasis::primary);
+            w::label(cp.process_description, emphasis::primary);
             if(!cp.process_name.empty()) {
                 w::tt(cp.process_name);
             }
         } else if(!cp.process_name.empty()) {
-            w::label(cp.process_name, w::emphasis::primary);
+            w::label(cp.process_name, emphasis::primary);
         } else {
-            w::label("unknown", w::emphasis::error);
+            w::label("unknown", emphasis::error);
         }
 
         // line 2
@@ -139,8 +140,8 @@ namespace bt::ui {
 
         w::sl(); w::label("");
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);
-        w::sl(); w::label(cp_url_parsed.protocol, w::emphasis::none, 0, false);
-        w::sl(); w::label("://", w::emphasis::none, 0, false);
+        w::sl(); w::label(cp_url_parsed.protocol, emphasis::none, 0, false);
+        w::sl(); w::label("://", emphasis::none, 0, false);
         w::sl(); w::label(cp_url_parsed.host);
         w::tt(cp.url);
         ImGui::PopStyleVar();
