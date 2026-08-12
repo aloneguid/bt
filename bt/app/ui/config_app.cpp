@@ -1018,7 +1018,9 @@ namespace bt::ui {
             // --- profiles start
 
             w::spc();
-            w::tab_bar tabs{"tabs", true, true};
+            w::tab_bar tabs{"tabs",
+                b.management != bt::management_extent::none,
+                b.management != bt::management_extent::none};
 
             int idx{0};
             for(browser_profile &bi: b.profiles) {
@@ -1119,11 +1121,17 @@ namespace bt::ui {
                         {
                             w::group g;
 
-                            w::input(bi.launch_arg, "arg", true, 0, true);
-                            w::tt("Discovered arguments (read-only)");
+                            if(b.management == bt::management_extent::none) {
+                                w::input(bi.launch_arg, "arg");
+                                w::tt("Arguments to pass");
+                            } else {
 
-                            w::input(bi.user_arg, "extra arg");
-                            w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                                w::input(bi.launch_arg, "arg", true, 0, true);
+                                w::tt("Discovered arguments (read-only)");
+
+                                w::input(bi.user_arg, "extra arg");
+                                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                            }
                         }
 
                         w::spc();

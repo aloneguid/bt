@@ -6,6 +6,8 @@
 
 ![](https://www.aloneguid.uk/projects/bt/no-browsers.png)
 
+- Custom generic browser "arg" is now editable, and "extra arg" is hidden.
+
 ## 6.1.1
 
 - Autodiscovery no longer misidentifies developer builds of itself as a new browser.
