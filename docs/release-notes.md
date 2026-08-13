@@ -2,13 +2,14 @@
 
 ### Improvements
 
-- During the initial configuration, system message is properly centered and has a better overall look.
+- During the initial configuration, the system message is properly centered and has a better overall look.
 
 <img width="1653" height="590" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
 
-- For custom browsers there is only a single profile ever, therefore there is no need to show tabs.
+- For custom browsers there is only a single profile ever. Therefore, there is no need to show tabs.
 
 - Custom generic browser "arg" is now editable, and "extra arg" is hidden.
+- Linux: autodiscovery detects Brave (Brave Origin was already detected).
 
 ## 6.1.1
 

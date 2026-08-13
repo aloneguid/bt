@@ -890,6 +890,12 @@ namespace bt {
             return true;
         }
 
+        if (exe_path == "/usr/bin/brave-browser-stable") {
+            engine = browser_engine::chromium;
+            data_path = (cd / "BraveSoftware" / "Brave-Browser").string();
+            return true;
+        }
+
         if(exe_path == "/usr/bin/microsoft-edge-stable") {
             engine = browser_engine::chromium;
             data_path = (cd / "microsoft-edge").string();
