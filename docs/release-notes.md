@@ -14,6 +14,11 @@
   - Hovering on browser icon shows browser and profile name.
   - Hovering on URL shows full URL.
   - If a non-default rule was hit, "rule" icon appears, and hovering on it shows the rule details.
+- Number pad keys are now supported for navigating the picker (0-9 and Enter key) thanks to @AVHon in #237.
+- Picker label can go up to 10 (was 1-9). Pressing `0` invokes the 10th profile. This makes sense as on the keyboard `0` goes physically after `9` so why not using it.
+
+### Bugs fixed
+- `bt.exe` was sometimes hanging after showing toast notification (thread sync issue).
 
 ## 6.1.1
 

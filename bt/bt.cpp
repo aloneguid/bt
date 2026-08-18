@@ -144,7 +144,7 @@ static void execute(const string& data) {
     auto pid = win.get_pid();
     up.process_id = std::to_string(pid);
     process proc{pid};
-    up.process_path = proc.get_module_filename();
+    up.process_path = proc.get_path();
     up.process_name = proc.get_name();
     up.process_description = proc.get_description();
 #endif
@@ -154,7 +154,7 @@ static void execute(const string& data) {
     process proc{pid};
     up.process_id = std::to_string(pid);
     up.process_name = proc.get_name();
-    up.process_path = proc.get_module_filename();
+    up.process_path = proc.get_path();
     up.process_description = proc.get_description();
 #endif
 

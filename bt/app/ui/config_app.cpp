@@ -1144,6 +1144,8 @@ namespace bt::ui {
             if(b.management == bt::management_extent::none) {
                 w::input(bi.launch_arg, "arg");
                 w::tt("Arguments to pass");
+
+                w::checkbox("hide user interface", bi.no_window);
             } else {
 
                 w::input(bi.launch_arg, "arg", true, 0, true);

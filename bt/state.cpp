@@ -199,6 +199,7 @@ namespace bt {
         read<bool>(node, "incognito", state.is_incognito);
         read<bool>(node, "default", state.is_default);
         if(read<bool>(node, "visible", state.is_hidden)) state.is_hidden = !state.is_hidden;
+        read<bool>(node, "no_window", state.no_window);
         if(read_color(node, "color", state.color))
             state.use_color = true;
         if(read_color(node, "user_color", state.user_color))
@@ -223,6 +224,8 @@ namespace bt {
             node["default"] = true;
         if(state.is_hidden)
             node["visible"] = false;
+        if(state.no_window)
+            node["no_window"] = true;
         if(!state.rules.empty())
             node["rules"] = state.rules;
         if(state.use_color)

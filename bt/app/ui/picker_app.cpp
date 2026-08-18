@@ -7,7 +7,6 @@
 #include "common/keyboard.h"
 
 #if PLATFORM_WINDOWS
-#include "win32/user.h"
 #include "win32/os.h"
 #include "win32/shell.h"
 #endif
@@ -169,18 +168,27 @@ namespace bt::ui {
             }
 
             // number keys 1-9 change active_idx
-            for(int key_index = ImGuiKey_1; key_index <= ImGuiKey_9; key_index++) {
-                if(ImGui::IsKeyPressed((ImGuiKey) key_index)) {
-                    active_idx = key_index - ImGuiKey_1;
-                    final_choice = choices[active_idx];
-                    is_open = false;
-                    break;
+            int num_choice = -1;
+            for(int i = 0; i < 10; i++) {
+                if(ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_0 + i)) ||
+                    ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_Keypad0 + i))) {
+                    if(i < choices.size()) {
+                        num_choice = i;
+                        break;
+                    }
                 }
+            }
+
+            if(num_choice != -1) {
+                if(num_choice == 0) num_choice = 10;
+                active_idx = num_choice - 1;
+                final_choice = choices[active_idx];
+                is_open = false;
             }
         }
 
         // invoke action on Enter
-        if(ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+        if(ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter)) {
             if(active_idx >= 0 && active_idx < choices.size()) {
                 final_choice = choices[active_idx];
                 is_open = false;
@@ -299,7 +307,7 @@ namespace bt::ui {
                 btw_icon(*app, p, box_size_total / 2 - icon_size_scaled / 2, padding_scaled, icon_size_scaled);
 
                 // draw key highlight
-                if(g_state.picker.show_key_hints && i < 9) {
+                if(g_state.picker.show_key_hints && i < 10) {
                     string label = format("{}", i + 1);
                     ImVec2 wsz = w::text_size_get(label, g_state.picker.label_size);
 

@@ -154,9 +154,9 @@ namespace bt {
         std::string user_icon_path;
 
         /**
-         * @brief When true, the terminal window will be hidden when launching this profile.
+         * @brief When true, the process will be asked not to show any UI.
          */
-        bool launch_hide_ui{false};
+        bool no_window{false};
 
         bool is_incognito{false};
 

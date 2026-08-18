@@ -61,46 +61,13 @@ namespace bt {
     }
 
     void browser::launch_process(const std::string& cmdline, const browser_profile& profile) const {
+
+        process p = process::start(cmdline, false, profile.no_window);
+        if(!p && !p.get_error().empty()) {
 #if PLATFORM_WINDOWS
-        STARTUPINFO si{};
-        si.cb = sizeof(si);
-        if(profile.launch_hide_ui) {
-            si.dwFlags |= STARTF_USESHOWWINDOW;
-            si.wShowWindow = SW_HIDE;
-        }
-        PROCESS_INFORMATION pi{};
-        DWORD pid{0};
-
-        DWORD creation_flags = 0;
-        if(profile.launch_hide_ui) {
-            creation_flags |= CREATE_NO_WINDOW;
-        }
-
-        if(::CreateProcess(nullptr,
-                           const_cast<wchar_t *>(str::to_wstr(cmdline).c_str()),
-                           nullptr,
-                           nullptr,
-                           false,
-                           creation_flags,
-                           nullptr,
-                           nullptr,
-                           &si,
-                           &pi)) {
-            // Wait for the process to start before closing the handles,
-            // otherwise the process will be terminated (browser will be shown in the background).
-
-            // Wait for 5 seconds maximum
-            ::WaitForSingleObject(pi.hProcess, 5000);
-
-            ::CloseHandle(pi.hProcess);
-            ::CloseHandle(pi.hThread);
-        } else {
-            string error = win32::os::get_last_error_text();
-            win32::user::message_box("Browser launch error", format("Command line: {}.\r\nError: {}", cmdline, error));
-        }
-#else
-        process::start(cmdline);
+            win32::user::message_box("Browser launch error", format("Command line: {}.\r\nError: {}", cmdline, p.get_error()));
 #endif
+        }
     }
 
 
@@ -319,7 +286,7 @@ namespace bt {
                user_arg == other.user_arg &&
                is_hidden == other.is_hidden &&
                user_icon_path == other.user_icon_path &&
-               launch_hide_ui == other.launch_hide_ui &&
+               no_window == other.no_window &&
                ui_test_url_matches == other.ui_test_url_matches &&
                is_incognito == other.is_incognito &&
                is_default == other.is_default &&
@@ -338,7 +305,7 @@ namespace bt {
         user_arg = other.user_arg;
         is_hidden = other.is_hidden;
         user_icon_path = other.user_icon_path;
-        launch_hide_ui = other.launch_hide_ui;
+        no_window = other.no_window;
         ui_test_url_matches = other.ui_test_url_matches;
         is_incognito = other.is_incognito;
         is_default = other.is_default;
