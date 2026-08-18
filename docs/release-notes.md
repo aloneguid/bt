@@ -2,16 +2,18 @@
 
 ### Improvements
 
-- During the initial configuration, the system message is properly centered and has a better overall look.
-
+- During the initial configuration, system message is properly centered and has a better overall look.
 <img width="600" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
-
 - For custom browsers there is only a single profile ever. Therefore, there is no need to show tabs.
-
 - Custom generic browser "arg" is now editable, and "extra arg" is hidden.
-- Linux: autodiscovery detects Brave (Brave Origin was already detected).
+- 🐧 Linux autodiscovery detects Brave (Brave Origin was already detected).
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/f0919dc4-9f07-4320-8f1c-ff71bc5141b5" />
-
+- Toast opacity is configurable in settings (see General/Toast). Toast becomes fully opaque on hover.
+- Toast animation duration is also configurable in settings, between 0.1 to 5 seconds.
+- Toast geekout:
+  - Hovering on browser icon shows browser and profile name.
+  - Hovering on URL shows full URL.
+  - If a non-default rule was hit, "rule" icon appears, and hovering on it shows the rule details.
 
 ## 6.1.1
 

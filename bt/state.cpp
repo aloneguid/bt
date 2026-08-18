@@ -8,7 +8,8 @@ namespace bt {
         node = fkyaml::node{
             {"enabled", state.enabled},
             {"visible_seconds", state.visible_seconds},
-            {"border_width", state.border_width}
+            {"border_width", state.border_width},
+            {"anim_duration", state.anim_duration},
         };
     }
 
@@ -16,6 +17,7 @@ namespace bt {
         read<bool>(node, "enabled", state.enabled);
         read<int>(node, "visible_seconds", state.visible_seconds);
         read<int>(node, "border_width", state.border_width);
+        read<float>(node, "anim_duration", state.anim_duration);
     }
 
     void to_node(fkyaml::node &node, const picker_invoke_state &state) {

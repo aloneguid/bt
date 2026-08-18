@@ -11,8 +11,8 @@ using namespace grey;
 using namespace grey::common;
 
 namespace bt::ui {
-    toast_app::toast_app(const click_payload& cpp, const profile_selection& sel) :
-        cp{cpp}, cp_url_parsed{cpp.url}, sel{sel},
+    toast_app::toast_app(const click_payload& cpp, const browser_match_result& bmr) :
+        cp{cpp}, cp_url_parsed{cpp.url}, bmr{bmr},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
         app->initial_theme_id = g_state.ui_theme;
@@ -58,6 +58,9 @@ namespace bt::ui {
             }
 
             string longest_text = cp_url_parsed.host + "https://";
+            if(!bmr.rule.is_fallback) {
+                longest_text += ICON_MD_RULE;
+            }
             if(cp.process_description.size() > longest_text.size()) longest_text = cp.process_description;
             if(cp.process_name.size() > longest_text.size()) longest_text = cp.process_name;
 
@@ -65,6 +68,8 @@ namespace bt::ui {
             ImVec2 wpad = ImGui::GetStyle().WindowPadding;
             icon_size = ts.y;
             float wnd_width = min(wpad.x * 2 + ts.x + icon_size * app->scale, mon_work_size.x - 20.0f);
+
+            // 2 lines of text + padding
             wnd_size = ImVec2{
                 wnd_width,
                 wpad.y * 3 + ts.y * 2};
@@ -81,8 +86,9 @@ namespace bt::ui {
         // animate size
 
         if(stage == toast_app::anim_stage::expand) {
-            wnd_size_anim.x += (wnd_size.x - wnd_size_anim.x) * AnimSpeed;
-            if(fabs(wnd_size_anim.x - wnd_size.x) < 1.0f) wnd_size_anim.x = wnd_size.x;
+            float move = (wnd_size.x / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
+            wnd_size_anim.x += move;
+            if(wnd_size_anim.x >= wnd_size.x) wnd_size_anim.x = wnd_size.x;
 
             if(wnd_size_anim.x == wnd_size.x) {
                 stage = toast_app::anim_stage::show;
@@ -92,13 +98,11 @@ namespace bt::ui {
             app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::shrink) {
-            if(wnd_size_anim.x == wnd_size.x) {
-                wnd_size_anim.x -= 1.0f; // start shrinking
-            }
+            float move = (wnd_size.x / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
+            wnd_size_anim.x -= move;
 
-            wnd_size_anim.x -= (wnd_size.x - wnd_size_anim.x) * AnimSpeed;
-
-            if(wnd_size_anim.x <= 1.0f) {
+            if(wnd_size_anim.x <= 0.0f) {
+                wnd_size_anim.x = 0.0f;
                 stage = toast_app::anim_stage::exit;
                 is_open = false;
             }
@@ -136,15 +140,30 @@ namespace bt::ui {
         }
 
         // line 2
-        btw_icon(*app, sel, 0, 0, icon_size);
+
+        {
+            w::group g_icon;
+            btw_icon(*app, bmr.profile, 0, 0, icon_size);
+        }
+        if(w::is_hovered()) {
+            w::tt(format("{}\n{}", bmr.profile.b().name, bmr.profile.profile().name));
+        }
 
         w::sl(); w::label("");
         ImGui::PushStyleVarX(ImGuiStyleVar_ItemSpacing, 0);
         w::sl(); w::label(cp_url_parsed.protocol, emphasis::none, 0, false);
         w::sl(); w::label("://", emphasis::none, 0, false);
         w::sl(); w::label(cp_url_parsed.host);
-        w::tt(cp.url);
+        if(w::is_hovered()) {
+            w::tt(cp.url);
+        }
         ImGui::PopStyleVar();
+
+        if(!bmr.rule.is_fallback) {
+            w::sl(); w::label(ICON_MD_RULE, emphasis::primary);
+            w::tt(bmr.rule.to_string());
+        }
+
     }
 
     void toast_app::run() {
@@ -152,13 +171,22 @@ namespace bt::ui {
 
             size_to_fit();
 
+#if PLATFORM_WINDOWS
+            app->win32_transparency_window_alpha = is_hovered ? 255 : g_state.toast.opacity;
+#endif
+
             {
                 w::guard gw{wnd_main};
 
-                render_content();
+                {
+                    w::group g;
+                    render_content();
+                }
+
+                is_hovered = w::is_hovered();
 
                 // check if mouse cursor is over the window to pause the timer
-                if(w::is_hovered()) {
+                if(is_hovered) {
                     show_timer = 0.0f;
                 }
             }

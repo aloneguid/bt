@@ -190,7 +190,7 @@ namespace bt::ui {
             w::sl();
             w::label("|", 0, false);
             w::sl();
-            w::icon_list(url_scopes, (size_t &) rule.scope);
+            w::icon_list(url_scopes, reinterpret_cast<unsigned int&>(rule.scope));
         }
 
         // process name selection helper (for "process" rules)

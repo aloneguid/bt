@@ -227,6 +227,8 @@ namespace bt::ui {
                     w::small_checkbox("Enabled", g_state.toast.enabled);
                     w::slider(g_state.toast.visible_seconds, 0, 30, "stays visible (seconds)");
                     w::slider(g_state.toast.border_width, 0, 6, "border width");
+                    w::slider(g_state.toast.opacity, 50, 255, "window opacity");
+                    w::slider(g_state.toast.anim_duration, 0.1f, 5.0f, "animation duration", 0.1f);
                 }
 
                 w::mi_themes([this](const string &theme_id) {

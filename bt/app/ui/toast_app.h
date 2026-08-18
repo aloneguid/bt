@@ -18,7 +18,7 @@ namespace bt::ui {
             exit
         };
 
-        toast_app(const click_payload& cp, const profile_selection& sel);
+        toast_app(const click_payload& cp, const browser_match_result& bmr);
 
         void run();
 
@@ -26,19 +26,17 @@ namespace bt::ui {
         ImVec2 mon_work_pos;
         ImVec2 mon_work_size;
 
-        //const float EdgePadding = 10.0f;
-        const float AnimSpeed = 0.2f; // between 0 and 1,
-
         anim_stage stage{anim_stage::init};
         const click_payload& cp;
         grey::common::url cp_url_parsed;
         std::string line1;
-        const profile_selection& sel;
+        const browser_match_result& bmr;
         ImVec2 wnd_size{0, 0};
         ImVec2 wnd_size_anim{0, 0};
         ImVec2 mon_mid{0, 0};
         float icon_size;
         float show_timer{0.0f};
+        bool is_hovered{false};
 
         std::unique_ptr<grey::app> app;
         bool is_open{true};

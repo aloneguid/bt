@@ -77,7 +77,7 @@ void open(click_payload up, bool force_picker = false) {
         }
 
         if(g_state.toast.enabled) {
-            ui::toast_app app{up, first_match.profile};
+            ui::toast_app app{up, first_match};
             app.run();
         }
     }
@@ -161,8 +161,8 @@ static void execute(const string& data) {
 #ifndef NDEBUG
     if(command == "toast") {
         up.url = command_data;
-        auto selection = browser::get_default(g_state.browsers).value();
-        ui::toast_app app{up, selection};
+        browser_match_result bmr{browser::get_default(g_state.browsers).value(), match_rule{"a rule description"}};
+        ui::toast_app app{up, bmr};
         app.run();
         return;
     }

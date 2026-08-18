@@ -11,6 +11,8 @@ namespace bt {
         bool enabled{true};
         int visible_seconds{5};
         int border_width{1};
+        int opacity{210};
+        float anim_duration{0.5f};
 
         bool operator==(const toast_state &) const = default;
     };
