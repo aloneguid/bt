@@ -4,15 +4,20 @@
 
 - During the initial configuration, system message is properly centered and has a better overall look.
 <img width="600" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
+
 - For custom browsers there is only a single profile ever. Therefore, there is no need to show tabs.
 - Custom generic browser "arg" is now editable, and "extra arg" is hidden.
 - 🐧 Linux autodiscovery detects Brave (Brave Origin was already detected) installed via package manager and Snap.
 - 🐧 Linux autodiscovery detects Chromium installed via Snap Store.
 - 🐧 Linux autodiscovery detects Vivaldi installed via Snap Store.
 - 🐧 Linux autodiscovery detects Opera installed via Snap Store.
-<img width="600" alt="image" src="https://github.com/user-attachments/assets/f0919dc4-9f07-4320-8f1c-ff71bc5141b5" />
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/b233ba52-1189-4334-80f3-ab4bae19afc7" />
+
 - Toast opacity is configurable in settings (see General/Toast). Toast becomes fully opaque on hover.
 - Toast animation duration is also configurable in settings, between 0.1 to 5 seconds.
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/69566767-012f-4637-9ac3-b5a7ff737465" />
+
+  
 - Toast geekout:
   - Hovering on browser icon shows browser and profile name.
   - Hovering on URL shows full URL.
