@@ -1,6 +1,4 @@
-﻿#include <windows.h>
-#include <shellapi.h>
-#include <format>
+﻿#include <format>
 #include "globals.h"
 #include "common/str.h"
 #include "process.h"
@@ -11,6 +9,8 @@
 #include "app/discovery.h"
 
 #if PLATFORM_WINDOWS
+#include <windows.h>
+#include <shellapi.h>
 #include "win32/os.h"
 #include "common/win32/window.h"
 #endif
