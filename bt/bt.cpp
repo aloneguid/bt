@@ -206,21 +206,19 @@ string parse_args(const vector<string>& args) {
       parent_arg);
 }
 
+string parse_args(string arg) {
+    string parent_arg = get_parent_arg();
+
+    return format("{}{}{}",
+      arg,
+      ArgSplitter,
+      parent_arg);
+}
+
 #if PLATFORM_WINDOWS
 
 int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    int argc;
-    LPWSTR* argvW = CommandLineToArgvW(pCmdLine, &argc);
-    if (!argvW) return 0;
-
-    vector<string> args;
-    for(int i = 1; i < argc; i++) {
-        args.push_back(str::to_str(wstring(argvW[i])));
-    }
-
-    LocalFree(argvW);
-
-    execute(parse_args(args));
+    execute(parse_args(str::to_str(pCmdLine)));
     return 0;
 }
 

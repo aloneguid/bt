@@ -44,7 +44,6 @@ namespace bt::ui {
         float action_button_width{0.0f};
         float box_size_scaled{0.0f};
         float padding_scaled{0.0f};
-        ImVec2 text_size{};
         ImVec2 label_text_size{};
         size_t items_per_w{0};
         size_t lines_total{0};
@@ -77,5 +76,6 @@ namespace bt::ui {
         void render_list();
         void render_settings();
         void menu_item_clicked(const std::string& id);
+        int get_label_line_count();
     };
 }

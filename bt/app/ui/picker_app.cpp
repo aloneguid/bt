@@ -19,7 +19,7 @@ namespace w = grey::widgets;
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection> > selections)
         : url{url}, title{APP_LONG_NAME " - Pick"},
-          app{grey::app::make(title, 100, 100)},
+          app{grey::app::make(title, 100, 120)},
           wnd_main{title, &is_open},
           wnd_settings{"Settings", &is_settings_open} {
         app->initial_theme_id = g_state.ui_theme;
@@ -76,6 +76,7 @@ namespace bt::ui {
                     .no_collapse()
                     .size(400.0f, 0)
                     .no_scroll()
+                    .no_resize()
                     .border(1);
         };
     }
@@ -204,7 +205,6 @@ namespace bt::ui {
         ImGuiStyle& style = ImGui::GetStyle();
         box_size_scaled = g_state.picker.box_size * app->scale;
         padding_scaled = g_state.picker.item_padding * app->scale;
-        text_size = w::text_size_get("x");
         label_text_size = w::text_size_get("x", g_state.picker.label_size);
         auto url_size = w::text_size_get(url);
 
@@ -274,8 +274,9 @@ namespace bt::ui {
         ImGuiStyle& style = ImGui::GetStyle();
 
         // we want items to be centered in the available space
+        int line_count = get_label_line_count();
         float box_size_total = box_size_scaled + padding_scaled * 2;
-        float icon_size_scaled = box_size_scaled - label_text_size.y * 2;
+        float icon_size_scaled = box_size_scaled - label_text_size.y * line_count;
         float total_w = box_size_total * items_per_w;
 
         for(size_t i = 0; i < choices.size(); i++) {
@@ -326,28 +327,51 @@ namespace bt::ui {
                 }
 
                 // labels
-                ImVec2 min{x0 + padding_scaled / 2, y0 + padding_scaled + icon_size_scaled + style.FramePadding.y};
-                ImVec2 max{x0 + box_size_total - padding_scaled / 2, min.y + label_text_size.y * 2};
-                float max_width = max.x - min.x;
+                if(line_count > 0) {
+                    ImVec2 min{x0 + padding_scaled / 2, y0 + padding_scaled + icon_size_scaled + style.FramePadding.y};
+                    ImVec2 max{x0 + box_size_total - padding_scaled / 2, min.y + label_text_size.y * line_count};
+                    float max_width = max.x - min.x;
 
-                w::cur_set(min.x, min.y);
-
-                {
-                    w::clip_rect cr{min, max};
-                    w::dummy(max.x - min.x, max.y - min.y);
-                    string line1 = p.b().name;
-                    string line2 = p.profile().name;
-                    float line1_width = w::text_size_get(line1, g_state.picker.label_size).x;
-                    float line2_width = w::text_size_get(line2, g_state.picker.label_size).x;
-                    ImVec2 line1_pos = min;
-                    ImVec2 line2_pos = {min.x, min.y + label_text_size.y};
-                    if(line1_width < max_width) line1_pos.x += (max_width - line1_width) / 2.0f;
-                    if(line2_width < max_width) line2_pos.x += (max_width - line2_width) / 2.0f;
+                    w::cur_set(min.x, min.y);
 
                     {
-                        w::font_scaler scaler(g_state.picker.label_size);
-                        w::draw_text(line1_pos, emphasis::none, p.b().name);
-                        w::draw_text(line2_pos, emphasis::none, p.profile().name);
+                        string line1;
+                        string line2;
+
+                        switch(g_state.picker.label_display) {
+                            case label_display_mode::browser_and_profile:
+                                line1 = p.b().name;
+                                line2 = p.profile().name;
+                                break;
+                            case label_display_mode::browser:
+                                line1 = p.b().name;
+                                break;
+                            case label_display_mode::profile:
+                                line1 = p.profile().name;
+                                break;
+                        }
+
+
+                        w::clip_rect cr{min, max};
+                        w::dummy(max.x - min.x, max.y - min.y);
+
+                        if(!line1.empty()) {
+                            float line1_width = w::text_size_get(line1, g_state.picker.label_size).x;
+                            ImVec2 line1_pos = min;
+                            if(line1_width < max_width) line1_pos.x += (max_width - line1_width) / 2.0f;
+
+                            w::font_scaler scaler(g_state.picker.label_size);
+                            w::draw_text(line1_pos, emphasis::none, line1);
+                        }
+
+                        if(!line2.empty()) {
+                            float line2_width = w::text_size_get(line2, g_state.picker.label_size).x;
+                            ImVec2 line2_pos = {min.x, min.y + label_text_size.y};
+                            if(line2_width < max_width) line2_pos.x += (max_width - line2_width) / 2.0f;
+
+                            w::font_scaler scaler(g_state.picker.label_size);
+                            w::draw_text(line2_pos, emphasis::none, line2);
+                        }
                     }
                 }
 
@@ -385,6 +409,7 @@ namespace bt::ui {
                      "browser only",
                      "profile only"
                  }, (unsigned int&) g_state.icon_overlay);
+        w::enum_combo<label_display_mode>("label", g_state.picker.label_display);
 
 #if PLATFORM_WINDOWS
         app->win32_close_on_focus_lost = false; // never close app when settings are open
@@ -395,7 +420,7 @@ namespace bt::ui {
         w::slider(g_state.picker.item_rounding, 0, g_state.picker.box_size / 2, "item rounding", 0.1);
         w::slider(g_state.picker.label_size, -15.0f, 15.0f, "label size", 0.5);
         w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
-        w::checkbox("show key hints (1-11)", g_state.picker.show_key_hints);
+        w::checkbox("show key hints (1-10)", g_state.picker.show_key_hints);
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
             wnd_main.border(g_state.picker.border_width);
         }
@@ -423,6 +448,18 @@ namespace bt::ui {
 #endif
             is_open = false;
         } else if(id == "edit") {
+        }
+    }
+
+    int picker_app::get_label_line_count() {
+        switch(g_state.picker.label_display) {
+            case label_display_mode::none:
+                return 0;
+            case label_display_mode::browser_and_profile:
+                return 2;
+            case label_display_mode::browser:
+            case label_display_mode::profile:
+                return 1;
         }
     }
 }

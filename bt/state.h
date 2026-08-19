@@ -51,6 +51,7 @@ namespace bt {
         bool close_on_focus_loss{true};
         bool always_on_top{false};
         int max_width_perc{90};
+        label_display_mode label_display{label_display_mode::browser_and_profile};
 
         picker_invoke_state invoke;
 

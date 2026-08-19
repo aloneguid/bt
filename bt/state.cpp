@@ -51,6 +51,7 @@ namespace bt {
             {"close_on_focus_loss", state.close_on_focus_loss},
             {"always_on_top", state.always_on_top},
             {"max_width_perc", state.max_width_perc},
+            {"label_display", magic_enum::enum_name(state.label_display)},
             {"invoke", state.invoke}
         };
     }
@@ -67,6 +68,7 @@ namespace bt {
         read<bool>(node, "close_on_focus_loss", state.close_on_focus_loss);
         read<bool>(node, "always_on_top", state.always_on_top);
         read<int>(node, "max_width_perc", state.max_width_perc);
+        read_enum(node, "label_display", state.label_display);
         read<picker_invoke_state>(node, "invoke", state.invoke);
     }
 
