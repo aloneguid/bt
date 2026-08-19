@@ -344,6 +344,11 @@ namespace bt {
                     continue;
                 }
 
+                // not sure what this is
+                if(cmd == "/usr/bin/false") {
+                    continue;
+                }
+
                 browser b{name, cmd};
                 b.icon_path = resolve_xdg_icon_path(icon);
                 fingerprint(cmd, b.engine, b.data_path);
@@ -860,6 +865,19 @@ namespace bt {
         return false;
     }
 #elif PLATFORM_LINUX
+
+    fs::path get_numeric_subfolder(const fs::path& path) {
+        // list subfolders and return the first one that starts with a number
+        for(const auto &entry : fs::directory_iterator(path)) {
+            if(fs::is_directory(entry)) {
+                string name = entry.path().filename().string();
+                if(!name.empty() && std::isdigit(name[0]))
+                    return entry.path();
+            }
+        }
+        return {};
+    }
+
     bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
         engine = browser_engine::generic;
         data_path.clear();
@@ -884,6 +902,12 @@ namespace bt {
             return true;
         }
 
+        if(exe_path == "/snap/bin/chromium") {
+            engine = browser_engine::chromium;
+            data_path = (hd / "snap"/ "chromium"/ "common" / "chromium").string();
+            return true;
+        }
+
         if(exe_path == "/usr/bin/brave-origin-stable") {
             engine = browser_engine::chromium;
             data_path = (cd / "BraveSoftware" / "Brave-Origin").string();
@@ -896,10 +920,39 @@ namespace bt {
             return true;
         }
 
+        if(exe_path == "/snap/bin/brave") {
+            auto n = get_numeric_subfolder(hd / "snap"/ "brave");
+            if(!n.empty()) {
+                engine = browser_engine::chromium;
+                data_path = (n / ".config" / "BraveSoftware" / "Brave-Browser").string();
+                return true;
+            }
+        }
+
         if(exe_path == "/usr/bin/microsoft-edge-stable") {
             engine = browser_engine::chromium;
             data_path = (cd / "microsoft-edge").string();
             return true;
+        }
+
+        if(exe_path == "/snap/bin/vivaldi.vivaldi-stable '--class=Vivaldi-snap'") {
+            auto n = get_numeric_subfolder(hd / "snap"/ "vivaldi");
+            if(!n.empty()) {
+                engine = browser_engine::chromium;
+                data_path = (n / ".config" / "vivaldi" ).string();
+                return true;
+            }
+
+        }
+
+        if(exe_path == "/snap/bin/opera") {
+            auto n = get_numeric_subfolder(hd / "snap"/ "opera");
+            if(!n.empty()) {
+                engine = browser_engine::chromium;
+                data_path = (n / ".config" / "opera" ).string();
+                return true;
+            }
+
         }
 
         return false;
