@@ -21,7 +21,9 @@ namespace bt {
     class match_rule {
     public:
         match_rule() = default;
-        match_rule(const std::string& value) : value{value} {}
+
+        explicit match_rule(const std::string& value) : value{value}, ui_test_url_matches(false) {
+        }
 
         bool is_match(const click_payload& up, const script_site& script) const;
         bool is_match(const click_payload& up) const;
@@ -48,6 +50,8 @@ namespace bt {
         std::string to_string(bool include_type = true) const;
 
         std::string get_type_string() const;
+
+        bool empty() const { return value.empty(); }
 
         static bool parse_url(const std::string& url, std::string& proto, std::string& host, std::string& path);
 

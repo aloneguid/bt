@@ -146,7 +146,7 @@ namespace bt::ui {
             btw_icon(*app, bmr.profile, 0, 0, icon_size);
         }
         if(w::is_hovered()) {
-            w::tt(format("{}\n{}", bmr.profile.b().name, bmr.profile.profile().name));
+            w::tt(format("{}\n{}", bmr.profile.b().name, bmr.profile.p().name));
         }
 
         w::sl(); w::label("");

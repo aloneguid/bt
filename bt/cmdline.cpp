@@ -80,7 +80,7 @@ int cmdline::exec_get_default() {
 
     optional<bt::profile_selection> ps = bt::browser::get_default(g_state.browsers);
     if(ps) {
-        wcout << str::to_wstr(ps->b().name) << L"." << str::to_wstr(ps->profile().name) << endl;
+        wcout << str::to_wstr(ps->b().name) << L"." << str::to_wstr(ps->p().name) << endl;
     } else {
         wcout << L"no default browser" << endl;
     }

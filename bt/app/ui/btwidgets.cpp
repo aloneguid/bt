@@ -39,7 +39,7 @@ namespace bt::ui {
     void btw_icon(grey::app& app,
         const profile_selection& selection,
         float padding_x, float padding_y, float icon_size) {
-        btw_icon(app, selection.b(), selection.profile(), g_state.icon_overlay, padding_x, padding_y, icon_size);
+        btw_icon(app, selection.b(), selection.p(), g_state.icon_overlay, padding_x, padding_y, icon_size);
 
     }
 
@@ -135,7 +135,11 @@ namespace bt::ui {
     }
 
 
-    void btw_rule( browser& b, browser_profile& bi, match_rule& rule, int i) {
+    void btw_rule(browser& b,
+        browser_profile& bi,
+        match_rule& rule,
+        const int i) {
+
         // location
         w::combo("##loc", rule_locations, reinterpret_cast<unsigned int&>(rule.loc), 90);
 
@@ -163,7 +167,7 @@ namespace bt::ui {
         }
 
         // up/down logic is very custom and is bound to the textbox itself
-        if(ImGui::IsItemFocused()) {
+        if(i != -1 && ImGui::IsItemFocused()) {
             if(ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
                 stl::move(bi.rules, i, -1, true);
             } else if(ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
@@ -222,10 +226,11 @@ namespace bt::ui {
             }
         }
 
-        w::sl();
-        if(w::button(string{ICON_MD_DELETE} + "##" + to_string(i), emphasis::error)) {
-            bi.delete_rule(rule.value);
+        if(i != -1) {
+            w::sl();
+            if(w::button(ICON_MD_DELETE, emphasis::error, true, false, "Delete rule")) {
+                bi.delete_rule(rule.value);
+            }
         }
-        w::tt("Delete rule");
     }
 }

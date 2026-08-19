@@ -131,7 +131,7 @@ namespace bt {
     optional<profile_selection> browser::get_default(const std::vector<browser>& browsers) {
         optional<profile_selection> fallback_candidate;
 
-        for(auto& b: browsers) {
+        for(const browser& b: browsers) {
             for(auto [i, profile]: b.profiles | std::views::enumerate) {
                 if(!fallback_candidate) fallback_candidate = profile_selection(b, i);
                 if(profile.is_default) return profile_selection(b, i);
@@ -244,7 +244,7 @@ namespace bt {
         return r;
     }
 
-    size_t browser::index_of(std::vector<browser>& browsers, browser& b) {
+    size_t browser::index_of(const std::vector<browser>& browsers, const browser& b) {
         for(size_t i = 0; i < browsers.size(); ++i) {
             if(browsers[i] == b) return i;
         }

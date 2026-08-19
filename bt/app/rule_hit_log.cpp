@@ -57,7 +57,7 @@ namespace bt {
 
             // profile selection
             sel.b().name,
-            sel.profile().name,
+            sel.p().name,
 
             // click payload
             up.url,

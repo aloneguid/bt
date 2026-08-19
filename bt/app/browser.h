@@ -114,7 +114,7 @@ namespace bt {
             std::vector<browser>& new_set,
             std::vector<browser>& old_set);
 
-        static size_t index_of(std::vector<browser>& browsers, browser& b);
+        static size_t index_of(const std::vector<browser>& browsers, const browser& b);
 
         [[nodiscard]] std::string get_best_display_name(const browser_profile& profile) const;
 
@@ -214,19 +214,31 @@ namespace bt {
 
     class profile_selection {
     public:
-        profile_selection(const browser& browser, size_t profile_idx) : root{browser}, profile_idx{profile_idx} {
+        profile_selection(const browser& browser, size_t profile_idx) : root{&browser}, profile_idx{profile_idx} {
+        }
+
+        profile_selection& operator=(const profile_selection& other) {
+            if (this != &other) {
+                root = other.root;
+                profile_idx = other.profile_idx;
+            }
+            return *this;
         }
 
         [[nodiscard]] const browser& b() const {
-            return root;
+            return *root;
         }
 
-        [[nodiscard]] const browser_profile& profile() const {
-            return root.profiles[profile_idx];
+        [[nodiscard]] size_t profile_index() const {
+            return profile_idx;
+        }
+
+        [[nodiscard]] const browser_profile& p() const {
+            return root->profiles[profile_idx];
         }
 
     private:
-        bt::browser root;
+        const browser* root;
         size_t profile_idx;
     };
 

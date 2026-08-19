@@ -741,7 +741,7 @@ namespace bt::ui {
                     w::sl();
                     w::label(ICON_MD_TAB, 0, false);
                     w::sl();
-                    w::label(sel->profile().name, 0, false);
+                    w::label(sel->p().name, 0, false);
                     w::tt("Default profile");
                 }
             }

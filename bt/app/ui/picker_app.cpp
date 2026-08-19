@@ -81,7 +81,13 @@ namespace bt::ui {
         };
     }
 
-    picker_app::~picker_app() = default;
+    picker_app::~picker_app() {
+        if(!creator_rule.empty()) {
+            const profile_selection& choice = choices[active_idx];
+            browser_profile& p = const_cast<browser_profile&>(choice.p());
+            p.rules.push_back(creator_rule);
+        }
+    }
 
     picker_result picker_app::run() {
         app->run([this](const grey::app&) {
@@ -92,7 +98,7 @@ namespace bt::ui {
     }
 
     bool picker_app::is_hotkey_down() {
-        // can't check with ImGui, because it's not initialised
+        // can't check with ImGui, because it's not initialised, but also ImGui only checks application context, not global.
         bool k_shift = keyboard::is_kbd_shift_down();
         bool k_ctrl = keyboard::is_kbd_ctrl_down();
         bool k_alt = keyboard::is_kbd_alt_down();
@@ -124,13 +130,14 @@ namespace bt::ui {
             if(choices.empty()) {
                 w::label("no browsers", emphasis::error, 0, true, 0, true, true);
             } else {
-                ImVec2 cur1 = w::cur_get();
+                point cur1 = w::cur_get();
 
                 with_container(cnt_top,
                                render_action_menu();
+                               render_rule_creator();
                 );
 
-                ImVec2 cur2 = w::cur_get();
+                point cur2 = w::cur_get();
                 header_height = cur2.y - cur1.y;
 
                 recalc();
@@ -146,17 +153,22 @@ namespace bt::ui {
             render_settings();
         }
 
-        if(!url_focused) {
+        ImGuiIO& io = ImGui::GetIO();
+        if(!io.WantTextInput) {
             // close on Escape key
             if(ImGui::IsKeyPressed(ImGuiKey_Escape)) {
                 is_open = false;
+            }
+
+            if(ImGui::IsKeyPressed(ImGuiKey_R)) {
+                show_rule_creator = !show_rule_creator;
             }
 
             // left or up key moves active_idx down
             if(ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
                 if(!choices.empty()) {
                     active_idx--;
-                    if(active_idx < 0) active_idx = (int) choices.size() - 1;
+                    if(active_idx < 0) active_idx = static_cast<int>(choices.size()) - 1;
                 }
             }
 
@@ -164,11 +176,11 @@ namespace bt::ui {
             if(ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
                 if(!choices.empty()) {
                     active_idx++;
-                    if(active_idx >= (int) choices.size()) active_idx = 0;
+                    if(active_idx >= static_cast<int>(choices.size())) active_idx = 0;
                 }
             }
 
-            // number keys 1-9 change active_idx
+            // number keys 1-0 change active_idx
             int num_choice = -1;
             for(int i = 0; i < 10; i++) {
                 if(ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_0 + i)) ||
@@ -266,6 +278,14 @@ namespace bt::ui {
         }
     }
 
+    void picker_app::render_rule_creator() {
+        if(!show_rule_creator) return;
+        if(active_idx >= choices.size()) return;
+
+        const profile_selection& choice = choices[active_idx];
+        btw_rule(const_cast<browser&>(choice.b()), const_cast<browser_profile&>(choice.p()),creator_rule);
+    }
+
     void picker_app::render_list() {
         // spacing needs to be turned off for list to avoid gaps horizontally
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
@@ -341,13 +361,13 @@ namespace bt::ui {
                         switch(g_state.picker.label_display) {
                             case label_display_mode::browser_and_profile:
                                 line1 = p.b().name;
-                                line2 = p.profile().name;
+                                line2 = p.p().name;
                                 break;
                             case label_display_mode::browser:
                                 line1 = p.b().name;
                                 break;
                             case label_display_mode::profile:
-                                line1 = p.profile().name;
+                                line1 = p.p().name;
                                 break;
                         }
 
@@ -447,6 +467,8 @@ namespace bt::ui {
             win32::shell::exec(format("mailto:?body={}", url), "");
 #endif
             is_open = false;
+        } else if(id == "rule") {
+            show_rule_creator = !show_rule_creator;
         } else if(id == "edit") {
         }
     }

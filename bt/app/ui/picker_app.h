@@ -55,6 +55,7 @@ namespace bt::ui {
         bool is_settings_open{false};
 
         std::vector<action_menu_item> action_menu_items{
+            action_menu_item{"rule", ICON_MD_RULE, "Toggle rule creator (R)"},
             action_menu_item{"copy", ICON_MD_CONTENT_COPY, "Copy to clipboard & close"},
             action_menu_item{"email", ICON_MD_EMAIL, "Email link"}
         };
@@ -68,11 +69,14 @@ namespace bt::ui {
 
         std::optional<profile_selection> final_choice;
         int active_idx{0};
+        bool show_rule_creator{false};
+        match_rule creator_rule{};
         bool url_focused{false};
 
         bool run_frame();
         void recalc();
         void render_action_menu();
+        void render_rule_creator();
         void render_list();
         void render_settings();
         void menu_item_clicked(const std::string& id);
