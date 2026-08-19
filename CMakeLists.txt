@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.20)
+cmake_minimum_required (VERSION 3.31)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -11,7 +11,9 @@ set(APP_URL "https://www.aloneguid.uk/projects/bt/")
 set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
 set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
-add_compile_definitions(UNICODE)    # required for WIN32 API to use correct versions
+# declare Unicode pair: UNICODE affects win32 API, _UNICODE affects crt entry point
+add_compile_definitions(UNICODE _UNICODE)
+
 if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
     #add_compile_definitions(WIN32_LEAN_AND_MEAN)
@@ -33,8 +35,8 @@ if(WIN32)
     # The cool "edit & continue" feature of MSVC is disabled by default in CMake.
     # https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#edit-and-continue-for-cmake-projects
     # enable globally: https://stackoverflow.com/a/76254117/80858
-    if(MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
-        add_compile_options("/ZI")
+    if(MSVC)
+        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "EditAndContinue" CACHE STRING "" FORCE)
         add_link_options("/INCREMENTAL")
     endif()
 

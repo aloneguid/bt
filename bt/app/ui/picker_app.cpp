@@ -395,7 +395,7 @@ namespace bt::ui {
         w::slider(g_state.picker.item_rounding, 0, g_state.picker.box_size / 2, "item rounding", 0.1);
         w::slider(g_state.picker.label_size, -15.0f, 15.0f, "label size", 0.5);
         w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
-        w::checkbox("show key hints (1-9)", g_state.picker.show_key_hints);
+        w::checkbox("show key hints (1-11)", g_state.picker.show_key_hints);
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
             wnd_main.border(g_state.picker.border_width);
         }

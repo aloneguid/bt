@@ -1,4 +1,6 @@
-﻿#include <format>
+﻿#include <windows.h>
+#include <shellapi.h>
+#include <format>
 #include "globals.h"
 #include "common/str.h"
 #include "process.h"
@@ -206,11 +208,17 @@ string parse_args(const vector<string>& args) {
 
 #if PLATFORM_WINDOWS
 
-int wmain(int argc, wchar_t* argv[], wchar_t* envp[]) {
+int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    int argc;
+    LPWSTR* argvW = CommandLineToArgvW(pCmdLine, &argc);
+    if (!argvW) return 0;
+
     vector<string> args;
     for(int i = 1; i < argc; i++) {
-        args.push_back(str::to_str(wstring(argv[i])));
+        args.push_back(str::to_str(wstring(argvW[i])));
     }
+
+    LocalFree(argvW);
 
     execute(parse_args(args));
     return 0;

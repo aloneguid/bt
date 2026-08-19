@@ -504,7 +504,7 @@ namespace bt {
 
         // create a map of profile id to installation id
         map<string, string> profile_to_installation_id;
-        for(CSimpleIni::Entry &section: ir) {
+        for(CSimpleIniA::Entry &section: ir) {
             string section_name = section.pItem;
             if(!section_name.starts_with("Install")) continue;
 
