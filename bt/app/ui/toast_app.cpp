@@ -171,9 +171,7 @@ namespace bt::ui {
 
             size_to_fit();
 
-#if PLATFORM_WINDOWS
-            app->win32_transparency_window_alpha = is_hovered ? 255 : g_state.toast.opacity;
-#endif
+            app->transparency_window_alpha = is_hovered ? 255 : g_state.toast.opacity;
 
             {
                 w::guard gw{wnd_main};

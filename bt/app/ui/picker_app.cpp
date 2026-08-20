@@ -113,9 +113,7 @@ namespace bt::ui {
     }
 
     bool picker_app::run_frame() {
-#if PLATFORM_WINDOWS
-        app->win32_transparency_window_alpha = g_state.picker.opacity;
-#endif
+        app->transparency_window_alpha = g_state.picker.opacity;
 
         // get monitor dimensions
         int mon_idx = app->find_monitor_for_main_viewport();
@@ -485,5 +483,6 @@ namespace bt::ui {
             case label_display_mode::profile:
                 return 1;
         }
+        return 0;
     }
 }
