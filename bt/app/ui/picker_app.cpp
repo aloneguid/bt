@@ -98,11 +98,13 @@ namespace bt::ui {
     }
 
     bool picker_app::is_hotkey_down() {
-        // can't check with ImGui, because it's not initialised, but also ImGui only checks application context, not global.
-        bool k_shift = keyboard::is_kbd_shift_down();
-        bool k_ctrl = keyboard::is_kbd_ctrl_down();
-        bool k_alt = keyboard::is_kbd_alt_down();
-        bool k_caps = keyboard::is_kbd_caps_locks_on();
+        keyboard::refresh_state();
+
+        bool k_shift = keyboard::is_any_key_down(key::left_shift, key::right_shift);
+        bool k_ctrl = keyboard::is_any_key_down(key::left_ctrl, key::right_ctrl);
+        bool k_alt = keyboard::is_any_key_down(key::left_alt, key::right_alt);
+        bool k_caps = keyboard::is_key_down(key::caps_lock);
+
         return
                 (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
                 (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||

@@ -30,6 +30,7 @@ void open(click_payload up, bool force_picker = false) {
     // decision whether to show picker or not
     bool show_picker{force_picker};
     optional<picker_invoked_reason> picker_reason;
+    bool picker_hotkey_down = ui::picker_app::is_hotkey_down();
 
     vector<browser_match_result> rule_matches;
     if(!force_picker) {
