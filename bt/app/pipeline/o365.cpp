@@ -10,7 +10,8 @@ namespace bt::pipeline {
         url u{up.url};
 
         if(u.host.ends_with(".safelinks.protection.outlook.com") ||
-            u.host == "statics.teams.cdn.office.net") {
+            u.host == "statics.teams.cdn.office.net" ||
+            u.host == "teams.public.onecdn.static.microsoft") {
             for(const auto& p : u.parameters) {
                 if(p.first == "url" || p.first == "data") {
                     const string url = p.second;
