@@ -7,10 +7,11 @@
 
 - For custom browsers there is only a single profile ever. Therefore, there is no need to show tabs.
 - Custom generic browser "arg" is now editable, and "extra arg" is hidden.
-- 🐧 Linux autodiscovery detects Brave (Brave Origin was already detected) installed via package manager and Snap.
-- 🐧 Linux autodiscovery detects Chromium installed via Snap Store.
-- 🐧 Linux autodiscovery detects Vivaldi installed via Snap Store.
-- 🐧 Linux autodiscovery detects Opera installed via Snap Store.
+- 🐧 Linux autodiscovery additionally detects:
+  - Brave (Brave Origin was already detected) installed via package manager and Snap. 
+  - Chromium installed via Snap Store. 
+  - Vivaldi installed via Snap Store. 
+  - Opera installed via Snap Store.
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/b233ba52-1189-4334-80f3-ab4bae19afc7" />
 
 - Toast opacity is configurable in settings (see General/Toast). Toast becomes fully opaque on hover.
@@ -28,6 +29,7 @@
 
 ### Bugs fixed
 - `bt.exe` was sometimes hanging after showing toast notification (thread sync issue).
+- 🐧 Keyboard detection engine is rewritten to be faster on Windows and actually work on Linux. I use `udev` on Linux, which means your user needs to be in the `input` group to use it (`sudo usermod -aG input $USER`) which is done automatically via `dpkg` so you don't have to worry about it.
 
 ## 6.1.1
 
