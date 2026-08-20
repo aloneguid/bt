@@ -26,6 +26,9 @@
 - Number pad keys are now supported for navigating the picker (0-9 and Enter key) thanks to @AVHon in #237.
 - Picker number can go up to 10 (was 1-9). Pressing `0` invokes the 10th profile. This makes sense as on the keyboard `0` goes physically after `9` so why not using it.
 - Picker label can be configured in 4 modes (none, browser and profile (the default), browser, or profile).
+- Opacity for picker and toast is now fully supported on Linux:
+
+https://github.com/user-attachments/assets/c374f8a3-ba48-44d0-9e58-7759add2696e
 
 ### Bugs fixed
 - `bt.exe` was sometimes hanging after showing toast notification (thread sync issue).
