@@ -2,7 +2,7 @@
 
 ### Improvements
 
-- During the initial configuration, system message is properly centered and has a better overall look.
+- During the initial configuration, the system message is properly centered and has a better overall look.
 <img width="600" alt="no-browsers" src="https://github.com/user-attachments/assets/db13782d-f02f-4326-b050-8b45910d4a42" />
 
 - For custom browsers there is only a single profile ever. Therefore, there is no need to show tabs.
@@ -14,19 +14,19 @@
   - Opera installed via Snap Store.
 <img width="600" alt="image" src="https://github.com/user-attachments/assets/b233ba52-1189-4334-80f3-ab4bae19afc7" />
 
-- Toast opacity is configurable in settings (see General/Toast). Toast becomes fully opaque on hover.
-- Toast animation duration is also configurable in settings, between 0.1 to 5 seconds.
+- 🍞 Toast opacity is configurable in settings (see General/Toast). Toast becomes fully opaque on hover.
+- 🍞 Toast animation duration is also configurable in settings, between 0.1 to 5 seconds.
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/69566767-012f-4637-9ac3-b5a7ff737465" />
 
   
-- Toast geekout:
-  - Hovering on browser icon shows browser and profile name.
-  - Hovering on URL shows full URL.
-  - If a non-default rule was hit, "rule" icon appears, and hovering on it shows the rule details.
-- Number pad keys are now supported for navigating the picker (0-9 and Enter key) thanks to @AVHon in #237.
-- Picker number can go up to 10 (was 1-9). Pressing `0` invokes the 10th profile. This makes sense as on the keyboard `0` goes physically after `9` so why not using it.
-- Picker label can be configured in 4 modes (none, browser and profile (the default), browser, or profile).
-- Opacity for picker and toast is now fully supported on Linux:
+- 🍞 Toast geekout:
+  - Hovering on the browser icon shows the browser and profile name.
+  - Hovering on the URL shows the full URL.
+  - If a non-default rule was hit, the "rule" icon appears, and hovering on it shows the rule details.
+- ⌨️ Number pad keys are now supported for navigating the picker (`0-9` and `Enter` key) thanks to @AVHon in #237.
+- ⌨️ Picker number can go up to 10 (was `1-9`). Pressing `0` invokes the 10th profile. This makes sense as on the keyboard `0` goes physically after `9` so why not use it?
+- Picker label can be configured in four modes (none, browser and profile (the default), browser, or profile).
+- 🐧 Opacity for picker and toast is now fully supported on Linux:
 
 https://github.com/user-attachments/assets/c374f8a3-ba48-44d0-9e58-7759add2696e
 

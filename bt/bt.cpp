@@ -208,6 +208,7 @@ string parse_args(const vector<string>& args) {
 }
 
 string parse_args(string arg) {
+    str::trim(arg, "\"");   // arg can be quoted
     string parent_arg = get_parent_arg();
 
     return format("{}{}{}",
@@ -219,6 +220,7 @@ string parse_args(string arg) {
 #if PLATFORM_WINDOWS
 
 int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    // ::MessageBox(NULL, pCmdLine, NULL, MB_OK);
     execute(parse_args(str::to_str(pCmdLine)));
     return 0;
 }
