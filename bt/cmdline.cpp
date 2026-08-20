@@ -115,7 +115,7 @@ int cmdline::exec_set_default(const std::string& data) {
             for(const auto& p : b.profiles) {
                 if(p.name == profile_name) {
                     wcout << L"found profile: " << str::to_wstr(p.name) << endl;
-                    g_config.serialize();
+                    bt::browser::set_default(g_state.browsers, p);
                     wcout << L"default profile set and saved." << endl;
                     return 0;
                 }

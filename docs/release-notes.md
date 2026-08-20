@@ -1,4 +1,6 @@
-## 6.1.2
+## 6.2.0
+
+This release was a considerable amount of actual human work without "AI" sloptributions. It contains new features, polished UI and bug fixes. Please consider [sponsoring me](https://www.aloneguid.uk/sponsor/) if you are interested in the successful future of this project 💖. Next time you are buying "AI tokens", maybe it's better to spend them on BT instead ;)
 
 ### Improvements
 
@@ -33,6 +35,9 @@ https://github.com/user-attachments/assets/c374f8a3-ba48-44d0-9e58-7759add2696e
 ### Bugs fixed
 - `bt.exe` was sometimes hanging after showing toast notification (thread sync issue).
 - 🐧 Keyboard detection engine is rewritten to be faster on Windows and actually work on Linux. I use `udev` on Linux, which means your user needs to be in the `input` group to use it (`sudo usermod -aG input $USER`) which is done automatically via `dpkg` so you don't have to worry about it.
+- [`bt browser set default`](https://www.aloneguid.uk/projects/bt/#set-default-browser) command was not saving the result.
+- Re-fixed "safelinks" for a missed host in #221. Thanks @
+  jorupp.
 
 ## 6.1.1
 
