@@ -35,7 +35,8 @@ jobs:
           # Find the download URLs for the x64 and arm64 installers separately
           # This allows overrides to be used so that wingetcreate does not have to guess the architecture from the filename
           $installerUrlx64 = $assets | Where-Object -Property name -like '*win64.msi' | Select-Object -ExpandProperty browser_download_url
-          $installerUrlArm64 = $assets | Where-Object -Property name -like '*arm64.zip' | Select-Object -ExpandProperty browser_download_url
+          $installerUrlArm64 = $assets | Where-Object -Property name -like '*arm64.msi' | Select-Object -ExpandProperty browser_download_url
+          
 
           # Update package using wingetcreate
           curl.exe -JLO https://aka.ms/wingetcreate/latest
