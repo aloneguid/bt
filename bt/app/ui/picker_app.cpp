@@ -97,19 +97,23 @@ namespace bt::ui {
         return picker_result{final_choice, url};
     }
 
-    bool picker_app::is_hotkey_down() {
+    bool picker_app::is_hotkey_down(bool configured) {
         keyboard::refresh_state();
 
         bool k_shift = keyboard::is_any_key_down(key::left_shift, key::right_shift);
         bool k_ctrl = keyboard::is_any_key_down(key::left_ctrl, key::right_ctrl);
         bool k_alt = keyboard::is_any_key_down(key::left_alt, key::right_alt);
-        bool k_caps = keyboard::is_key_down(key::caps_lock);
+        bool k_caps = keyboard::is_key_toggled(key::caps_lock);
 
-        return
-                (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
-                (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
-                (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
-                (g_state.picker.invoke.on_key_caps_locks && k_caps);
+        if(configured) {
+            return
+                    (g_state.picker.invoke.on_key_alt_shift && (k_alt && k_shift)) ||
+                    (g_state.picker.invoke.on_key_control_alt && (k_ctrl && k_alt)) ||
+                    (g_state.picker.invoke.on_key_control_shift && (k_ctrl && k_shift)) ||
+                    (g_state.picker.invoke.on_key_caps_locks && k_caps);
+        }
+
+        return k_alt || k_ctrl || k_shift || k_caps;
     }
 
     bool picker_app::run_frame() {
@@ -222,7 +226,7 @@ namespace bt::ui {
 
         // padding should only be used to space out items, not for any calculations inside
         float max_mon_width = mon_work_size.x * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
-        float max_url_width = url_size.x + action_button_width * (action_menu_items.size() + 2);
+        float max_url_width = url_size.width + action_button_width * (action_menu_items.size() + 2);
         float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f) + style.WindowPadding.x * 2;
         float max_width = max(max_url_width, max_w_width);
         float w_width = min(max_width, max_mon_width);
@@ -376,7 +380,7 @@ namespace bt::ui {
                         w::dummy(max.x - min.x, max.y - min.y);
 
                         if(!line1.empty()) {
-                            float line1_width = w::text_size_get(line1, g_state.picker.label_size).x;
+                            float line1_width = w::text_size_get(line1, g_state.picker.label_size).width;
                             ImVec2 line1_pos = min;
                             if(line1_width < max_width) line1_pos.x += (max_width - line1_width) / 2.0f;
 
@@ -385,7 +389,7 @@ namespace bt::ui {
                         }
 
                         if(!line2.empty()) {
-                            float line2_width = w::text_size_get(line2, g_state.picker.label_size).x;
+                            float line2_width = w::text_size_get(line2, g_state.picker.label_size).width;
                             ImVec2 line2_pos = {min.x, min.y + label_text_size.y};
                             if(line2_width < max_width) line2_pos.x += (max_width - line2_width) / 2.0f;
 

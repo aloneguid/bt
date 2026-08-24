@@ -1,3 +1,7 @@
+## 6.2.1
+
+Bug fixed: CAPS LOCKS hotkey detection was wrong – I was checking where key is pressed rather than toggled. Schoolthey error. This is now fixed, and as a bonus, the configuration app displays a checkbox when it detects any hotkeys are pressed so you can visuall check it.
+
 ## 6.2.0
 
 This release was a considerable amount of actual human work without "AI" sloptributions. It contains new features, polished UI and bug fixes. Please consider [sponsoring me](https://www.aloneguid.uk/sponsor/) if you are interested in the successful future of this project 💖. Next time you are buying "AI tokens", maybe it's better to spend them on BT instead ;)

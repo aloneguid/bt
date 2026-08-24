@@ -20,6 +20,7 @@
 #include <algorithm>
 
 #include "btwidgets.h"
+#include "picker_app.h"
 #include "common/desktop_shell.h"
 
 #if PLATFORM_WINDOWS
@@ -242,7 +243,9 @@ namespace bt::ui {
                 w::small_checkbox("Always on top", g_state.picker.always_on_top);
                 w::small_checkbox("Show on no rule", g_state.picker.invoke.on_no_rule);
 
-                w::sep(ICON_MD_KEYBOARD " Keyboard");
+                string sep_title = ICON_MD_KEYBOARD " Keyboard";
+                if(picker_app::is_hotkey_down(false)) sep_title += " " ICON_MD_CHECK;
+                w::sep(sep_title);
                 w::small_checkbox("Ctrl + Shift + Left Click", g_state.picker.invoke.on_key_control_shift);
                 w::small_checkbox("Ctrl + Alt    + Left Click", g_state.picker.invoke.on_key_control_alt);
                 w::small_checkbox("Alt  + Shift + Left Click", g_state.picker.invoke.on_key_alt_shift);

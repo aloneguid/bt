@@ -31,7 +31,12 @@ namespace bt::ui {
 
         picker_result run();
 
-        static bool is_hotkey_down();
+        /**
+         * @brief Check whether a hotkey is currently down. Can be used outside of picker_app to make the appropriate action.
+         *
+         * @param configured If true (default), the hotkey is checked against the configured hotkey; otherwise, the check is performed for any possible hotkey (useful for configuration UI purposes).
+         */
+        static bool is_hotkey_down(bool configured = true);
 
     private:
 
