@@ -1,6 +1,12 @@
 ## 6.2.1
 
-Bug fixed: CAPS LOCKS hotkey detection was wrong – I was checking where key is pressed rather than toggled. Schoolthey error. This is now fixed, and as a bonus, the configuration app displays a checkbox when it detects any hotkeys are pressed so you can visuall check it.
+Bug fixed: CAPS LOCKS hotkey detection was wrong – I was checking where the key is pressed rather than toggled. Schoolthey error. This is now fixed, and as a bonus, the configuration app displays a checkbox when it detects any hotkeys are pressed so you can visually check it.
+
+
+
+https://github.com/user-attachments/assets/902eaaed-a9e3-4e14-8178-5986a1d1ad5b
+
+
 
 ## 6.2.0
 
