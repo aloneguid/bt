@@ -6,7 +6,7 @@ Bug fixed: CAPS LOCKS hotkey detection was wrong – I was checking where the ke
 
 https://github.com/user-attachments/assets/902eaaed-a9e3-4e14-8178-5986a1d1ad5b
 
-
+P.S. Hey, if you like BT-style minimalistic utils, you might like to check out [Markwright](https://www.aloneguid.uk/projects/mw/). It's a tiny screen annotation tool that I made purely for myself a while ago and decided to share with others.
 
 ## 6.2.0
 
