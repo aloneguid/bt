@@ -135,6 +135,11 @@ namespace bt::ui {
     bool config_app::run_frame() {
         w::guard gw{wnd_config};
 
+        if(exec_rediscover) {
+            rediscover_browsers();
+            exec_rediscover = false;
+        }
+
         if(g_state.browsers.empty()) {
             render_no_browsers();
             return true;
@@ -168,12 +173,6 @@ namespace bt::ui {
         }
 
         w::notify_render_frame();
-
-        // end of frame actions
-        if(exec_rediscover) {
-            rediscover_browsers();
-            exec_rediscover = false;
-        }
 
         return is_open;
     }
