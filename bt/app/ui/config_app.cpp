@@ -137,34 +137,33 @@ namespace bt::ui {
 
         if(g_state.browsers.empty()) {
             render_no_browsers();
-            return true;
-        }
-
-        render_menu_bar();
-        render_browsers();
+        } else {
+            render_menu_bar();
+            render_browsers();
 
 #if _DEBUG
-        if(show_demo) {
-            ImGui::ShowDemoWindow(&show_demo);
-        }
+            if(show_demo) {
+                ImGui::ShowDemoWindow(&show_demo);
+            }
 #endif
 
-        render_status_bar();
+            render_status_bar();
 
-        if(show_subs)
-            render_subs_window();
+            if(show_subs)
+                render_subs_window();
 
-        if(show_scripting)
-            render_scripting_window();
+            if(show_scripting)
+                render_scripting_window();
 
-        if(pv_show)
-            render_pipe_visualiser_window();
+            if(pv_show)
+                render_pipe_visualiser_window();
 
-        if(add_browser_show)
-            render_add_browser_window();
+            if(add_browser_show)
+                render_add_browser_window();
 
-        if(g_config.tick(ImGui::GetIO().DeltaTime)) {
-            //w::notify_info("state changed");
+            if(g_config.tick(ImGui::GetIO().DeltaTime)) {
+                //w::notify_info("state changed");
+            }
         }
 
         w::notify_render_frame();

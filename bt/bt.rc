@@ -3,8 +3,8 @@ IDI_ICON2 ICON "pdf.ico"
 IDI_ICON3 ICON "epub.ico"
 
 1 VERSIONINFO
- FILEVERSION 6,2,1,0
- PRODUCTVERSION 6,2,1,0
+ FILEVERSION 6,2,2,0
+ PRODUCTVERSION 6,2,2,0
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x0L
  FILEOS 0x40004L
@@ -17,12 +17,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ivan Gavryliuk"
             VALUE "FileDescription", "Browser Tamer"
-            VALUE "FileVersion", "6.2.1.0"
+            VALUE "FileVersion", "6.2.2.0"
             VALUE "InternalName", "Browser Tamer"
             VALUE "LegalCopyright", "Copyright (C) 2026 by Ivan Gavryliuk"
             VALUE "OriginalFilename", "bt.exe"
             VALUE "ProductName", "Browser Tamer"
-            VALUE "ProductVersion", "6.2.1.0"
+            VALUE "ProductVersion", "6.2.2.0"
         END
     END
     BLOCK "VarFileInfo"

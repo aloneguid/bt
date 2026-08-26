@@ -2,6 +2,7 @@
 
 ### Bugs fixed
 - `.exe` version was stuck on 5.7.0 when viewing `bt.txt` file properties in Windows. This is becuase `.rc` file had invalid version numbers.
+- "discover system browsers" button did not do anything after clean install. This is most likely what #242 by @tariano was indicating, but it did not have detailed description of the issue.
 
 ## 6.2.1
 
