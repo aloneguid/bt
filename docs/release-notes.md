@@ -1,3 +1,8 @@
+## 6.2.2
+
+### Bugs fixed
+- `.exe` version was stuck on 5.7.0 when viewing `bt.txt` file properties in Windows. This is becuase `.rc` file had invalid version numbers.
+
 ## 6.2.1
 
 Bug fixed: CAPS LOCKS hotkey detection was wrong – I was checking where the key is pressed rather than toggled. Schoolthey error. This is now fixed, and as a bonus, the configuration app displays a checkbox when it detects any hotkeys are pressed so you can visually check it.
