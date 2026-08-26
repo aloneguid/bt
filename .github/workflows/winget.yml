@@ -23,6 +23,18 @@ jobs:
 
     steps:
 
+      - name: Sync winget-pkgs fork
+        env:
+          GH_TOKEN: ${{ secrets.WINGET_CREATE_GITHUB_TOKEN }}
+        run: |
+          $forkOwner = gh api user --jq ".login"
+          $forkExists = gh repo view "$forkOwner/winget-pkgs" 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh repo sync "$forkOwner/winget-pkgs" --source microsoft/winget-pkgs --branch master --force
+          } else {
+            Write-Host "No existing fork found — wingetcreate will create one on first submit."
+          }
+
       - name: Submit package using wingetcreate
         run: |
           # Set the package ID based on the release info
