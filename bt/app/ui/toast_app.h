@@ -3,6 +3,7 @@
 #include "grey.h"
 #include "../browser.h"
 #include "../click_payload.h"
+#include "../match_rule.h"
 
 namespace bt::ui {
 
@@ -37,6 +38,8 @@ namespace bt::ui {
         ImVec2 mon_mid{0, 0};
         float icon_size;
         float show_timer{0.0f};
+
+        std::string url_host;   // extracted hostname, used for quick rule creation
 
         std::unique_ptr<grey::app> app;
         bool is_open{true};

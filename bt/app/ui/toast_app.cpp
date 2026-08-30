@@ -2,6 +2,8 @@
 #include "../../globals.h"
 #include "../../res.inl"
 #include "btwidgets.h"
+#include "win32/os.h"
+#include <fmt/core.h>
 
 using namespace std;
 namespace w = grey::widgets;
@@ -17,6 +19,12 @@ namespace bt::ui {
         app->win32_title_bar = false;
         app->win32_hide_from_taskbar = true;
         app->win32_no_activate = true;  // prevent from stealing focus or appearing in alt-tab
+
+        // extract hostname for quick rule creation
+        {
+            std::string proto, path;
+            match_rule::parse_url(cp.url, proto, url_host, path);
+        }
 
         wnd_main
             .no_titlebar()
@@ -81,6 +89,17 @@ namespace bt::ui {
             app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::shrink) {
+            // if a popup is open, reverse back to show so the toast stays alive
+            if(ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId)) {
+                stage = toast_app::anim_stage::show;
+                show_timer = 0.0f;
+                wnd_size_anim.x = wnd_size.x;
+                app->resize_main_viewport((int)(wnd_size_anim.x / app->scale), (int)(wnd_size_anim.y / app->scale));
+                app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
+                    (mon_mid.y - wnd_size_anim.y) / app->scale);
+                return;
+            }
+
             if(wnd_size_anim.x == wnd_size.x) {
                 wnd_size_anim.x -= 1.0f; // start shrinking
             }
@@ -96,9 +115,12 @@ namespace bt::ui {
             app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
                 (mon_mid.y - wnd_size_anim.y) / app->scale);
         } else if(stage == toast_app::anim_stage::show) {
-            show_timer += ImGui::GetIO().DeltaTime;
-            if(show_timer >= g_config.toast_visible_secs) {
-                stage = toast_app::anim_stage::shrink;
+            // pause timer while a popup is open
+            if(!ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId)) {
+                show_timer += ImGui::GetIO().DeltaTime;
+                if(show_timer >= g_config.toast_visible_secs) {
+                    stage = toast_app::anim_stage::shrink;
+                }
             }
         }
     }
@@ -144,6 +166,65 @@ namespace bt::ui {
                 // check if mouse cursor is over the window to pause the timer
                 if(w::is_hovered()) {
                     show_timer = 0.0f;
+                }
+
+                // builds a submenu listing all visible browsers/profiles;
+                // on selection, adds rule_line to that profile and closes the toast
+                auto browser_submenu = [&](const string& label, const string& rule_line) {
+                    if(ImGui::BeginMenu(label.c_str())) {
+                        for(const auto& b : g_config.browsers) {
+                            if(b->is_hidden) continue;
+
+                            vector<shared_ptr<browser_instance>> visible;
+                            for(const auto& inst : b->instances) {
+                                if(!inst->is_hidden) visible.push_back(inst);
+                            }
+                            if(visible.empty()) continue;
+
+                            if(visible.size() == 1) {
+                                if(ImGui::MenuItem(b->name.c_str())) {
+                                    visible[0]->add_rule(rule_line);
+                                    g_config.commit();
+                                    is_open = false;
+                                }
+                            } else {
+                                if(ImGui::BeginMenu(b->name.c_str())) {
+                                    for(const auto& inst : visible) {
+                                        if(ImGui::MenuItem(inst->get_best_display_name().c_str())) {
+                                            inst->add_rule(rule_line);
+                                            g_config.commit();
+                                            is_open = false;
+                                        }
+                                    }
+                                    ImGui::EndMenu();
+                                }
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+                };
+
+                if(ImGui::BeginPopupContextWindow()) {
+                    if(!url_host.empty()) {
+                        match_rule r{url_host};
+                        r.scope = match_scope::domain;
+                        browser_submenu(
+                            fmt::format(ICON_MD_ADD_CIRCLE " Add rule for '{}'", url_host),
+                            r.to_line());
+                    }
+                    if(!cp.process_name.empty()) {
+                        match_rule r{cp.process_name};
+                        r.loc = match_location::process_name;
+                        browser_submenu(
+                            fmt::format(ICON_MD_ADD_CIRCLE " Add rule for process '{}'", cp.process_name),
+                            r.to_line());
+                    }
+                    ImGui::Separator();
+                    if(ImGui::MenuItem(ICON_MD_CONTENT_COPY " Copy URL")) {
+                        win32::os::set_clipboard_text(cp.url);
+                        is_open = false;
+                    }
+                    ImGui::EndPopup();
                 }
             }
 
