@@ -1,6 +1,8 @@
 ## 6.2.3
 
-
+- Fixed the picker bug #247 when active selection text was not visible. Thanks, @iamthelara. I'm not sure why this happened, but I was using some legacy ImGui API that didn't need to be used at all, so it's even faster now.
+- Long browser labels also were not clipped, fixed this too.
+- Rude LLM spammers and "AI-bros" are now redirected to the nearest available f-off.
 
 ## 6.2.2
 

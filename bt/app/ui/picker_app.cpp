@@ -318,10 +318,11 @@ namespace bt::ui {
             }
 
             if(is_active) {
-                draw_list->ChannelsSplit(2);
-                draw_list->ChannelsSetCurrent(1);
+                point min = w::cur_get();
+                w::draw_rect_filled(rect{min, min + box_size_total},
+                    rgb_colour{ImGui::GetColorU32(ImGuiCol_Border)},
+                    g_state.picker.item_rounding);
             }
-
 
             {
                 w::group g;
@@ -379,6 +380,7 @@ namespace bt::ui {
 
                         w::clip_rect cr{min, max};
                         w::dummy(max.x - min.x, max.y - min.y);
+                        //w::draw_rect(rect{min, max}, rgb_colour{ImGuiCol_Border});
 
                         if(!line1.empty()) {
                             float line1_width = w::text_size_get(line1, g_state.picker.label_size).width;
@@ -413,15 +415,6 @@ namespace bt::ui {
                 final_choice = choices[active_idx];
                 is_open = false;
             }
-
-            if(is_active) {
-                ImVec2 min = ImGui::GetItemRectMin();
-                ImVec2 max = ImGui::GetItemRectMax();
-                ImU32 bc = ImGui::GetColorU32(ImGuiCol_Border);
-                draw_list->ChannelsSetCurrent(0); //background channel
-                draw_list->AddRectFilled(min, max, bc, g_state.picker.item_rounding);
-                draw_list->ChannelsMerge();
-            }
         }
 
         ImGui::PopStyleVar();
@@ -442,7 +435,7 @@ namespace bt::ui {
 
         w::slider(g_state.picker.box_size, 5, 256, "item size", 0.1);
         w::slider(g_state.picker.item_padding, 0, 100, "padding", 0.1);
-        w::slider(g_state.picker.item_rounding, 0, g_state.picker.box_size / 2, "item rounding", 0.1);
+        w::slider(g_state.picker.item_rounding, 0, g_state.picker.box_size, "item rounding", 0.1);
         w::slider(g_state.picker.label_size, -15.0f, 15.0f, "label size", 0.5);
         w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
         w::checkbox("show key hints (1-10)", g_state.picker.show_key_hints);
