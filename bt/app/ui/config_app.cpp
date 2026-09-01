@@ -44,7 +44,7 @@ namespace bt::ui {
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = true;
         app->center_on_screen = true;
-        app->load_fixed_font = true;
+        app->fonts.load_all();
 
         wnd_config
                 .has_menubar()
@@ -765,7 +765,7 @@ namespace bt::ui {
         cur.x += w::avail_x() / 2 - button_width / 2;
         w::cur_set(cur);
 
-        w::font_scaler fs{5};
+        w::texter fs{5};
         if(w::button(label, emphasis::error, true, false, "", button_width)) {
             exec_rediscover = true;
         }

@@ -22,6 +22,7 @@ namespace bt::ui {
           app{grey::app::make(title, 100, 120)},
           wnd_main{title, &is_open},
           wnd_settings{"Settings", &is_settings_open} {
+        app->fonts.load_icons = true;
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
         app->center_on_screen = true;
@@ -384,7 +385,7 @@ namespace bt::ui {
                             ImVec2 line1_pos = min;
                             if(line1_width < max_width) line1_pos.x += (max_width - line1_width) / 2.0f;
 
-                            w::font_scaler scaler(g_state.picker.label_size);
+                            w::texter scaler(g_state.picker.label_size);
                             w::draw_text(line1_pos, emphasis::none, line1);
                         }
 
@@ -393,7 +394,7 @@ namespace bt::ui {
                             ImVec2 line2_pos = {min.x, min.y + label_text_size.y};
                             if(line2_width < max_width) line2_pos.x += (max_width - line2_width) / 2.0f;
 
-                            w::font_scaler scaler(g_state.picker.label_size);
+                            w::texter scaler(g_state.picker.label_size);
                             w::draw_text(line2_pos, emphasis::none, line2);
                         }
                     }

@@ -15,6 +15,7 @@ namespace bt::ui {
         cp{cpp}, cp_url_parsed{cpp.url}, bmr{bmr},
         app{grey::app::make("toast", 100, 100)},
         wnd_main{"wtoast", &is_open} {
+        app->fonts.load_icons = true;
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
 
