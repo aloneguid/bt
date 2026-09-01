@@ -106,12 +106,13 @@ namespace bt {
 
         // which browser should we use?
         // i'm not sure this is correct
-        for(const browser& browser: browsers) {
-            for(auto [i, profile]: browser.profiles | std::views::enumerate) {
-                match_rule mr;
-                if(profile.is_match(up, script, mr)) {
+        for (const browser& browser : browsers) {
+            size_t i = 0; // Manual tracking replaces std::views::enumerate
+            for (auto& profile : browser.profiles) {
+                if (match_rule mr; profile.is_match(up, script, mr)) {
                     r.emplace_back(profile_selection(browser, i), mr);
                 }
+                ++i;
             }
         }
 
@@ -131,10 +132,16 @@ namespace bt {
     optional<profile_selection> browser::get_default(const std::vector<browser>& browsers) {
         optional<profile_selection> fallback_candidate;
 
-        for(const browser& b: browsers) {
-            for(auto [i, profile]: b.profiles | std::views::enumerate) {
-                if(!fallback_candidate) fallback_candidate = profile_selection(b, i);
-                if(profile.is_default) return profile_selection(b, i);
+        for (const browser& b : browsers) {
+            size_t i = 0; // Manual tracker replaces std::views::enumerate
+            for (auto& profile : b.profiles) {
+                if (!fallback_candidate) {
+                    fallback_candidate = profile_selection(b, i);
+                }
+                if (profile.is_default) {
+                    return profile_selection(b, i);
+                }
+                ++i;
             }
         }
 
