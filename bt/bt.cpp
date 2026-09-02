@@ -177,7 +177,7 @@ static void execute(const string& data) {
 string get_parent_arg() {
 #if PLATFORM_WINDOWS
     return format("{:x}", (DWORD)(win32::window::get_foreground().get_handle()));
-#elif PLATFORM_LINUX
+#else
     // on Linux we can use parent process ID
     process proc;
     auto parent = proc.get_parent();
