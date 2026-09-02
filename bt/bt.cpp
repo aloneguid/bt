@@ -1,4 +1,5 @@
 ﻿#include <format>
+#include <thread>
 #include "globals.h"
 #include "common/str.h"
 #include "process.h"

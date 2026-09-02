@@ -1,3 +1,15 @@
+## 6.2.4
+
+### Improvements
+- Ergonomic improvements in Toast:
+  - Hovering on the first line shows full process details for geeks.
+  - Hovering on the browser icon shows formatter browser/profile information.
+  - Only the domain part of the URL is rendered in the toast. This is to save space as scheme is not that interesting.
+  - When handling local files, Toast properly shows the file path rather than an awkward pretend URL.
+
+### Bugs fixed
+- Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows. 
+
 ## 6.2.3
 
 - Fixed the picker bug #247 when active selection text was not visible. Thanks, @iamthelara. I'm not sure why this happened, but I was using some legacy ImGui API that didn't need to be used at all, so it's even faster now.

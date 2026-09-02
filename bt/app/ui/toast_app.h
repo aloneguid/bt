@@ -43,6 +43,6 @@ namespace bt::ui {
         grey::widgets::window wnd_main;
 
         void size_to_fit();
-        void render_content();
+        void render_content() const;
     };
 }
