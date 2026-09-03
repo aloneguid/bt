@@ -56,9 +56,10 @@ namespace bt::ui {
         // "Health Dashboard" that is now part of status bar
         std::vector<system_check> health_checks;
         float health_blink_time{0.0f};
+        float health_checked_time_sec{10.0f};    // how long ago health was checked.
         size_t health_succeeded{0};
         size_t health_failed{0};
-        void check_health();
+        void check_health(bool force = false);
 
         // "Substitutions" window
         bool show_subs{false};

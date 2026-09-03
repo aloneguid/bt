@@ -1,14 +1,17 @@
 ## 6.2.4
 
+🍞 Toasted!
+
 ### Improvements
-- Ergonomic improvements in Toast:
+- 🍞 Ergonomic improvements in Toast:
   - Hovering on the first line shows full process details for geeks.
   - Hovering on the browser icon shows formatter browser/profile information.
   - Only the domain part of the URL is rendered in the toast. This is to save space as scheme is not that interesting.
   - When handling local files, Toast properly shows the file path rather than an awkward pretend URL.
 
 ### Bugs fixed
-- Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows. 
+- 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.
+- When the config application is open, health checks are performed every 5 seconds to avoid stale state after you have changed the default browser.
 
 ## 6.2.3
 

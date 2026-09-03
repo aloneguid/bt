@@ -116,7 +116,14 @@ namespace bt::ui {
         }
     }
 
-    void config_app::check_health() {
+    void config_app::check_health(bool force) {
+        health_checked_time_sec += w::frame_delta();
+
+        // check health every 5 seconds
+        if(health_checked_time_sec < 5.0f && !force)
+            return;
+
+        health_checked_time_sec = 0;
         health_checks = setup::get_checks();
 
         health_succeeded = health_failed = 0;
@@ -166,6 +173,7 @@ namespace bt::ui {
             }
         }
 
+        check_health();
         w::notify_render_frame();
 
         // end of frame actions
@@ -209,7 +217,7 @@ namespace bt::ui {
                     show_scripting = !show_scripting;
                 }
                 if(w::mi("Re-check health", true, ICON_MD_MEDICAL_SERVICES)) {
-                    check_health();
+                    check_health(true);
                     w::notify_info("Health check finished");
                 }
                 w::sep("Discovery");
