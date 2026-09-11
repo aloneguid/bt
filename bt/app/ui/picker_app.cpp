@@ -190,15 +190,15 @@ namespace bt::ui {
             for(int i = 0; i < 10; i++) {
                 if(ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_0 + i)) ||
                     ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_Keypad0 + i))) {
-                    if(i < choices.size()) {
-                        num_choice = i;
+                    const size_t num_choice_temp = i == 0 ? 10 : i;
+                    if(num_choice_temp <= choices.size()) {
+                        num_choice = num_choice_temp;
                         break;
                     }
                 }
             }
 
             if(num_choice != -1) {
-                if(num_choice == 0) num_choice = 10;
                 active_idx = num_choice - 1;
                 final_choice = choices[active_idx];
                 is_open = false;
