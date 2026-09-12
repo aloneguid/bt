@@ -65,8 +65,6 @@ namespace bt::ui {
             action_menu_item{"email", ICON_MD_EMAIL, "Email link"}
         };
 
-        grey::widgets::window wnd_main;
-        grey::widgets::window wnd_settings;
         grey::widgets::container cnt_blist;
         grey::widgets::container cnt_top;
         std::vector<profile_selection> choices;

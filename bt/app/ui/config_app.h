@@ -29,8 +29,6 @@ namespace bt::ui {
         const std::string RuleDoesNotMatchIcon = ICON_MD_CRUELTY_FREE;
 
         std::unique_ptr<grey::app> app;
-        std::string title;
-        grey::widgets::window wnd_config;
 
         bool is_open{true};
         std::map<std::string, rule_match_status> id_to_rule_match_status;
@@ -63,7 +61,7 @@ namespace bt::ui {
 
         // "Substitutions" window
         bool show_subs{false};
-        grey::widgets::window wnd_subs;
+        //grey::widgets::window wnd_subs;
         std::vector<std::string> replacer_kinds{"string", "regex"};
         std::string url_subs_in;
         click_payload url_subs_up;
@@ -72,7 +70,7 @@ namespace bt::ui {
         grey::widgets::container w_script_top_panel;
         bool show_scripting{false};
         bool script_initialised{false};
-        grey::widgets::window wnd_scripting{"Scripting"};
+        //grey::widgets::window wnd_scripting{"Scripting"};
         grey::widgets::code_editor script_editor{grey::widgets::code_editor::language::lua};
         std::string script_terminal;
         bool script_terminal_autoscroll{true};
@@ -80,14 +78,14 @@ namespace bt::ui {
 
         // Pipe visualiser window
         bool pv_show{false};
-        grey::widgets::window wnd_pv;
+        //grey::widgets::window wnd_pv;
         std::vector<url_pipeline_processing_step> pv_pipeline_steps;
         click_payload pv_cp;
         bool pv_only_matching{false};
 
         // "Add new browser" window
         bool add_browser_show{false};
-        grey::widgets::window wnd_add_browser;
+        //grey::widgets::window wnd_add_browser;
         browser new_browser{"", ""};
 
         // executions for the end of the loop

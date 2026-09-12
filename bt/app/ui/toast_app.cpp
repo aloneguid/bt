@@ -14,27 +14,23 @@ using namespace grey::common;
 namespace bt::ui {
     toast_app::toast_app(const click_payload& cpp, const browser_match_result& bmr) : cp{cpp}, cp_url_parsed{cpp.url},
         bmr{bmr},
-        app{grey::app::make("toast", 100, 100)},
-        wnd_main{"wtoast", &is_open} {
+        app{app::make("toast", sz{100, 100})} {
         app->fonts.load_all();
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
 
         app->always_on_top = true;
-        app->show_title_bar = false;
+        app->chrome = system_chrome::native;
+        app->hide_from_taskbar = true;
+
 #if PLATFORM_WINDOWS
-        app->win32_hide_from_taskbar = true;
         app->win32_no_activate = true; // prevent from stealing focus or appearing in alt-tab
 #endif
 
-        wnd_main
-                .no_titlebar()
-                .no_resize()
-                .border(g_state.toast.border_width)
-                .no_collapse()
-                .fill_viewport()
-                //.no_background()
-                .no_scroll();
+        auto& opts = app->main_window_opts();
+        opts.open_ptr = &is_open;
+        opts.border = g_state.toast.border_width;
+        opts.scrollable = false;
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
@@ -110,9 +106,9 @@ namespace bt::ui {
                 stage = anim_stage::show;
             }
 
-            app->resize_main_viewport((int) (wnd_size_anim.x / app->scale), (int) (wnd_size_anim.y / app->scale));
-            app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
-                                    (mon_mid.y - wnd_size_anim.y) / app->scale);
+            app->resize({wnd_size_anim.x / w::scale, wnd_size_anim.y / w::scale});
+            app->move({(mon_mid.x - wnd_size_anim.x / 2) / w::scale,
+                                    (mon_mid.y - wnd_size_anim.y) / w::scale});
         } else if(stage == anim_stage::shrink) {
             float move = (wnd_size.x / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
             wnd_size_anim.x -= move;
@@ -124,9 +120,9 @@ namespace bt::ui {
                 stage = anim_stage::exit;
                 is_open = false;
             } else {
-                app->resize_main_viewport((int) (wnd_size_anim.x / app->scale), (int) (wnd_size_anim.y / app->scale));
-                app->move_main_viewport((mon_mid.x - wnd_size_anim.x / 2) / app->scale,
-                                        (mon_mid.y - wnd_size_anim.y) / app->scale);
+                app->resize({wnd_size_anim.x / w::scale, wnd_size_anim.y / w::scale});
+                app->move({(mon_mid.x - wnd_size_anim.x / 2) / w::scale,
+                                        (mon_mid.y - wnd_size_anim.y) / w::scale});
             }
         } else if(stage == anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
@@ -144,20 +140,20 @@ namespace bt::ui {
 
             // small icon
             if(cp.process_path.empty()) {
-                w::image(*app, "logo", icon_size, icon_size);
+                w::image(*app, "logo", sz::square(icon_size));
             } else {
-                w::image(*app, "app_icon", icon_size, icon_size);
+                w::image(*app, "app_icon", sz::square(icon_size));
             }
 
             w::sl();
 
             // process description, name, or "unknown"
             if(!cp.process_description.empty()) {
-                w::label(cp.process_description, emphasis::primary);
+                w::lbl(cp.process_description, {.emp = emphasis::primary});
             } else if(!cp.process_name.empty()) {
-                w::label(cp.process_name, emphasis::primary);
+                w::lbl(cp.process_name, {.emp = emphasis::primary});
             } else {
-                w::label("unknown", emphasis::error);
+                w::lbl("unknown", {.emp = emphasis::error});
             }
         }
         if(w::is_hovered()) {
@@ -166,33 +162,33 @@ namespace bt::ui {
             float col1_start = 80 * w::scale;
 
             if(!cp.process_id.empty()) {
-                w::label("id:");
+                w::lbl("id:");
                 w::sl(col1_start);
-                w::label(cp.process_id, emphasis::primary);
+                w::lbl(cp.process_id, {.emp = emphasis::primary});
             }
 
             if(!cp.process_name.empty()) {
-                w::label("name:");
+                w::lbl("name:");
                 w::sl(col1_start);
-                w::label(cp.process_name, emphasis::primary);
+                w::lbl(cp.process_name, {.emp = emphasis::primary});
             }
 
             if(!cp.process_description.empty()) {
-                w::label("description:");
+                w::lbl("description:");
                 w::sl(col1_start);
-                w::label(cp.process_description, emphasis::primary);
+                w::lbl(cp.process_description, {.emp = emphasis::primary});
             }
 
             if(!cp.process_path.empty()) {
-                w::label("path:");
+                w::lbl("path:");
                 w::sl(col1_start);
-                w::label(cp.process_path, emphasis::primary);
+                w::lbl(cp.process_path, {.emp = emphasis::primary});
             }
 
             if(!cp.window_title.empty()) {
-                w::label("title:");
+                w::lbl("title:");
                 w::sl(col1_start);
-                w::label(cp.window_title, emphasis::primary);
+                w::lbl(cp.window_title, {.emp = emphasis::primary});
             }
         }
 
@@ -206,26 +202,26 @@ namespace bt::ui {
         if(w::is_hovered()) {
             w::rich_tt rtt;
 
-            w::label("browser: ");
+            w::lbl("browser: ");
             w::sl(80 * w::scale);
-            w::label(bmr.profile.b().name, emphasis::primary);
+            w::lbl(bmr.profile.b().name, {.emp = emphasis::primary});
 
-            w::label("profile: ");
+            w::lbl("profile: ");
             w::sl(80 * w::scale);
-            w::label(bmr.profile.p().name, emphasis::primary);
+            w::lbl(bmr.profile.p().name, {.emp = emphasis::primary});
         }
 
         w::sl();
-        w::label("");
+        w::lbl("");
 
         // short version of URL
         if(!cp_url_parsed.scheme.empty()) {
             w::sl(0, false);
             w::texter tx{0, font_weight::bold};
             if(!cp_url_parsed.host.empty()) {
-                w::label(cp_url_parsed.host);
+                w::lbl(cp_url_parsed.host);
             } else {
-                w::label(cp_url_parsed.path);
+                w::lbl(cp_url_parsed.path);
             }
         }
 
@@ -233,25 +229,23 @@ namespace bt::ui {
             w::rich_tt rtt;
 
             const auto& url = cp_url_parsed;
-            w::label(url.to_string());
+            w::lbl(url.to_string());
         }
 
         if(!bmr.rule.is_fallback) {
             w::sl();
-            w::label(ICON_MD_RULE, emphasis::primary);
+            w::lbl(ICON_MD_RULE, {.emp = emphasis::primary});
             w::tt(bmr.rule.to_string());
         }
     }
 
     void toast_app::run() {
-        app->run([this](const grey::app& app1) {
+        app->run([this]() {
             size_to_fit();
 
             app->transparency_window_alpha = is_hovered ? 255 : g_state.toast.opacity;
 
             {
-                w::guard gw{wnd_main};
-
                 {
                     w::group g;
                     render_content();

@@ -46,6 +46,24 @@ else()
     add_executable (${APP_NAME} ${core_src} "bt.cpp")
 endif()
 
+if(APPLE)
+    set(MACOSX_ICON "${CMAKE_SOURCE_DIR}/resources/macos/BrowserTamer.icns")
+    set_source_files_properties(${MACOSX_ICON}
+            PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    target_sources(${APP_NAME} PRIVATE ${MACOSX_ICON})
+
+    set_target_properties(${APP_NAME} PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_BUNDLE_NAME "${APP_LONG_NAME}"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "uk.aloneguid.browsertamer"
+            MACOSX_BUNDLE_INFO_STRING "${APP_LONG_NAME}"
+            MACOSX_BUNDLE_ICON_FILE "BrowserTamer.icns"
+            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+            MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION}"
+            MACOSX_BUNDLE_COPYRIGHT "Copyright © aloneguid")
+endif()
+
 file(GLOB test_src ${core_src} "tests/*.cpp")
 add_executable(test ${test_src})
 include(GoogleTest)
@@ -136,6 +154,14 @@ elseif(UNIX AND NOT APPLE)
 
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
             "${CMAKE_SOURCE_DIR}/resources/xdg/postinst.sh;${CMAKE_SOURCE_DIR}/resources/xdg/postrm.sh")
+
+elseif(APPLE)
+    install(TARGETS ${APP_NAME} BUNDLE DESTINATION ".")
+    set(CPACK_GENERATOR DragNDrop)
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-mac-${CMAKE_SYSTEM_PROCESSOR}")
+    set(CPACK_DMG_VOLUME_NAME "${APP_LONG_NAME}")
+    set(CPACK_DMG_FORMAT UDZO)
+    set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK OFF)
 
 endif()
 include(CPack) # needs to be at the end of install configurations

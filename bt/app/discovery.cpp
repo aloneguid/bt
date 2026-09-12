@@ -11,6 +11,7 @@
 #include <sqlite3.h>
 #include <unordered_set>
 #include <fstream>
+#include <algorithm>
 
 using namespace grey::common;
 using namespace grey;
@@ -358,6 +359,98 @@ namespace bt {
     }
 #endif
 
+#if PLATFORM_MACOS
+    static void discover_macos_safari_browser(std::vector<browser> &browsers) {
+        const fs::path safari_paths[] = {
+            "/Applications/Safari.app/Contents/MacOS/Safari",
+            "/System/Applications/Safari.app/Contents/MacOS/Safari"
+        };
+
+        std::error_code ec;
+        fs::path safari_executable;
+        for(const auto &path: safari_paths) {
+            if(fs::is_regular_file(path, ec)) {
+                safari_executable = path;
+                break;
+            }
+        }
+
+        if(safari_executable.empty()) return;
+
+        const fs::path safari_bundle = safari_executable.parent_path().parent_path().parent_path();
+        if(safari_bundle.filename() != "Safari.app" || !fs::is_directory(safari_bundle, ec)) return;
+
+        browser safari{"Safari", "/usr/bin/open -a Safari"};
+        safari.icon_path = safari_bundle.string();
+        if(const char *home = std::getenv("HOME")) {
+            safari.data_path = (fs::path{home} / "Library/Containers/com.apple.Safari/Data/Library/Safari").string();
+        }
+
+        if(std::find(browsers.begin(), browsers.end(), safari) == browsers.end()) {
+            browsers.push_back(std::move(safari));
+        }
+    }
+
+    static void discover_macos_safari_profiles(browser &b) {
+        if(b.name != "Safari" || b.open_cmd != "/usr/bin/open -a Safari") return;
+
+        const string icon_path = b.icon_path;
+        std::unordered_set<string> profile_ids;
+        bool has_personal = false;
+
+        if(!b.data_path.empty()) {
+            fs::path db_path = fs::path{b.data_path} / "SafariTabs.db";
+            std::error_code ec;
+            if(fs::is_regular_file(db_path, ec)) {
+                sqlite3 *db = nullptr;
+                const int rc = sqlite3_open_v2(db_path.string().c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
+                if(rc == SQLITE_OK && db != nullptr) {
+                    const auto rows = sql_execute(db,
+                                                  "select external_uuid, title from bookmarks "
+                                                  "where parent = 0 and type = 1 and subtype = 2");
+                    for(const auto &row: rows) {
+                        const auto id_it = row.find("external_uuid");
+                        const auto name_it = row.find("title");
+                        if(id_it == row.end() || name_it == row.end() || id_it->second.empty() || name_it->second.empty()) {
+                            continue;
+                        }
+                        if(id_it->second.find_first_not_of("0123456789abcdefABCDEF-") != string::npos) {
+                            continue;
+                        }
+                        if(!profile_ids.emplace(id_it->second).second) continue;
+
+                        const string name = name_it->second;
+                        if(name == "Personal") has_personal = true;
+
+                        browser_profile profile(
+                            name,
+                            format("\"{}\"", browser::URL_ARG_NAME),
+                            icon_path);
+                        profile.user_arg = format("--args -ProfileIdentifier \"{}\"", id_it->second);
+                        b.profiles.push_back(std::move(profile));
+                    }
+                }
+                if(db != nullptr) sqlite3_close(db);
+            }
+        }
+
+        if(!has_personal) {
+            browser_profile personal(
+                "Personal",
+                format("\"{}\"", browser::URL_ARG_NAME),
+                icon_path);
+            b.profiles.push_back(std::move(personal));
+        }
+
+        browser_profile private_profile(
+            "Private",
+            format("--args -PrivateBrowsing \"{}\"", browser::URL_ARG_NAME),
+            icon_path);
+        private_profile.is_incognito = true;
+        b.profiles.push_back(std::move(private_profile));
+    }
+#endif
+
 
     std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto_1, const std::string& ignore_proto_2) {
         vector<browser> browsers;
@@ -370,6 +463,10 @@ namespace bt {
 #if PLATFORM_LINUX
         discover_xdg_desktop_browsers(browsers);
 
+#endif
+
+#if PLATFORM_MACOS
+        discover_macos_safari_browser(browsers);
 #endif
 
         // mark these as fully managed
@@ -748,6 +845,13 @@ namespace bt {
 
     void discovery::discover_other_profiles(browser &b) {
         if(b.engine != browser_engine::generic) return;
+
+#if PLATFORM_MACOS
+        if(b.name == "Safari" && b.open_cmd == "/usr/bin/open -a Safari") {
+            discover_macos_safari_profiles(b);
+            return;
+        }
+#endif
 
         string icon_path = b.icon_path.empty() ? b.open_cmd : b.icon_path;
 

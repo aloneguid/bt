@@ -118,11 +118,12 @@ TEST(URL, ParsesQueryParameters) {
 
     expect_parts(actual, "https", "host", "", "/path",
                  "name=John+Doe&encoded=%2Ftmp%2Ffile&flag&empty=&duplicate=first&duplicate=second");
-    EXPECT_EQ((unordered_map<string, string>{{"name", "John Doe"},
-                                             {"encoded", "/tmp/file"},
-                                             {"flag", ""},
-                                             {"empty", ""},
-                                             {"duplicate", "first"}}),
+    EXPECT_EQ((vector<pair<string, string>>{{"name", "John Doe"},
+                                            {"encoded", "/tmp/file"},
+                                            {"flag", ""},
+                                            {"empty", ""},
+                                            {"duplicate", "first"},
+                                            {"duplicate", "second"}}),
               actual.parameters);
 }
 
@@ -131,10 +132,10 @@ TEST(URL, ToleratesMalformedQueryPairsAndEscapes) {
 
     EXPECT_EQ("/path", actual.path);
     EXPECT_EQ("&&missing_equals&=value&bad%2G=still%ZZ&trailing=", actual.query);
-    EXPECT_EQ((unordered_map<string, string>{{"missing_equals", ""},
-                                             {"", "value"},
-                                             {"bad%2G", "still%ZZ"},
-                                             {"trailing", ""}}),
+    EXPECT_EQ((vector<pair<string, string>>{{"missing_equals", ""},
+                                            {"", "value"},
+                                            {"bad%2G", "still%ZZ"},
+                                            {"trailing", ""}}),
               actual.parameters);
 }
 
@@ -169,14 +170,15 @@ TEST(URL, ToStringPreservesEveryParsedForm) {
 
 TEST(URL, ToStringSerializesManuallySetParameters) {
     url actual{"https://host/path"};
-    actual.parameters.emplace("search", "hello world&url");
+    actual.parameters.emplace_back("search", "hello world&url");
+    actual.parameters.emplace_back("first", "value");
 
-    EXPECT_EQ("https://host/path?search=hello+world%26url", actual.to_string());
+    EXPECT_EQ("https://host/path?search=hello+world%26url&first=value", actual.to_string());
 }
 
 TEST(URL, ToStringUsesRawQueryBeforeDecodedParameters) {
     url actual{"https://host/path?raw=%2f+value"};
-    actual.parameters.emplace("different", "value");
+    actual.parameters.emplace_back("different", "value");
 
     EXPECT_EQ("https://host/path?raw=%2f+value", actual.to_string());
 }

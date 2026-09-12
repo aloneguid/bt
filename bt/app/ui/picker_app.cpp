@@ -19,14 +19,13 @@ namespace w = grey::widgets;
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection> > selections)
         : url{url}, title{APP_LONG_NAME " - Pick"},
-          app{grey::app::make(title, 100, 120)},
-          wnd_main{title, &is_open},
-          wnd_settings{"Settings", &is_settings_open} {
+          app{app::make(title, {100, 120})} {
+          // wnd_main{title, &is_open},
         app->fonts.load_icons = true;
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
         app->center_on_screen = true;
-        app->show_title_bar = g_state.picker.show_native_chrome;
+        app->chrome = g_state.picker.show_native_chrome ? system_chrome::native : system_chrome::headerless;
 
         app->always_on_top = g_state.picker.always_on_top;
 #if PLATFORM_WINDOWS
@@ -59,26 +58,13 @@ namespace bt::ui {
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
 
-            wnd_main
-                    .no_titlebar()
-                    .no_resize()
-                    .border(static_cast<float>(g_state.picker.border_width))
-                    .fill_viewport()
-                    .no_scroll();
-
             cnt_top
                     .auto_size_y()
                     .padding(5, 5);
 
             cnt_blist
                     .background(true);
-
-            wnd_settings
-                    .no_collapse()
-                    .size(400.0f, 0)
-                    .no_scroll()
-                    .no_resize()
-                    .border(1);
+            
         };
     }
 
@@ -91,7 +77,7 @@ namespace bt::ui {
     }
 
     picker_result picker_app::run() {
-        app->run([this](const grey::app&) {
+        app->run([this] {
             return run_frame();
         });
 
@@ -130,10 +116,8 @@ namespace bt::ui {
         }
 
         {
-            w::guard gw{wnd_main};
-
             if(choices.empty()) {
-                w::label("no browsers", emphasis::error, 0, true, 0, true, true);
+                w::lbl("no browsers", {.emp = emphasis::error, .center_x = true, .center_y = true});
             } else {
                 point cur1 = w::cur_get();
 
@@ -154,7 +138,14 @@ namespace bt::ui {
         }
 
         if(is_settings_open) {
-            w::guard gw{wnd_settings};
+            w::wnd w{"Settings", {
+                .open_ptr = &is_settings_open,
+                .size = {400, 0},
+                .size_cond = act_condition::once,
+                .border = 1,
+                .scrollable = false,
+                .resizeable = false
+            }};
             render_settings();
         }
 
@@ -220,8 +211,8 @@ namespace bt::ui {
 
     void picker_app::recalc() {
         ImGuiStyle& style = ImGui::GetStyle();
-        box_size_scaled = g_state.picker.box_size * app->scale;
-        padding_scaled = g_state.picker.item_padding * app->scale;
+        box_size_scaled = g_state.picker.box_size * w::scale;
+        padding_scaled = g_state.picker.item_padding * w::scale;
         label_text_size = w::text_size_get("x", g_state.picker.label_size);
         auto url_size = w::text_size_get(url);
 
@@ -251,7 +242,7 @@ namespace bt::ui {
 
         if(window_size.x != target_window_size.x || window_size.y != target_window_size.y) {
             window_size = target_window_size;
-            app->resize_main_viewport(window_size.x / app->scale, window_size.y / app->scale);
+            app->resize({window_size.x / w::scale, window_size.y / w::scale});
         }
     }
 
@@ -328,9 +319,8 @@ namespace bt::ui {
                 w::group g;
 
                 // render icon and come back to starting position
-                float x0, y0;
-                w::cur_get(x0, y0);
-                w::cur_set(x0, y0);
+                point p0 = w::cur_get();
+                w::cur_set(p0);
                 btw_icon(*app, p, box_size_total / 2 - icon_size_scaled / 2, padding_scaled, icon_size_scaled);
 
                 // draw key highlight
@@ -339,7 +329,7 @@ namespace bt::ui {
                     ImVec2 wsz = w::text_size_get(label, g_state.picker.label_size);
 
                     // Calculate center for the circle
-                    ImVec2 circle_center = ImVec2(x0 + box_size_total / 2.0f, y0 + padding_scaled);
+                    point circle_center{p0.x + box_size_total / 2.0f, p0.y + padding_scaled};
                     float radius = max(wsz.x, wsz.y) / 2.0f;
 
                     // Draw the circle
@@ -348,17 +338,17 @@ namespace bt::ui {
                     ImGui::GetWindowDrawList()->AddCircleFilled(circle_center, radius, circle_color);
 
                     // label in the middle-top
-                    w::cur_set(circle_center.x - wsz.x / 2, circle_center.y - wsz.y / 2);
-                    w::label(label, emphasis::none, 0, true, g_state.picker.label_size);
+                    w::cur_set({circle_center.x - wsz.x / 2, circle_center.y - wsz.y / 2});
+                    w::lbl(label, {.center_x = true, .font_size = g_state.picker.label_size});
                 }
 
                 // labels
                 if(line_count > 0) {
-                    ImVec2 min{x0 + padding_scaled / 2, y0 + padding_scaled + icon_size_scaled + style.FramePadding.y};
-                    ImVec2 max{x0 + box_size_total - padding_scaled / 2, min.y + label_text_size.y * line_count};
+                    point min{p0.x + padding_scaled / 2, p0.y + padding_scaled + icon_size_scaled + style.FramePadding.y};
+                    point max{p0.x + box_size_total - padding_scaled / 2, min.y + label_text_size.y * line_count};
                     float max_width = max.x - min.x;
 
-                    w::cur_set(min.x, min.y);
+                    w::cur_set(min);
 
                     {
                         string line1;
@@ -379,7 +369,7 @@ namespace bt::ui {
 
 
                         w::clip_rect cr{min, max};
-                        w::dummy(max.x - min.x, max.y - min.y);
+                        w::dummy({max.x - min.x, max.y - min.y});
                         //w::draw_rect(rect{min, max}, rgb_colour{ImGuiCol_Border});
 
                         if(!line1.empty()) {
@@ -402,8 +392,8 @@ namespace bt::ui {
                     }
                 }
 
-                w::cur_set(x0, y0);
-                w::dummy(box_size_total, box_size_total);
+                w::cur_set(p0);
+                w::dummy(sz::square(box_size_total));
             }
 
             if(w::is_hovered()) {
@@ -440,11 +430,11 @@ namespace bt::ui {
         w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
         w::checkbox("show key hints (1-10)", g_state.picker.show_key_hints);
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
-            wnd_main.border(g_state.picker.border_width);
+            app->main_window_opts().border = g_state.picker.border_width;
         }
         w::slider(g_state.picker.opacity, 50, 255, "window opacity");
         if(w::checkbox("show native window chrome", g_state.picker.show_native_chrome))
-            app->show_title_bar = g_state.picker.show_native_chrome;
+            app->chrome = g_state.picker.show_native_chrome ? system_chrome::native : system_chrome::headerless;
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
 
         w::spc(2);
