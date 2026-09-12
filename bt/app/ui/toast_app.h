@@ -40,7 +40,6 @@ namespace bt::ui {
 
         std::unique_ptr<grey::app> app;
         bool is_open{true};
-        grey::widgets::window wnd_main;
 
         void size_to_fit();
         void render_content() const;

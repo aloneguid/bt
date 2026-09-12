@@ -7,8 +7,7 @@
             "features": [
                 "win32-binding",
                 "dx11-binding",
-                "docking-experimental",
-                "freetype"
+                "docking-experimental"
             ],
             "platform": "windows"
         },
@@ -19,11 +18,25 @@
                 "glfw-binding",
                 "docking-experimental"
             ],
-            "platform": "linux | osx"
+            "platform": "linux"
+        },
+        {
+            "name": "imgui",
+            "features": [
+                "metal-binding",
+                "osx-binding",
+                "glfw-binding",
+                "docking-experimental"
+            ],
+            "platform": "osx"
         },
         {
             "name": "glfw3",
             "platform": "linux | osx"
+        },
+        {
+            "name": "fontconfig",
+            "platform": "linux"
         },
         "implot",
         "nlohmann-json",

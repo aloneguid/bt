@@ -34,56 +34,48 @@ using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    config_app::config_app() : title{string{APP_LONG_NAME} + " " + APP_VERSION},
-                               wnd_config{title, &is_open},
-                               wnd_subs{"Substitutions", &show_subs},
-                               wnd_scripting{strings::ScriptEditor, &show_scripting},
-                               wnd_pv{strings::PipelineDebugger, &pv_show},
-                               wnd_add_browser("Add browser", &add_browser_show) {
-        app = grey::app::make(title, 900, 500);
+    config_app::config_app() : app{app::make(string{APP_LONG_NAME} + " " + APP_VERSION, {800, 600})} {
+                               // wnd_subs{"Substitutions", &show_subs},
+                               // wnd_scripting{strings::ScriptEditor, &show_scripting},
+                               // wnd_pv{strings::PipelineDebugger, &pv_show},
+                               // wnd_add_browser("Add browser", &add_browser_show) {
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = true;
         app->center_on_screen = true;
         app->fonts.load_all();
+        auto& opts = app->main_window_opts();
+        opts.has_menu_bar = true;
+        opts.open_ptr = &is_open;
 
-        wnd_config
-                .has_menubar()
-                .no_titlebar()
-                .border(0)
-                .no_resize()
-                .no_collapse()
-                .fill_viewport()
-                .no_scroll();
+        // wnd_subs
+        //         .size(600, 300)
+        //         .border(1)
+        //         .center();
+        //
+        // wnd_scripting
+        //         .size(800, 600)
+        //         .border(1)
+        //         .no_scroll();
+        //
+        // wnd_pv
+        //         .size(800, 500)
+        //         .border(1)
+        //         .center();
+        //
+        // wnd_add_browser
+        //         .size(400, 0)
+        //         .border(1)
+        //         .no_collapse()
+        //         .no_resize()
+        //         .center();
 
-        wnd_subs
-                .size(600, 300)
-                .border(1)
-                .center();
-
-        wnd_scripting
-                .size(800, 600)
-                .border(1)
-                .no_scroll();
-
-        wnd_pv
-                .size(800, 500)
-                .border(1)
-                .center();
-
-        wnd_add_browser
-                .size(400, 0)
-                .border(1)
-                .no_collapse()
-                .no_resize()
-                .center();
-
-        float padding_bottom = 20 * app->scale;
-        w_left_panel = w::container{250 * app->scale, -padding_bottom}.resize_x();
+        float padding_bottom = 20 * w::scale;
+        w_left_panel = w::container{250 * w::scale, -padding_bottom}.resize_x();
         w_right_panel = w::container{0, -padding_bottom};
-        w_browser_toolbar = w::container{40 * app->scale}.auto_size_y().border();
+        w_browser_toolbar = w::container{40 * w::scale}.auto_size_y().border();
         w_browser_rest_of_it = w::container{}.border();
 
-        w_script_top_panel = w::container{0, 220 * app->scale}.resize_y();
+        w_script_top_panel = w::container{0, 220 * w::scale}.resize_y();
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
@@ -100,7 +92,7 @@ namespace bt::ui {
     }
 
     void config_app::run() {
-        app->run([this](const grey::app &) { return run_frame(); });
+        app->run([this]() { return run_frame(); });
     }
 
     void config_app::refresh_sys_info() {
@@ -111,7 +103,7 @@ namespace bt::ui {
 
             // fetch new info and convert to string to avoid conversion in every frame
             si_fps = format("{:.1f}", ImGui::GetIO().Framerate);
-            si_scale = format("{:.1f}", app->scale);
+            si_scale = format("{:.1f}", w::scale);
             si_dpi = format("{}", grey::common::desktop_shell::get_current_monitor_dpi());
         }
     }
@@ -140,8 +132,6 @@ namespace bt::ui {
     }
 
     bool config_app::run_frame() {
-        w::guard gw{wnd_config};
-
         if(g_state.browsers.empty()) {
             render_no_browsers();
         } else {
@@ -174,7 +164,7 @@ namespace bt::ui {
         }
 
         check_health();
-        w::notify_render_frame();
+        w::toast_render_frame();
 
         // end of frame actions
         if(exec_rediscover) {
@@ -218,7 +208,7 @@ namespace bt::ui {
                 }
                 if(w::mi("Re-check health", true, ICON_MD_MEDICAL_SERVICES)) {
                     check_health(true);
-                    w::notify_info("Health check finished");
+                    w::toast(emphasis::info, "Health check finished");
                 }
                 w::sep("Discovery");
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
@@ -297,16 +287,16 @@ namespace bt::ui {
                 refresh_sys_info();
                 w::sep(ICON_MD_MONITOR " system info");
                 {
-                    float offset = 100 * app->scale;
-                    w::label("FPS");
+                    float offset = 100 * w::scale;
+                    w::lbl("FPS");
                     w::sl(offset);
-                    w::label(si_fps);
-                    w::label("Scale");
+                    w::lbl(si_fps);
+                    w::lbl("Scale");
                     w::sl(offset);
-                    w::label(si_scale);
-                    w::label("DPI");
+                    w::lbl(si_scale);
+                    w::lbl("DPI");
                     w::sl(offset);
-                    w::label(si_dpi);
+                    w::lbl(si_dpi);
                 }
             }
         }
@@ -314,7 +304,7 @@ namespace bt::ui {
 
     void config_app::startup_health_warning() {
         if(health_failed > 0) {
-            string title = "Health warning";
+            const string title = "Health warning";
 
             if(!startup_health_opened) {
                 ImGui::OpenPopup(title.c_str());
@@ -340,7 +330,11 @@ namespace bt::ui {
     }
 
     void config_app::render_subs_window() {
-        w::guard gw{wnd_subs};
+        w::wnd wsubs {"Substitutions", {
+            .size = {600, 300},
+            .size_cond = act_condition::once,
+            .border = 1
+        }};
 
         bool recompute{false};
 
@@ -373,8 +367,8 @@ namespace bt::ui {
 
                 auto replacer = g_pipeline.get_replacer_step(i);
 
-                float pad = 100.0f * app->scale + 10 * app->scale;
-                float iw = 250.0f * app->scale;
+                float pad = 100.0f * w::scale + 10 * w::scale;
+                float iw = 250.0f * w::scale;
 
                 w::combo("##kind" + suffix,
                          replacer_kinds,
@@ -385,7 +379,7 @@ namespace bt::ui {
                 if(w::input(replacer->find, "find" + suffix, true, iw)) recompute = true;
 
                 // "delete" button to the right
-                w::sl(pad + iw + 70 * app->scale);
+                w::sl(pad + iw + 70 * w::scale);
                 if(w::button(ICON_MD_DELETE + suffix, emphasis::error)) {
                     g_state.transforms.substitutions.erase(g_state.transforms.substitutions.begin() + i);
                     g_pipeline.load();
@@ -393,7 +387,7 @@ namespace bt::ui {
                     break;
                 }
 
-                w::label("");
+                w::lbl("");
                 w::sl(pad);
                 if(w::input(replacer->replace, "replace" + suffix, true, iw)) recompute = true;
             }
@@ -419,7 +413,10 @@ namespace bt::ui {
     }
 
     void config_app::render_scripting_window() {
-        w::guard gw{wnd_scripting};
+        w::wnd w{strings::ScriptEditor, {
+            .size = {800, 600},
+            .border = 1
+        }};
 
         {
             w::guard g{w_script_top_panel};
@@ -433,7 +430,7 @@ namespace bt::ui {
                 w::container c{"err", 0, 0};
                 c.border().auto_size_y();
                 w::guard g{c};
-                w::label(g_script.get_error(), emphasis::error);
+                w::lbl(g_script.get_error(), {.emp = emphasis::error});
             }
 
             w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
@@ -509,12 +506,15 @@ namespace bt::ui {
     }
 
     void config_app::render_pipe_visualiser_window() {
-        w::guard gw{wnd_pv};
+        w::wnd w{strings::PipelineDebugger, {
+            .size = {800, 500},
+            .border = 1
+        }};
 
         bool i0 = w::input(g_state.pipevis.url, ICON_MD_LINK " URL");
-        bool i1 = w::input(g_state.pipevis.window_title, ICON_MD_WINDOW " window", true, 300.0f * app->scale);
+        bool i1 = w::input(g_state.pipevis.window_title, ICON_MD_WINDOW " window", true, 300.0f * w::scale);
         w::sl();
-        bool i2 = w::input(g_state.pipevis.process_name, ICON_MD_MEMORY " process", true, 150.0f * app->scale);
+        bool i2 = w::input(g_state.pipevis.process_name, ICON_MD_MEMORY " process", true, 150.0f * w::scale);
 
         if(w::button(ICON_MD_CLEAR_ALL " clear", emphasis::error)) {
             g_state.pipevis.url = g_state.pipevis.window_title = g_state.pipevis.process_name = "";
@@ -541,9 +541,9 @@ namespace bt::ui {
         if(w::table pv{"pv", {"Key", "Value"}, .0f, .0f, true}; pv) {
             // input row
             pv.begin_row();
-            w::label("URL");
+            w::lbl("URL");
             pv.next_column();
-            w::label(g_state.pipevis.url);
+            w::lbl(g_state.pipevis.url);
 
             // pipeline steps
             if(!pv_pipeline_steps.empty()) {
@@ -551,7 +551,7 @@ namespace bt::ui {
                 {
                     w::tree_node node_pipeline{"Pipeline", true, false, true};
                     pv.next_column();
-                    w::label(" ");
+                    w::lbl(" ");
                     if(node_pipeline) {
                         for(auto &s: pv_pipeline_steps) {
                             pv.begin_row();
@@ -560,14 +560,14 @@ namespace bt::ui {
                                 w::tree_node step_node{text, true, true, true};
                                 pv.next_column();
                                 if(s.before.url == s.after.url) {
-                                    w::label(ICON_MD_BRIGHTNESS_1);
+                                    w::lbl(ICON_MD_BRIGHTNESS_1);
                                     w::tt("no change");
                                 } else {
-                                    w::label(ICON_MD_ADJUST, emphasis::primary);
+                                    w::lbl(ICON_MD_ADJUST, {.emp = emphasis::primary});
                                     w::tt("URL was modified");
                                 }
                                 w::sl();
-                                w::label(s.after.url);
+                                w::lbl(s.after.url);
                             } // step_node
                         }
                     }
@@ -591,9 +591,9 @@ namespace bt::ui {
                             w::tree_node node_profile(i.name, true, false, true, emp);
                             pv.next_column();
                             if(i.rules.empty()) {
-                                w::label("no rules", 0, false);
+                                w::lbl("no rules", {.emp = emphasis::disabled});
                             } else {
-                                w::label(format("{} rule(s)", i.rules.size()), 0, false);
+                                w::lbl(format("{} rule(s)", i.rules.size()), {.emp = emphasis::disabled});
                             }
 
                             // rules
@@ -608,7 +608,7 @@ namespace bt::ui {
                                         false, true, true, emp
                                     };
                                     pv.next_column();
-                                    w::label(r.to_string(false), emp);
+                                    w::lbl(r.to_string(false), {.emp = emp});
                                 }
                             }
                         }
@@ -636,9 +636,9 @@ namespace bt::ui {
         //                ImGui::TableSetColumnIndex(1);
 
         //                if(i->rules.empty()) {
-        //                    w::label("no rules", 0, false);
+        //                    w::lbl("no rules", 0, false);
         //                } else {
-        //                    w::label(format("{} rule(s)", i->rules.size()), 0, false);
+        //                    w::lbl(format("{} rule(s)", i->rules.size()), 0, false);
         //                }
 
         //                if(i_open) {
@@ -654,7 +654,7 @@ namespace bt::ui {
         //                            format("{}##{}", r->get_type_string(), idx++),
         //                            false, true, true, emp);
         //                        ImGui::TableSetColumnIndex(1);
-        //                        w::label(r->to_string(false), emp);
+        //                        w::lbl(r->to_string(false), emp);
         //                    }
         //                }
         //            }
@@ -682,7 +682,7 @@ namespace bt::ui {
             w::id_frame idf{i++};
 
             if(hc.is_ok) {
-                w::label(ICON_MD_CHECK, emphasis::primary);
+                w::lbl(ICON_MD_CHECK, {.emp = emphasis::primary});
                 w::tt(hc.name);
             } else {
                 if(w::button("issue", is_odd ? emphasis::error : emphasis::none, true, true)) {
@@ -708,24 +708,24 @@ namespace bt::ui {
         }
 
         w::sl();
-        w::label("|", 0, false);
+        w::lbl("|", {.emp = emphasis::disabled});
         w::sl();
-        w::label(format("{} {}", ICON_MD_WEB, g_state.browsers.size()), 0, false);
+        w::lbl(format("{} {}", ICON_MD_WEB, g_state.browsers.size()), {.emp = emphasis::disabled});
         w::tt("Browser count");
 
         w::sl();
-        w::label(format("{} {}", ICON_MD_PERSON, ipc), 0, false);
+        w::lbl(format("{} {}", ICON_MD_PERSON, ipc), {.emp = emphasis::disabled});
         w::tt("Profile count");
 
         w::sl();
-        w::label(format("{} {}", ICON_MD_RULE, irc), 0, false);
+        w::lbl(format("{} {}", ICON_MD_RULE, irc), {.emp = emphasis::disabled});
         w::tt("Configured rule count");
 
         w::sl();
-        w::label("|", 0, false);
+        w::lbl("|", {.emp = emphasis::disabled});
 
         w::sl();
-        w::label(ICON_MD_COFFEE, 0, false);
+        w::lbl(ICON_MD_COFFEE, {.emp = emphasis::disabled});
         w::tt("Support this app, buy me a coffee!");
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -736,22 +736,22 @@ namespace bt::ui {
 
         if(!g_state.browsers.empty()) {
             w::sl();
-            w::label("|", 0, false);
+            w::lbl("|", {.emp = emphasis::disabled});
             optional<profile_selection> sel = browser::get_default(g_state.browsers);
             if(sel) {
                 w::sl();
-                w::label(ICON_MD_LAPTOP, 0, false);
+                w::lbl(ICON_MD_LAPTOP, {.emp = emphasis::disabled});
                 w::sl();
-                w::label(sel->b().name, 0, false);
+                w::lbl(sel->b().name, {.emp = emphasis::disabled});
                 w::tt("Default browser");
 
                 if(sel->b().engine != browser_engine::generic) {
                     w::sl();
-                    w::label("|", 0, false);
+                    w::lbl("|", {.emp = emphasis::disabled});
                     w::sl();
-                    w::label(ICON_MD_TAB, 0, false);
+                    w::lbl(ICON_MD_TAB, {.emp = emphasis::disabled});
                     w::sl();
-                    w::label(sel->p().name, 0, false);
+                    w::lbl(sel->p().name, {.emp = emphasis::disabled});
                     w::tt("Default profile");
                 }
             }
@@ -760,15 +760,14 @@ namespace bt::ui {
 
     void config_app::render_no_browsers() {
         for(int i = 0; i < 5; i++)
-            w::label("");
+            w::lbl("");
 
-        w::label("Currently there are no browsers registered.", emphasis::primary, 0, true, 5, true, false);
+        w::lbl("Currently there are no browsers registered.", {.emp = emphasis::primary, .center_x = true, .font_size = 5});
         w::spc();
-        w::label("Press the button below to scan your system for installed browsers.", emphasis::none, 0, true, 0, true, false);
-        w::spc();
+        w::lbl("Press the button below to scan your system for installed browsers.", {.emp = emphasis::none, .center_x = true});
 
         string label = ICON_MD_REFRESH "discover system browsers";
-        float button_width = 300 * app->scale;
+        float button_width = 300 * w::scale;
         auto cur = w::cur_get();
         cur.x += w::avail_x() / 2 - button_width / 2;
         w::cur_set(cur);
@@ -833,46 +832,46 @@ namespace bt::ui {
         {
             w::group g{true};
 
-            float padding = 10 * app->scale;
-            float icon_size = 32 * app->scale;
+            float padding = 10 * w::scale;
+            float icon_size = 32 * w::scale;
             float left_pad = icon_size + padding * 2;
 
             // render icon and come back to starting position
             auto pos = w::cur_get();
-            w::cur_set(pos.x + padding, pos.y + padding);
+            w::cur_set({pos.x + padding, pos.y + padding});
 
             string path = b.get_best_icon_path();
             if(app->preload_texture(path, fss::get_full_path(path))) {
-                w::image(*app, path, icon_size, icon_size);
+                w::image(*app, path, sz::square(icon_size));
             } else {
-                w::image(*app, "logo", icon_size, icon_size);
+                w::image(*app, "logo", sz::square(icon_size));
             }
 
             // elements
-            w::cur_set(pos.x + left_pad, pos.y + padding);
-            w::label(b.name);
+            w::cur_set({pos.x + left_pad, pos.y + padding});
+            w::lbl(b.name);
 
             //w::spc();
             auto pos2 = w::cur_get();
-            w::cur_set(pos2.x + left_pad, pos2.y);
+            w::cur_set({pos2.x + left_pad, pos2.y});
             //w::move_pos(left_pad, 0);
 
             // management level
             switch(b.management) {
                 case management_extent::full:
-                    w::label(ICON_MD_AUTO_FIX_HIGH);
+                    w::lbl(ICON_MD_AUTO_FIX_HIGH);
                     break;
                 case management_extent::profiles:
-                    w::label(ICON_MD_AUTO_FIX_NORMAL);
+                    w::lbl(ICON_MD_AUTO_FIX_NORMAL);
                     break;
                 default:
-                    w::label(ICON_MD_AUTO_FIX_OFF);
+                    w::lbl(ICON_MD_AUTO_FIX_OFF);
                     break;
             }
 
             if(b.engine != browser_engine::generic) {
                 w::sl();
-                w::label(format("{} {}", ICON_MD_FACE, b.profiles.size()), 0, false);
+                w::lbl(format("{} {}", ICON_MD_FACE, b.profiles.size()), {.emp = emphasis::disabled});
 
                 switch(b.engine) {
                     case browser_engine::chromium:
@@ -888,19 +887,19 @@ namespace bt::ui {
 
             if(b.is_hidden) {
                 w::sl();
-                w::label(ICON_MD_VISIBILITY_OFF, 0, false);
+                w::lbl(ICON_MD_VISIBILITY_OFF, {.emp = emphasis::disabled});
                 w::tt("Hidden");
             }
 
             if(b.supports_frameless_windows()) {
                 w::sl();
-                w::label(ICON_MD_TAB_UNSELECTED, 0, false);
+                w::lbl(ICON_MD_TAB_UNSELECTED, {.emp = emphasis::disabled});
                 w::tt("Supports frameless windows");
             }
 
             if(b.is_default()) {
                 w::sl();
-                w::label(ICON_MD_FAVORITE, emphasis::primary);
+                w::lbl(ICON_MD_FAVORITE, {.emp = emphasis::primary});
                 w::tt("Default browser");
             }
 
@@ -1172,7 +1171,11 @@ namespace bt::ui {
     }
 
     void config_app::render_add_browser_window() {
-        w::guard w{wnd_add_browser};
+        w::wnd w{"Add browser", {
+            .size = {400, 0},
+            .size_cond = act_condition::once,
+            .resizeable = false
+        }};
         browser &b = new_browser;
 
         w::input(b.name, "name");
@@ -1210,7 +1213,7 @@ namespace bt::ui {
             }
         }
 
-        if(w::button(ICON_MD_ADD_CIRCLE " add", emphasis::primary, true, false, "", 100 * app->scale)) {
+        if(w::button(ICON_MD_ADD_CIRCLE " add", emphasis::primary, true, false, "", 100 * w::scale)) {
             b.management = b.engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
 
             // validation
@@ -1255,7 +1258,7 @@ namespace bt::ui {
 
         if(!b.ui_validation_error.empty()) {
             w::sl();
-            w::label(ICON_MD_ERROR, emphasis::error);
+            w::lbl(ICON_MD_ERROR, {.emp = emphasis::error});
             w::tt(b.ui_validation_error);
         }
     }
@@ -1263,7 +1266,7 @@ namespace bt::ui {
     void config_app::render_icon(browser& b, browser_profile& p) {
         {
             w::group g;
-            btw_icon(*app, b, p, icon_overlay_mode::profile_only, 0, 0, 40 * app->scale);
+            btw_icon(*app, b, p, icon_overlay_mode::profile_only, 0, 0, 40 * w::scale);
         }
         if(w::is_hovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
@@ -1327,7 +1330,7 @@ namespace bt::ui {
         btw_on_app_initialised(*app);
 
         string message = format("Discovered {} browser(s).", g_state.browsers.size());
-        w::notify_info(message);
+        w::toast(emphasis::info, message);
     }
 
     void config_app::recalculate_test_url_matches(const click_payload &cp) {

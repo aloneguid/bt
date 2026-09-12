@@ -53,12 +53,11 @@ namespace bt::ui {
         w::group g;
 
         // render icon and come back to starting position
-        float x0, y0;
-        w::cur_get(x0, y0);
+        point p0 = w::cur_get();
 
         w::dummy(box_size);
 
-        w::cur_set(x0 + padding_x, y0 + padding_y);
+        w::cur_set({p0.x + padding_x, p0.y + padding_y});
 
         string icon1 = b.get_best_icon_path();
         string icon2;
@@ -91,19 +90,18 @@ namespace bt::ui {
 
             //draw circle around the icon with user color
             auto dl = ImGui::GetWindowDrawList();
-            ImVec2 center{x0 + padding_x + icon_size / 2, y0 + padding_y + icon_size / 2};
+            point center{p0.x + padding_x + icon_size / 2, p0.y + padding_y + icon_size / 2};
             auto radius = icon_size / 2 + g_state.highlight_width / 2;
-            //dl->AddCircle(center, radius, color, 0, g_state.highlight_width);
             dl->AddCircleFilled(center, radius, color);
         }
 
-        w::image_rounded(app, icon1, icon_size, icon_size, icon_size / 2);
+        w::image_rounded(app, icon1, sz::square(icon_size), icon_size / 2);
 
         // if required, draw overlay icon
         if(!icon2.empty()) {
-            w::cur_set(x0 + padding_x + icon_size / 2, y0 + padding_y + icon_size / 2);
+            w::cur_set({p0.x + padding_x + icon_size / 2, p0.y + padding_y + icon_size / 2});
             float isz = icon_size / 2;
-            w::image_rounded(app, icon2, isz, isz, isz);
+            w::image_rounded(app, icon2, sz::square(isz), isz);
         }
     }
 
@@ -192,7 +190,7 @@ namespace bt::ui {
         // scope (for "URL" rules)
         if(rule.loc == match_location::url) {
             w::sl();
-            w::label("|", 0, false);
+            w::lbl("|", {.emp = emphasis::disabled});
             w::sl();
             w::icon_list(url_scopes, reinterpret_cast<unsigned int&>(rule.scope));
         }
