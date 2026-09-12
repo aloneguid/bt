@@ -1,6 +1,10 @@
-## 6.2.4
+## 6.3.0
 
 🍞 Toasted!
+
+### New features
+
+- todo: Brave containers!
 
 ### Improvements
 - 🍞 Ergonomic improvements in Toast:

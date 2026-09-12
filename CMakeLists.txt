@@ -2,7 +2,11 @@ cmake_minimum_required (VERSION 3.31)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (APPLE)
 project ("BrowserTamer" VERSION 6.2.4 LANGUAGES CXX OBJCXX)
+else()
+project ("BrowserTamer" VERSION 6.2.4)
+endif()
 
 # Application metadata - shared between main build and packaging
 set(APP_NAME bt)

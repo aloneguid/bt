@@ -31,14 +31,10 @@
 using namespace std;
 using namespace grey;
 using namespace grey::common;
-namespace w = grey::widgets;
+namespace w = widgets;
 
 namespace bt::ui {
     config_app::config_app() : app{app::make(string{APP_LONG_NAME} + " " + APP_VERSION, {800, 600})} {
-                               // wnd_subs{"Substitutions", &show_subs},
-                               // wnd_scripting{strings::ScriptEditor, &show_scripting},
-                               // wnd_pv{strings::PipelineDebugger, &pv_show},
-                               // wnd_add_browser("Add browser", &add_browser_show) {
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = true;
         app->center_on_screen = true;
@@ -47,32 +43,9 @@ namespace bt::ui {
         opts.has_menu_bar = true;
         opts.open_ptr = &is_open;
 
-        // wnd_subs
-        //         .size(600, 300)
-        //         .border(1)
-        //         .center();
-        //
-        // wnd_scripting
-        //         .size(800, 600)
-        //         .border(1)
-        //         .no_scroll();
-        //
-        // wnd_pv
-        //         .size(800, 500)
-        //         .border(1)
-        //         .center();
-        //
-        // wnd_add_browser
-        //         .size(400, 0)
-        //         .border(1)
-        //         .no_collapse()
-        //         .no_resize()
-        //         .center();
-
-        float padding_bottom = 20 * w::scale;
-        w_left_panel = w::container{250 * w::scale, -padding_bottom}.resize_x();
-        w_right_panel = w::container{0, -padding_bottom};
-        w_browser_toolbar = w::container{40 * w::scale}.auto_size_y().border();
+        w_left_panel = w::container{250}.resize_x();
+        w_right_panel = w::container{};
+        w_browser_toolbar = w::container{40}.auto_size_y().border();
         w_browser_rest_of_it = w::container{}.border();
 
         w_script_top_panel = w::container{0, 220 * w::scale}.resize_y();
@@ -331,6 +304,7 @@ namespace bt::ui {
 
     void config_app::render_subs_window() {
         w::wnd wsubs {"Substitutions", {
+            .open_ptr = &show_subs,
             .size = {600, 300},
             .size_cond = act_condition::once,
             .border = 1
@@ -414,7 +388,9 @@ namespace bt::ui {
 
     void config_app::render_scripting_window() {
         w::wnd w{strings::ScriptEditor, {
+            .open_ptr = &show_scripting,
             .size = {800, 600},
+            .size_cond = act_condition::once,
             .border = 1
         }};
 
@@ -507,7 +483,9 @@ namespace bt::ui {
 
     void config_app::render_pipe_visualiser_window() {
         w::wnd w{strings::PipelineDebugger, {
+            .open_ptr = &pv_show,
             .size = {800, 500},
+            .size_cond = act_condition::once,
             .border = 1
         }};
 
@@ -667,7 +645,7 @@ namespace bt::ui {
 
     void config_app::render_status_bar() {
         w::status_bar sb;
-
+        w::lbl("");
         bool is_odd;
         {
             health_blink_time += ImGui::GetIO().DeltaTime;
@@ -707,9 +685,7 @@ namespace bt::ui {
             }
         }
 
-        w::sl();
-        w::lbl("|", {.emp = emphasis::disabled});
-        w::sl();
+        sb.sep();
         w::lbl(format("{} {}", ICON_MD_WEB, g_state.browsers.size()), {.emp = emphasis::disabled});
         w::tt("Browser count");
 
@@ -721,18 +697,24 @@ namespace bt::ui {
         w::lbl(format("{} {}", ICON_MD_RULE, irc), {.emp = emphasis::disabled});
         w::tt("Configured rule count");
 
-        w::sl();
-        w::lbl("|", {.emp = emphasis::disabled});
+        sb.sep();
 
-        w::sl();
-        w::lbl(ICON_MD_COFFEE, {.emp = emphasis::disabled});
-        w::tt("Support this app, buy me a coffee!");
-        if(w::is_hovered()) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        static bool donate_hovered{false};
+        {
+            w::group g;
+            w::lbl(ICON_MD_COFFEE, {.emp = emphasis::disabled});
+            if(donate_hovered) {
+                w::sl();
+                w::hyperlink("donate");
+            }
+        }
+        donate_hovered = w::is_hovered();
+        if(donate_hovered) {
+            w::mouse_cursor(widgets::mouse_cursor_type::hand);
         }
         if(w::is_leftclicked()) {
-            url_opener::open(APP_BUYMEACOFFEE_URL);
-        };
+            url_opener::open(APP_DONATE_URL);
+        }
 
         if(!g_state.browsers.empty()) {
             w::sl();

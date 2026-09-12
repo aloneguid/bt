@@ -43,7 +43,7 @@
 
 #define APP_HELP_BASE_URL "https://www.aloneguid.uk/projects/bt/"
 
-#define APP_BUYMEACOFFEE_URL "https://www.buymeacoffee.com/alonecoffee"
+#define APP_DONATE_URL "https://www.aloneguid.uk/sponsor/"
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
