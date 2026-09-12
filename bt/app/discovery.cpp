@@ -367,17 +367,21 @@ namespace bt {
         };
 
         std::error_code ec;
-        bool installed = false;
+        fs::path safari_executable;
         for(const auto &path: safari_paths) {
             if(fs::is_regular_file(path, ec)) {
-                installed = true;
+                safari_executable = path;
                 break;
             }
         }
 
-        if(!installed) return;
+        if(safari_executable.empty()) return;
+
+        const fs::path safari_bundle = safari_executable.parent_path().parent_path().parent_path();
+        if(safari_bundle.filename() != "Safari.app" || !fs::is_directory(safari_bundle, ec)) return;
 
         browser safari{"Safari", "/usr/bin/open -a Safari"};
+        safari.icon_path = safari_bundle.string();
         if(const char *home = std::getenv("HOME")) {
             safari.data_path = (fs::path{home} / "Library/Containers/com.apple.Safari/Data/Library/Safari").string();
         }
@@ -390,7 +394,7 @@ namespace bt {
     static void discover_macos_safari_profiles(browser &b) {
         if(b.name != "Safari" || b.open_cmd != "/usr/bin/open -a Safari") return;
 
-        const string icon_path = b.icon_path.empty() ? b.open_cmd : b.icon_path;
+        const string icon_path = b.icon_path;
         std::unordered_set<string> profile_ids;
         bool has_personal = false;
 
