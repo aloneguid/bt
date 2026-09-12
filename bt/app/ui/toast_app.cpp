@@ -21,8 +21,9 @@ namespace bt::ui {
 
         app->always_on_top = true;
         app->chrome = system_chrome::native;
+        app->hide_from_taskbar = true;
+
 #if PLATFORM_WINDOWS
-        app->win32_hide_from_taskbar = true;
         app->win32_no_activate = true; // prevent from stealing focus or appearing in alt-tab
 #endif
 
