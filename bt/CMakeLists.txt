@@ -137,5 +137,10 @@ elseif(UNIX AND NOT APPLE)
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
             "${CMAKE_SOURCE_DIR}/resources/xdg/postinst.sh;${CMAKE_SOURCE_DIR}/resources/xdg/postrm.sh")
 
+elseif(APPLE)
+    install(TARGETS ${APP_NAME} RUNTIME DESTINATION "bin")
+    set(CPACK_GENERATOR TGZ)
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-mac-${CMAKE_SYSTEM_PROCESSOR}")
+
 endif()
 include(CPack) # needs to be at the end of install configurations

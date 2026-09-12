@@ -50,6 +50,18 @@ jobs:
             vcpkg_config: MinSizeRel
             artifact_suffix: -linux-x64
             artifact_pattern: '*.deb'
+          - os: macos-latest
+            name: Apple Silicon
+            vcpkg_triplet: arm64-osx
+            vcpkg_config: MinSizeRel
+            artifact_suffix: -mac-arm64
+            artifact_pattern: '*.tar.gz'
+          - os: macos-26-intel
+            name: Apple x64 Intel
+            vcpkg_triplet: x64-osx
+            vcpkg_config: MinSizeRel
+            artifact_suffix: -mac-x64
+            artifact_pattern: '*.tar.gz'
 
     name: 'build: ${{ matrix.name }}'
     env:
@@ -119,6 +131,12 @@ jobs:
 
     - name: 🐧 🧪 unit tests
       if: runner.os == 'Linux'
+      run: |
+          ./test
+      working-directory: build/bt
+
+    - name: 🍎 🧪 unit tests
+      if: runner.os == 'macOS'
       run: |
           ./test
       working-directory: build/bt
@@ -217,4 +235,5 @@ jobs:
           files: |
             *.msi
             *.deb
+            *.tar.gz
           body_path: final_notes.md
