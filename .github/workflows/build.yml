@@ -55,13 +55,13 @@ jobs:
             vcpkg_triplet: arm64-osx
             vcpkg_config: MinSizeRel
             artifact_suffix: -mac-arm64
-            artifact_pattern: '*.tar.gz'
+            artifact_pattern: '*.dmg'
           - os: macos-26-intel
             name: Apple x64 Intel
             vcpkg_triplet: x64-osx
             vcpkg_config: MinSizeRel
             artifact_suffix: -mac-x64
-            artifact_pattern: '*.tar.gz'
+            artifact_pattern: '*.dmg'
 
     name: 'build: ${{ matrix.name }}'
     env:
@@ -235,5 +235,5 @@ jobs:
           files: |
             *.msi
             *.deb
-            *.tar.gz
+            *.dmg
           body_path: final_notes.md
