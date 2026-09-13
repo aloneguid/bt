@@ -761,8 +761,8 @@ namespace bt::ui {
 
     void config_app::render_browsers() {
 
-        // todo: left panel needs to be reizeable. Maybe make resize grabber visible at the same time.
-        if(w::div l_div{"l_div", sz{w::scaled(200), 0}}; ldiv) {
+        // todo: left panel needs to be resizeable. Maybe make resize grabber visible at the same time.
+        if(w::div l_div{"l_div", sz{w::scaled(250), 0}, {.user_resizeable_horizontal = true}}; l_div) {
             if(w::button(ICON_MD_ADD_CIRCLE " Add", emphasis::primary)) {
                 add_browser_show = true;
             }
