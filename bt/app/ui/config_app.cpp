@@ -43,7 +43,6 @@ namespace bt::ui {
         opts.has_menu_bar = true;
         opts.open_ptr = &is_open;
 
-        w_left_panel = w::container{250}.resize_x();
         w_right_panel = w::container{};
         w_browser_toolbar = w::container{40}.auto_size_y().border();
         w_browser_rest_of_it = w::container{}.border();
@@ -761,9 +760,9 @@ namespace bt::ui {
     }
 
     void config_app::render_browsers() {
-        {
-            w::guard g{w_left_panel};
 
+        // todo: left panel needs to be reizeable. Maybe make resize grabber visible at the same time.
+        if(w::div l_div{"l_div", sz{w::scaled(200), 0}}; ldiv) {
             if(w::button(ICON_MD_ADD_CIRCLE " Add", emphasis::primary)) {
                 add_browser_show = true;
             }

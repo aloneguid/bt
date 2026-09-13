@@ -39,7 +39,6 @@ namespace bt::ui {
         size_t selected_browser_idx{0};
         size_t selected_profile_idx{0};
         int set_selected_profile_idx{-1};
-        grey::widgets::container w_left_panel;
         grey::widgets::container w_right_panel;
         grey::widgets::container w_browser_toolbar;
         grey::widgets::container w_browser_rest_of_it;
