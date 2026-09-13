@@ -760,33 +760,43 @@ namespace bt::ui {
     }
 
     void config_app::render_browsers() {
+        if(w::div l_div{"l_div", sz{w::scaled(250), 0}, {
+            .user_resizeable_horizontal = true,
+        }}; l_div) {
 
-        // todo: left panel needs to be resizeable. Maybe make resize grabber visible at the same time.
-        if(w::div l_div{"l_div", sz{w::scaled(250), 0}, {.user_resizeable_horizontal = true}}; l_div) {
-            if(w::button(ICON_MD_ADD_CIRCLE " Add", emphasis::primary)) {
-                add_browser_show = true;
-            }
-            w::tt("Add custom browser definition");
-            w::sl();
-            if(w::button(ICON_MD_REFRESH)) {
-                exec_rediscover = true;
-            }
-            w::tt("Rediscover system browsers");
-            w::sl();
-            w::icon_checkbox(ICON_MD_VISIBILITY, g_state.show_hidden_browsers);
-            w::tt("Show hidden browsers");
 
-            for(int i = 0; i < g_state.browsers.size(); i++) {
-                auto &br = g_state.browsers[i];
-                if(!g_state.show_hidden_browsers && br.is_hidden) {
-                    continue;
+            if(w::div l_div_tb{"l_div_tb", sz{0, 0}, {
+                .auto_resize_y = true,
+                .style_like_widget = true,
+            }}; l_div_tb) {
+                if(w::button(ICON_MD_ADD_CIRCLE " Add", emphasis::primary)) {
+                    add_browser_show = true;
                 }
+                w::tt("Add custom browser definition");
+                w::sl();
+                if(w::button(ICON_MD_REFRESH)) {
+                    exec_rediscover = true;
+                }
+                w::tt("Rediscover system browsers");
+                w::sl();
+                w::icon_checkbox(ICON_MD_VISIBILITY, g_state.show_hidden_browsers);
+                w::tt("Show hidden browsers");
+            }
 
-                render_card(br, i == selected_browser_idx);
+            if(w::div l_div_list{"l_div_list", {0, 0}, {
+                .has_background = false }}; l_div_list) {
+                for(int i = 0; i < g_state.browsers.size(); i++) {
+                    auto &br = g_state.browsers[i];
+                    if(!g_state.show_hidden_browsers && br.is_hidden) {
+                        continue;
+                    }
 
-                // we can now react on click
-                if(w::is_leftclicked()) {
-                    selected_browser_idx = i;
+                    render_card(br, i == selected_browser_idx);
+
+                    // we can now react on click
+                    if(w::is_leftclicked()) {
+                        selected_browser_idx = i;
+                    }
                 }
             }
         }
@@ -810,6 +820,8 @@ namespace bt::ui {
     }
 
     void config_app::render_card(browser &b, bool is_selected) const {
+        w::draw_splitter dsp;
+
         {
             w::group g{true};
 
@@ -889,16 +901,19 @@ namespace bt::ui {
             w::cur_set(pos);
         } // group end
 
-#if _DEBUG
-        w::tt(format("disco id: {}", b.instance_id));
-#endif
+        const auto& style = ImGui::GetStyle();
+        const rect item_rect = w::item_rect_get();
+        float ax = w::avail_x();
+        const rect bounding_rect = rect{item_rect.lt(), point{item_rect.x_min + ax, item_rect.y_max}};
 
-        auto item_rect = w::item_rect_get();
-        if(w::is_hovered() || is_selected) {
-            ImDrawList *fdl = ImGui::GetWindowDrawList();
-            auto style = ImGui::GetStyle();
-            fdl->AddRect(item_rect.lt(), item_rect.rb(), w::imcol32(ImGuiCol_Border), style.FrameRounding, 0,
-                         style.WindowBorderSize * 2);
+        if(w::is_hovered()) {
+            w::draw_rect(bounding_rect, rgb_colour{ImGuiCol_Border}, style.WindowBorderSize, style.FrameRounding);
+        }
+
+        dsp.swap(); // draw in background
+
+        if(is_selected) {
+            w::draw_rect_filled(bounding_rect, rgb_colour{ImGuiCol_WindowBg}, style.FrameRounding);
         }
     }
 
