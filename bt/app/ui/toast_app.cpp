@@ -20,7 +20,7 @@ namespace bt::ui {
         app->can_resize = false;
 
         app->always_on_top = true;
-        app->chrome = system_chrome::native;
+        app->chrome = system_chrome::headerless;
         app->hide_from_taskbar = true;
 
 #if PLATFORM_WINDOWS
@@ -48,13 +48,7 @@ namespace bt::ui {
             // Get perfect dimensions for expanded toast.
 
             // get monitor dimensions
-            int mon_idx = app->find_monitor_for_main_viewport();
-            if(mon_idx != -1) {
-                ImGuiPlatformIO io = ImGui::GetPlatformIO();
-                ImGuiPlatformMonitor monitor = io.Monitors[mon_idx];
-                mon_work_pos = monitor.WorkPos;
-                mon_work_size = monitor.WorkSize;
-            }
+            const monitor mon = w::mon_wnd();
 
             ImGuiStyle& style = ImGui::GetStyle();
             auto space = style.FramePadding;
@@ -76,20 +70,19 @@ namespace bt::ui {
             ImVec2 wpad = style.WindowPadding;
             float wnd_width =
                 min(wpad.x + icon_size + space.x + max(line1_text_size.width, line2_text_size.width) + wpad.x,
-                        mon_work_size.x - 20.0f) +
+                        mon.work_area.width() - 20.0f) +
                 // add extra spacing
                 wpad.x;
 
             // 2 lines of text + padding
-            wnd_size = ImVec2{
-                wnd_width,
+            wnd_size = {wnd_width,
                 wpad.y + line1_text_size.height + space.y + line2_text_size.height + wpad.y
             };
-            wnd_size_anim = ImVec2{0, wnd_size.y}; // only animate X
+            wnd_size_anim = {0, wnd_size.height}; // only animate X
 
-            mon_mid = ImVec2{
-                mon_work_pos.x + (mon_work_size.x / 2),
-                mon_work_pos.y + mon_work_size.y
+            mon_mid = {
+                mon.work_area.x_min + (mon.work_area.width() / 2),
+                mon.work_area.y_min + mon.work_area.height()
             };
 
             stage = anim_stage::expand;
@@ -98,31 +91,31 @@ namespace bt::ui {
         // animate size
 
         if(stage == anim_stage::expand) {
-            float move = (wnd_size.x / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
-            wnd_size_anim.x += move;
-            if(wnd_size_anim.x >= wnd_size.x) wnd_size_anim.x = wnd_size.x;
+            float move = (wnd_size.width / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
+            wnd_size_anim.width += move;
+            if(wnd_size_anim.width >= wnd_size.width) wnd_size_anim.width = wnd_size.width;
 
-            if(wnd_size_anim.x == wnd_size.x) {
+            if(wnd_size_anim.width == wnd_size.width) {
                 stage = anim_stage::show;
             }
 
-            app->resize({wnd_size_anim.x / w::scale, wnd_size_anim.y / w::scale});
-            app->move({(mon_mid.x - wnd_size_anim.x / 2) / w::scale,
-                                    (mon_mid.y - wnd_size_anim.y) / w::scale});
+            app->resize(wnd_size_anim);
+            app->move({(mon_mid.width - wnd_size_anim.width / 2),
+                                    (mon_mid.height - wnd_size_anim.height)});
         } else if(stage == anim_stage::shrink) {
-            float move = (wnd_size.x / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
-            wnd_size_anim.x -= move;
+            float move = (wnd_size.width / g_state.toast.anim_duration) * ImGui::GetIO().DeltaTime;
+            wnd_size_anim.width -= move;
             // don't let size to be 0
-            if(wnd_size_anim.x <= 2.0f) wnd_size_anim.x = 2.0f;
+            if(wnd_size_anim.width <= 2.0f) wnd_size_anim.width = 2.0f;
 
-            if(wnd_size_anim.x <= 2.0f) {
-                wnd_size_anim.x = 2.0f;
+            if(wnd_size_anim.width <= 2.0f) {
+                wnd_size_anim.width = 2.0f;
                 stage = anim_stage::exit;
                 is_open = false;
             } else {
-                app->resize({wnd_size_anim.x / w::scale, wnd_size_anim.y / w::scale});
-                app->move({(mon_mid.x - wnd_size_anim.x / 2) / w::scale,
-                                        (mon_mid.y - wnd_size_anim.y) / w::scale});
+                app->resize(wnd_size_anim);
+                app->move({(mon_mid.width - wnd_size_anim.width / 2),
+                                        (mon_mid.height - wnd_size_anim.height)});
             }
         } else if(stage == anim_stage::show) {
             show_timer += ImGui::GetIO().DeltaTime;
@@ -243,7 +236,7 @@ namespace bt::ui {
         app->run([this]() {
             size_to_fit();
 
-            app->transparency_window_alpha = is_hovered ? 255 : g_state.toast.opacity;
+            app->opacity = is_hovered ? 1.0f : g_state.toast.opacity;
 
             {
                 {

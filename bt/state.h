@@ -11,7 +11,7 @@ namespace bt {
         bool enabled{true};
         int visible_seconds{5};
         int border_width{1};
-        int opacity{210};
+        float opacity{0.9};
         float anim_duration{0.5f};
 
         bool operator==(const toast_state &) const = default;
@@ -47,7 +47,7 @@ namespace bt {
         int border_width{1};
         bool show_native_chrome{false};
         float label_size{-4.0f};
-        int opacity{255};
+        float opacity{1};
         bool close_on_focus_loss{true};
         bool always_on_top{false};
         int max_width_perc{90};

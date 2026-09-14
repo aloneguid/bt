@@ -105,7 +105,6 @@ namespace bt::ui {
         }
     }
 
-    grey::widgets::popup pop_proc_names{"pop_proc_names"};
     std::vector<std::string> pop_proc_names_items;
     std::string pop_proc_names_filter;
     std::vector<std::string> pop_proc_names_items_filtered;
@@ -198,15 +197,15 @@ namespace bt::ui {
         // process name selection helper (for "process" rules)
         if(rule.loc == match_location::process_name) {
             w::sl();
+            static bool proc_names_open{false};
             if(w::button(ICON_MD_DEVELOPER_BOARD)) {
                 refresh_pop_proc_names_items();
-                pop_proc_names.open();
+                proc_names_open = true;
             }
             w::tt(strings::RulePickProcessName);
 
             {
-                w::guard gpop{pop_proc_names};
-                if(pop_proc_names) {
+                if(w::popup proc_names_pop{"proc_names", proc_names_open}) {
                     if(w::input(pop_proc_names_filter, "##proc_filter")) {
                         pop_proc_names_selected = 0;
                         pop_proc_names_items_filtered.clear();

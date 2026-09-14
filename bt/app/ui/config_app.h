@@ -39,9 +39,6 @@ namespace bt::ui {
         size_t selected_browser_idx{0};
         size_t selected_profile_idx{0};
         int set_selected_profile_idx{-1};
-        grey::widgets::container w_right_panel;
-        grey::widgets::container w_browser_toolbar;
-        grey::widgets::container w_browser_rest_of_it;
 
         // System Information in "Help" menu
         float si_frame_time{60.0f};
@@ -66,11 +63,11 @@ namespace bt::ui {
         click_payload url_subs_up;
 
         // "Script" window
-        grey::widgets::container w_script_top_panel;
         bool show_scripting{false};
         bool script_initialised{false};
         //grey::widgets::window wnd_scripting{"Scripting"};
-        grey::widgets::code_editor script_editor{grey::widgets::code_editor::language::lua};
+        grey::widgets::code_editor script_editor{grey::widgets::code_editor::language::lua, false, true};
+        bool script_show_terminal{false};
         std::string script_terminal;
         bool script_terminal_autoscroll{true};
         unsigned int script_fn_selected{0};
@@ -111,6 +108,7 @@ namespace bt::ui {
         void render_no_browsers();
         void render_browsers();
         void render_card(browser& b, bool is_selected) const;
+        void render_browser_toolbar(browser& b);
         void render_detail(browser& b);
         void render_profile(browser& b, browser_profile& bi, int idx);
         void render_add_browser_window();

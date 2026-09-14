@@ -23,17 +23,14 @@ namespace bt::ui {
         void run();
 
     private:
-        ImVec2 mon_work_pos;
-        ImVec2 mon_work_size;
-
         anim_stage stage{anim_stage::init};
         const click_payload& cp;
         grey::common::url cp_url_parsed;
         std::string line1;
         const browser_match_result& bmr;
-        ImVec2 wnd_size{0, 0};
-        ImVec2 wnd_size_anim{0, 0};
-        ImVec2 mon_mid{0, 0};
+        grey::sz wnd_size{0, 0};
+        grey::sz wnd_size_anim{0, 0};
+        grey::sz mon_mid{0, 0};
         float icon_size;
         float show_timer{0.0f};
         bool is_hovered{false};

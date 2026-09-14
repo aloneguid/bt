@@ -17,6 +17,19 @@ namespace bt::strings {
 
     const std::string LuaScript{"Lua script"};
     const std::string LuaScriptTooltip{"function name to execute"};
+    const std::string LuaScriptNewRule{R"(
+function rule_myrule()
+    print("url:         ", p.url)
+    print("window title:", p.wt)
+    print("process:     ", p.pn)
+    return false
+end)"};
+    const std::string LuaScriptNewPipeline{R"(function ppl_mystep()
+    print("url:         ", p.url)
+    print("window title:", p.wt)
+    print("process:     ", p.pn)
+    return p.url
+end)"};
     const std::string RuleIsARegex{"Rule is a Regular Expression (advanced)"};
     const std::string RulePickProcessName{"List currently running processes"};
 

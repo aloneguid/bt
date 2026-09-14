@@ -20,7 +20,7 @@ namespace bt::ui {
     picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection> > selections)
         : url{url}, title{APP_LONG_NAME " - Pick"},
           app{app::make(title, {100, 120})} {
-          // wnd_main{title, &is_open},
+        // wnd_main{title, &is_open},
         app->fonts.load_icons = true;
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
@@ -57,14 +57,6 @@ namespace bt::ui {
 
         app->on_initialised = [this]() {
             btw_on_app_initialised(*app);
-
-            cnt_top
-                    .auto_size_y()
-                    .padding(5, 5);
-
-            cnt_blist
-                    .background(true);
-            
         };
     }
 
@@ -81,7 +73,7 @@ namespace bt::ui {
             return run_frame();
         });
 
-        return picker_result{final_choice, url};
+        return picker_result{.choice = final_choice, .url = url};
     }
 
     bool picker_app::is_hotkey_down(bool configured) {
@@ -104,16 +96,7 @@ namespace bt::ui {
     }
 
     bool picker_app::run_frame() {
-        app->transparency_window_alpha = g_state.picker.opacity;
-
-        // get monitor dimensions
-        int mon_idx = app->find_monitor_for_main_viewport();
-        if(mon_idx != -1) {
-            ImGuiPlatformIO io = ImGui::GetPlatformIO();
-            ImGuiPlatformMonitor monitor = io.Monitors[mon_idx];
-            mon_work_pos = monitor.WorkPos;
-            mon_work_size = monitor.WorkSize;
-        }
+        app->opacity = g_state.picker.opacity;
 
         {
             if(choices.empty()) {
@@ -121,31 +104,38 @@ namespace bt::ui {
             } else {
                 point cur1 = w::cur_get();
 
-                with_container(cnt_top,
-                               render_action_menu();
-                               render_rule_creator();
-                );
+                // cnt_top
+                // .auto_size_y()
+                // .padding(5, 5);
+
+                if(w::div top{"top", {.auto_resize_y = true}}; top) {
+                    render_action_menu();
+                    render_rule_creator();
+                }
 
                 point cur2 = w::cur_get();
                 header_height = cur2.y - cur1.y;
 
                 recalc();
 
-                with_container(cnt_blist,
-                               render_list();
-                );
+                if(w::div blist{"blist", {.has_background = true}}; blist) {
+                    render_list();
+                }
             }
         }
 
         if(is_settings_open) {
-            w::wnd w{"Settings", {
-                .open_ptr = &is_settings_open,
-                .size = {400, 0},
-                .size_cond = act_condition::once,
-                .border = 1,
-                .scrollable = false,
-                .resizeable = false
-            }};
+            w::wnd w{
+                "Settings", {
+                    .open_ptr = &is_settings_open,
+                    .size = {400, 0},
+                    .size_cond = act_condition::once,
+                    .border = 1,
+                    .scrollable = false,
+                    .resizeable = false,
+                    .auto_resize = true
+                }
+            };
             render_settings();
         }
 
@@ -180,7 +170,7 @@ namespace bt::ui {
             int num_choice = -1;
             for(int i = 0; i < 10; i++) {
                 if(ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_0 + i)) ||
-                    ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_Keypad0 + i))) {
+                   ImGui::IsKeyPressed(static_cast<ImGuiKey>(ImGuiKey_Keypad0 + i))) {
                     if(i < choices.size()) {
                         num_choice = i;
                         break;
@@ -188,7 +178,7 @@ namespace bt::ui {
                 }
             }
 
-            if(num_choice != -1) {
+            if(num_choice != -1 && num_choice <= choices.size()) {
                 if(num_choice == 0) num_choice = 10;
                 active_idx = num_choice - 1;
                 final_choice = choices[active_idx];
@@ -217,7 +207,8 @@ namespace bt::ui {
         auto url_size = w::text_size_get(url);
 
         // padding should only be used to space out items, not for any calculations inside
-        float max_mon_width = mon_work_size.x * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
+        monitor mon = w::mon_wnd();
+        float max_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
         float max_url_width = url_size.width + action_button_width * (action_menu_items.size() + 2);
         float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f) + style.WindowPadding.x * 2;
         float max_width = max(max_url_width, max_w_width);
@@ -236,13 +227,13 @@ namespace bt::ui {
                          box_size_total * lines_total +
                          // padding_scaled +
                          style.WindowPadding.y;
-        w_height = min(w_height, mon_work_size.y);
+        w_height = min(w_height, mon.work_area.height());
 
         auto target_window_size = ImVec2{w_width, w_height};
 
         if(window_size.x != target_window_size.x || window_size.y != target_window_size.y) {
             window_size = target_window_size;
-            app->resize({window_size.x / w::scale, window_size.y / w::scale});
+            app->resize(window_size);
         }
     }
 
@@ -279,14 +270,13 @@ namespace bt::ui {
         if(active_idx >= choices.size()) return;
 
         const profile_selection& choice = choices[active_idx];
-        btw_rule(const_cast<browser&>(choice.b()), const_cast<browser_profile&>(choice.p()),creator_rule);
+        btw_rule(const_cast<browser&>(choice.b()), const_cast<browser_profile&>(choice.p()), creator_rule);
     }
 
     void picker_app::render_list() {
         // spacing needs to be turned off for list to avoid gaps horizontally
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
         ImGuiStyle& style = ImGui::GetStyle();
 
         // we want items to be centered in the available space
@@ -311,8 +301,8 @@ namespace bt::ui {
             if(is_active) {
                 point min = w::cur_get();
                 w::draw_rect_filled(rect{min, min + box_size_total},
-                    rgb_colour{ImGui::GetColorU32(ImGuiCol_Border)},
-                    g_state.picker.item_rounding);
+                                    rgb_colour{ImGui::GetColorU32(ImGuiCol_Border)},
+                                    g_state.picker.item_rounding);
             }
 
             {
@@ -339,12 +329,14 @@ namespace bt::ui {
 
                     // label in the middle-top
                     w::cur_set({circle_center.x - wsz.x / 2, circle_center.y - wsz.y / 2});
-                    w::lbl(label, {.center_x = true, .font_size = g_state.picker.label_size});
+                    w::lbl(label, {.font_size = g_state.picker.label_size});
                 }
 
                 // labels
                 if(line_count > 0) {
-                    point min{p0.x + padding_scaled / 2, p0.y + padding_scaled + icon_size_scaled + style.FramePadding.y};
+                    point min{
+                        p0.x + padding_scaled / 2, p0.y + padding_scaled + icon_size_scaled + style.FramePadding.y
+                    };
                     point max{p0.x + box_size_total - padding_scaled / 2, min.y + label_text_size.y * line_count};
                     float max_width = max.x - min.x;
 
@@ -432,7 +424,7 @@ namespace bt::ui {
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
             app->main_window_opts().border = g_state.picker.border_width;
         }
-        w::slider(g_state.picker.opacity, 50, 255, "window opacity");
+        w::slider(g_state.picker.opacity, 0.1, 1, "window opacity");
         if(w::checkbox("show native window chrome", g_state.picker.show_native_chrome))
             app->chrome = g_state.picker.show_native_chrome ? system_chrome::native : system_chrome::headerless;
         w::tt("When enabled, the window will have standard OS title bar and borders.\nApplies next time picker opens.");
@@ -442,7 +434,6 @@ namespace bt::ui {
         if(w::button(ICON_MD_RESTORE " reset", emphasis::error)) {
             g_state.picker = picker_state{};
         }
-        w::spc(5);
     }
 
     void picker_app::menu_item_clicked(const std::string& id) {

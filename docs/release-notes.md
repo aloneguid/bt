@@ -1,10 +1,11 @@
 ## 6.3.0
 
-🍞 Toasted!
+🍞 💏 Toasted Brave Containers!!!
 
 ### New features
 
-- todo: Brave containers!
+> - todo: Brave containers!
+- Script editor: added two buttons to add a template of a new rule and new pipeline function.
 
 ### Improvements
 - 🍞 Ergonomic improvements in Toast:
@@ -13,12 +14,13 @@
   - Only the domain part of the URL is rendered in the toast. This is to save space as scheme is not that interesting.
   - When handling local files, Toast properly shows the file path rather than an awkward pretend URL.
 - Clipboard functions on Linux now use native calls instead of spawning a clipboard process which may not be present. This also works on Mac (for the upcoming macOS release).
-- Slight redesign of browser list in configuration - toolbar is more announced and does not scroll with browser list itself. Selected browser has different background rather than just a thin border. 
+- Slight redesign of the browser list in configuration – toolbar is more announced and does not scroll with the browser list itself. Selected browser has a different background rather than just a thin border. 
+- Script editor redesigned into two windows – one for code and another for running the script. This way you can have more space on the screen when designing scripts.
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.
 - When the config application is open, health checks are performed every 5 seconds to avoid stale state after you have changed the default browser.
-- todo: Unshortening for URLs was not implemented on Linux, this is working now.
+> - todo: Unshortening for URLs was not implemented on Linux, this is working now.
 
 ## 6.2.3
 

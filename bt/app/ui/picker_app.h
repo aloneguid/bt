@@ -40,9 +40,6 @@ namespace bt::ui {
 
     private:
 
-        ImVec2 mon_work_pos;
-        ImVec2 mon_work_size;
-
         // flexi sizing
         ImVec2 window_size;
         float header_height{0.0f};
@@ -65,8 +62,6 @@ namespace bt::ui {
             action_menu_item{"email", ICON_MD_EMAIL, "Email link"}
         };
 
-        grey::widgets::container cnt_blist;
-        grey::widgets::container cnt_top;
         std::vector<profile_selection> choices;
         ImU32 clear_color;
 

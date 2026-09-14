@@ -64,7 +64,7 @@ namespace bt {
         read<int>(node, "border_width", state.border_width);
         read<bool>(node, "show_native_chrome", state.show_native_chrome);
         read<float>(node, "label_size", state.label_size);
-        read<int>(node, "opacity", state.opacity);
+        read<float>(node, "opacity", state.opacity);
         read<bool>(node, "close_on_focus_loss", state.close_on_focus_loss);
         read<bool>(node, "always_on_top", state.always_on_top);
         read<int>(node, "max_width_perc", state.max_width_perc);

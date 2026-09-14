@@ -34,7 +34,7 @@ using namespace grey::common;
 namespace w = widgets;
 
 namespace bt::ui {
-    config_app::config_app() : app{app::make(string{APP_LONG_NAME} + " " + APP_VERSION, {800, 600})} {
+    config_app::config_app() : app{app::make(string{APP_LONG_NAME} + " " + APP_VERSION, {900, 600})} {
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = true;
         app->center_on_screen = true;
@@ -42,12 +42,6 @@ namespace bt::ui {
         auto& opts = app->main_window_opts();
         opts.has_menu_bar = true;
         opts.open_ptr = &is_open;
-
-        w_right_panel = w::container{};
-        w_browser_toolbar = w::container{40}.auto_size_y().border();
-        w_browser_rest_of_it = w::container{}.border();
-
-        w_script_top_panel = w::container{0, 220 * w::scale}.resize_y();
 
         app->on_initialised = [this]() {
             app->preload_texture("logo", icon_png, icon_png_len);
@@ -92,7 +86,7 @@ namespace bt::ui {
 
         health_succeeded = health_failed = 0;
 
-        for(auto &sc: health_checks) {
+        for(auto& sc: health_checks) {
             sc.recheck();
 
             if(sc.is_ok) {
@@ -201,7 +195,7 @@ namespace bt::ui {
                     w::slider(g_state.toast.anim_duration, 0.1f, 5.0f, "animation duration", 0.1f);
                 }
 
-                w::mi_themes([this](const string &theme_id) {
+                w::mi_themes([this](const string& theme_id) {
                     app->set_theme(theme_id);
                     g_state.ui_theme = theme_id;
                 });
@@ -302,12 +296,14 @@ namespace bt::ui {
     }
 
     void config_app::render_subs_window() {
-        w::wnd wsubs {"Substitutions", {
-            .open_ptr = &show_subs,
-            .size = {600, 300},
-            .size_cond = act_condition::once,
-            .border = 1
-        }};
+        w::wnd wsubs{
+            "Substitutions", {
+                .open_ptr = &show_subs,
+                .size = {600, 300},
+                .size_cond = act_condition::once,
+                .border = 1
+            }
+        };
 
         bool recompute{false};
 
@@ -329,10 +325,8 @@ namespace bt::ui {
 
         w::sep("Substitutions");
         // scrollable container of subs
-        w::container scr{"scr"};
-        scr.border();
         {
-            w::guard g{scr};
+            w::div subs_div{"subs_div"};
 
             for(int i = 0; i < g_state.transforms.substitutions.size(); i++) {
                 if(i > 0) w::sep();
@@ -345,7 +339,7 @@ namespace bt::ui {
 
                 w::combo("##kind" + suffix,
                          replacer_kinds,
-                         (unsigned int &) replacer->kind,
+                         (unsigned int&) replacer->kind,
                          100);
 
                 w::sl(pad);
@@ -369,7 +363,7 @@ namespace bt::ui {
         if(recompute) {
             // sync state back to config
             g_state.transforms.substitutions.clear();
-            for(auto &r: g_pipeline.get_steps()) {
+            for(auto& r: g_pipeline.get_steps()) {
                 if(r->type == url_pipeline_step_type::find_replace) {
                     auto rr = std::static_pointer_cast<pipeline::replacer>(r);
                     g_state.transforms.substitutions.emplace_back(string{magic_enum::enum_name(rr->kind)}, rr->find,
@@ -386,50 +380,76 @@ namespace bt::ui {
     }
 
     void config_app::render_scripting_window() {
-        w::wnd w{strings::ScriptEditor, {
-            .open_ptr = &show_scripting,
-            .size = {800, 600},
-            .size_cond = act_condition::once,
-            .border = 1
-        }};
+        w::wnd w{
+            strings::ScriptEditor, {
+                .open_ptr = &show_scripting,
+                .size = {800, 600},
+                .size_cond = act_condition::once,
+                .border = 1
+            }
+        };
 
         {
-            w::guard g{w_script_top_panel};
-
             if(!script_initialised) {
                 script_editor.set_text(g_script.get_code());
                 script_initialised = true;
             }
 
-            if(!g_script.get_error().empty()) {
-                w::container c{"err", 0, 0};
-                c.border().auto_size_y();
-                w::guard g{c};
-                w::lbl(g_script.get_error(), {.emp = emphasis::error});
+            bool do_run = false;
+            bool do_save = false;
+            string code_append;
+
+            // toolbar
+            if(w::div tb_div{"tb_div", {.auto_resize_y = true}}; tb_div) {
+                do_save = w::button(ICON_MD_SAVE);
+                w::tt("save to disk");
+
+                w::sl();
+                w::lbl("|", {.emp = emphasis::disabled});
+
+                w::sl();
+                if(w::button(ICON_MD_RULE)) {
+                    code_append = strings::LuaScriptNewRule;
+                }
+                w::tt("Insert new rule template");
+                w::sl();
+                if(w::button(ICON_MD_DIRECTIONS_RUN)) {
+                    code_append = strings::LuaScriptNewPipeline;
+                }
+                w::tt("Insert new pipeline template");
+
+                w::sl();
+                w::lbl("|", {.emp = emphasis::disabled});
+
+                w::sl();
+                w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
+                w::tt("function to execute");
+
+                w::sl();
+                do_run = w::button(ICON_MD_PLAY_ARROW, emphasis::primary);
+                w::tt("run function");
+
+                w::sl();
+                ww::help_link("#scripting");
             }
 
-            w::combo("##fn", g_script.bt_function_names, script_fn_selected, 250);
+            if(!code_append.empty()) {
+                string new_code = script_editor.get_text() + "\n\n" + code_append;
+                script_editor.set_text(new_code);
+                do_save = true;
+            }
+
             string func_name = g_script.bt_function_names.empty() ? "" : g_script.bt_function_names[script_fn_selected];
             bool is_ppl = func_name.starts_with(LuaPipelinePrefix);
-            w::tt("function to execute");
-
-            w::sl();
-            bool do_run = w::button(ICON_MD_PLAY_ARROW, emphasis::primary);
-            w::tt("save and run");
-            w::sl();
-            bool do_save = w::button(ICON_MD_SAVE " save");
-            w::tt("save only");
-            w::sl();
-            ww::help_link("#scripting");
 
             if(do_run || do_save) {
                 g_script.set_code(script_editor.get_text());
                 g_pipeline.load();
-                script_terminal += "Code saved.\n";
 
                 if(do_run && g_script.get_error().empty()) {
                     // test it
-                    script_terminal += format("{}\nExecuting '{}'...\n", datetime::to_iso_8601(), func_name);
+                    script_show_terminal = true;
+                    script_terminal.clear();
 
                     click_payload up;
                     up.url = g_state.pipevis.url;
@@ -437,26 +457,36 @@ namespace bt::ui {
                     up.process_name = g_state.pipevis.process_name;
 
                     if(is_ppl) {
+                        script_terminal = format(
+                            "invoking pipeline for:\n  url: [{}]\n  window title: [{}]\n  process name: [{}]\n\n",
+                            up.url,
+                            up.window_title,
+                            up.process_name);
                         string out_url = g_script.call_ppl(up, func_name);
                         script_terminal += g_script.print_buffer;
-                        script_terminal += format("result: {}\n------------\n", out_url);
+                        script_terminal += format("URL transformed to:\n  [{}]\n", out_url);
                     } else {
+                        script_terminal = format(
+                            "invoking rule match for:\n  url: [{}]\n  window title: [{}]\n  process name: [{}]\n\n",
+                            up.url,
+                            up.window_title,
+                            up.process_name);
                         g_pipeline.process(up);
                         if(up.url != g_state.pipevis.url) {
-                            script_terminal += format("pipeline changed URL to '{}'\n", up.url);
+                            script_terminal += format("pipeline changed URL to [{}]\n", up.url);
                         }
 
                         g_script.print_buffer.clear();
                         bool matched = g_script.call_rule(up, func_name);
                         script_terminal += g_script.print_buffer;
 
-                        script_terminal += format("rule match: {}\n------------\n", matched);
+                        script_terminal += format("rule matched: {}\n", matched);
                     }
                 }
             }
 
             // test input
-            if(!func_name.empty()) {
+            if(!func_name.empty() && w::accordion("Test data")) {
                 w::input(g_state.pipevis.url, ICON_MD_LINK " URL", true);
                 if(!is_ppl) {
                     w::input(g_state.pipevis.window_title, ICON_MD_WINDOW " window", true);
@@ -464,29 +494,47 @@ namespace bt::ui {
                 }
             }
 
+            if(!g_script.get_error().empty()) {
+                w::div err_div{"err_div", {.auto_resize_y = true}};
+                w::lbl(g_script.get_error(), {.emp = emphasis::error});
+            }
+
             script_editor.render();
         }
 
-        w::sep("Terminal");
-        {
-            if(w::button(ICON_MD_CLEAR_ALL, emphasis::error)) {
-                script_terminal.clear();
+        if(script_show_terminal) {
+            w::wnd wt{
+                "Terminal", {
+                    .open_ptr = &script_show_terminal,
+                    .size = {800, 400},
+                    .size_cond = act_condition::once
+                }
+            };
+
+            // toolbar
+            if(w::div tb_div{"tb_div", {.auto_resize_y = true}}; tb_div) {
+                w::tt("clear");
+                w::sl();
+                w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
+                w::tt("auto-scroll");
             }
-            w::tt("clear");
-            w::sl();
-            w::icon_checkbox(ICON_MD_ARROW_DOWNWARD, script_terminal_autoscroll);
-            w::tt("auto-scroll");
-            w::input_ml("##script_terminal", script_terminal, -FLT_MIN, script_terminal_autoscroll);
+
+            // terminal itself
+            static w::code_editor term{w::code_editor::language::none, false, false};
+            term.set_text(script_terminal);
+            term.render();
         }
     }
 
     void config_app::render_pipe_visualiser_window() {
-        w::wnd w{strings::PipelineDebugger, {
-            .open_ptr = &pv_show,
-            .size = {800, 500},
-            .size_cond = act_condition::once,
-            .border = 1
-        }};
+        w::wnd w{
+            strings::PipelineDebugger, {
+                .open_ptr = &pv_show,
+                .size = {800, 500},
+                .size_cond = act_condition::once,
+                .border = 1
+            }
+        };
 
         bool i0 = w::input(g_state.pipevis.url, ICON_MD_LINK " URL");
         bool i1 = w::input(g_state.pipevis.window_title, ICON_MD_WINDOW " window", true, 300.0f * w::scale);
@@ -530,7 +578,7 @@ namespace bt::ui {
                     pv.next_column();
                     w::lbl(" ");
                     if(node_pipeline) {
-                        for(auto &s: pv_pipeline_steps) {
+                        for(auto& s: pv_pipeline_steps) {
                             pv.begin_row();
                             string text = url_pipeline_step::to_string(s.step->type);
                             {
@@ -554,13 +602,13 @@ namespace bt::ui {
             // browsers
             pv.begin_row();
             if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
-                for(auto &b: g_state.browsers) {
+                for(auto& b: g_state.browsers) {
                     if(pv_only_matching && !b.ui_test_url_matches) continue;
 
                     pv.begin_row();
                     auto emp = b.ui_test_url_matches ? emphasis::primary : emphasis::none;
                     if(w::tree_node node_browser{b.name, true, false, true, emp}; node_browser) {
-                        for(auto &i: b.profiles) {
+                        for(auto& i: b.profiles) {
                             if(pv_only_matching && !i.ui_test_url_matches) continue;
 
                             pv.begin_row();
@@ -654,7 +702,7 @@ namespace bt::ui {
 
         bool recheck{false};
         int i = 0;
-        for(system_check &hc: health_checks) {
+        for(system_check& hc: health_checks) {
             w::sl();
             w::id_frame idf{i++};
 
@@ -677,9 +725,9 @@ namespace bt::ui {
 
         size_t ipc{0};
         size_t irc{0};
-        for(const auto &b: g_state.browsers) {
+        for(const auto& b: g_state.browsers) {
             ipc += b.profiles.size();
-            for(const auto &profile: b.profiles) {
+            for(const auto& profile: b.profiles) {
                 irc += profile.rules.size();
             }
         }
@@ -743,9 +791,11 @@ namespace bt::ui {
         for(int i = 0; i < 5; i++)
             w::lbl("");
 
-        w::lbl("Currently there are no browsers registered.", {.emp = emphasis::primary, .center_x = true, .font_size = 5});
+        w::lbl("Currently there are no browsers registered.",
+               {.emp = emphasis::primary, .center_x = true, .font_size = 5});
         w::spc();
-        w::lbl("Press the button below to scan your system for installed browsers.", {.emp = emphasis::none, .center_x = true});
+        w::lbl("Press the button below to scan your system for installed browsers.",
+               {.emp = emphasis::none, .center_x = true});
 
         string label = ICON_MD_REFRESH "discover system browsers";
         float button_width = 300 * w::scale;
@@ -760,15 +810,18 @@ namespace bt::ui {
     }
 
     void config_app::render_browsers() {
-        if(w::div l_div{"l_div", sz{w::scaled(250), 0}, {
-            .user_resizeable_horizontal = true,
-        }}; l_div) {
-
-
-            if(w::div l_div_tb{"l_div_tb", sz{0, 0}, {
-                .auto_resize_y = true,
-                .style_like_widget = true,
-            }}; l_div_tb) {
+        if(w::div l_div{
+            "l_div", {
+                .size = sz{250, 0} * w::scale,
+                .user_resizeable_horizontal = true,
+            }
+        }; l_div) {
+            if(w::div l_div_tb{
+                "l_div_tb", {
+                    .auto_resize_y = true,
+                    .style_like_widget = true,
+                }
+            }; l_div_tb) {
                 if(w::button(ICON_MD_ADD_CIRCLE " Add", emphasis::primary)) {
                     add_browser_show = true;
                 }
@@ -783,10 +836,13 @@ namespace bt::ui {
                 w::tt("Show hidden browsers");
             }
 
-            if(w::div l_div_list{"l_div_list", {0, 0}, {
-                .has_background = false }}; l_div_list) {
+            if(w::div l_div_list{
+                "l_div_list", {
+                    .has_background = false
+                }
+            }; l_div_list) {
                 for(int i = 0; i < g_state.browsers.size(); i++) {
-                    auto &br = g_state.browsers[i];
+                    auto& br = g_state.browsers[i];
                     if(!g_state.show_hidden_browsers && br.is_hidden) {
                         continue;
                     }
@@ -802,16 +858,27 @@ namespace bt::ui {
         }
         w::sl();
         {
-            w::guard g{w_right_panel};
+            if(w::div r_div{"r_div"}; r_div) {
+                if(selected_browser_idx < g_state.browsers.size()) {
+                    if(w::div r_div_tb{
+                        "r_div_tb", {
+                            .auto_resize_y = true,
+                            .style_like_widget = true,
+                        }
+                    }; r_div_tb) {
+                        render_browser_toolbar(g_state.browsers[selected_browser_idx]);
+                    }
 
-            if(selected_browser_idx < g_state.browsers.size()) {
-                render_detail(g_state.browsers[selected_browser_idx]);
+                    if(w::div r_div_detail{"r_div_detail"}) {
+                        render_detail(g_state.browsers[selected_browser_idx]);
+                    }
+                }
             }
         }
     }
 
     browser_profile config_app::get_selected_browser_instance() const {
-        auto &browser = g_state.browsers[selected_browser_idx];
+        auto& browser = g_state.browsers[selected_browser_idx];
         if(browser.engine != browser_engine::generic) {
             return browser.profiles[selected_profile_idx];
         } else {
@@ -819,7 +886,7 @@ namespace bt::ui {
         }
     }
 
-    void config_app::render_card(browser &b, bool is_selected) const {
+    void config_app::render_card(browser& b, bool is_selected) const {
         w::draw_splitter dsp;
 
         {
@@ -917,154 +984,148 @@ namespace bt::ui {
         }
     }
 
-    void config_app::render_detail(browser &b) {
-        // begin toolbar
+    void config_app::render_browser_toolbar(browser& b) {
+        // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
+        w::icon_checkbox(ICON_MD_VISIBILITY, b.is_hidden, true, "Show in browser list and picker");
 
-        {
-            w::guard g{w_browser_toolbar};
-
-            // hide/show button rendered as a button due to wrong looks if rendered as a checkbox
-            w::icon_checkbox(ICON_MD_VISIBILITY, b.is_hidden, true, "Show in browser list and picker");
-
-            bool can_move_up = b != *g_state.browsers.begin();
-            bool can_move_down = b != *g_state.browsers.rbegin();
-
-            if(w::button(ICON_MD_ARROW_UPWARD, emphasis::none, can_move_up)) {
-                // move up one position inside g_config.browsers
-                size_t idx = browser::index_of(g_state.browsers, b);
-                if(idx != string::npos && idx > 0) {
-                    std::swap(g_state.browsers[idx], g_state.browsers[idx - 1]);
-                    selected_browser_idx = idx - 1;
-                    return;
-                }
-            }
-            w::tt(strings::BrowserMoveUpTooltip);
-
-            if(w::button(ICON_MD_ARROW_DOWNWARD, emphasis::none, can_move_down)) {
-                // move down one position inside g_state.browsers
-                size_t idx = browser::index_of(g_state.browsers, b);
-                if(idx != string::npos && idx < g_state.browsers.size() - 1) {
-                    std::swap(g_state.browsers[idx], g_state.browsers[idx + 1]);
-                    selected_browser_idx = idx + 1;
-                }
-            }
-            w::tt(strings::BrowserMoveDownTooltip);
-
-            if(b.engine == bt::browser_engine::gecko) {
-                if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
-                    desktop_shell::open(b.open_cmd, "-P");
-                }
-                w::tt("open Firefox Profile Manager (-P flag)");
-
-                if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
-                    desktop_shell::open(b.open_cmd, "about:profiles");
-                }
-                w::tt("open Firefox Profile Manager in Firefox itself");
-            } else if(b.engine == browser_engine::chromium) {
-                /*
-                if(w::button(ICON_MD_FLAG, "open chromium flags page")) {
-                    desktop_shell::open(b.open_cmd, "\"chrome://flags\"");
-                }
-            */
-            }
-
-            // browser can be deleted if it's not fully managed
-            if(b.management != management_extent::full) {
-                if(w::button(ICON_MD_DELETE, emphasis::error)) {
-                    size_t idx = browser::index_of(g_state.browsers, b);
-
-                    // erase and save
-                    std::erase_if(g_state.browsers, [b](auto i) { return i == b; });
-
-                    // if possible, select previous browser
-                    if(idx != string::npos) {
-                        idx -= 1;
-                        if(idx >= 0 && idx < g_state.browsers.size()) {
-                            selected_browser_idx = idx;
-                        }
-                    }
-                }
-                w::tt("Completely deletes this browser, no questions asked");
-            }
-        }
-
-        // --- toolbar end
+        bool can_move_up = b != *g_state.browsers.begin();
+        bool can_move_down = b != *g_state.browsers.rbegin();
 
         w::sl();
-
-        {
-            w::guard g{w_browser_rest_of_it};
-
-            // --- browser properties
-
-            if(b.management != management_extent::full) {
-                w::input(b.name, "name");
+        if(w::button(ICON_MD_ARROW_UPWARD, emphasis::none, can_move_up)) {
+            // move up one position inside g_config.browsers
+            size_t idx = browser::index_of(g_state.browsers, b);
+            if(idx != string::npos && idx > 0) {
+                std::swap(g_state.browsers[idx], g_state.browsers[idx - 1]);
+                selected_browser_idx = idx - 1;
+                return;
             }
-
-            w::input(b.open_cmd, "cmd", true, 0, b.management == management_extent::full);
-            w::tt("Location of the executable");
-            w::sl();
-            if(w::button(ICON_MD_LAUNCH "##open_install", emphasis::none, true, true, "open")) {
-                std::filesystem::path p{b.open_cmd};
-                string path = p.parent_path().string();
-                desktop_shell::open(path);
-            }
-
-            if(!b.data_path.empty()) {
-                w::input(b.data_path, "data", true, 0, true);
-                w::tt("Location of the data directory");
-
-                w::sl();
-                if(w::button(ICON_MD_LAUNCH "##open_data", emphasis::none, true, true, "open")) {
-                    desktop_shell::open(b.data_path);
-                }
-            }
-
-            // --- browser properties end
-
-            // --- profiles start
-
-            w::spc();
-
-            if(b.management == bt::management_extent::none) {
-                // single profile, the first one, no tab bar
-                selected_profile_idx = 0;
-                if(!b.profiles.empty()) {
-                    render_profile(b, *b.profiles.begin(), 0);
-                }
-            } else {
-                w::tab_bar tabs{"tabs", true, true};
-
-                int idx{0};
-                for(browser_profile& bi : b.profiles) {
-                    w::id_frame idf{idx};
-                    if(!g_state.show_hidden_browsers && bi.is_hidden) {
-                        idx++;
-                        continue;
-                    }
-
-                    string tab_icon;
-                    if(bi.is_incognito) {
-                        tab_icon = format("{} ", ICON_MD_SECURITY);
-                    }
-                    string tab_title = format(" {}{} ", tab_icon, bi.name);
-
-                    {
-                        auto t = tabs.next_tab(tab_title, bi.is_default,
-                                               set_selected_profile_idx == -1
-                                                   ? false
-                                                   : idx == set_selected_profile_idx);
-                        if(t) {
-                            selected_profile_idx = idx;
-                            render_profile(b, bi, idx);
-                        }
-                    }
-                    idx++;
-                }
-            }
-
-            set_selected_profile_idx = -1;
         }
+        w::tt(strings::BrowserMoveUpTooltip);
+
+        w::sl();
+        if(w::button(ICON_MD_ARROW_DOWNWARD, emphasis::none, can_move_down)) {
+            // move down one position inside g_state.browsers
+            size_t idx = browser::index_of(g_state.browsers, b);
+            if(idx != string::npos && idx < g_state.browsers.size() - 1) {
+                std::swap(g_state.browsers[idx], g_state.browsers[idx + 1]);
+                selected_browser_idx = idx + 1;
+            }
+        }
+        w::tt(strings::BrowserMoveDownTooltip);
+
+        if(b.engine == bt::browser_engine::gecko) {
+            w::sl();
+            if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
+                desktop_shell::open(b.open_cmd, "-P");
+            }
+            w::tt("open Firefox Profile Manager (-P flag)");
+
+            w::sl();
+            if(w::button(ICON_MD_SUPERVISED_USER_CIRCLE)) {
+                desktop_shell::open(b.open_cmd, "about:profiles");
+            }
+            w::tt("open Firefox Profile Manager in Firefox itself");
+        } else if(b.engine == browser_engine::chromium) {
+            /*
+            w::sl();
+            if(w::button(ICON_MD_FLAG, "open chromium flags page")) {
+                desktop_shell::open(b.open_cmd, "\"chrome://flags\"");
+            }
+        */
+        }
+
+        // browser can be deleted if it's not fully managed
+        if(b.management != management_extent::full) {
+            w::sl();
+            if(w::button(ICON_MD_DELETE, emphasis::error)) {
+                size_t idx = browser::index_of(g_state.browsers, b);
+
+                // erase and save
+                std::erase_if(g_state.browsers, [b](auto i) { return i == b; });
+
+                // if possible, select previous browser
+                if(idx != string::npos) {
+                    idx -= 1;
+                    if(idx >= 0 && idx < g_state.browsers.size()) {
+                        selected_browser_idx = idx;
+                    }
+                }
+            }
+            w::tt("Completely deletes this browser, no questions asked");
+        }
+    }
+
+    void config_app::render_detail(browser& b) {
+        // --- browser properties
+
+        if(b.management != management_extent::full) {
+            w::input(b.name, "name");
+        }
+
+        w::input(b.open_cmd, "cmd", true, 0, b.management == management_extent::full);
+        w::tt("Location of the executable");
+        w::sl();
+        if(w::button(ICON_MD_LAUNCH "##open_install", emphasis::none, true, true, "open")) {
+            std::filesystem::path p{b.open_cmd};
+            string path = p.parent_path().string();
+            desktop_shell::open(path);
+        }
+
+        if(!b.data_path.empty()) {
+            w::input(b.data_path, "data", true, 0, true);
+            w::tt("Location of the data directory");
+
+            w::sl();
+            if(w::button(ICON_MD_LAUNCH "##open_data", emphasis::none, true, true, "open")) {
+                desktop_shell::open(b.data_path);
+            }
+        }
+
+        // --- browser properties end
+
+        // --- profiles start
+
+        w::spc();
+
+        if(b.management == bt::management_extent::none) {
+            // single profile, the first one, no tab bar
+            selected_profile_idx = 0;
+            if(!b.profiles.empty()) {
+                render_profile(b, *b.profiles.begin(), 0);
+            }
+        } else {
+            w::tab_bar tabs{"tabs", true, true};
+
+            int idx{0};
+            for(browser_profile& bi: b.profiles) {
+                w::id_frame idf{idx};
+                if(!g_state.show_hidden_browsers && bi.is_hidden) {
+                    idx++;
+                    continue;
+                }
+
+                string tab_icon;
+                if(bi.is_incognito) {
+                    tab_icon = format("{} ", ICON_MD_SECURITY);
+                }
+                string tab_title = format(" {}{} ", tab_icon, bi.name);
+
+                {
+                    auto t = tabs.next_tab(tab_title, bi.is_default,
+                                           set_selected_profile_idx == -1
+                                               ? false
+                                               : idx == set_selected_profile_idx);
+                    if(t) {
+                        selected_profile_idx = idx;
+                        render_profile(b, bi, idx);
+                    }
+                }
+                idx++;
+            }
+        }
+
+        set_selected_profile_idx = -1;
     }
 
     void config_app::render_profile(browser& b, browser_profile& bi, int idx) {
@@ -1152,7 +1213,6 @@ namespace bt::ui {
 
                 w::checkbox("hide user interface", bi.no_window);
             } else {
-
                 w::input(bi.launch_arg, "arg", true, 0, true);
                 w::tt("Discovered arguments (read-only)");
 
@@ -1163,16 +1223,17 @@ namespace bt::ui {
 
         w::spc();
         render_rules(b, bi);
-
     }
 
     void config_app::render_add_browser_window() {
-        w::wnd w{"Add browser", {
-            .size = {400, 0},
-            .size_cond = act_condition::once,
-            .resizeable = false
-        }};
-        browser &b = new_browser;
+        w::wnd w{
+            "Add browser", {
+                .size = {400, 0},
+                .size_cond = act_condition::once,
+                .resizeable = false
+            }
+        };
+        browser& b = new_browser;
 
         w::input(b.name, "name");
         w::tt("display name to show in the browser list");
@@ -1279,10 +1340,11 @@ namespace bt::ui {
 
         if(w::is_rightclicked()) {
             p.user_icon_path.clear();
+            w::toast(emphasis::info, "Icon reset to default");
         }
     }
 
-    void config_app::render_rules(browser &b, browser_profile &bi) {
+    void config_app::render_rules(browser& b, browser_profile& bi) {
         w::sep("Rules");
 
         if(w::button(ICON_MD_ADD " add", emphasis::primary)) {
@@ -1299,13 +1361,12 @@ namespace bt::ui {
 
         // scrollable area with list of rules
         {
-            w::container c{"rules"};
-            w::guard g{c};
-
-            for(int i = 0; i < bi.rules.size(); i++) {
-                auto &rule = bi.rules[i];
-                w::id_frame idg{i};
-                btw_rule(b, bi, rule, i);
+            if(w::div rules_div{"rules_div"}; rules_div) {
+                for(int i = 0; i < bi.rules.size(); i++) {
+                    auto& rule = bi.rules[i];
+                    w::id_frame idg{i};
+                    btw_rule(b, bi, rule, i);
+                }
             }
         }
     }
@@ -1313,7 +1374,7 @@ namespace bt::ui {
     void config_app::rediscover_browsers() const {
         vector<browser> fresh_browsers = discovery::discover_all_browsers();
         // rediscover profiles in partially managed browsers
-        for(browser& b : g_state.browsers) {
+        for(browser& b: g_state.browsers) {
             if(b.management != management_extent::profiles) continue;
             browser nb = b; // create a copy
             nb.profiles.clear();
@@ -1325,17 +1386,18 @@ namespace bt::ui {
         g_state.browsers = fresh_browsers;
         btw_on_app_initialised(*app);
 
-        string message = format("Discovered {} browser(s).", g_state.browsers.size());
-        w::toast(emphasis::info, message);
+        w::toast(emphasis::info,
+                 format("Discovered {} {}", g_state.browsers.size(),
+                        str::pluralize(g_state.browsers.size(), "browser")));
     }
 
-    void config_app::recalculate_test_url_matches(const click_payload &cp) {
-        for(auto &b: g_state.browsers) {
+    void config_app::recalculate_test_url_matches(const click_payload& cp) {
+        for(auto& b: g_state.browsers) {
             b.ui_test_url_matches = false;
-            for(auto &bi: b.profiles) {
+            for(auto& bi: b.profiles) {
                 bi.ui_test_url_matches = false;
 
-                for(auto &r: bi.rules) {
+                for(auto& r: bi.rules) {
                     r.ui_test_url_matches = false;
                     if(r.is_match(cp, g_script)) {
                         r.ui_test_url_matches = true;
