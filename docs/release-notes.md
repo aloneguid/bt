@@ -4,23 +4,29 @@
 
 ### New features
 
-> - todo: Brave containers!
+- [Brave containers](https://brave.com/blog/containers/) are totally supported (needs to be explicitly enabled in Brave itself, works with Brave and Brave Origin). Discovery understands container names and colors.
 - Script editor: added two buttons to add a template of a new rule and new pipeline function.
+- todo: [ClearURLs](todo:url) integration.
+  - Database is embedded into the application executable itself. No external dependencies, downloads, helper processes, etc.
+  - todo: show indicator in the toast and picker
+- Fully managed browsers can now be deleted as well. They will rea-appear on rediscovery anyway, however, all the customizations will be lost.
 
 ### Improvements
 - 🍞 Ergonomic improvements in Toast:
   - Hovering on the first line shows full process details for geeks.
   - Hovering on the browser icon shows formatter browser/profile information.
-  - Only the domain part of the URL is rendered in the toast. This is to save space as scheme is not that interesting.
+  - Only the domain part of the URL is rendered in the toast. This is to save space as the scheme is not that interesting.
   - When handling local files, Toast properly shows the file path rather than an awkward pretend URL.
 - Clipboard functions on Linux now use native calls instead of spawning a clipboard process which may not be present. This also works on Mac (for the upcoming macOS release).
 - Slight redesign of the browser list in configuration – toolbar is more announced and does not scroll with the browser list itself. Selected browser has a different background rather than just a thin border. 
 - Script editor redesigned into two windows – one for code and another for running the script. This way you can have more space on the screen when designing scripts.
+- Gecko (Firefox/Waterfor etc.) settings for discovering legacy profiles and containers are now configurable per browser rather than globally. By default, legacy profiles are not discovered, and containers are.
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.
-- When the config application is open, health checks are performed every 5 seconds to avoid stale state after you have changed the default browser.
-> - todo: Unshortening for URLs was not implemented on Linux, this is working now.
+- When the config application is open, health checks are performed every 5 seconds to avoid a stale state after you have changed the default browser.
+- Unshortening for URLs was not implemented on Linux because I never added networking capabilities. This is now working via libcurl because Linux does not have a built-in HTTP stack like Windows or macOS.
+- Did you know the Brave browser has Tor built-in? Because no one told me it's broken. Autodiscovery now supports Tor mode in Brave again.
 
 ## 6.2.3
 

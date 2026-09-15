@@ -4,6 +4,7 @@
 #include "pipeline/script.h"
 #include "../globals.h"
 #include "magic_enum/magic_enum.hpp"
+#include "pipeline/clearurls.h"
 
 using namespace std;
 
@@ -62,6 +63,10 @@ namespace bt {
 
         if(cfg.transforms.unshorten) {
             steps.push_back(make_shared<bt::pipeline::unshortener>());
+        }
+
+        if(cfg.transforms.clearurls) {
+            steps.push_back(make_shared<bt::pipeline::clearurls>());
         }
 
         if(cfg.transforms.substitute) {

@@ -50,7 +50,7 @@ namespace bt::ui {
         size_t items_per_w{0};
         size_t lines_total{0};
 
-        std::string url;
+        click_payload cp;
         std::string title;
         std::unique_ptr<grey::app> app;
         bool is_open{true};

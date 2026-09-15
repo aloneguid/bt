@@ -12,6 +12,7 @@ namespace bt {
         find_replace,
         o365,
         unshortener,
+        clearurls,
         script
     };
 

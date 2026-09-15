@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include "browser.h"
 #include <vector>
 #include "common/platform.h"
@@ -18,7 +19,11 @@ namespace bt {
         bool is_classic{true};
     };
 
-    struct firefox_container {
+    /**
+     * Profile containers originally appeared in Firefox.
+     * It's unclear if Chromium will support them, but as of today Brave does.
+     */
+    struct profile_container {
         std::string id;
         std::string name;
         std::string icon;
@@ -49,6 +54,8 @@ namespace bt {
 
         static void discover_chrome_profiles(browser &b);
 
+        static std::vector<profile_container> discover_chromium_containers(const std::filesystem::path& roaming_home);
+
         static void discover_gecko_profiles(browser &b, std::vector<firefox_profile> &profiles);
 
         static void discover_gecko_profiles(browser &b);
@@ -61,11 +68,16 @@ namespace bt {
             const std::string &data_folder_path,
             std::vector<firefox_profile> &profiles);
 
-        static std::vector<firefox_container> discover_gecko_containers(const std::string &roaming_home);
+        static std::vector<profile_container> discover_gecko_containers(const std::string &roaming_home);
 
         static std::vector<std::string> get_firefox_addons_installed(const std::string &roaming_home);
 
         static std::string unmangle_open_cmd(const std::string &open_cmd);
+
+        /**
+         * Find existing browser in global state by using metadata from the argument b.
+         */
+        static std::optional<browser> find_existing(const browser& b);
 
 #if PLATFORM_WINDOWS
 

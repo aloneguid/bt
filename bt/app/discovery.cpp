@@ -13,6 +13,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include "fonts/MaterialIcons.h"
+
 using namespace grey::common;
 using namespace grey;
 
@@ -33,10 +35,10 @@ using json = nlohmann::json;
  * @param query SQL query string to execute.
  * @return Vector of maps, where each map represents a row with column names as keys.
  */
-vector<map<string, string> > sql_execute(sqlite3 *db, const string &query) {
+vector<map<string, string> > sql_execute(sqlite3* db, const string& query) {
     vector<map<string, string> > results;
 
-    sqlite3_stmt *stmt = nullptr;
+    sqlite3_stmt* stmt = nullptr;
     if(sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
         return results;
     }
@@ -46,8 +48,8 @@ vector<map<string, string> > sql_execute(sqlite3 *db, const string &query) {
     while(sqlite3_step(stmt) == SQLITE_ROW) {
         map<string, string> row;
         for(int i = 0; i < col_count; ++i) {
-            const char *col_name = sqlite3_column_name(stmt, i);
-            const char *col_value = reinterpret_cast<const char *>(sqlite3_column_text(stmt, i));
+            const char* col_name = sqlite3_column_name(stmt, i);
+            const char* col_value = reinterpret_cast<const char *>(sqlite3_column_text(stmt, i));
             row[col_name ? col_name : ""] = col_value ? col_value : "";
         }
         results.push_back(std::move(row));
@@ -75,18 +77,18 @@ namespace bt {
 
     static const std::unordered_map<std::string, std::string> gecko_container_icons = {
         {"fingerprint", "md_fingerprint"},
-        {"briefcase",   "md_work"},
-        {"dollar",      "md_attach_money"},
-        {"cart",        "md_shopping_cart"},
-        {"circle",      "md_circle"},
-        {"gift",        "md_redeem"},
-        {"vacation",    "md_beach_access"},
-        {"food",        "md_local_dining"},
-        {"fruit",       "md_restaurant"},
-        {"pet",         "md_pets"},
-        {"tree",        "md_park"},
-        {"chill",       "md_self_improvement"},
-        {"fence",       "md_fence"},
+        {"briefcase", "md_work"},
+        {"dollar", "md_attach_money"},
+        {"cart", "md_shopping_cart"},
+        {"circle", "md_circle"},
+        {"gift", "md_redeem"},
+        {"vacation", "md_beach_access"},
+        {"food", "md_local_dining"},
+        {"fruit", "md_restaurant"},
+        {"pet", "md_pets"},
+        {"tree", "md_park"},
+        {"chill", "md_self_improvement"},
+        {"fence", "md_fence"},
     };
 
     static const std::unordered_map<std::string, rgb_colour> gecko_container_colors = {
@@ -101,7 +103,7 @@ namespace bt {
         {"toolbar", rgb_colour(0x7C, 0x7C, 0x80, 0xFF)},
     };
 
-    static string get_instance_id(const string &reg_value) {
+    static string get_instance_id(const string& reg_value) {
         // if this is Firefox, strip out the prefix to get instance ID. Browser might be Firefox based so, strip everything before (including) first hyphen.
         if(size_t pos = reg_value.find('-'); pos != string::npos) {
             return reg_value.substr(pos + 1);
@@ -110,7 +112,7 @@ namespace bt {
         return reg_value;
     }
 
-    std::string discovery::unmangle_open_cmd(const std::string &open_cmd) {
+    std::string discovery::unmangle_open_cmd(const std::string& open_cmd) {
         string r = open_cmd;
 
         // if open_cmd starts with quote ("), remove it, and substring up to first next quote
@@ -126,12 +128,22 @@ namespace bt {
         return r;
     }
 
+    optional<browser> discovery::find_existing(const browser& b) {
+        for(browser& ib: g_state.browsers) {
+            if(ib.open_cmd == b.open_cmd && ib.data_path == b.data_path) {
+                return ib;
+            }
+        }
+
+        return nullopt;
+    }
+
 #if PLATFORM_WINDOWS
-    void discovery::discover_win32_registry_browsers(hive h, vector<browser> &browsers,
-                                                     const string &ignore_proto_1, const string& ignore_proto_2) {
+    void discovery::discover_win32_registry_browsers(hive h, vector<browser>& browsers,
+                                                     const string& ignore_proto_1, const string& ignore_proto_2) {
         auto subs = enum_subkeys(h, abs_root);
 
-        for(const string &sub: subs) {
+        for(const string& sub: subs) {
             string root = abs_root + "\\" + sub;
             string display_name = get_value(h, root);
             string open_command = get_value(h, root + "\\shell\\open\\command");
@@ -149,7 +161,7 @@ namespace bt {
                 // this is possible to operator== on browser class
 
                 bool is_dupe{false};
-                for(auto &bb: browsers) {
+                for(auto& bb: browsers) {
                     if(bb == b) {
                         is_dupe = true;
                         break;
@@ -164,7 +176,7 @@ namespace bt {
 #endif
 
 #if PLATFORM_LINUX
-    std::string discovery::resolve_xdg_icon_path(const std::string &icon) {
+    std::string discovery::resolve_xdg_icon_path(const std::string& icon) {
         if(icon.empty()) {
             return {};
         }
@@ -177,11 +189,11 @@ namespace bt {
 
         // Share dirs to search, in priority order
         std::vector<fs::path> share_dirs;
-        if(const char *h = std::getenv("HOME")) {
+        if(const char* h = std::getenv("HOME")) {
             share_dirs.emplace_back(fs::path(h) / ".local/share");
             share_dirs.emplace_back(fs::path(h) / ".local/share/flatpak/exports/share");
         }
-        if(const char *xdg = std::getenv("XDG_DATA_DIRS")) {
+        if(const char* xdg = std::getenv("XDG_DATA_DIRS")) {
             for(std::string_view sv = xdg; !sv.empty();) {
                 auto end = sv.find(':');
                 share_dirs.emplace_back(sv.substr(0, end));
@@ -194,15 +206,15 @@ namespace bt {
         share_dirs.emplace_back("/var/lib/flatpak/exports/share");
         share_dirs.emplace_back("/var/lib/snapd/desktop");
 
-        const char *exts[] = {".png", ".svg", ".xpm"};
+        const char* exts[] = {".png", ".svg", ".xpm"};
 
-        for(const auto &share: share_dirs) {
+        for(const auto& share: share_dirs) {
             // Enumerate all size dirs under hicolor, sorted largest-first
             fs::path hicolor = share / "icons/hicolor";
             std::error_code ec;
 
             std::vector<std::pair<int, fs::path> > size_dirs; // {size, apps_path}
-            for(const auto &e: fs::directory_iterator(hicolor, ec)) {
+            for(const auto& e: fs::directory_iterator(hicolor, ec)) {
                 if(!fs::is_directory(e.path(), ec)) continue;
                 std::string name = e.path().filename().string();
                 int size = 0;
@@ -214,10 +226,10 @@ namespace bt {
                 size_dirs.emplace_back(size, e.path() / "apps");
             }
             std::sort(size_dirs.begin(), size_dirs.end(),
-                      [](const auto &a, const auto &b) { return a.first > b.first; });
+                      [](const auto& a, const auto& b) { return a.first > b.first; });
 
-            for(const auto &[sz, apps]: size_dirs) {
-                for(const char *ext: exts) {
+            for(const auto& [sz, apps]: size_dirs) {
+                for(const char* ext: exts) {
                     fs::path p = apps / (icon + ext);
                     if(fs::exists(p, ec)) {
                         return p.string();
@@ -226,7 +238,7 @@ namespace bt {
             }
 
             // Fallback: pixmaps
-            for(const char *ext: exts) {
+            for(const char* ext: exts) {
                 fs::path p = share / "pixmaps" / (icon + ext);
                 if(fs::exists(p, ec)) {
                     return p.string();
@@ -244,8 +256,8 @@ namespace bt {
         return {};
     }
 
-    void discovery::discover_xdg_desktop_browsers(std::vector<browser> &browsers) {
-        const char *home = std::getenv("HOME");
+    void discovery::discover_xdg_desktop_browsers(std::vector<browser>& browsers) {
+        const char* home = std::getenv("HOME");
 
         fs::path dirs[] = {
             home ? fs::path(home) / ".local/share/applications" : fs::path{},
@@ -257,11 +269,11 @@ namespace bt {
 
         std::unordered_set<std::string> seen_exec;
 
-        for(const auto &dir: dirs) {
+        for(const auto& dir: dirs) {
             std::error_code ec;
             if(!fs::is_directory(dir, ec)) continue;
 
-            for(const auto &de: fs::directory_iterator(dir, ec)) {
+            for(const auto& de: fs::directory_iterator(dir, ec)) {
                 if(de.path().extension() != ".desktop") continue;
 
                 std::string name, exec, categories, mimetypes, icon;
@@ -304,7 +316,7 @@ namespace bt {
                 }
 
                 // filter: must be a browser
-                auto has_token = [](const std::string &s, std::string_view tok) {
+                auto has_token = [](const std::string& s, std::string_view tok) {
                     for(size_t p = 0; p <= s.size();) {
                         auto e = s.find(';', p);
                         if(e == std::string::npos) e = s.size();
@@ -341,7 +353,7 @@ namespace bt {
                 }
 
                 // skip self
-                if (cmd == "bt" || cmd == "/usr/bin/bt") {
+                if(cmd == "bt" || cmd == "/usr/bin/bt") {
                     continue;
                 }
 
@@ -360,7 +372,7 @@ namespace bt {
 #endif
 
 #if PLATFORM_MACOS
-    static void discover_macos_safari_browser(std::vector<browser> &browsers) {
+    static void discover_macos_safari_browser(std::vector<browser>& browsers) {
         const fs::path safari_paths[] = {
             "/Applications/Safari.app/Contents/MacOS/Safari",
             "/System/Applications/Safari.app/Contents/MacOS/Safari"
@@ -368,7 +380,7 @@ namespace bt {
 
         std::error_code ec;
         fs::path safari_executable;
-        for(const auto &path: safari_paths) {
+        for(const auto& path: safari_paths) {
             if(fs::is_regular_file(path, ec)) {
                 safari_executable = path;
                 break;
@@ -382,7 +394,7 @@ namespace bt {
 
         browser safari{"Safari", "/usr/bin/open -a Safari"};
         safari.icon_path = safari_bundle.string();
-        if(const char *home = std::getenv("HOME")) {
+        if(const char* home = std::getenv("HOME")) {
             safari.data_path = (fs::path{home} / "Library/Containers/com.apple.Safari/Data/Library/Safari").string();
         }
 
@@ -391,7 +403,7 @@ namespace bt {
         }
     }
 
-    static void discover_macos_safari_profiles(browser &b) {
+    static void discover_macos_safari_profiles(browser& b) {
         if(b.name != "Safari" || b.open_cmd != "/usr/bin/open -a Safari") return;
 
         const string icon_path = b.icon_path;
@@ -402,16 +414,17 @@ namespace bt {
             fs::path db_path = fs::path{b.data_path} / "SafariTabs.db";
             std::error_code ec;
             if(fs::is_regular_file(db_path, ec)) {
-                sqlite3 *db = nullptr;
+                sqlite3* db = nullptr;
                 const int rc = sqlite3_open_v2(db_path.string().c_str(), &db, SQLITE_OPEN_READONLY, nullptr);
                 if(rc == SQLITE_OK && db != nullptr) {
                     const auto rows = sql_execute(db,
                                                   "select external_uuid, title from bookmarks "
                                                   "where parent = 0 and type = 1 and subtype = 2");
-                    for(const auto &row: rows) {
+                    for(const auto& row: rows) {
                         const auto id_it = row.find("external_uuid");
                         const auto name_it = row.find("title");
-                        if(id_it == row.end() || name_it == row.end() || id_it->second.empty() || name_it->second.empty()) {
+                        if(id_it == row.end() || name_it == row.end() || id_it->second.empty() || name_it->second.
+                           empty()) {
                             continue;
                         }
                         if(id_it->second.find_first_not_of("0123456789abcdefABCDEF-") != string::npos) {
@@ -452,7 +465,8 @@ namespace bt {
 #endif
 
 
-    std::vector<browser> discovery::discover_browsers(const std::string &ignore_proto_1, const std::string& ignore_proto_2) {
+    std::vector<browser> discovery::discover_browsers(const std::string& ignore_proto_1,
+                                                      const std::string& ignore_proto_2) {
         vector<browser> browsers;
 
 #if PLATFORM_WINDOWS
@@ -470,7 +484,7 @@ namespace bt {
 #endif
 
         // mark these as fully managed
-        for(browser &b: browsers) {
+        for(browser& b: browsers) {
             b.management = management_extent::full;
         }
 
@@ -479,7 +493,7 @@ namespace bt {
         return browsers;
     }
 
-    void discovery::discover_chrome_profiles(browser &b) {
+    void discovery::discover_chrome_profiles(browser& b) {
         if(b.engine != browser_engine::chromium) return;
 
         // https://github.com/ScoopInstaller/Extras/blob/5d9773cbeb8cbe7b1e97061cf4819b60956a3b61/bucket/helium.json#L22
@@ -497,7 +511,7 @@ namespace bt {
             auto j = json::parse(jt);
             auto j_p_ic = j["profile"]["info_cache"];
             if(j_p_ic.is_object()) {
-                for(auto &jp: j_p_ic.items()) {
+                for(auto& jp: j_p_ic.items()) {
                     string sys_name = jp.key();
                     auto profile_pic_j = jp.value()["gaia_picture_file_name"];
 
@@ -517,15 +531,38 @@ namespace bt {
                     }
 
                     // all the data is ready
-                    string arg = format(R"("{}" "--profile-directory={}" "--user-data-dir={}" --no-default-browser-check)",
-                                        browser::URL_ARG_NAME, sys_name,
-                                        b.data_path);
+                    string arg = format(
+                        R"("{}" "--profile-directory={}" "--user-data-dir={}" --no-default-browser-check)",
+                        browser::URL_ARG_NAME, sys_name,
+                        b.data_path);
 
-                    browser_profile profile{name, arg,""};
+                    browser_profile profile{name, arg, ""};
                     if(profile_pic_j.is_string()) {
                         profile.icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                         if(!fs::is_regular_file(profile.icon_path)) profile.icon_path.clear();
                     }
+
+                    // containers
+                    auto existing = find_existing(b);
+                    bool discover_containers = !existing.has_value() || existing->discover_containers;
+                    if(discover_containers) {
+                        auto containers = discover_chromium_containers(root / sys_name);
+                        for(const auto& container: containers) {
+                            string arg = format(
+                                R"("{}" "--profile-directory={}" "--user-data-dir={}" "--container={}" --no-default-browser-check)",
+                                browser::URL_ARG_NAME, sys_name,
+                                b.data_path,
+                                container.name);
+
+                            browser_profile bi(container.name, arg, "");
+                            if(container.has_color) {
+                                bi.use_color = true;
+                                bi.color = container.color;
+                            }
+                            b.profiles.push_back(bi);
+                        }
+                    }
+
                     b.profiles.push_back(profile);
                 }
             }
@@ -551,7 +588,7 @@ namespace bt {
         }
 
         // Brave additionally supports Tor mode
-        if(b.name == "brave") {
+        if(b.name == "Brave") {
             browser_profile tor(
                 "Tor",
                 format("\"{}\" --tor", browser::URL_ARG_NAME),
@@ -562,19 +599,63 @@ namespace bt {
         }
     }
 
+    vector<profile_container> discovery::discover_chromium_containers(const std::filesystem::path& profile_directory) {
+        vector<profile_container> containers;
+
+        // at the time of this writing, containers are only available in Brave, and only if explicitly enabled
+        fs::path preferences_path = profile_directory / "Preferences";
+        if(fs::exists(preferences_path)) {
+            // this is a JSON file
+            string jt = fss::read_all_text(preferences_path);
+            auto j = json::parse(jt);
+            auto jbc = j.value("brave", json::object()).value("containers", json::object());
+            if(jbc.is_object()) {
+                bool enabled = jbc.value("enabled", false);
+                if(enabled) {
+                    // read the list of containers in "list" element
+                    auto jbcl = jbc.value("list", json::array());
+                    if(jbcl.is_array()) {
+                        for(auto& jitem: jbcl) {
+                            if(!jitem.is_object()) continue;
+
+                            string name = jitem.value("name", "");
+                            if(name.empty()) continue;
+
+                            string id = jitem.value("id", "");
+                            int icon_index = jitem.value("icon", 0); // todo: detect icon
+                            int background_color = jitem.value("background_color", 0);
+
+                            // decode colour
+                            auto c = static_cast<uint32_t>(background_color);
+                            rgb_colour colour{
+                                ((c >> 16) & 0xFF) / 255.0f,
+                                ((c >> 8) & 0xFF) / 255.0f,
+                                (c & 0xFF) / 255.0f,
+                                ((c >> 24) & 0xFF) / 255.0f
+                            };
+
+                            containers.emplace_back(id, name, "", background_color != 0, colour);
+                        }
+                    }
+                }
+            }
+        }
+        return containers;
+    }
+
     void discovery::discover_gecko_profile_groups(
-        const string &parent_id,
-        const string &installation_id,
-        const string &store_id,
-        const string &sqlite_db_path,
-        const string &data_folder_path,
-        std::vector<firefox_profile> &profiles) {
+        const string& parent_id,
+        const string& installation_id,
+        const string& store_id,
+        const string& sqlite_db_path,
+        const string& data_folder_path,
+        std::vector<firefox_profile>& profiles) {
         // select * from Profiles
-        sqlite3 *db;
+        sqlite3* db;
         int rc = sqlite3_open(sqlite_db_path.c_str(), &db);
         if(rc == SQLITE_OK) {
             auto sql_profiles = sql_execute(db, "select * from Profiles");
-            for(const auto &profile: sql_profiles) {
+            for(const auto& profile: sql_profiles) {
                 auto it_id = profile.find("id");
                 auto it_name = profile.find("name");
                 auto it_path = profile.find("path");
@@ -592,8 +673,9 @@ namespace bt {
     }
 
 
-    void discovery::discover_gecko_profiles(browser &b, std::vector<firefox_profile> &profiles) {
+    void discovery::discover_gecko_profiles(browser& b, std::vector<firefox_profile>& profiles) {
         fs::path data_folder{b.data_path};
+        auto existing = find_existing(b);
 
         // profiles.ini is the starting entry point to find both classic and new profiles (profile groups)
         fs::path ini_path = data_folder / "profiles.ini";
@@ -606,11 +688,11 @@ namespace bt {
 
         // create a map of profile id to installation id
         map<string, string> profile_to_installation_id;
-        for(CSimpleIniA::Entry &section: ir) {
+        for(CSimpleIniA::Entry& section: ir) {
             string section_name = section.pItem;
             if(!section_name.starts_with("Install")) continue;
 
-            const char *c_profile_path = ini.GetValue(section.pItem, "Default");
+            const char* c_profile_path = ini.GetValue(section.pItem, "Default");
             if(c_profile_path == nullptr) continue;
 
             string profile_path = c_profile_path;
@@ -622,18 +704,18 @@ namespace bt {
         }
 
         // extract all the profiles
-        for(CSimpleIniA::Entry &e: ir) {
+        for(CSimpleIniA::Entry& e: ir) {
             // a section is a profile if starts with "Profile".
             string section_name{e.pItem};
             if(!section_name.starts_with("Profile")) continue;
 
             // extract display name if possible
-            const char *c_name = ini.GetValue(e.pItem, "Name");
+            const char* c_name = ini.GetValue(e.pItem, "Name");
             string display_name = c_name ? c_name : section_name;
 
             // if is_relative is false, this is an absolute path (not like it matters anyway)
-            const char *c_is_relative = ini.GetValue(e.pItem, "IsRelative");
-            const char *c_path = ini.GetValue(e.pItem, "Path");
+            const char* c_is_relative = ini.GetValue(e.pItem, "IsRelative");
+            const char* c_path = ini.GetValue(e.pItem, "Path");
             bool is_relative = c_is_relative == nullptr || string{c_is_relative} == "1";
             if(!c_path) continue;
             string path{c_path};
@@ -649,17 +731,17 @@ namespace bt {
             }
 
             // Check is this is a container for profile groups
-            const char *c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
+            const char* c_nested_store_id = ini.GetValue(e.pItem, "StoreID");
             if(c_nested_store_id) {
                 fs::path sqlite_db_path = data_folder / "Profile Groups" / (string{c_nested_store_id} + ".sqlite");
                 // profile definitions i.e. "new profiles" are now stored in the sqlite database
                 if(fs::exists(sqlite_db_path)) {
                     discover_gecko_profile_groups(section_name,
-                                                    installation_id,
-                                                    c_nested_store_id,
-                                                    sqlite_db_path.string(),
-                                                    data_folder.string(),
-                                                    profiles);
+                                                  installation_id,
+                                                  c_nested_store_id,
+                                                  sqlite_db_path.string(),
+                                                  data_folder.string(),
+                                                  profiles);
                 }
             } else {
                 // classic profile
@@ -668,15 +750,16 @@ namespace bt {
         }
     }
 
-    void discovery::discover_gecko_profiles(browser &b) {
+    void discovery::discover_gecko_profiles(browser& b) {
         if(b.engine != browser_engine::gecko) return;
 
+        auto existing = find_existing(b);
         vector<firefox_profile> profiles;
         discover_gecko_profiles(b, profiles);
 
         // sort profiles using the following rules: is_classic, has installation_id, name
         std::sort(profiles.begin(), profiles.end(),
-                  [](const firefox_profile &a, const firefox_profile &b) {
+                  [](const firefox_profile& a, const firefox_profile& b) {
                       if(a.is_classic != b.is_classic) {
                           return !a.is_classic; // classic profiles last
                       }
@@ -686,14 +769,14 @@ namespace bt {
                       return a.name < b.name; // finally by name
                   });
 
-        for(firefox_profile &fp: profiles) {
-
+        for(firefox_profile& fp: profiles) {
             // Only perform this check if Installation ID is known
             if(!b.instance_id.empty()) {
                 // if profile is bound to an installation, but it's not ours, skip it always
                 if(!fp.installation_id.empty() && fp.installation_id != b.instance_id) continue;
 
-                if(fp.installation_id.empty() && !g_state.discover_classic_gecko_profiles) continue;
+                bool discover_classic_profiles = !existing.has_value() || existing->discover_classic_gecko_profiles;
+                if(fp.installation_id.empty() && !discover_classic_profiles) continue;
             }
 
             string arg_suffix = fp.is_classic
@@ -705,13 +788,13 @@ namespace bt {
             b.profiles.push_back(p);
 
             // containers
-            if(g_state.discover_gecko_containers) {
+            if(!existing.has_value() || existing->discover_containers) {
                 // for each container, add a profile
                 // Leave the "no container" profile as is.
 
                 // add profile for each container
-                vector<firefox_container> containers = discover_gecko_containers(fp.path);
-                for(const auto &container: containers) {
+                vector<profile_container> containers = discover_gecko_containers(fp.path);
+                for(const auto& container: containers) {
                     string arg = format("\"ext+container:name={}&url={}\" {}",
                                         container.name,
                                         browser::URL_ARG_NAME,
@@ -740,8 +823,8 @@ namespace bt {
         b.profiles.push_back(private_bi);
     }
 
-    vector<firefox_container> discovery::discover_gecko_containers(const string &roaming_home) {
-        vector<firefox_container> r;
+    vector<profile_container> discovery::discover_gecko_containers(const string& roaming_home) {
+        vector<profile_container> r;
 
         // detect if "containers" are installed
         fs::path containers_path = fs::path{roaming_home} / "containers.json";
@@ -821,7 +904,7 @@ namespace bt {
         return r;
     }
 
-    std::vector<std::string> discovery::get_firefox_addons_installed(const std::string &roaming_home) {
+    std::vector<std::string> discovery::get_firefox_addons_installed(const std::string& roaming_home) {
         vector<string> r;
 
         fs::path path = fs::path{roaming_home} / "addons.json";
@@ -843,7 +926,7 @@ namespace bt {
         return r;
     }
 
-    void discovery::discover_other_profiles(browser &b) {
+    void discovery::discover_other_profiles(browser& b) {
         if(b.engine != browser_engine::generic) return;
 
 #if PLATFORM_MACOS
@@ -866,14 +949,14 @@ namespace bt {
         return discover_browsers(ProtoNameDev, ProtoNameRelease);
     }
 
-    void discovery::discover_managed_profiles(std::vector<browser> &browsers) {
+    void discovery::discover_managed_profiles(std::vector<browser>& browsers) {
         // discover various profiles
-        for(browser &b: browsers) {
+        for(browser& b: browsers) {
             discover_managed_profiles(b);
         }
     }
 
-    void discovery::discover_managed_profiles(browser &b) {
+    void discovery::discover_managed_profiles(browser& b) {
         if(b.management == management_extent::full || b.management == management_extent::profiles) {
             discover_chrome_profiles(b);
             discover_gecko_profiles(b);
@@ -882,7 +965,7 @@ namespace bt {
     }
 
 #if PLATFORM_WINDOWS
-    bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
+    bool discovery::fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path) {
         engine = browser_engine::generic;
         data_path.clear();
 
@@ -905,15 +988,14 @@ namespace bt {
 
         // Chromium
         // Should have a file *_proxy.exe in the same folder
-        for(const auto &entry: fs::directory_iterator(folder_path)) {
+        for(const auto& entry: fs::directory_iterator(folder_path)) {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
 
                 if(filename.ends_with("_proxy.exe")) {
-
                     // we don't know where data folders are exactly, so this is the best we can do
                     if(exe_path == (pf / "Microsoft" / "Edge" / "Application" / "msedge.exe").string() ||
-                        exe_path == (pf32 / "Microsoft" / "Edge" / "Application" / "msedge.exe").string()) {
+                       exe_path == (pf32 / "Microsoft" / "Edge" / "Application" / "msedge.exe").string()) {
                         data_path = (lad / "Microsoft" / "Edge" / "User Data").string();
                     } else if(exe_name == "chrome.exe") {
                         // Helium is also "chrome.exe", so we need to check path substring
@@ -924,9 +1006,11 @@ namespace bt {
                         }
                     } else if(exe_name == "vivaldi.exe") {
                         data_path = (lad / "Vivaldi" / "User Data").string();
-                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Origin" / "Application" / "brave.exe").string()) {
+                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Origin" / "Application" / "brave.exe").
+                              string()) {
                         data_path = (lad / "BraveSoftware" / "Brave-Origin" / "User Data").string();
-                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Browser" / "Application" / "brave.exe").string()) {
+                    } else if(exe_path == (pf / "BraveSoftware" / "Brave-Browser" / "Application" / "brave.exe").
+                              string()) {
                         data_path = (lad / "BraveSoftware" / "Brave-Browser" / "User Data").string();
                     } else if(exe_name == "thorium.exe") {
                         data_path = (lad / "Thorium" / "User Data").string();
@@ -941,7 +1025,7 @@ namespace bt {
 
         // Gecko
         // Should have "xul.dll" in the same folder
-        for(const auto &entry: fs::directory_iterator(folder_path)) {
+        for(const auto& entry: fs::directory_iterator(folder_path)) {
             if(entry.is_regular_file()) {
                 auto filename = entry.path().filename().string();
                 if(filename == "xul.dll") {
@@ -972,7 +1056,7 @@ namespace bt {
 
     fs::path get_numeric_subfolder(const fs::path& path) {
         // list subfolders and return the first one that starts with a number
-        for(const auto &entry : fs::directory_iterator(path)) {
+        for(const auto& entry: fs::directory_iterator(path)) {
             if(fs::is_directory(entry)) {
                 string name = entry.path().filename().string();
                 if(!name.empty() && std::isdigit(name[0]))
@@ -982,7 +1066,7 @@ namespace bt {
         return {};
     }
 
-    bool discovery::fingerprint(const std::string &exe_path, browser_engine &engine, std::string &data_path) {
+    bool discovery::fingerprint(const std::string& exe_path, browser_engine& engine, std::string& data_path) {
         engine = browser_engine::generic;
         data_path.clear();
         fs::path hd{fss::get_home_dir()};
@@ -996,7 +1080,7 @@ namespace bt {
 
         if(exe_path == "/snap/bin/firefox") {
             engine = browser_engine::gecko;
-            data_path = (hd / "snap"/ "firefox"/ "common" / ".mozilla" / "firefox").string();
+            data_path = (hd / "snap" / "firefox" / "common" / ".mozilla" / "firefox").string();
             return true;
         }
 
@@ -1008,7 +1092,7 @@ namespace bt {
 
         if(exe_path == "/snap/bin/chromium") {
             engine = browser_engine::chromium;
-            data_path = (hd / "snap"/ "chromium"/ "common" / "chromium").string();
+            data_path = (hd / "snap" / "chromium" / "common" / "chromium").string();
             return true;
         }
 
@@ -1018,14 +1102,14 @@ namespace bt {
             return true;
         }
 
-        if (exe_path == "/usr/bin/brave-browser-stable") {
+        if(exe_path == "/usr/bin/brave-browser-stable") {
             engine = browser_engine::chromium;
             data_path = (cd / "BraveSoftware" / "Brave-Browser").string();
             return true;
         }
 
         if(exe_path == "/snap/bin/brave") {
-            auto n = get_numeric_subfolder(hd / "snap"/ "brave");
+            auto n = get_numeric_subfolder(hd / "snap" / "brave");
             if(!n.empty()) {
                 engine = browser_engine::chromium;
                 data_path = (n / ".config" / "BraveSoftware" / "Brave-Browser").string();
@@ -1040,23 +1124,21 @@ namespace bt {
         }
 
         if(exe_path == "/snap/bin/vivaldi.vivaldi-stable '--class=Vivaldi-snap'") {
-            auto n = get_numeric_subfolder(hd / "snap"/ "vivaldi");
+            auto n = get_numeric_subfolder(hd / "snap" / "vivaldi");
             if(!n.empty()) {
                 engine = browser_engine::chromium;
-                data_path = (n / ".config" / "vivaldi" ).string();
+                data_path = (n / ".config" / "vivaldi").string();
                 return true;
             }
-
         }
 
         if(exe_path == "/snap/bin/opera") {
-            auto n = get_numeric_subfolder(hd / "snap"/ "opera");
+            auto n = get_numeric_subfolder(hd / "snap" / "opera");
             if(!n.empty()) {
                 engine = browser_engine::chromium;
-                data_path = (n / ".config" / "opera" ).string();
+                data_path = (n / ".config" / "opera").string();
                 return true;
             }
-
         }
 
         return false;

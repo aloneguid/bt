@@ -80,6 +80,7 @@ namespace bt {
         bool unwrap_o365{true};
         bool unshorten{true};
         bool substitute{true};
+        bool clearurls{true};
         bool scripting{true};
         std::vector<substitition_state> substitutions;
 
@@ -117,8 +118,6 @@ namespace bt {
         bool log_rule_hits{false};
         bool show_hidden_browsers{false};
         icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
-        bool discover_classic_gecko_profiles{false};
-        bool discover_gecko_containers{true};
         int highlight_width{4};
         toast_state toast;
         picker_state picker;

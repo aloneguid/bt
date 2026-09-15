@@ -8,8 +8,13 @@ find_package(tinyxml2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
+if(NOT WIN32)
+    find_package(CURL REQUIRED)
+endif()
 
 include(GNUInstallDirs)
+
+
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -26,8 +31,6 @@ file(GLOB core_src
     "../grey/grey/common/fss.cpp"
     "../grey/grey/common/clipboard.cpp"
     "../grey/grey/common/keyboard.cpp"
-    "../grey/grey/common/http.cpp"
-    "../grey/grey/common/url.cpp"
     "../grey/grey/common/datetime.cpp"
     "../grey/grey/common/desktop_shell.cpp"
     "../grey/grey/common/process.cpp")
@@ -65,7 +68,9 @@ if(APPLE)
 endif()
 
 file(GLOB test_src ${core_src} "tests/*.cpp")
-add_executable(test ${test_src})
+add_executable(test ${test_src}
+        app/pipeline/clearurls.h
+        app/pipeline/clearurls.cpp)
 include(GoogleTest)
 gtest_discover_tests(test)
 
@@ -76,12 +81,32 @@ set(COMMON_LIBS
         unofficial::sqlite3::sqlite3
         ${LUA_LIBRARIES})
 
+if(NOT WIN32)
+    list(APPEND COMMON_LIBS CURL::libcurl)
+endif()
+
 set(COMMON_INCLUDES
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "../grey/grey/common"
         "../grey/grey"
         ${P_RANAV_CSV2_INCLUDE_DIRS}
         ${LUA_INCLUDE_DIR})
+
+# Update ClearURLs database
+
+set(RULES_URL https://rules2.clearurls.xyz/data.minify.json)
+set(RULES_JSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/app/pipeline/clearurls_rules.json)
+set(RULES_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/app/pipeline/clearurls_rules.hpp)
+
+file(DOWNLOAD ${RULES_URL} ${RULES_JSON_PATH})
+file(READ ${RULES_JSON_PATH} RULES_JSON_CONTENT)
+
+file(WRITE ${RULES_HEADER_PATH}
+        "#pragma once\n"
+        "inline constexpr const char* ClearUrlsJson = R\"json(${RULES_JSON_CONTENT})json\";\n"
+)
+
+#####
 
 target_link_libraries(${APP_NAME} PRIVATE ${COMMON_LIBS})
 target_link_libraries(test PRIVATE ${COMMON_LIBS} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)

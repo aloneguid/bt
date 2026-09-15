@@ -70,6 +70,10 @@ namespace bt {
 
         std::vector<browser_profile> profiles;
 
+        bool discover_classic_gecko_profiles{false};
+
+        bool discover_containers{true};
+
         /**
          * @brief Instance ID, used by Firefox. Not persisted as it's not required after discovery.
          */

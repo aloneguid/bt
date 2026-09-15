@@ -38,6 +38,10 @@
             "name": "fontconfig",
             "platform": "linux"
         },
+        {
+            "name": "curl",
+            "platform": "linux | osx"
+        },
         "implot",
         "nlohmann-json",
         "simpleini",
@@ -48,6 +52,7 @@
         "lua",
         "sqlite3",
         "md4c",
+        "cpp-httplib",
         "gtest"
     ]
 }

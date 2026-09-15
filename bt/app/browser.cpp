@@ -180,6 +180,8 @@ namespace bt {
                 browser& b_new = *b_new_it;
                 // merge user data
                 b_new.is_hidden = b_old.is_hidden;
+                b_new.discover_classic_gecko_profiles = b_old.discover_classic_gecko_profiles;
+                b_new.discover_containers = b_old.discover_containers;
 
                 // profiles - Preserve order of profiles from old_set
                 std::vector<browser_profile> merged_profiles;

@@ -91,6 +91,7 @@ namespace bt {
             {"scripting", state.scripting},
             {"substitute", state.substitute},
             {"unshorten", state.unshorten},
+            {"clearurls", state.clearurls},
             {"unwrap_o365", state.unwrap_o365}
         };
         if(!state.substitutions.empty())
@@ -101,6 +102,7 @@ namespace bt {
         read<bool>(node, "scripting", state.scripting);
         read<bool>(node, "substitute", state.substitute);
         read<bool>(node, "unshorten", state.unshorten);
+        read<bool>(node, "clearurls", state.clearurls);
         read<bool>(node, "unwrap_o365", state.unwrap_o365);
         read<std::vector<substitition_state> >(node, "substitutions", state.substitutions);
     }
@@ -125,8 +127,6 @@ namespace bt {
         read<bool>(node, "show_hidden_browsers", state.show_hidden_browsers);
 
         read_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
-        read<bool>(node, "discover_classic_gecko_profiles", state.discover_classic_gecko_profiles);
-        read<bool>(node, "discover_gecko_containers", state.discover_gecko_containers);
         read<int>(node, "highlight_width", state.highlight_width);
 
         read<toast_state>(node, "toast", state.toast);
@@ -155,8 +155,6 @@ namespace bt {
         node["log_rule_hits"] = state.log_rule_hits;
         node["show_hidden_browsers"] = state.show_hidden_browsers;
         write_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
-        node["discover_classic_gecko_profiles"] = state.discover_classic_gecko_profiles;
-        node["discover_gecko_containers"] = state.discover_gecko_containers;
         node["highlight_width"] = state.highlight_width;
         node["toast"] = state.toast;
         node["picker"] = state.picker;
@@ -244,6 +242,8 @@ namespace bt {
         read<std::string>(node, "data", state.data_path);
         read_enum<browser_engine>(node, "engine", state.engine);
         read_enum<management_extent>(node, "management", state.management);
+        read<bool>(node, "discover_classic_gecko_profiles", state.discover_classic_gecko_profiles);
+        read<bool>(node, "discover_containers", state.discover_containers);
 
         // profiles do not have a default constructor
         //state.profiles = read<std::vector<browser_profile>>(node, "profiles", {});
@@ -268,7 +268,9 @@ namespace bt {
             {"name", state.name},
             {"cmd", state.open_cmd},
             {"engine", magic_enum::enum_name(state.engine)},
-            {"management", magic_enum::enum_name(state.management)}
+            {"management", magic_enum::enum_name(state.management)},
+            {"discover_classic_gecko_profiles", state.discover_classic_gecko_profiles},
+            {"discover_containers", state.discover_containers}
         };
         if(state.is_hidden) node["visible"] = false;
         if(!state.icon_path.empty()) node["icon"] = state.icon_path;

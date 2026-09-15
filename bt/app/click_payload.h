@@ -23,7 +23,12 @@ namespace bt {
         std::string process_name;
         std::string process_description;
 
-        bool empty() const {
+        /**
+         * Used by ClearURLs to count the number of trackers removed from the URL
+         */
+        int trackers_removed{0};
+
+        [[nodiscard]] bool empty() const {
             return url.empty() && window_title.empty() && process_name.empty();
         }
 

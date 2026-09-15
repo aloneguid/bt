@@ -18,7 +18,7 @@ namespace w = grey::widgets;
 
 namespace bt::ui {
     picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection> > selections)
-        : url{url}, title{APP_LONG_NAME " - Pick"},
+        : cp{url}, title{APP_LONG_NAME " - Pick"},
           app{app::make(title, {100, 120})} {
         // wnd_main{title, &is_open},
         app->fonts.load_icons = true;
@@ -36,11 +36,7 @@ namespace bt::ui {
         clear_color = cc1;
 
         // process URL with pipeline
-        {
-            click_payload up{url};
-            g_pipeline.process(up);
-            this->url = up.url;
-        }
+        g_pipeline.process(cp);
 
         if(selections) {
             choices = *selections;
@@ -73,7 +69,7 @@ namespace bt::ui {
             return run_frame();
         });
 
-        return picker_result{.choice = final_choice, .url = url};
+        return picker_result{.choice = final_choice, .url = cp.url};
     }
 
     bool picker_app::is_hotkey_down(bool configured) {
@@ -103,10 +99,6 @@ namespace bt::ui {
                 w::lbl("no browsers", {.emp = emphasis::error, .center_x = true, .center_y = true});
             } else {
                 point cur1 = w::cur_get();
-
-                // cnt_top
-                // .auto_size_y()
-                // .padding(5, 5);
 
                 if(w::div top{"top", {.auto_resize_y = true}}; top) {
                     render_action_menu();
@@ -204,7 +196,7 @@ namespace bt::ui {
         box_size_scaled = g_state.picker.box_size * w::scale;
         padding_scaled = g_state.picker.item_padding * w::scale;
         label_text_size = w::text_size_get("x", g_state.picker.label_size);
-        auto url_size = w::text_size_get(url);
+        auto url_size = w::text_size_get(cp.url);
 
         // padding should only be used to space out items, not for any calculations inside
         monitor mon = w::mon_wnd();
@@ -225,7 +217,6 @@ namespace bt::ui {
         float w_height = style.WindowPadding.y +
                          header_height +
                          box_size_total * lines_total +
-                         // padding_scaled +
                          style.WindowPadding.y;
         w_height = min(w_height, mon.work_area.height());
 
@@ -249,7 +240,7 @@ namespace bt::ui {
         }
 
         float input_width = max_width - static_cast<float>(1 + action_menu_items.size()) * action_button_width;
-        w::input(url, "##url", true, input_width);
+        w::input(cp.url, "##url", true, input_width);
         url_focused = w::is_focused();
 
         for(const auto& [id, icon, tooltip]: action_menu_items) {
@@ -438,10 +429,10 @@ namespace bt::ui {
 
     void picker_app::menu_item_clicked(const std::string& id) {
         if(id == "copy") {
-            clipboard::set_text(url);
+            clipboard::set_text(cp.url);
             is_open = false;
         } else if(id == "email") {
-            clipboard::set_text(url);
+            clipboard::set_text(cp.url);
 #if PLATFORM_WINDOWS
             win32::shell::exec(format("mailto:?body={}", url), "");
 #endif

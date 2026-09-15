@@ -126,20 +126,20 @@ jobs:
     - name: 🪟 🧪 unit tests
       if: runner.os == 'Windows'
       run: |
-          .\test.exe
-      working-directory: build/bt/Release
+          ctest --test-dir build -C ${{ matrix.vcpkg_config }} --output-on-failure
+      working-directory: .
 
     - name: 🐧 🧪 unit tests
       if: runner.os == 'Linux'
       run: |
-          ./test
-      working-directory: build/bt
+          ctest --test-dir build --output-on-failure
+      working-directory: .
 
     - name: 🍎 🧪 unit tests
       if: runner.os == 'macOS'
       run: |
-          ./test
-      working-directory: build/bt
+          ctest --test-dir build --output-on-failure
+      working-directory: .
 
     - name: 📦 Package Installer
       run: |

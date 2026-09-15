@@ -102,6 +102,7 @@ namespace bt::ui {
             render_no_browsers();
         } else {
             render_menu_bar();
+            if(g_state.browsers.empty()) return is_open;    // safety check
             render_browsers();
 
 #if _DEBUG
@@ -180,8 +181,8 @@ namespace bt::ui {
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
                     exec_rediscover = true;
                 }
-                w::small_checkbox("Discover classic Firefox profiles", g_state.discover_classic_gecko_profiles);
-                w::small_checkbox("Discover Firefox containers", g_state.discover_gecko_containers);
+                //w::small_checkbox("Discover classic Firefox profiles", g_state.discover_classic_gecko_profiles);
+                //w::small_checkbox("Discover Firefox containers", g_state.discover_gecko_containers);
             }
 
             if(w::menu m{"General"}; m) {
@@ -221,6 +222,14 @@ namespace bt::ui {
                 }
                 if(w::small_checkbox("Unshorten links", g_state.transforms.unshorten)) {
                     g_pipeline.load();
+                }
+                if(w::small_checkbox("ClearURLs", g_state.transforms.clearurls)) {
+                    g_pipeline.load();
+                }
+                if(g_state.transforms.clearurls) {
+                    if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
+                        show_subs = !show_subs;
+                    }
                 }
                 if(w::small_checkbox("Substitute substrings", g_state.transforms.substitute)) {
                     g_pipeline.load();
@@ -869,8 +878,10 @@ namespace bt::ui {
                         render_browser_toolbar(g_state.browsers[selected_browser_idx]);
                     }
 
-                    if(w::div r_div_detail{"r_div_detail"}) {
-                        render_detail(g_state.browsers[selected_browser_idx]);
+                    if(!g_state.browsers.empty()) {
+                        if(w::div r_div_detail{"r_div_detail"}; r_div_detail) {
+                            render_detail(g_state.browsers[selected_browser_idx]);
+                        }
                     }
                 }
             }
@@ -1014,7 +1025,7 @@ namespace bt::ui {
         }
         w::tt(strings::BrowserMoveDownTooltip);
 
-        if(b.engine == bt::browser_engine::gecko) {
+        if(b.engine == browser_engine::gecko) {
             w::sl();
             if(w::button(ICON_MD_SUPERVISOR_ACCOUNT)) {
                 desktop_shell::open(b.open_cmd, "-P");
@@ -1026,6 +1037,14 @@ namespace bt::ui {
                 desktop_shell::open(b.open_cmd, "about:profiles");
             }
             w::tt("open Firefox Profile Manager in Firefox itself");
+
+            w::sl();
+            w::icon_checkbox(ICON_MD_ACCOUNT_CIRCLE, b.discover_classic_gecko_profiles,
+                false, "discovery legacy profiles");
+
+            w::sl();
+            w::icon_checkbox(ICON_MD_INVENTORY_2, b.discover_containers,
+                false, "discover containers");
         } else if(b.engine == browser_engine::chromium) {
             /*
             w::sl();
@@ -1035,25 +1054,23 @@ namespace bt::ui {
         */
         }
 
-        // browser can be deleted if it's not fully managed
-        if(b.management != management_extent::full) {
-            w::sl();
-            if(w::button(ICON_MD_DELETE, emphasis::error)) {
-                size_t idx = browser::index_of(g_state.browsers, b);
+        // all the browsers can be deleted except the last one
+        w::sl();
+        if(w::button(ICON_MD_DELETE, emphasis::error)) {
+            size_t idx = browser::index_of(g_state.browsers, b);
 
-                // erase and save
-                std::erase_if(g_state.browsers, [b](auto i) { return i == b; });
+            // erase and save
+            std::erase_if(g_state.browsers, [b](auto i) { return i == b; });
 
-                // if possible, select previous browser
-                if(idx != string::npos) {
-                    idx -= 1;
-                    if(idx >= 0 && idx < g_state.browsers.size()) {
-                        selected_browser_idx = idx;
-                    }
+            // if possible, select previous browser
+            if(idx != string::npos) {
+                idx -= 1;
+                if(idx >= 0 && idx < g_state.browsers.size()) {
+                    selected_browser_idx = idx;
                 }
             }
-            w::tt("Completely deletes this browser, no questions asked");
         }
+        w::tt("Completely deletes this browser, no questions asked");
     }
 
     void config_app::render_detail(browser& b) {
@@ -1192,7 +1209,7 @@ namespace bt::ui {
 
         if(!b.open_cmd.empty()) {
             if(b.engine == bt::browser_engine::gecko) {
-                if(g_state.discover_gecko_containers) {
+                if(b.discover_containers) {
                     w::sl();
                     ww::help_link("#mozilla-firefox");
                 }
