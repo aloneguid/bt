@@ -8,7 +8,7 @@
 - Script editor: added two buttons to add a template of a new rule and new pipeline function.
 - todo: [ClearURLs](todo:url) integration.
   - Database is embedded into the application executable itself. No external dependencies, downloads, helper processes, etc.
-  - todo: show indicator in the toast and picker
+  - todo: show indicator in the toast and picker (probably needs a "pill" widget).
 - Fully managed browsers can now be deleted as well. They will rea-appear on rediscovery anyway, however, all the customizations will be lost.
 
 ### Improvements
@@ -21,6 +21,8 @@
 - Slight redesign of the browser list in configuration – toolbar is more announced and does not scroll with the browser list itself. Selected browser has a different background rather than just a thin border. 
 - Script editor redesigned into two windows – one for code and another for running the script. This way you can have more space on the screen when designing scripts.
 - Gecko (Firefox/Waterfor etc.) settings for discovering legacy profiles and containers are now configurable per browser rather than globally. By default, legacy profiles are not discovered, and containers are.
+- Nicer looking health check popups with different colours and error messages.
+- Unsatisfactory health is displated as a pulsating red heart.
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.

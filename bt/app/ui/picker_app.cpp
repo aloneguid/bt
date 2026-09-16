@@ -434,7 +434,7 @@ namespace bt::ui {
         } else if(id == "email") {
             clipboard::set_text(cp.url);
 #if PLATFORM_WINDOWS
-            win32::shell::exec(format("mailto:?body={}", url), "");
+            win32::shell::exec(format("mailto:?body={}", cp.url), "");
 #endif
             is_open = false;
         } else if(id == "rule") {

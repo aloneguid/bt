@@ -702,12 +702,6 @@ namespace bt::ui {
     void config_app::render_status_bar() {
         w::status_bar sb;
         w::lbl("");
-        bool is_odd;
-        {
-            health_blink_time += ImGui::GetIO().DeltaTime;
-            is_odd = health_blink_time < .3f;
-            if(health_blink_time >= 1.0f) health_blink_time = 0;
-        }
 
         bool recheck{false};
         int i = 0;
@@ -719,13 +713,21 @@ namespace bt::ui {
                 w::lbl(ICON_MD_CHECK, {.emp = emphasis::primary});
                 w::tt(hc.name);
             } else {
-                if(w::button("issue", is_odd ? emphasis::error : emphasis::none, true, true)) {
+                w::spinner(spinner_type::rotated_heart, {.emp = emphasis::error, .thickness = 5.0f, .speed = 5.0f});
+                if(w::is_hovered()) {
+                    w::mouse_cursor(w::mouse_cursor_type::hand);
+                    if(w::rich_tt rt; rt) {
+                        w::lbl(hc.name, {.emp = emphasis::primary, .font_w = font_weight::bold});
+                        w::lbl(hc.description, {.emp = emphasis::secondary});
+                        w::sep();
+                        w::lbl(hc.error_message, {.emp = emphasis::error});
+                        w::lbl(format("click to {}", hc.fix_description));
+                    }
+                }
+                if(w::is_leftclicked()) {
                     hc.fix();
                     recheck = true;
                 }
-                if(w::is_hovered()) w::mouse_cursor(w::mouse_cursor_type::hand);
-                w::tt(format("{}\n{}\n{}\n\nClick this warning to {}.",
-                             hc.name, hc.description, hc.error_message, hc.fix_description));
             }
         }
         if(recheck) {
@@ -741,7 +743,7 @@ namespace bt::ui {
             }
         }
 
-        sb.sep();
+        w::slh();
         w::lbl(format("{} {}", ICON_MD_WEB, g_state.browsers.size()), {.emp = emphasis::disabled});
         w::tt("Browser count");
 
@@ -753,7 +755,7 @@ namespace bt::ui {
         w::lbl(format("{} {}", ICON_MD_RULE, irc), {.emp = emphasis::disabled});
         w::tt("Configured rule count");
 
-        sb.sep();
+        w::slh();
 
         static bool donate_hovered{false};
         {
@@ -773,20 +775,16 @@ namespace bt::ui {
         }
 
         if(!g_state.browsers.empty()) {
-            w::sl();
-            w::lbl("|", {.emp = emphasis::disabled});
+            w::slh();
             optional<profile_selection> sel = browser::get_default(g_state.browsers);
             if(sel) {
-                w::sl();
                 w::lbl(ICON_MD_LAPTOP, {.emp = emphasis::disabled});
                 w::sl();
                 w::lbl(sel->b().name, {.emp = emphasis::disabled});
                 w::tt("Default browser");
 
                 if(sel->b().engine != browser_engine::generic) {
-                    w::sl();
-                    w::lbl("|", {.emp = emphasis::disabled});
-                    w::sl();
+                    w::slh();
                     w::lbl(ICON_MD_TAB, {.emp = emphasis::disabled});
                     w::sl();
                     w::lbl(sel->p().name, {.emp = emphasis::disabled});
@@ -1038,7 +1036,8 @@ namespace bt::ui {
             }
             w::tt("open Firefox Profile Manager in Firefox itself");
 
-            w::sl();
+            w::slh(); // ---
+
             w::icon_checkbox(ICON_MD_ACCOUNT_CIRCLE, b.discover_classic_gecko_profiles,
                 false, "discovery legacy profiles");
 
@@ -1055,7 +1054,8 @@ namespace bt::ui {
         }
 
         // all the browsers can be deleted except the last one
-        w::sl();
+        w::slh();
+
         if(w::button(ICON_MD_DELETE, emphasis::error)) {
             size_t idx = browser::index_of(g_state.browsers, b);
 

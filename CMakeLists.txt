@@ -3,9 +3,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (APPLE)
-project ("BrowserTamer" VERSION 6.2.4 LANGUAGES CXX OBJCXX)
+project ("BrowserTamer" VERSION 6.3.0 LANGUAGES CXX OBJCXX)
 else()
-project ("BrowserTamer" VERSION 6.2.4)
+project ("BrowserTamer" VERSION 6.3.0)
 endif()
 
 # Application metadata - shared between main build and packaging

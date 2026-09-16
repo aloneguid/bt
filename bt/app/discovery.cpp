@@ -541,11 +541,11 @@ namespace bt {
                         profile.icon_path = (root / sys_name / profile_pic_j.get<string>()).string();
                         if(!fs::is_regular_file(profile.icon_path)) profile.icon_path.clear();
                     }
+                    b.profiles.push_back(profile);
 
                     // containers
                     auto existing = find_existing(b);
-                    bool discover_containers = !existing.has_value() || existing->discover_containers;
-                    if(discover_containers) {
+                    if(!existing.has_value() || existing->discover_containers) {
                         auto containers = discover_chromium_containers(root / sys_name);
                         for(const auto& container: containers) {
                             string arg = format(
@@ -563,7 +563,6 @@ namespace bt {
                         }
                     }
 
-                    b.profiles.push_back(profile);
                 }
             }
         }
