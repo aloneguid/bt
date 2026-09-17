@@ -92,21 +92,23 @@ set(COMMON_INCLUDES
         ${P_RANAV_CSV2_INCLUDE_DIRS}
         ${LUA_INCLUDE_DIR})
 
-# Update ClearURLs database
-
+# ClearURLs database deployed next to the executable.
 set(RULES_URL https://rules2.clearurls.xyz/data.minify.json)
 set(RULES_JSON_PATH ${CMAKE_CURRENT_SOURCE_DIR}/app/pipeline/clearurls_rules.json)
-set(RULES_HEADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/app/pipeline/clearurls_rules.hpp)
 
-file(DOWNLOAD ${RULES_URL} ${RULES_JSON_PATH})
-file(READ ${RULES_JSON_PATH} RULES_JSON_CONTENT)
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    file(DOWNLOAD "${RULES_URL}" "${RULES_JSON_PATH}" SHOW_PROGRESS)
+endif()
 
-file(WRITE ${RULES_HEADER_PATH}
-        "#pragma once\n"
-        "inline constexpr const char* ClearUrlsJson = R\"json(${RULES_JSON_CONTENT})json\";\n"
-)
+add_custom_command(TARGET ${APP_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${RULES_JSON_PATH}"
+        "$<TARGET_FILE_DIR:${APP_NAME}>/clearurls_rules.json")
 
-#####
+add_custom_command(TARGET test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${RULES_JSON_PATH}"
+        "$<TARGET_FILE_DIR:test>/clearurls_rules.json")
 
 target_link_libraries(${APP_NAME} PRIVATE ${COMMON_LIBS})
 target_link_libraries(test PRIVATE ${COMMON_LIBS} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
@@ -126,6 +128,7 @@ set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
     install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
+    install(FILES "${RULES_JSON_PATH}" DESTINATION ".")
 
     # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
     # dotnet tool install --global wix
@@ -166,6 +169,7 @@ if(WIN32)
     )
 elseif(UNIX AND NOT APPLE)
     install(TARGETS ${APP_NAME} RUNTIME DESTINATION "bin")
+    install(FILES "${RULES_JSON_PATH}" DESTINATION "bin")
     set(CPACK_GENERATOR DEB)
 
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)

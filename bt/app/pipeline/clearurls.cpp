@@ -1,8 +1,10 @@
 #include "clearurls.h"
-#include "clearurls_rules.hpp"
 #include <nlohmann/json.hpp>
+#include <filesystem>
+#include <fstream>
 #include <optional>
 #include <regex>
+#include "fss.h"
 #include "str.h"
 
 using namespace std;
@@ -24,7 +26,12 @@ namespace bt::pipeline {
     void clearurls::load_db() {
         if(rules_json.has_value()) return;
 
-        rules_json = json::parse(ClearUrlsJson);
+        const auto rules_path = fss::get_current_exec_path().parent_path() / "clearurls_rules.json";
+
+        std::ifstream rules_file(rules_path);
+        if(!rules_file) return;
+
+        rules_json = json::parse(rules_file);
     }
 
     url clearurls::clean(click_payload& cp, url u, int depth) {
