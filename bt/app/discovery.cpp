@@ -945,7 +945,15 @@ namespace bt {
     }
 
     std::vector<browser> discovery::discover_all_browsers() {
-        return discover_browsers(ProtoNameDev, ProtoNameRelease);
+        std::vector<browser> browsers = discover_browsers(ProtoNameDev, ProtoNameRelease);
+
+        browser viewer{"URL Viewer", "bt view \"%url%\""};
+        viewer.management = management_extent::none;
+        browser_profile viewer_profile{"Viewer", "", ""};
+        viewer.profiles.push_back(viewer_profile);
+        browsers.push_back(viewer);
+
+        return browsers;
     }
 
     void discovery::discover_managed_profiles(std::vector<browser>& browsers) {

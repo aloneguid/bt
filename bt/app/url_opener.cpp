@@ -2,11 +2,17 @@
 #include "url_pipeline.h"
 #include "../globals.h"
 #include "url.h"
+#include "ui/viewer_app.h"
 
 using namespace grey::common;
 
 namespace bt {
     void url_opener::open(const profile_selection& selection, click_payload up){
+        if (selection.b().name == "URL Viewer") {
+            ui::viewer_app vapp{up.url};
+            vapp.run();
+            return;
+        }
         selection.b().launch(up, selection.p());
     }
 
