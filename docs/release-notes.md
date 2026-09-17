@@ -6,9 +6,10 @@
 
 - [Brave containers](https://brave.com/blog/containers/) are totally supported (needs to be explicitly enabled in Brave itself, works with Brave and Brave Origin). Discovery understands container names and colors.
 - Script editor: added two buttons to add a template of a new rule and new pipeline function.
-- todo: [ClearURLs](todo:url) integration.
-  - Database is embedded into the application executable itself. No external dependencies, downloads, helper processes, etc.
-  - todo: show indicator in the toast and picker (probably needs a "pill" widget).
+- Removing trackers from URLs. BT now removes trackers from URLs, and this is on by default.
+  - [ClearURLs](https://github.com/ClearURLs/Rules) is used as a rules database, which has a very permissive license, long history and continuous open-source development. The database is embedded into Browser Tamer, and each new release includes updates, if any.
+  - There are no external dependencies, downloads, helper processes, etc. Cleaning is done entirely within the application itself. Switching this off will disable tracker removal and any resource usage that is associated with it (if any).
+  - todo: When a tracker is removed, you will be notified in the toast and the picker, depending on the user's preferences. If you choose to disable toast notification, your choice will be respected and no message will be displayed.
 - Fully managed browsers can now be deleted as well. They will rea-appear on rediscovery anyway, however, all the customizations will be lost.
 
 ### Improvements
