@@ -226,11 +226,6 @@ namespace bt::ui {
                 if(w::small_checkbox("ClearURLs", g_state.transforms.clearurls)) {
                     g_pipeline.load();
                 }
-                if(g_state.transforms.clearurls) {
-                    if(w::mi("Substitutions...", true, ICON_MD_FIND_REPLACE)) {
-                        show_subs = !show_subs;
-                    }
-                }
                 if(w::small_checkbox("Substitute substrings", g_state.transforms.substitute)) {
                     g_pipeline.load();
                 }

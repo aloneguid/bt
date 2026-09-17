@@ -62,7 +62,7 @@ void open(click_payload up, bool force_picker = false) {
                 limited_choices.push_back(match.profile);
             }
         }
-        ui::picker_app app{up.url, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
+        ui::picker_app app{up, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
         auto pr = app.run();
         if(pr) {
             up.url = pr.url;

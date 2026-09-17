@@ -24,6 +24,7 @@
 - Gecko (Firefox/Waterfor etc.) settings for discovering legacy profiles and containers are now configurable per browser rather than globally. By default, legacy profiles are not discovered, and containers are.
 - Nicer looking health check popups with different colours and error messages.
 - Unsatisfactory health is displated as a pulsating red heart.
+- todo: recursive pipeline
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.

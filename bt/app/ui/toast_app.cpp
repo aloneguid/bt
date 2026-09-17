@@ -62,9 +62,11 @@ namespace bt::ui {
             sz line1_text_size = w::text_size_get(line1);
             icon_size = line1_text_size.height;
 
-            // Line 2: Profile icon + url domain or path + optional rule icon
+            // Line 2: Profile icon + url domain or path + optional rule icon + optional "tracker removed" icon
             sz line2_text_size = w::text_size_get(cp_url_parsed.host.empty() ? cp_url_parsed.path : cp_url_parsed.host);
             if(!bmr.rule.is_fallback)
+                line2_text_size.width += space.x + line2_text_size.height + space.x;
+            if(cp.trackers_removed > 0)
                 line2_text_size.width += space.x + line2_text_size.height + space.x;
 
             ImVec2 wpad = style.WindowPadding;
@@ -229,6 +231,15 @@ namespace bt::ui {
             w::sl();
             w::lbl(ICON_MD_RULE, {.emp = emphasis::primary});
             w::tt(bmr.rule.to_string());
+        }
+
+        if(cp.trackers_removed > 0) {
+            w::sl();
+            w::spinner(spinner_type::solar_scale_balls, {
+                .emp = emphasis::error,
+                .radius = w::scaled(8),
+                .speed = 2.0f});
+            w::tt("Tracker removed.");
         }
     }
 

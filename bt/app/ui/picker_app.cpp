@@ -17,8 +17,8 @@ using namespace grey::common;
 namespace w = grey::widgets;
 
 namespace bt::ui {
-    picker_app::picker_app(const string& url, std::optional<std::vector<profile_selection> > selections)
-        : cp{url}, title{APP_LONG_NAME " - Pick"},
+    picker_app::picker_app(const click_payload& cp, std::optional<std::vector<profile_selection> > selections)
+        : cp{cp}, title{APP_LONG_NAME " - Pick"},
           app{app::make(title, {100, 120})} {
         // wnd_main{title, &is_open},
         app->fonts.load_icons = true;
@@ -34,9 +34,6 @@ namespace bt::ui {
         auto cc = app->get_clear_color();
         ImU32 cc1 = rgb_colour{ImVec4(cc[0], cc[1], cc[2], cc[3])};
         clear_color = cc1;
-
-        // process URL with pipeline
-        g_pipeline.process(cp);
 
         if(selections) {
             choices = *selections;
@@ -230,16 +227,22 @@ namespace bt::ui {
 
     void picker_app::render_action_menu() {
         float max_width = w::avail_x();
-        {
-            // calculate one action button width
-            point cur = w::cur_get();
-            w::button(ICON_MD_SETTINGS "##measure");
+        auto& style = ImGui::GetStyle();
+        action_button_width = w::text_size_get(ICON_MD_SETTINGS).width + style.FramePadding.x * 2 + style.ItemSpacing.x;
+        int reserve_spaces = action_menu_items.size() + 1;
+
+        if(cp.trackers_removed > 0) {
+            reserve_spaces++;
+            w::lbl("");w::sl();
+            w::spinner(spinner_type::solar_scale_balls, {
+                .emp = emphasis::error,
+                .radius = w::scaled(7),
+                .speed = 2.0f});
+            w::tt("Tracker removed.");
             w::sl();
-            action_button_width = max_width - w::avail_x();
-            w::cur_set(cur);
         }
 
-        float input_width = max_width - static_cast<float>(1 + action_menu_items.size()) * action_button_width;
+        const float input_width = max_width - action_button_width * reserve_spaces;
         w::input(cp.url, "##url", true, input_width);
         url_focused = w::is_focused();
 
