@@ -582,8 +582,10 @@ namespace bt::ui {
                     pv.next_column();
                     w::lbl(" ");
                     if(node_pipeline) {
+                        int i = 0;
                         for(auto& s: pv_pipeline_steps) {
                             pv.begin_row();
+                            w::id_frame idf{i++};
                             string text = url_pipeline_step::to_string(s.step->type);
                             {
                                 w::tree_node step_node{text, true, true, true};
@@ -606,29 +608,32 @@ namespace bt::ui {
             // browsers
             pv.begin_row();
             if(w::tree_node node_browsers{"Browsers", true, false, true}; node_browsers) {
+                int fid = 0;
                 for(auto& b: g_state.browsers) {
+                    w::id_frame idf{fid++};
                     if(pv_only_matching && !b.ui_test_url_matches) continue;
 
                     pv.begin_row();
                     auto emp = b.ui_test_url_matches ? emphasis::primary : emphasis::none;
                     if(w::tree_node node_browser{b.name, true, false, true, emp}; node_browser) {
-                        for(auto& i: b.profiles) {
-                            if(pv_only_matching && !i.ui_test_url_matches) continue;
+                        for(auto& p: b.profiles) {
+                            w::id_frame idf{fid++};
+                            if(pv_only_matching && !p.ui_test_url_matches) continue;
 
                             pv.begin_row();
-                            auto emp = i.ui_test_url_matches ? emphasis::primary : emphasis::none;
-                            w::tree_node node_profile(i.name, true, false, true, emp);
+                            auto emp = p.ui_test_url_matches ? emphasis::primary : emphasis::none;
+                            w::tree_node node_profile(p.name, true, false, true, emp);
                             pv.next_column();
-                            if(i.rules.empty()) {
+                            if(p.rules.empty()) {
                                 w::lbl("no rules", {.emp = emphasis::disabled});
                             } else {
-                                w::lbl(format("{} rule(s)", i.rules.size()), {.emp = emphasis::disabled});
+                                w::lbl(format("{} rule(s)", p.rules.size()), {.emp = emphasis::disabled});
                             }
 
                             // rules
                             if(node_profile) {
                                 int idx = 0;
-                                for(auto r: i.rules) {
+                                for(auto r: p.rules) {
                                     if(pv_only_matching && !r.ui_test_url_matches) continue;
                                     pv.begin_row();
                                     auto emp = r.ui_test_url_matches ? emphasis::primary : emphasis::none;

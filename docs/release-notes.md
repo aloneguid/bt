@@ -9,7 +9,8 @@
 - Removing trackers from URLs. BT now removes trackers from URLs, and this is on by default.
   - [ClearURLs](https://github.com/ClearURLs/Rules) is used as a rule database, which has a very permissive license, long history and continuous open-source development. The database ships with Browser Tamer as a part of the installation as `clearurls_rules.json` file, and each new release includes autmatic updates, if any.
   - There are no external dependencies, downloads, helper processes, etc. Cleaning is done entirely within the application itself. Switching this off will disable tracker removal and any resource usage associated with it (if any).
-  - When a tracker is removed, you will be notified in the toast and the picker, depending on the user's preferences. If you choose to disable toast notification, your choice will be respected and no message will be displayed.
+  - When a tracker is removed, you will be notified in the toast and the picker, depending on the user's preferences.
+  - Your choice to disable removal of trackers is respected for real: no database is loaded and no extra processing is performed.
 - Fully managed browsers can now be deleted as well. They will rea-appear on rediscovery anyway, however, all the customizations will be lost.
 
 ### Improvements
@@ -24,7 +25,7 @@
 - Gecko (Firefox/Waterfor etc.) settings for discovering legacy profiles and containers are now configurable per browser rather than globally. By default, legacy profiles are not discovered, and containers are.
 - Nicer looking health check popups with different colours and error messages.
 - Unsatisfactory health is displated as a pulsating red heart.
-- todo: recursive pipeline
+- URL processing pipeline is now recursive. What this means is pipeline steps will run in the loop until no more changes are made by any of the pipeline steps. To prevent infinite loops, a maximum number of iterations is set to 10.
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.

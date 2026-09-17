@@ -25,8 +25,8 @@ using namespace std;
 using namespace grey::common;
 using namespace bt;
 
-void open(click_payload up, bool force_picker = false) {
-    g_pipeline.process(up);
+void open(click_payload cp, bool force_picker = false) {
+    g_pipeline.process(cp);
 
     // decision whether to show picker or not
     bool show_picker{force_picker};
@@ -39,7 +39,7 @@ void open(click_payload up, bool force_picker = false) {
             show_picker = true;
             picker_reason = picker_invoked_reason::hotkey_down;
         } else {
-            rule_matches = browser::match(g_state.browsers, up, g_script);
+            rule_matches = browser::match(g_state.browsers, cp, g_script);
             if(rule_matches.size() > 1) {
                 show_picker = true;
                 picker_reason = picker_invoked_reason::rule_conflict;
@@ -62,26 +62,26 @@ void open(click_payload up, bool force_picker = false) {
                 limited_choices.push_back(match.profile);
             }
         }
-        ui::picker_app app{up, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
-        auto pr = app.run();
+        ui::picker_app app{cp, limited_choices.empty() ? std::nullopt : std::make_optional(limited_choices)};
+        const auto pr = app.run();
         if(pr) {
-            up.url = pr.url;
-            url_opener::open(*pr.choice, up);
+            cp.url = pr.url;
+            url_opener::open(*pr.choice, cp);
             if(g_state.log_rule_hits) {
-                rule_hit_log::i.write(up, *pr.choice, picker_reason, nullopt);
+                rule_hit_log::i.write(cp, *pr.choice, picker_reason, nullopt);
             }
         }
     } else {
-        auto matches = bt::browser::match(g_state.browsers, up, g_script);
+        auto matches = browser::match(g_state.browsers, cp, g_script);
         browser_match_result& first_match = matches[0];
-        first_match.rule.apply_to(up);
-        url_opener::open(first_match.profile, up);
+        first_match.rule.apply_to(cp);
+        url_opener::open(first_match.profile, cp);
         if(g_state.log_rule_hits) {
-            rule_hit_log::i.write(up, first_match.profile, std::nullopt, matches[0]);
+            rule_hit_log::i.write(cp, first_match.profile, std::nullopt, matches[0]);
         }
 
         if(g_state.toast.enabled) {
-            ui::toast_app app{up, first_match};
+            ui::toast_app app{cp, first_match};
             app.run();
         }
     }
@@ -126,8 +126,8 @@ static void execute(const string& data) {
             c.exec(command, command_data);
             return;
         } else if(command == "discover") {
-            vector<browser> fresh_browsers = bt::discovery::discover_all_browsers();
-            fresh_browsers = bt::browser::merge(fresh_browsers, g_state.browsers);
+            vector<browser> fresh_browsers = discovery::discover_all_browsers();
+            fresh_browsers = browser::merge(fresh_browsers, g_state.browsers);
             g_state.browsers = fresh_browsers;
             g_config.serialize();
             return;
@@ -138,41 +138,42 @@ static void execute(const string& data) {
     // 0 - url
     // 1 - HWND
     auto parts = str::split(clean_data, ArgSplitter, true);
-    click_payload up{parts[0]};
+    string url = parts[0];
+    click_payload cp{.url = url, .raw_url = url};
 
 
 #if PLATFORM_WINDOWS
-    up.source_window_handle = reinterpret_cast<HWND>(str::to_ulong(parts[1], 16));
-    win32::window win{up.source_window_handle};
-    up.window_title = win.get_text();
+    cp.source_window_handle = reinterpret_cast<HWND>(str::to_ulong(parts[1], 16));
+    win32::window win{cp.source_window_handle};
+    cp.window_title = win.get_text();
     auto pid = win.get_pid();
-    up.process_id = std::to_string(pid);
+    cp.process_id = std::to_string(pid);
     process proc{pid};
-    up.process_path = proc.get_path();
-    up.process_name = proc.get_name();
-    up.process_description = proc.get_description();
+    cp.process_path = proc.get_path();
+    cp.process_name = proc.get_name();
+    cp.process_description = proc.get_description();
 #endif
 
 #if PLATFORM_LINUX
     int pid = str::to_int(parts[1]);
     process proc{pid};
-    up.process_id = std::to_string(pid);
-    up.process_name = proc.get_name();
-    up.process_path = proc.get_path();
-    up.process_description = proc.get_description();
+    cp.process_id = std::to_string(pid);
+    cp.process_name = proc.get_name();
+    cp.process_path = proc.get_path();
+    cp.process_description = proc.get_description();
 #endif
 
 #ifndef NDEBUG
     if(command == "toast") {
-        up.url = command_data;
+        cp.url = command_data;
         browser_match_result bmr{browser::get_default(g_state.browsers).value(), match_rule{"a rule description"}};
-        ui::toast_app app{up, bmr};
+        ui::toast_app app{cp, bmr};
         app.run();
         return;
     }
 #endif
 
-    open(up, force_picker);   // open-up hahaha
+    open(cp, force_picker);   // open-up hahaha
 }
 
 string get_parent_arg() {

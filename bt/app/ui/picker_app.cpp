@@ -185,6 +185,8 @@ namespace bt::ui {
 
         g_config.tick(ImGui::GetIO().DeltaTime);
 
+        w::toast_render_frame();
+
         return is_open;
     }
 
@@ -238,7 +240,15 @@ namespace bt::ui {
                 .emp = emphasis::error,
                 .radius = w::scaled(7),
                 .speed = 2.0f});
-            w::tt("Tracker removed.");
+            if(w::is_hovered()) {
+                w::mouse_cursor(w::mouse_cursor_type::hand);
+                w::tt("Tracker removed.\nClick to copy original URL with trackers to clipboard.");
+                if(w::is_leftclicked()) {
+                    clipboard::set_text(cp.raw_url);
+                    w::toast(emphasis::info, "URL copied to clipboard.");
+                }
+            }
+
             w::sl();
         }
 

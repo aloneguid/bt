@@ -31,24 +31,39 @@ namespace bt {
         }
     }
 
-    void url_pipeline::process(click_payload& up) {
-        clean(up.url);
+    void url_pipeline::process(click_payload& cp, int max_iterations) const {
+        int iterated = 0;
+        string url_pre = cp.url;
+        clean(cp.url);
 
-        for(auto& step : steps) {
-            step->process(up);
+        while(iterated < max_iterations) {
+            for(auto& step : steps) {
+                step->process(cp);
+            }
+            if(url_pre == cp.url) break;
+            url_pre = cp.url;
+
+            iterated++;
         }
     }
 
-    std::vector<url_pipeline_processing_step> url_pipeline::process_debug(click_payload& cp) {
-        
+    std::vector<url_pipeline_processing_step> url_pipeline::process_debug(click_payload& cp, int max_iterations) const {
+        int iterated = 0;
+        string url_pre = cp.url;
         clean(cp.url);
 
         vector<url_pipeline_processing_step> r;
 
-        for(auto& step : steps) {
-            click_payload before = cp;
-            step->process(cp);
-            r.push_back({step, before, cp});
+        while(iterated < max_iterations) {
+            for(auto& step : steps) {
+                click_payload before = cp;
+                step->process(cp);
+                r.push_back({step, before, cp});
+            }
+            if(url_pre == cp.url) break;
+            url_pre = cp.url;
+
+            iterated++;
         }
 
         return r;

@@ -18,14 +18,14 @@ namespace bt {
     */
     class url_pipeline {
     public:
-        url_pipeline(bt::state& cfg);
+        url_pipeline(state& cfg);
 
         /**
          * @brief Process the payload in place and change it according to the pipeline steps.
         */
-        void process(click_payload& up);
+        void process(click_payload& cp, int max_iterations = 10) const;
 
-        std::vector<url_pipeline_processing_step> process_debug(click_payload& cp);
+        std::vector<url_pipeline_processing_step> process_debug(click_payload& cp, int max_iterations = 10) const;
 
         /**
          * @brief Reloads the pipeline from configuration file.

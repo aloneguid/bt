@@ -23,7 +23,11 @@ namespace bt {
 
     private:
         std::string path;
+        std::string rotation_date;
         std::ofstream stream;
         csv2::Writer<csv2::delimiter<','>> writer;
+
+        void rotate_if_needed();
+        void write_header();
     };
 }

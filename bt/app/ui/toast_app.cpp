@@ -6,6 +6,8 @@
 #include "common/str.h"
 #include <cmath>
 
+#include "clipboard.h"
+
 using namespace std;
 namespace w = grey::widgets;
 using namespace grey;
@@ -239,7 +241,22 @@ namespace bt::ui {
                 .emp = emphasis::error,
                 .radius = w::scaled(8),
                 .speed = 2.0f});
-            w::tt("Tracker removed.");
+            if(w::is_hovered()) {
+                w::mouse_cursor(w::mouse_cursor_type::hand);
+                if(w::is_leftclicked()) {
+                    clipboard::set_text(format("{}\n{}", cp.raw_url, cp.url));
+                    w::toast(emphasis::info, "URLs copied to clipboard.");
+                }
+
+                w::rich_tt rtt;
+
+                w::lbl(cp.raw_url, {.emp = emphasis::secondary, .center_x = true});
+                w::lbl(ICON_MD_ARROW_DOWNWARD, {.emp = emphasis::info, .center_x = true});
+                w::lbl(cp.url, {.emp = emphasis::primary, .center_x = true});
+                w::spc();
+                w::sep();
+                w::lbl("Click to copy both URLs to clipboard.", {.emp = emphasis::disabled, .center_x = true});
+            }
         }
     }
 
@@ -262,6 +279,8 @@ namespace bt::ui {
                     show_timer = 0.0f;
                 }
             }
+
+            w::toast_render_frame();
 
             return is_open;
         });

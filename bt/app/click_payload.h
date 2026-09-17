@@ -24,6 +24,11 @@ namespace bt {
         std::string process_description;
 
         /**
+         * Original URL before any modifications.
+         */
+        std::string raw_url;
+
+        /**
          * Used by ClearURLs to count the number of trackers removed from the URL
          */
         int trackers_removed{0};
