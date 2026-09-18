@@ -14,13 +14,12 @@
 using namespace std;
 using namespace grey;
 using namespace grey::common;
-namespace w = grey::widgets;
+namespace w = widgets;
 
 namespace bt::ui {
     picker_app::picker_app(const click_payload& cp, std::optional<std::vector<profile_selection> > selections)
         : cp{cp}, title{APP_LONG_NAME " - Pick"},
           app{app::make(title, {100, 120})} {
-        // wnd_main{title, &is_open},
         app->fonts.load_icons = true;
         app->initial_theme_id = g_state.ui_theme;
         app->can_resize = false;
@@ -56,7 +55,7 @@ namespace bt::ui {
     picker_app::~picker_app() {
         if(!creator_rule.empty()) {
             const profile_selection& choice = choices[active_idx];
-            browser_profile& p = const_cast<browser_profile&>(choice.p());
+            auto& p = const_cast<browser_profile&>(choice.p());
             p.rules.push_back(creator_rule);
         }
     }

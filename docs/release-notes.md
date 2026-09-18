@@ -4,10 +4,10 @@
 
 ### New features
 
-- [Brave containers](https://brave.com/blog/containers/) are totally supported (needs to be explicitly enabled in Brave itself, works with Brave and Brave Origin). Discovery understands container names and colors.
-- Script editor: added two buttons to add a template of a new rule and new pipeline function.
-- Removing trackers from URLs. BT now removes trackers from URLs, and this is on by default.
-  - [ClearURLs](https://github.com/ClearURLs/Rules) is used as a rule database, which has a very permissive license, long history and continuous open-source development. The database ships with Browser Tamer as a part of the installation as `clearurls_rules.json` file, and each new release includes autmatic updates, if any.
+- [Brave containers](https://brave.com/blog/containers/) are [totally supported](https://www.aloneguid.uk/projects/bt/#containers) (needs to be explicitly enabled in Brave itself, works with Brave and Brave Origin). Discovery understands container names and colors.
+- [Script editor](https://www.aloneguid.uk/projects/bt/#scripting): added two buttons to add a template of a new rule and new pipeline function.
+- [Removing trackers from URLs](https://www.aloneguid.uk/projects/bt/#clearurls). BT now removes trackers from URLs, and this is on by default.
+  - [ClearURLs](https://github.com/ClearURLs/Rules) is used as a rule database, which has a very permissive license, long history, and continuous open-source development. The database ships with Browser Tamer as a part of the installation as `clearurls_rules.json` file, and each new release includes autmatic updates, if any.
   - There are no external dependencies, downloads, helper processes, etc. Cleaning is done entirely within the application itself. Switching this off will disable tracker removal and any resource usage associated with it (if any).
   - When a tracker is removed, you will be notified in the toast and the picker, depending on the user's preferences.
   - Your choice to disable removal of trackers is respected for real: no database is loaded and no extra processing is performed.
@@ -23,9 +23,12 @@
 - Slight redesign of the browser list in configuration – toolbar is more announced and does not scroll with the browser list itself. Selected browser has a different background rather than just a thin border. 
 - Script editor redesigned into two windows – one for code and another for running the script. This way you can have more space on the screen when designing scripts.
 - Gecko (Firefox/Waterfor etc.) settings for discovering legacy profiles and containers are now configurable per browser rather than globally. By default, legacy profiles are not discovered, and containers are.
-- Nicer looking health check popups with different colours and error messages.
-- Unsatisfactory health is displated as a pulsating red heart.
-- URL processing pipeline is now recursive. What this means is pipeline steps will run in the loop until no more changes are made by any of the pipeline steps. To prevent infinite loops, a maximum number of iterations is set to 10.
+- Nicer looking health check popups with different colors and error messages.
+- Unsatisfactory health is displayed as a pulsating red heart.
+- URL processing pipeline is now recursive. What this means is pipeline steps will run in the loop until no more changes are made by any of the pipeline steps. To prevent infinite loops, the maximum number of iterations is set to 10.
+- `clicks.csv` has a few improvements:
+  - I now record both original and transformed URLs in the CSV file. This is useful for debugging and analysis purposes. Before, only transformed URLs were recorded.
+  - Click files are now rolled over by month.
 
 ### Bugs fixed
 - 🍞 Toast would often cause hanging `bt.exe` on Windows. This happens when it's animated to 0 or negative size – Windows is clever enough to decide that the window is invisible rather than visible with zero size, and BT would enter an idle state rather than terminating when all windows are closed. Something I learned about Windows.
@@ -57,7 +60,7 @@ P.S. Hey, if you like BT-style minimalistic utils, you might like to check out [
 
 ## 6.2.0
 
-This release was a considerable amount of actual human work without "AI" sloptributions. It contains new features, polished UI and bug fixes. Please consider [sponsoring me](https://www.aloneguid.uk/sponsor/) if you are interested in the successful future of this project 💖. Next time you are buying "AI tokens", maybe it's better to spend them on BT instead ;)
+This release was a considerable amount of actual human work without "AI" sloptributions. It contains new features, polished UI, and bug fixes. Please consider [sponsoring me](https://www.aloneguid.uk/sponsor/) if you are interested in the successful future of this project 💖. Next time you are buying "AI tokens", maybe it's better to spend them on BT instead ;)
 
 ### Improvements
 
@@ -542,7 +545,7 @@ Fixed a bug where picker would not show up if it was configured to be shown on c
 ## 4.0.0
 
 - Multiple picker hotkeys can be configured, you can even turn them all on at the same time.
-- "URL tester" is now built into main configuration window and highlights matched browsers, profiles and rules. This is to avoid confusion and make it more ergonomic.
+- "URL tester" is now built into main configuration window and highlights matched browsers, profiles, and rules. This is to avoid confusion and make it more ergonomic.
 - Redesigned menu structure, moving items where they belong.
 - URL Picker is completely rewritten. Browsers and profiles are now listed as a tree view, removing the need to sort flat list by some means like popularity or user-defined order.
 - You can assign your own custom icon to custom defined browsers.
@@ -696,7 +699,7 @@ Bug fixed - when editing rule, you could not jump to next edit box with `tab` or
 - Match rules support regular expressions syntax.
 - Support for Firefox Containers added! Firefox containers link redirection works with [Open external links in a container by Denys H](https://addons.mozilla.org/en-GB/firefox/addon/open-url-in-container/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search) extension or my own [Browser Tamer extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/).
 - Added [Firefox integration extension](https://addons.mozilla.org/en-GB/firefox/addon/browser-tamer/) (link available from `Help` menu) and published source code for Chromium and Firefox extensions.
-- Added native support for [Waterfox](https://www.waterfox.net/). This means BT will treat Waterfox just like Firefox, including support for profiles, private mode, containers and the rest.
+- Added native support for [Waterfox](https://www.waterfox.net/). This means BT will treat Waterfox just like Firefox, including support for profiles, private mode, containers, and the rest.
 
 ### Improvements
 
@@ -855,7 +858,7 @@ Bug fixed - when editing rule, you could not jump to next edit box with `tab` or
 ### New Features
 
 - Status bar displays current CPU load of your system.
-- Metrics window is available from browser right panel, showing realtime graphs of CPU, Memory and number of processes of the browser in general.
+- Metrics window is available from browser right panel, showing realtime graphs of CPU, Memory, and number of processes of the browser in general.
 
 
 ## 3.0.0
@@ -1012,7 +1015,7 @@ Bug fixed - when editing rule, you could not jump to next edit box with `tab` or
 
 ### New Features
 
-- completely redesigned URL picker - more modern, scrollable and adjustable
+- completely redesigned URL picker - more modern, scrollable, and adjustable
 - URL picker now allows to copy URL to clipboard and cancel
 
 
