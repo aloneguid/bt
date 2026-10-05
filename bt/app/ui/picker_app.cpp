@@ -198,11 +198,12 @@ namespace bt::ui {
 
         // padding should only be used to space out items, not for any calculations inside
         monitor mon = w::mon_wnd();
+        float min_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.min_width_perc) / 100.0f;
         float max_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
         float max_url_width = url_size.width + action_button_width * (action_menu_items.size() + 2);
         float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f) + style.WindowPadding.x * 2;
         float max_width = max(max_url_width, max_w_width);
-        float w_width = min(max_width, max_mon_width);
+        float w_width = clamp(max_width, min_mon_width, max_mon_width);;
 
         float box_size_total = box_size_scaled + padding_scaled * 2;
 
@@ -237,8 +238,8 @@ namespace bt::ui {
             w::lbl("");w::sl();
             w::spinner(spinner_type::solar_scale_balls, {
                 .emp = emphasis::error,
-                .radius = w::scaled(7),
-                .speed = 2.0f});
+                .radius = 7,
+                .speed = 1.0f});
             if(w::is_hovered()) {
                 w::mouse_cursor(w::mouse_cursor_type::hand);
                 w::tt("Tracker removed.\nClick to copy original URL with trackers to clipboard.");
@@ -422,7 +423,8 @@ namespace bt::ui {
         w::slider(g_state.picker.item_padding, 0, 100, "padding", 0.1);
         w::slider(g_state.picker.item_rounding, 0, g_state.picker.box_size, "item rounding", 0.1);
         w::slider(g_state.picker.label_size, -15.0f, 15.0f, "label size", 0.5);
-        w::slider(g_state.picker.max_width_perc, 10, 100, "max width %");
+        w::slider(g_state.picker.min_width_perc, 10, 50, "min width %");
+        w::slider(g_state.picker.max_width_perc, g_state.picker.min_width_perc + 10, 100, "max width %");
         w::checkbox("show key hints (1-10)", g_state.picker.show_key_hints);
         if(w::slider(g_state.picker.border_width, 0, 10, "border width", 1, true)) {
             app->main_window_opts().border = g_state.picker.border_width;

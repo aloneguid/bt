@@ -50,6 +50,7 @@ namespace bt {
         float opacity{1};
         bool close_on_focus_loss{true};
         bool always_on_top{false};
+        int min_width_perc{20};
         int max_width_perc{90};
         label_display_mode label_display{label_display_mode::browser_and_profile};
 

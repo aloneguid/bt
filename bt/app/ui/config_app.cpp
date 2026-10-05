@@ -713,7 +713,7 @@ namespace bt::ui {
                 w::lbl(ICON_MD_CHECK, {.emp = emphasis::primary});
                 w::tt(hc.name);
             } else {
-                w::spinner(spinner_type::rotated_heart, {.emp = emphasis::error, .thickness = 5.0f, .speed = 5.0f});
+                w::spinner(spinner_type::rotated_heart, {.emp = emphasis::error, .radius = 9, .thickness = 2.0f, .speed = 8.0f});
                 if(w::is_hovered()) {
                     w::mouse_cursor(w::mouse_cursor_type::hand);
                     if(w::rich_tt rt; rt) {

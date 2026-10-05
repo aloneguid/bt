@@ -1,4 +1,5 @@
 #pragma once
+#include "common/str.h"
 #include <string>
 #if WIN32
 #include <Windows.h>
@@ -43,6 +44,15 @@ namespace bt {
             }
             window_title.clear();
             process_name.clear();
+        }
+
+        void prettify() {
+            grey::common::str::trim(window_title);
+            grey::common::str::trim(process_description);
+            if(!process_description.empty()) {
+                grey::common::str::replace_all(process_description, "(GUI launcher)", "");
+                grey::common::str::trim(process_description);
+            }
         }
     };
 }

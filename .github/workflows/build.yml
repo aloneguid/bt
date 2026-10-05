@@ -235,5 +235,5 @@ jobs:
           files: |
             *.msi
             *.deb
-            *.dmg
+          # not yet, but close: *.dmg
           body_path: final_notes.md

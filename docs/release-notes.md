@@ -1,7 +1,12 @@
 ## 6.3.1
 
 ### Improvements
+- Added min width settings for the picker window.
+- Less distracting ClearURLs spinner speeds.
+
+### Bugs fixed
 - ClearURLs processor did not use the catch-all rule.
+- Fixed scaling issues for health notifications.
 
 ### Other
 - Build process improvements.

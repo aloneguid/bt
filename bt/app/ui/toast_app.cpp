@@ -239,8 +239,8 @@ namespace bt::ui {
             w::sl();
             w::spinner(spinner_type::solar_scale_balls, {
                 .emp = emphasis::error,
-                .radius = w::scaled(8),
-                .speed = 2.0f});
+                .radius = 7,
+                .speed = 1.5f});
             if(w::is_hovered()) {
                 w::mouse_cursor(w::mouse_cursor_type::hand);
                 if(w::is_leftclicked()) {

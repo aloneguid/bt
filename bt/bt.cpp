@@ -173,6 +173,7 @@ static void execute(const string& data) {
     }
 #endif
 
+    cp.prettify();
     open(cp, force_picker);   // open-up hahaha
 }
 
