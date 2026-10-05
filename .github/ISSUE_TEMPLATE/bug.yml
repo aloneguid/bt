@@ -17,10 +17,10 @@ body:
         
         Please write like a human. Preferably a helpful one.
   - type: input
-    id: libversion
+    id: appversion
     attributes:
       label: Library Version
-      description: Tell us the exact Parquet.Net version. "Latest" is not a version, it's a lifestyle.
+      description: Tell us the exact Browser Tamer version. "Latest" is not a version, it's a lifestyle.
       placeholder: ex. 6.3.0
     validations:
       required: true
