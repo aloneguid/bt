@@ -42,10 +42,12 @@ namespace bt::pipeline {
         for (auto& [name, provider] : providers.items()) {
             std::string url_pattern = provider.value("urlPattern", "");
             if (url_pattern.empty()) continue;
-
-            std::regex provider_regex(url_pattern, std::regex::icase);
             std::string url_str = u.to_string();
-            if (!std::regex_search(url_str, provider_regex)) continue;
+
+            // ClearURLs catch-all rule is an exception
+            if(url_pattern != ".*") {
+                if (std::regex provider_regex(url_pattern, std::regex::icase); !std::regex_search(url_str, provider_regex)) continue;
+            }
 
             // Skip this provider entirely if any exception pattern matches.
             bool excepted = false;

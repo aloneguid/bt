@@ -1,3 +1,11 @@
+## 6.3.1
+
+### Improvements
+- ClearURLs processor did not use the catch-all rule.
+
+### Other
+- Build process improvements.
+
 ## 6.3.0
 
 🍞 💏 Toasted Brave Containers!!!

@@ -18,6 +18,89 @@ set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 # declare Unicode pair: UNICODE affects win32 API, _UNICODE affects crt entry point
 add_compile_definitions(UNICODE _UNICODE)
 
+function (pre_build)
+    set(RELEASE_NOTES_FILE "${PROJECT_SOURCE_DIR}/docs/release-notes.md")
+    message(STATUS "reading from ${RELEASE_NOTES_FILE}")
+
+    # version
+    file(STRINGS "${RELEASE_NOTES_FILE}" _first_line LIMIT_COUNT 1)
+    string(REGEX REPLACE "[ #]" "" RELEASE_VERSION "${_first_line}")
+    message(STATUS "version: ${RELEASE_VERSION}")
+
+    # version variants
+    set(RELEASE_VERSION_FULL "${RELEASE_VERSION}.0")
+    string(REPLACE "." "," RELEASE_VERSION_COMMAS "${RELEASE_VERSION_FULL}")
+    message(STATUS "versions: [${RELEASE_VERSION}], [${RELEASE_VERSION_FULL}], [${RELEASE_VERSION_COMMAS}]")
+
+    # .rc file
+    file(GLOB _rc_files "${PROJECT_SOURCE_DIR}/bt/*.rc")
+    foreach(_rc IN LISTS _rc_files)
+        file(READ "${_rc}" _content)
+        set(_original "${_content}")
+        # \d,\s*\d+,\s*\d+,\s*\d+   ->  v1
+        string(REGEX REPLACE
+                "[0-9]+,[ \t]*[0-9]+,[ \t]*[0-9]+,[ \t]*[0-9]+"
+                "${RELEASE_VERSION_COMMAS}" _content "${_content}")
+
+        # \d\.\d+\.\d+\.\d+         ->  v2
+        string(REGEX REPLACE
+                "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"
+                "${RELEASE_VERSION_FULL}" _content "${_content}")
+
+        # only write if something changed (avoids needless rebuilds)
+        if(NOT _content STREQUAL _original)
+            file(WRITE "${_rc}" "${_content}")
+            message(STATUS "Updated version in ${_rc}")
+        endif()
+    endforeach()
+
+    # globals.h
+    set(_globals "${PROJECT_SOURCE_DIR}/bt/globals.h")
+    if(EXISTS "${_globals}")
+        message(STATUS "Updating version in: ${_globals}")
+
+        file(READ "${_globals}" _content)
+        set(_original "${_content}")
+
+        # #define APP_VERSION ".*"  ->  #define APP_VERSION "<version>"
+        string(REGEX REPLACE
+                "#define APP_VERSION \"[^\"\n]*\""
+                "#define APP_VERSION \"${RELEASE_VERSION}\""
+                _content "${_content}")
+
+        if(NOT _content STREQUAL _original)
+            file(WRITE "${_globals}" "${_content}")
+            message(STATUS "Updated: ${_globals}")
+        endif()
+    endif()
+
+    # this file
+    set(_cmakelists "${PROJECT_SOURCE_DIR}/bt/CMakeLists.txt")
+
+    if(EXISTS "${_cmakelists}")
+        message(STATUS "Updating version in: ${_cmakelists}")
+
+        file(READ "${_cmakelists}" _content)
+        set(_original "${_content}")
+
+        # set(APP_VERSION "...")  ->  set(APP_VERSION "<version>")
+        set(VAR_NAME "${project}_APP_VERSION")
+        string(TOUPPER "${VAR_NAME}" VAR_NAME)
+        string(REGEX REPLACE
+                "set\\(${VAR_NAME} \"[^\"]*\"\\)"
+                "set(${VAR_NAME} \"${RELEASE_VERSION}\")"
+                _content "${_content}")
+
+        if(NOT _content STREQUAL _original)
+            file(WRITE "${_cmakelists}" "${_content}")
+            message(STATUS "Updated: ${_cmakelists}")
+        endif()
+    endif()
+
+endfunction()
+
+pre_build()
+
 if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
     #add_compile_definitions(WIN32_LEAN_AND_MEAN)
