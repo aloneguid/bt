@@ -33,7 +33,8 @@ enable_testing()
 
 # add "grey" from github
 FetchContent_Declare(grey
-    GIT_REPOSITORY git@github.com:aloneguid/grey.git
+    #GIT_REPOSITORY git@github.com:aloneguid/grey.git
+    GIT_REPOSITORY https://github.com/aloneguid/grey.git
     GIT_TAG        202610
 )
 
