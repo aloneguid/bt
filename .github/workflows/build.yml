@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - master
+      - FetchContent
     tags:
       - 'v*'              # release only when pushing a version tag
   pull_request:
@@ -84,8 +85,6 @@ jobs:
         wix extension add --global WixToolset.UI.wixext
 
     - uses: actions/checkout@v6
-      with:
-        submodules: true
 
     - name: Create variables
       run: |
@@ -230,6 +229,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION }}
+          # this token is required for the release action to work because it also triggers another workflow
+          # permissions: "contents: read and write"
           token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
           name: ${{ env.VERSION }}
           files: |
