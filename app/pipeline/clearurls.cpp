@@ -4,8 +4,8 @@
 #include <fstream>
 #include <optional>
 #include <regex>
-#include "fss.h"
-#include "str.h"
+#include "common/fss.h"
+#include "common/str.h"
 
 using namespace std;
 using namespace grey::common;

@@ -6,8 +6,8 @@
 
 
 #if PLATFORM_WINDOWS
-#include "win32/reg.h"
-#include "win32/shell.h"
+#include "common/win32/reg.h"
+#include "common/win32/shell.h"
 using namespace grey::common::win32::reg;
 #endif
 

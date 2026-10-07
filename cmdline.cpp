@@ -1,7 +1,7 @@
 #include "cmdline.h"
 #include <iostream>
 #include "globals.h"
-#include "str.h"
+#include "common/str.h"
 #include "common/platform.h"
 #include "magic_enum/magic_enum.hpp"
 

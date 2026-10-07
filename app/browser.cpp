@@ -2,16 +2,16 @@
 #include "match_rule.h"
 #include <filesystem>
 #include <algorithm>
-#include "str.h"
+#include "common/str.h"
 #include <format>
-#include "process.h"
+#include "common/process.h"
 #include "common/stl.hpp"
 #include <ranges>
 
 #if PLATFORM_WINDOWS
-#include "win32/shell.h"
-#include "win32/os.h"
-#include "win32/user.h"
+#include "common/win32/shell.h"
+#include "common/win32/os.h"
+#include "common/win32/user.h"
 #endif
 
 namespace fs = std::filesystem;

@@ -1,6 +1,6 @@
 #pragma once
 #include "../url_pipeline_step.h"
-#include "http.h"
+#include "common/http.h"
 
 namespace bt::pipeline {
     class unshortener : public bt::url_pipeline_step {

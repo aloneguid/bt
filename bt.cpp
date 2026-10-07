@@ -2,7 +2,7 @@
 #include <thread>
 #include "globals.h"
 #include "common/str.h"
-#include "process.h"
+#include "common/process.h"
 #include "app/url_pipeline.h"
 #include "app/rule_hit_log.h"
 #include "app/url_opener.h"
@@ -12,7 +12,7 @@
 #if PLATFORM_WINDOWS
 #include <windows.h>
 #include <shellapi.h>
-#include "win32/os.h"
+#include "common/win32/os.h"
 #include "common/win32/window.h"
 #endif
 

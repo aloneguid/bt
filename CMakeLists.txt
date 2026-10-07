@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.31)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
-# Application metadata - shared between main build and packaging
 set(APP_NAME bt)
 set(APP_LONG_NAME "Browser Tamer")
 set(APP_URL "https://www.aloneguid.uk/projects/bt/")
@@ -13,6 +12,26 @@ project ("BrowserTamer" VERSION 6.3.0 LANGUAGES CXX)
 
 if(APPLE)
     enable_language(OBJCXX)
+endif()
+
+# declare Unicode pair: UNICODE affects win32 API, _UNICODE affects crt entry point
+add_compile_definitions(UNICODE _UNICODE)
+
+if(WIN32)
+    add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
+endif()
+
+# statically link MSVC runtime in thrift to being fully self-contained.
+# this increases .exe size but guarantees working on all windows versions
+# see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_RUNTIME_LIBRARY.html
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+# The cool "edit & continue" feature of MSVC is disabled by default in CMake.
+# https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio?view=msvc-170#edit-and-continue-for-cmake-projects
+# enable globally: https://stackoverflow.com/a/76254117/80858
+if(MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
+    add_compile_options("/ZI")
+    add_link_options("/INCREMENTAL")
 endif()
 
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -36,12 +55,10 @@ FetchContent_Declare(grey
     #GIT_REPOSITORY git@github.com:aloneguid/grey.git
     GIT_REPOSITORY https://github.com/aloneguid/grey.git
     GIT_TAG        202610
+    SOURCE_SUBDIR  grey
 )
 
 FetchContent_MakeAvailable(grey)
-
-# declare Unicode pair: UNICODE affects win32 API, _UNICODE affects crt entry point
-add_compile_definitions(UNICODE _UNICODE)
 
 function (pre_build)
     set(RELEASE_NOTES_FILE "${PROJECT_SOURCE_DIR}/docs/release-notes.md")
@@ -165,20 +182,20 @@ file(GLOB core_src
         "app/*.cpp"
         "app/ui/*.cpp"
         "app/pipeline/*.cpp"
-        "../grey/grey/common/fss.cpp"
-        "../grey/grey/common/clipboard.cpp"
-        "../grey/grey/common/keyboard.cpp"
-        "../grey/grey/common/datetime.cpp"
-        "../grey/grey/common/process.cpp")
+        "${grey_SOURCE_DIR}/grey/common/fss.cpp"
+        "${grey_SOURCE_DIR}/grey/common/clipboard.cpp"
+        "${grey_SOURCE_DIR}/grey/common/keyboard.cpp"
+        "${grey_SOURCE_DIR}/grey/common/datetime.cpp"
+        "${grey_SOURCE_DIR}/grey/common/process.cpp")
 
 if(WIN32)
     file(GLOB core_src
             ${core_src}
-            "../grey/grey/common/win32/window.cpp"
-            "../grey/grey/common/win32/shell.cpp"
-            "../grey/grey/common/win32/os.cpp"
-            "../grey/grey/common/win32/reg.cpp"
-            "../grey/grey/common/win32/user.cpp")
+            "${grey_SOURCE_DIR}/grey/common/win32/window.cpp"
+            "${grey_SOURCE_DIR}/grey/common/win32/shell.cpp"
+            "${grey_SOURCE_DIR}/grey/common/win32/os.cpp"
+            "${grey_SOURCE_DIR}/grey/common/win32/reg.cpp"
+            "${grey_SOURCE_DIR}/grey/common/win32/user.cpp")
 
     add_executable (${APP_NAME} WIN32 ${core_src} "bt.cpp" bt.rc)
 else()
@@ -225,11 +242,9 @@ if(NOT WIN32)
 endif()
 
 set(COMMON_INCLUDES
-        "${CMAKE_CURRENT_SOURCE_DIR}"
-        "../grey/grey/common"
-        "../grey/grey"
-        ${P_RANAV_CSV2_INCLUDE_DIRS}
-        ${LUA_INCLUDE_DIR})
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${P_RANAV_CSV2_INCLUDE_DIRS}
+    ${LUA_INCLUDE_DIR})
 
 # ClearURLs database deployed next to the executable.
 set(RULES_URL https://rules2.clearurls.xyz/data.minify.json)

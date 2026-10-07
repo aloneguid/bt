@@ -2,11 +2,11 @@
 #include "../../globals.h"
 #include "../../res.h"
 #include "btwidgets.h"
-#include "platform.h"
+#include "common/platform.h"
 #include "common/str.h"
 #include <cmath>
 
-#include "clipboard.h"
+#include "common/clipboard.h"
 
 using namespace std;
 namespace w = grey::widgets;
