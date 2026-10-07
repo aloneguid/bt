@@ -93,11 +93,6 @@ jobs:
         Write-Host "VERSION: ${{ env.VERSION }}"
       shell: pwsh
 
-    # below seems to work on Linux, it looks like GHA has powershell/linux available already
-    - name: pre-build patch script
-      run: .\resources\ci\pre-build.ps1
-      shell: pwsh
-
     - uses: friendlyanon/setup-vcpkg@v1
       # seems like the absense of commit hash expects vcpkg submodule, i don't want that
       with:
