@@ -311,7 +311,7 @@ if(WIN32)
 
     set(CPACK_WIX_INSTALL_SCOPE "perUser")
     set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/resources/LICENSE.rtf")
-    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/bt/icon.ico")
+    set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/icon.ico")
     set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/resources/wix/wix_banner.png")
     set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/resources/wix/wix_dialog.png")
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")

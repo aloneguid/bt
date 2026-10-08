@@ -1,3 +1,8 @@
+## 6.3.2
+
+Fixed bugs:
+- 
+
 ## 6.3.1
 
 ### Improvements
