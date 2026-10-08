@@ -7,8 +7,8 @@
 #include "common/keyboard.h"
 
 #if PLATFORM_WINDOWS
-#include "win32/os.h"
-#include "win32/shell.h"
+#include "common/win32/os.h"
+#include "common/win32/shell.h"
 #endif
 
 using namespace std;

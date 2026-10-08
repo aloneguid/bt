@@ -1,10 +1,10 @@
 #include "btwidgets.h"
 #include "../../globals.h"
 #include "../../res.h"
-#include "fss.h"
+#include "common/fss.h"
 #include "../strings.h"
-#include "stl.hpp"
-#include "str.h"
+#include "common/stl.hpp"
+#include "common/str.h"
 #include "common/process.h"
 
 using namespace std;

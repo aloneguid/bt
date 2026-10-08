@@ -2,11 +2,11 @@
 #include "../../globals.h"
 #include "../../res.h"
 #include "btwidgets.h"
-#include "platform.h"
+#include "common/platform.h"
 #include "common/str.h"
 #include <cmath>
 
-#include "clipboard.h"
+#include "common/clipboard.h"
 
 using namespace std;
 namespace w = grey::widgets;
@@ -65,7 +65,11 @@ namespace bt::ui {
             icon_size = line1_text_size.height;
 
             // Line 2: Profile icon + url domain or path + optional rule icon + optional "tracker removed" icon
-            sz line2_text_size = w::text_size_get(cp_url_parsed.host.empty() ? cp_url_parsed.path : cp_url_parsed.host);
+            sz line2_text_size;
+            {
+                w::texter tx{.0f, font_weight::bold};
+                line2_text_size = w::text_size_get(cp_url_parsed.host.empty() ? cp_url_parsed.path : cp_url_parsed.host);
+            }
             if(!bmr.rule.is_fallback)
                 line2_text_size.width += space.x + line2_text_size.height + space.x;
             if(cp.trackers_removed > 0)

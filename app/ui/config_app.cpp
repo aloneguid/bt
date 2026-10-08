@@ -1,10 +1,10 @@
 #include "config_app.h"
-#include "platform.h"
+#include "common/platform.h"
 #include <format>
-#include "process.h"
-#include "str.h"
-#include "stl.hpp"
-#include "fss.h"
+#include "common/process.h"
+#include "common/str.h"
+#include "common/stl.hpp"
+#include "common/fss.h"
 #include "../rule_hit_log.h"
 #include <filesystem>
 #include "../url_opener.h"
@@ -14,7 +14,7 @@
 #include "../../res.h"
 #include "../strings.h"
 #include "extra_widgets.hpp"
-#include "datetime.h"
+#include "common/datetime.h"
 #include "common/os.h"
 #include "magic_enum/magic_enum.hpp"
 #include <algorithm>

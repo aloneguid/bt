@@ -1,3 +1,7 @@
+## 6.3.2
+
+UI: Toast width was slightly narrow when domain length is wider than application name.
+
 ## 6.3.1
 
 ### Improvements

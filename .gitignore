@@ -7,4 +7,3 @@ obj/
 vcpkg_installed/
 btcheck-cppcheck-build-dir/
 *.iml
-.ai/

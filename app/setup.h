@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include "platform.h"
+#include "common/platform.h"
 
 namespace bt {
     class system_check {
