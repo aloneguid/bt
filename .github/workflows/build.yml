@@ -193,11 +193,12 @@ jobs:
         run: ls -R
         working-directory: .
 
-      - name: upload unsigned windows x64 msi
+      - name: upload unsigned binary for signing
         id: upload-unsigned
         uses: actions/upload-artifact@v7
         with:
           path: 'BrowserTamer-${{ env.VERSION }}${{ matrix.artifact_suffix }}.msi'
+          archive: 'false'
 
       - name: submit signing request
         uses: signpath/github-action-submit-signing-request@v3
@@ -209,6 +210,7 @@ jobs:
           github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: '/signed'
+          skip-decompress: 'true'
           parameters: |
             version: ${{ env.VERSION }}
 
