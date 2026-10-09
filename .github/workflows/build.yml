@@ -194,7 +194,6 @@ jobs:
           ls -R
 
           echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
-          echo "version set to $VERSION"
 
           file=$(find . -maxdepth 1 -type f -name "*${VERSION}*" -printf '%f\n' -quit)
           if [ -z "$file" ]; then
@@ -202,7 +201,6 @@ jobs:
             exit 1
           fi
           echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
-          echo "SIGN_FILE set to $SIGN_FILE"
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -229,7 +227,7 @@ jobs:
           output-artifact-directory: '/signed'
           skip-decompress: 'true'
           parameters: |
-            version: ${{ env.VERSION }}
+            version: '${{ env.VERSION }}'
 
   join-artifacts:
     runs-on: ubuntu-latest
