@@ -163,6 +163,9 @@ jobs:
         compression-level: 9
 
   sign-artifacts:
+    permissions:
+      actions: read
+      contents: read
     runs-on: ubuntu-latest
     name: '🔐 Sign Artifacts'
     needs: [ build ]
@@ -171,6 +174,9 @@ jobs:
         include:
           - name: Windows x64
             artifact_suffix: -win-x64
+            artifact_pattern: '*.msi'
+          - name: Windows ARM 64
+            artifact_suffix: -win-arm64
             artifact_pattern: '*.msi'
 
     steps:
@@ -193,23 +199,22 @@ jobs:
         with:
           path: 'BrowserTamer-${{ env.VERSION }}${{ matrix.artifact_suffix }}.msi'
 
-  #      - name: submit signing request
-  #        uses: signpath/github-action-submit-signing-request@v3
-  #        with:
-  #          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-  #          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
-  #          project-slug: 'bt'
-  #          signing-policy-slug: 'test-signing'
-  #          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
-  #          wait-for-completion: true
-  #          output-artifact-directory: '/path/to/signed/artifact/directory'
-  #          parameters: |
-  #            version: ${{ toJSON(some.userinput) }}
-  #            myparam: "another param"
+      - name: submit signing request
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
+          project-slug: 'bt'
+          signing-policy-slug: 'test-signing'
+          github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: '/signed'
+          parameters: |
+            version: ${{ env.VERSION }}
 
   join-artifacts:
     runs-on: ubuntu-latest
-    name: '🧑‍🤝‍🧑 Join Artifacts from all platforms'
+    name: '🧑‍🤝‍🧑 Join Artifacts'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
