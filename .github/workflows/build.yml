@@ -170,6 +170,7 @@ jobs:
     name: '🔐 Sign Bins'
     needs: [ build ]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: Windows x64
