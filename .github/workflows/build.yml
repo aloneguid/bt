@@ -167,17 +167,20 @@ jobs:
       actions: read
       contents: read
     runs-on: ubuntu-latest
-    name: '🔐 Sign Artifacts'
+    name: '🔐 Sign Bins'
     needs: [ build ]
     strategy:
       matrix:
         include:
           - name: Windows x64
             artifact_suffix: -win-x64
-            artifact_pattern: '*.msi'
+            signing_config: 'msi'
           - name: Windows ARM 64
             artifact_suffix: -win-arm64
-            artifact_pattern: '*.msi'
+            signing_config: 'msi'
+          - name: Debian x64
+            artifact_suffix: -linux-x64
+            signing_config: 'deb'
 
     steps:
       - name: ⬇️ Download binaries
@@ -188,6 +191,15 @@ jobs:
       - name: 🔢 set version environment variable
         run: |
           echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+          
+          file=$(find . -maxdepth 1 -type f -name '*VERSION*' -print -quit)
+          if [ -z "$file" ]; then
+            echo "No file with VERSION in its name found" >&2
+            exit 1
+          fi
+          echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
+          
+          echo "version: $VERSION, file: $SIGN_FILE"
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -197,7 +209,7 @@ jobs:
         id: upload-unsigned
         uses: actions/upload-artifact@v7
         with:
-          path: 'BrowserTamer-${{ env.VERSION }}${{ matrix.artifact_suffix }}.msi'
+          path: '${{ env.SIGN_FILE }}'
           archive: 'false'
 
       - name: submit signing request
@@ -207,6 +219,7 @@ jobs:
           organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
           project-slug: 'bt'
           signing-policy-slug: 'test-signing'
+          artifact-configuration-slug: '${{ matrix.signing_config }}'
           github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
           wait-for-completion: true
           output-artifact-directory: '/signed'
@@ -216,7 +229,7 @@ jobs:
 
   join-artifacts:
     runs-on: ubuntu-latest
-    name: '🧑‍🤝‍🧑 Join Artifacts'
+    name: '🧑‍🤝‍🧑 Join Bins'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
