@@ -174,13 +174,10 @@ jobs:
       matrix:
         include:
           - name: Windows x64
-            artifact_suffix: -win-x64
             signing_config: 'msi'
           - name: Windows ARM 64
-            artifact_suffix: -win-arm64
             signing_config: 'msi'
           - name: Debian x64
-            artifact_suffix: -linux-x64
             signing_config: 'deb'
 
     steps:
@@ -227,8 +224,6 @@ jobs:
           wait-for-completion: true
           output-artifact-directory: '/signed'
           skip-decompress: 'true'
-          parameters: |
-            version: '${{ env.VERSION }}'
 
   join-artifacts:
     runs-on: ubuntu-latest
