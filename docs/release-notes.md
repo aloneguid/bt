@@ -1,6 +1,8 @@
 ## 6.3.2
 
-UI: Toast width was slightly narrow when domain length is wider than application name.
+- UI: Toast width was slightly narrow when domain length is wider than application name.
+- UI: Allow editing data folder location in custom browser definition.
+- Configuration UI will rediscover browsers every time it's opened. This eliminates the need to click the button on first install or clicking "rediscover" every time you open the config (likely this is you want to do anyways). If this is not what you want, it can be reverted to previous behavior by unticking the config option in "General" menu item.
 
 ## 6.3.1
 

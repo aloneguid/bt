@@ -120,6 +120,7 @@ namespace bt {
         bool show_hidden_browsers{false};
         icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
         int highlight_width{4};
+        bool rediscover_on_config_startup{true};
         toast_state toast;
         picker_state picker;
         transforms_state transforms;

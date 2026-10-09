@@ -130,6 +130,7 @@ namespace bt {
 
         read_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         read<int>(node, "highlight_width", state.highlight_width);
+        read<bool>(node, "rediscover_on_config_startup", state.rediscover_on_config_startup);
 
         read<toast_state>(node, "toast", state.toast);
         read<picker_state>(node, "picker", state.picker);
@@ -158,6 +159,7 @@ namespace bt {
         node["show_hidden_browsers"] = state.show_hidden_browsers;
         write_enum<icon_overlay_mode>(node, "icon_overlay", state.icon_overlay);
         node["highlight_width"] = state.highlight_width;
+        node["rediscover_on_config_startup"] = state.rediscover_on_config_startup;
         node["toast"] = state.toast;
         node["picker"] = state.picker;
         node["transforms"] = state.transforms;

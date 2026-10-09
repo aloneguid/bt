@@ -49,6 +49,9 @@ namespace bt::ui {
             app->preload_texture("bt_chromium", chromium_icon_png, chromium_icon_png_len);
             app->preload_texture("bt_gecko", gecko64_icon_png, gecko64_icon_png_len);
             btw_on_app_initialised(*app);
+            if(g_state.rediscover_on_config_startup) {
+                rediscover_browsers();
+            }
         };
 
         check_health();
@@ -187,6 +190,7 @@ namespace bt::ui {
 
             if(w::menu m{"General"}; m) {
                 w::small_checkbox("Log to clicks.csv", g_state.log_rule_hits);
+                w::small_checkbox("Rediscover on startup", g_state.rediscover_on_config_startup);
 
                 if(w::menu m_toast{"Toast", true, ICON_MD_NOTIFICATIONS}; m_toast) {
                     w::small_checkbox("Enabled", g_state.toast.enabled);
@@ -1090,7 +1094,7 @@ namespace bt::ui {
         }
 
         if(!b.data_path.empty()) {
-            w::input(b.data_path, "data", true, 0, true);
+            w::input(b.data_path, "data", true, 0, b.management == management_extent::full);
             w::tt("Location of the data directory");
 
             w::sl();
