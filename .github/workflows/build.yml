@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - master
-      - FetchContent
+      - SignPath
     tags:
       - 'v*'              # release only when pushing a version tag
   pull_request:
@@ -182,6 +182,44 @@ jobs:
           path: '*'
           if-no-files-found: error
           compression-level: 9
+
+  sign-artifacts:
+    runs-on: ubuntu-latest
+    name: '🔐 Sign Artifacts'
+    needs: [release-artifacts]
+    steps:
+      - name: ⬇️ Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-all
+
+      - name: 🔢 set version environment variable
+        run: |
+          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: upload unsigned windows x64 msi
+        id: upload-unsigned-win64
+        uses: actions/upload-artifact@v7
+        with:
+          path: 'BrowserTamer-${{ env.VERSION }}-win64.msi'
+
+#      - name: submit signing request
+#        uses: signpath/github-action-submit-signing-request@v3
+#        with:
+#          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+#          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
+#          project-slug: 'bt'
+#          signing-policy-slug: 'test-signing'
+#          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+#          wait-for-completion: true
+#          output-artifact-directory: '/path/to/signed/artifact/directory'
+#          parameters: |
+#            version: ${{ toJSON(some.userinput) }}
+#            myparam: "another param"
 
   github-release:
     runs-on: ubuntu-latest
