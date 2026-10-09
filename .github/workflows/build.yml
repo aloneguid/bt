@@ -194,7 +194,7 @@ jobs:
 
       - name: 🔢 Detect version
         run: |
-          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+          echo "VERSION=$(tr -d '\r\n' < version.txt)" >> "$GITHUB_ENV"
 
       - name: 🔢 Detect file
         run: |
