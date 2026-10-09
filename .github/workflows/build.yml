@@ -162,9 +162,54 @@ jobs:
         if-no-files-found: error
         compression-level: 9
 
-  release-artifacts:
+  sign-artifacts:
     runs-on: ubuntu-latest
-    name: '📦 Prepare Release Artifacts'
+    name: '🔐 Sign Artifacts'
+    needs: [ build ]
+    strategy:
+      matrix:
+        include:
+          - name: Windows x64
+            artifact_suffix: -win-x64
+            artifact_pattern: '*.msi'
+
+    steps:
+      - name: ⬇️ Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin${{ matrix.artifact_suffix }}
+
+      - name: 🔢 set version environment variable
+        run: |
+          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: upload unsigned windows x64 msi
+        id: upload-unsigned${{ matrix.artifact_suffix }}
+        uses: actions/upload-artifact@v7
+        with:
+          path: 'BrowserTamer-${{ env.VERSION }}${{ matrix.artifact_suffix }}.msi'
+
+  #      - name: submit signing request
+  #        uses: signpath/github-action-submit-signing-request@v3
+  #        with:
+  #          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+  #          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
+  #          project-slug: 'bt'
+  #          signing-policy-slug: 'test-signing'
+  #          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+  #          wait-for-completion: true
+  #          output-artifact-directory: '/path/to/signed/artifact/directory'
+  #          parameters: |
+  #            version: ${{ toJSON(some.userinput) }}
+  #            myparam: "another param"
+
+  join-artifacts:
+    runs-on: ubuntu-latest
+    name: '🧑‍🤝‍🧑 Join Artifacts from all platforms'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
@@ -183,48 +228,10 @@ jobs:
           if-no-files-found: error
           compression-level: 9
 
-  sign-artifacts:
-    runs-on: ubuntu-latest
-    name: '🔐 Sign Artifacts'
-    needs: [release-artifacts]
-    steps:
-      - name: ⬇️ Download binaries
-        uses: actions/download-artifact@v8
-        with:
-          name: bin-all
-
-      - name: 🔢 set version environment variable
-        run: |
-          echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
-
-      - name: 🔍 view artifacts to be used
-        run: ls -R
-        working-directory: .
-
-      - name: upload unsigned windows x64 msi
-        id: upload-unsigned-win64
-        uses: actions/upload-artifact@v7
-        with:
-          path: 'BrowserTamer-${{ env.VERSION }}-win64.msi'
-
-#      - name: submit signing request
-#        uses: signpath/github-action-submit-signing-request@v3
-#        with:
-#          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
-#          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
-#          project-slug: 'bt'
-#          signing-policy-slug: 'test-signing'
-#          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
-#          wait-for-completion: true
-#          output-artifact-directory: '/path/to/signed/artifact/directory'
-#          parameters: |
-#            version: ${{ toJSON(some.userinput) }}
-#            myparam: "another param"
-
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [release-artifacts]
+    needs: [join-artifacts]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
