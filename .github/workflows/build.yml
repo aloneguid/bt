@@ -223,8 +223,20 @@ jobs:
           artifact-configuration-slug: '${{ matrix.signing_config }}'
           github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
           wait-for-completion: true
-          output-artifact-directory: '/signed'
+          output-artifact-directory: 'signed'
           skip-decompress: 'true'
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - uses: actions/upload-artifact@v7
+        name: collect binaries
+        with:
+          name: bin${{ matrix.artifact_suffix }}-signed
+          path: signed/*
+          if-no-files-found: error
+          compression-level: 9
 
   join-artifacts:
     runs-on: ubuntu-latest
