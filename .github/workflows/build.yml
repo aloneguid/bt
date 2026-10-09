@@ -211,6 +211,7 @@ jobs:
         with:
           path: '${{ env.SIGN_FILE }}'
           archive: 'false'
+          if-no-files-found: 'error'
 
       - name: submit signing request
         uses: signpath/github-action-submit-signing-request@v3
