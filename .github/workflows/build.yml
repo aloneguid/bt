@@ -188,17 +188,17 @@ jobs:
         with:
           name: bin${{ matrix.artifact_suffix }}
 
-      - name: 🔢 set version environment variable
+      - name: 🔢 Detect version and file
         run: |
           echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
-          
-          file=$(find . -maxdepth 1 -type f -name '*VERSION*' -print -quit)
+
+          file=$(find . -maxdepth 1 -type f -name '*${VERSION}*' -print -quit)
           if [ -z "$file" ]; then
             echo "No file with VERSION in its name found" >&2
             exit 1
           fi
           echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
-          
+
           echo "version: $VERSION, file: $SIGN_FILE"
 
       - name: 🔍 view artifacts to be used
