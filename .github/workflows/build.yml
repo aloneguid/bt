@@ -188,23 +188,22 @@ jobs:
         with:
           name: bin${{ matrix.artifact_suffix }}
 
-      - name: 🔢 Detect version and file
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: 🔢 Detect version
         run: |
-
-          ls -R
-
           echo "VERSION=$(cat version.txt | xargs)" >> "$GITHUB_ENV"
 
+      - name: 🔢 Detect file
+        run: |
           file=$(find . -maxdepth 1 -type f -name "*${VERSION}*" -printf '%f\n' -quit)
           if [ -z "$file" ]; then
             echo "No file with VERSION in its name found" >&2
             exit 1
           fi
           echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
-
-      - name: 🔍 view artifacts to be used
-        run: ls -R
-        working-directory: .
 
       - name: upload unsigned binary for signing
         id: upload-unsigned
