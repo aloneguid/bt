@@ -198,7 +198,7 @@ jobs:
 
       - name: 🔢 Detect file
         run: |
-          file=$(find . -maxdepth 1 -type f -name "*${{ env.VERSION }}*" -printf '%f' -quit)
+          file=$(find . -maxdepth 1 -type f -name "*${{ env.VERSION }}*" -print -quit)
           if [ -z "$file" ]; then
             echo "No file with [${{ env.VERSION }}] in its name found" >&2
             exit 1
