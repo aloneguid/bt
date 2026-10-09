@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - master
-      - FetchContent
     tags:
       - 'v*'              # release only when pushing a version tag
   pull_request:
@@ -162,9 +161,86 @@ jobs:
         if-no-files-found: error
         compression-level: 9
 
-  release-artifacts:
+  sign-artifacts:
+    permissions:
+      actions: read
+      contents: read
     runs-on: ubuntu-latest
-    name: '📦 Prepare Release Artifacts'
+    name: '🔐 Sign Bins'
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            signing_config: 'msi'
+            artifact_suffix: -win-x64
+          - name: Windows ARM 64
+            signing_config: 'msi'
+            artifact_suffix: -win-arm64
+          # - name: Debian x64
+          #   signing_config: 'deb'
+          #   artifact_suffix: -linux-x64
+
+    steps:
+      - name: ⬇️ Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin${{ matrix.artifact_suffix }}
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: 🔢 Detect version
+        run: |
+          echo "VERSION=$(tr -d '\r\n' < version.txt)" >> "$GITHUB_ENV"
+
+      - name: 🔢 Detect file
+        run: |
+          file=$(find . -maxdepth 1 -type f -name "*${{ env.VERSION }}*" -print -quit)
+          if [ -z "$file" ]; then
+            echo "No file with [${{ env.VERSION }}] in its name found" >&2
+            exit 1
+          fi
+          echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
+
+      - name: upload unsigned binary for signing
+        id: upload-unsigned
+        uses: actions/upload-artifact@v7
+        with:
+          path: '${{ env.SIGN_FILE }}'
+          archive: 'false'
+          if-no-files-found: 'error'
+
+      - name: submit signing request
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
+          project-slug: 'bt'
+          signing-policy-slug: 'test-signing'
+          artifact-configuration-slug: '${{ matrix.signing_config }}'
+          github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: 'signed'
+          skip-decompress: 'true'
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - uses: actions/upload-artifact@v7
+        name: collect binaries
+        with:
+          name: bin${{ matrix.artifact_suffix }}-signed
+          path: signed/*
+          if-no-files-found: error
+          compression-level: 9
+
+  join-artifacts:
+    runs-on: ubuntu-latest
+    name: '🧑‍🤝‍🧑 Join Bins'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
@@ -186,7 +262,7 @@ jobs:
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [release-artifacts]
+    needs: [join-artifacts]
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
