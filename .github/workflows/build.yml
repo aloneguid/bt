@@ -174,10 +174,13 @@ jobs:
         include:
           - name: Windows x64
             signing_config: 'msi'
+            artifact_suffix: -win-x64
           - name: Windows ARM 64
             signing_config: 'msi'
+            artifact_suffix: -win-arm64
           - name: Debian x64
             signing_config: 'deb'
+            artifact_suffix: -linux-x64
 
     steps:
       - name: ⬇️ Download binaries
