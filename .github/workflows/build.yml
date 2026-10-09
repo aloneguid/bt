@@ -8,7 +8,6 @@ on:
   push:
     branches:
       - master
-      - SignPath
     tags:
       - 'v*'              # release only when pushing a version tag
   pull_request:
