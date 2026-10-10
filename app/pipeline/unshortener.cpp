@@ -2,6 +2,7 @@
 #include <map>
 #include <set>
 #include "common/url.h"
+#include "common/str.h"
 
 using namespace std;
 using namespace grey::common;
@@ -16,8 +17,10 @@ namespace bt::pipeline {
         "bc.vc",
         "bit.ly",
         "bl.ink",
+        "cutt.ly",
         "geni.us",
         "gg.gg",
+        "is.gd",
         "linkjoy.io",
         "linktr.ee",
         "ow.ly",
@@ -29,9 +32,11 @@ namespace bt::pipeline {
         "shorte.st",
         "shorturl.at",
         "snip.ly",
+        "t.co",
         "t2m.io",
         "tiny.one",
         "tinyurl.com",
+        "v.gd",
         "vrch.at",
         "zapier.com",
         "zzb.gz"
@@ -46,15 +51,21 @@ namespace bt::pipeline {
         map<string, string> headers;
         int code = h.get_get_headers(up.url, headers);
 
-        map<string, string>::const_iterator it_loc;
-        if((code == 301 || code == 302) && (it_loc = headers.find(LocationHeaderName)) != headers.end()) {
-            string new_url = it_loc->second;
-            up.url = new_url;
+        // handle standard HTTP redirects (301, 302, 303, 307, 308)
+        if(code == 301 || code == 302 || code == 303 || code == 307 || code == 308) {
+            for(const auto& [name, value] : headers) {
+                if(str::equal_ic(name, LocationHeaderName)) {
+                    up.url = value;
+                    break;
+                }
+            }
         }
     }
 
     bool unshortener::is_supported(const std::string& abs_url) {
         url u{abs_url};
-        return SupportedDomains.contains(u.host);
+        string host = u.host;
+        str::lower(host);
+        return SupportedDomains.contains(host);
     }
-}
+}
