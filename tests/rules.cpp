@@ -66,8 +66,8 @@ TEST(Rules, ToString) {
     EXPECT_EQ("substring 'r' in domain part of the URL", mr2.to_string());
 
     match_rule mr3{"r"};
-    mr2.scope = match_scope::path;
-    EXPECT_EQ("substring 'r' in query part of the URL", mr2.to_string());
+    mr3.scope = match_scope::path;
+    EXPECT_EQ("substring 'r' in query part of the URL", mr3.to_string());
 
     match_rule mr5{"p"};
     mr5.app_mode = true;
