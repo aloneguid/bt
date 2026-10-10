@@ -11,9 +11,9 @@ namespace bt::pipeline {
         // Inherited via url_pipeline_step
         void process(click_payload& up) override;
 
+        bool is_supported(const std::string& abs_url);
+
     private:
         grey::common::http h;
-
-        bool is_supported(const std::string& abs_url);
     };
-}
+}

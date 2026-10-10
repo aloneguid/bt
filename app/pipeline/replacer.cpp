@@ -20,9 +20,13 @@ namespace bt::pipeline {
             }
         } else {
             // regex
-            regex rgx{find, regex_constants::icase};
-            if(regex_search(up.url, rgx)) {
-                up.url = regex_replace(up.url, rgx, replace);
+            try {
+                regex rgx{find, regex_constants::icase};
+                if(regex_search(up.url, rgx)) {
+                    up.url = regex_replace(up.url, rgx, replace);
+                }
+            } catch(const std::regex_error&) {
+                // ignore invalid regex pattern
             }
         }
     }
