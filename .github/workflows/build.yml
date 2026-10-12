@@ -299,6 +299,12 @@ jobs:
         with:
           name: bin-all
 
+      # Only Windows binaries will be signed, overwrite unsigned with signed
+      - name: ⬇️ Overwrite with signed binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-all-signed
+
       - name: 🔍 view artifacts to be used
         run: ls -R
         working-directory: .
