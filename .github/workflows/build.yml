@@ -259,6 +259,28 @@ jobs:
           if-no-files-found: error
           compression-level: 9
 
+  join-signed-artifacts:
+    runs-on: ubuntu-latest
+    name: '🧑‍🤝‍🧑 Join Signed Bins'
+    needs: [ sign-artifacts ]
+    steps:
+      - name: ⬇️ Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: '*-signed'
+          merge-multiple: true  # overwrites duplicate files
+
+      - name: debug
+        run: ls -R
+
+      - uses: actions/upload-artifact@v7
+        name: ⬆️ Upload as a single artifact
+        with:
+          name: bin-all-signed
+          path: '*'
+          if-no-files-found: error
+          compression-level: 9
+
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
