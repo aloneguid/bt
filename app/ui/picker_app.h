@@ -45,7 +45,7 @@ namespace bt::ui {
         float header_height{0.0f};
         float action_button_width{0.0f};
         float box_size_scaled{0.0f};
-        float padding_scaled{0.0f};
+        float box_margin_scaled{0.0f};
         ImVec2 label_text_size{};
         size_t items_per_w{0};
         size_t lines_total{0};

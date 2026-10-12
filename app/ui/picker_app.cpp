@@ -190,22 +190,21 @@ namespace bt::ui {
     }
 
     void picker_app::recalc() {
-        ImGuiStyle& style = ImGui::GetStyle();
-        box_size_scaled = g_state.picker.box_size * w::scale;
-        padding_scaled = g_state.picker.item_padding * w::scale;
+        const ImGuiStyle& style = ImGui::GetStyle();
+        box_size_scaled = w::scaled(g_state.picker.box_size);
+        box_margin_scaled = w::scaled(g_state.picker.item_padding);
         label_text_size = w::text_size_get("x", g_state.picker.label_size);
-        auto url_size = w::text_size_get(cp.url);
+        sz url_size = w::text_size_get(cp.url);
 
         // padding should only be used to space out items, not for any calculations inside
-        monitor mon = w::mon_wnd();
-        float min_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.min_width_perc) / 100.0f;
-        float max_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
-        float max_url_width = url_size.width + action_button_width * (action_menu_items.size() + 2);
-        float max_w_width = box_size_scaled * (static_cast<float>(choices.size()) + 1.0f) + style.WindowPadding.x * 2;
-        float max_width = max(max_url_width, max_w_width);
-        float w_width = clamp(max_width, min_mon_width, max_mon_width);;
-
-        float box_size_total = box_size_scaled + padding_scaled * 2;
+        const monitor mon = w::mon_wnd();
+        const float min_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.min_width_perc) / 100.0f;
+        const float max_mon_width = mon.work_area.width() * static_cast<float>(g_state.picker.max_width_perc) / 100.0f;
+        const float max_url_width = url_size.width + action_button_width * (action_menu_items.size() + 2);
+        const float max_w_width = (box_size_scaled + box_margin_scaled * 2.0f) * static_cast<float>(choices.size()) + style.WindowPadding.x * 2.0f;
+        const float max_width = max(max_url_width, max_w_width);
+        const float w_width = clamp(max_width, min_mon_width, max_mon_width);;
+        const float box_size_total = box_size_scaled + box_margin_scaled * 2;
 
         // how many items can I fit per w_width?
         items_per_w = static_cast<size_t>(w_width / box_size_total);
@@ -215,11 +214,11 @@ namespace bt::ui {
 
         float w_height = style.WindowPadding.y +
                          header_height +
-                         box_size_total * lines_total +
+                         box_size_total * static_cast<float>(lines_total) +
                          style.WindowPadding.y;
         w_height = min(w_height, mon.work_area.height());
 
-        auto target_window_size = ImVec2{w_width, w_height};
+        const ImVec2 target_window_size = ImVec2{w_width, w_height};
 
         if(window_size.x != target_window_size.x || window_size.y != target_window_size.y) {
             window_size = target_window_size;
@@ -285,7 +284,7 @@ namespace bt::ui {
 
         // we want items to be centered in the available space
         int line_count = get_label_line_count();
-        float box_size_total = box_size_scaled + padding_scaled * 2;
+        float box_size_total = box_size_scaled + box_margin_scaled * 2.0f;
         float icon_size_scaled = box_size_scaled - label_text_size.y * line_count;
         float total_w = box_size_total * items_per_w;
 
@@ -315,7 +314,7 @@ namespace bt::ui {
                 // render icon and come back to starting position
                 point p0 = w::cur_get();
                 w::cur_set(p0);
-                btw_icon(*app, p, box_size_total / 2 - icon_size_scaled / 2, padding_scaled, icon_size_scaled);
+                btw_icon(*app, p, box_size_total / 2 - icon_size_scaled / 2, box_margin_scaled, icon_size_scaled);
 
                 // draw key highlight
                 if(g_state.picker.show_key_hints && i < 10) {
@@ -323,7 +322,7 @@ namespace bt::ui {
                     ImVec2 wsz = w::text_size_get(label, g_state.picker.label_size);
 
                     // Calculate center for the circle
-                    point circle_center{p0.x + box_size_total / 2.0f, p0.y + padding_scaled};
+                    point circle_center{p0.x + box_size_total / 2.0f, p0.y + box_margin_scaled};
                     float radius = max(wsz.x, wsz.y) / 2.0f;
 
                     // Draw the circle
@@ -339,9 +338,9 @@ namespace bt::ui {
                 // labels
                 if(line_count > 0) {
                     point min{
-                        p0.x + padding_scaled / 2, p0.y + padding_scaled + icon_size_scaled + style.FramePadding.y
+                        p0.x + box_margin_scaled / 2, p0.y + box_margin_scaled + icon_size_scaled + style.FramePadding.y
                     };
-                    point max{p0.x + box_size_total - padding_scaled / 2, min.y + label_text_size.y * line_count};
+                    point max{p0.x + box_size_total - box_margin_scaled / 2, min.y + label_text_size.y * line_count};
                     float max_width = max.x - min.x;
 
                     w::cur_set(min);
@@ -361,12 +360,13 @@ namespace bt::ui {
                             case label_display_mode::profile:
                                 line1 = p.p().name;
                                 break;
+                            case label_display_mode::none:
+                                break;
                         }
 
 
                         w::clip_rect cr{min, max};
                         w::dummy({max.x - min.x, max.y - min.y});
-                        //w::draw_rect(rect{min, max}, rgb_colour{ImGuiCol_Border});
 
                         if(!line1.empty()) {
                             float line1_width = w::text_size_get(line1, g_state.picker.label_size).width;
