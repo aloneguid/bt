@@ -166,7 +166,7 @@ jobs:
       actions: read
       contents: read
     runs-on: ubuntu-latest
-    name: '🔐 Sign Bins'
+    name: '🔐 Sign Artifacts'
     needs: [ build ]
     strategy:
       fail-fast: false
@@ -240,7 +240,7 @@ jobs:
 
   join-artifacts:
     runs-on: ubuntu-latest
-    name: '🧑‍🤝‍🧑 Join Bins'
+    name: '🧑‍🤝‍🧑 Join Artifacts'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
@@ -261,7 +261,7 @@ jobs:
 
   join-signed-artifacts:
     runs-on: ubuntu-latest
-    name: '🧑‍🤝‍🧑 Join Signed Bins'
+    name: '🧑‍🤝‍🧑 Join Signed Artifacts'
     needs: [ sign-artifacts ]
     steps:
       - name: ⬇️ Download all artifacts
