@@ -322,17 +322,19 @@ jobs:
         run: ls -R
         working-directory: .
 
-      # https://github.com/softprops/action-gh-release
-      - name: 📦 create release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ env.VERSION }}
-          # this token is required for the release action to work because it also triggers another workflow
-          # permissions: "contents: read and write"
-          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-          name: ${{ env.VERSION }}
-          files: |
-            *.msi
-            *.deb
-          # not yet, but close: *.dmg
-          body_path: final_notes.md
+      # Uncomment below before merge
+
+#      # https://github.com/softprops/action-gh-release
+#      - name: 📦 create release
+#        uses: softprops/action-gh-release@v3
+#        with:
+#          tag_name: ${{ env.VERSION }}
+#          # this token is required for the release action to work because it also triggers another workflow
+#          # permissions: "contents: read and write"
+#          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+#          name: ${{ env.VERSION }}
+#          files: |
+#            *.msi
+#            *.deb
+#          # not yet, but close: *.dmg
+#          body_path: final_notes.md
