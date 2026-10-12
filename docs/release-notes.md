@@ -1,8 +1,13 @@
 ## 6.3.2
 
-- UI: Toast width was slightly narrow when domain length is wider than application name.
-- UI: Allow editing data folder location in custom browser definition.
-- Configuration UI will rediscover browsers every time it's opened. This eliminates the need to click the button on first install or clicking "rediscover" every time you open the config (likely this is you want to do anyways). If this is not what you want, it can be reverted to previous behavior by unticking the config option in "General" menu item.
+### Improvements
+- Replacer: Catch std::regex_error in replacer::process so a malformed user regex pattern fails gracefully rather than crashing the app, by @oocsng.
+- Un-shortener: Support standard 3xx redirect status codes (301, 302, 303, 307, 308) and perform case-insensitive matching for the Location header (pretty useful with HTTP/2 and diverse server implementations). Also normalized hostnames to lowercase for domain lookups and add a few popular shorteners (t.co, is.gd, v.gd, cutt.ly, etc...), by @oocsng.
+- O365: Support root `safelinks.protection.outlook.com` alongside existing subdomain matching, with a case-insensitive host and query parameter comparison, by @oocsng.
+- Tests: Fix unused mr3 variable in Rules.ToString test, and add unit tests for the un-shortener, replacer regex safety, and O365 safe links, by @oocsng.
+- UI: Toast width was slightly narrow when the domain length is wider than the application name.
+- UI: Allow editing data folder location in a custom browser definition.
+- Configuration UI will rediscover browsers every time it's opened. This eliminates the need to click the button on the first installation or click "rediscover" every time you open the config (likely this is what you want to do anyway). If this is not what you want, it can be reverted to previous behavior by unticking the config option in the "General" menu item.
 
 ## 6.3.1
 

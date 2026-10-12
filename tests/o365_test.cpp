@@ -44,3 +44,23 @@ TEST(O365Test, NonSafeLink) {
     
     EXPECT_EQ(cp.url, "https://google.com");
 }
+
+TEST(O365Test, OutlookSafeLinkExactDomain) {
+    click_payload cp;
+    cp.url = "https://safelinks.protection.outlook.com/?url=https%3A%2F%2Fexample.com";
+
+    o365 step;
+    step.process(cp);
+
+    EXPECT_EQ(cp.url, "https://example.com");
+}
+
+TEST(O365Test, OutlookSafeLinkCaseInsensitive) {
+    click_payload cp;
+    cp.url = "https://TEST.SAFELINKS.PROTECTION.OUTLOOK.COM/?URL=https%3A%2F%2Fexample.com";
+
+    o365 step;
+    step.process(cp);
+
+    EXPECT_EQ(cp.url, "https://example.com");
+}
