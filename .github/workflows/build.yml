@@ -4,11 +4,14 @@ env:
   BUILD_TYPE: Release
   VCPKG_HASH: d92484ed3c5020c6679d095ad3e5add907887b62
 
+permissions:
+  actions: read
+  contents: read
+
 on:
   push:
     branches:
       - master
-      - FetchContent
     tags:
       - 'v*'              # release only when pushing a version tag
   pull_request:
@@ -16,16 +19,14 @@ on:
       - master
   workflow_dispatch:
     inputs:
-      publish_release:
-        description: 'Create GitHub release'
+      create_release:
+        description: 'Create Release'
         required: false
         default: false
         type: boolean
 
 jobs:
   build:
-    permissions:
-      contents: read
     runs-on: ${{ matrix.os }}
     # allow Linux build to fail while prototyping
     # continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
@@ -162,9 +163,84 @@ jobs:
         if-no-files-found: error
         compression-level: 9
 
-  release-artifacts:
+  sign-artifacts:
     runs-on: ubuntu-latest
-    name: '📦 Prepare Release Artifacts'
+    if: inputs.create_release == true
+    name: '🔐 Sign Artifacts'
+    needs: [ build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            signing_config: 'msi'
+            artifact_suffix: -win-x64
+          - name: Windows ARM 64
+            signing_config: 'msi'
+            artifact_suffix: -win-arm64
+          # - name: Debian x64
+          #   signing_config: 'deb'
+          #   artifact_suffix: -linux-x64
+
+    steps:
+      - name: ⬇️ Download binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin${{ matrix.artifact_suffix }}
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - name: 🔢 Detect version
+        run: |
+          echo "VERSION=$(tr -d '\r\n' < version.txt)" >> "$GITHUB_ENV"
+
+      - name: 🔢 Detect file
+        run: |
+          file=$(find . -maxdepth 1 -type f -name "*${{ env.VERSION }}*" -print -quit)
+          if [ -z "$file" ]; then
+            echo "No file with [${{ env.VERSION }}] in its name found" >&2
+            exit 1
+          fi
+          echo "SIGN_FILE=$(basename "$file")" >> "$GITHUB_ENV"
+
+      - name: upload unsigned binary for signing
+        id: upload-unsigned
+        uses: actions/upload-artifact@v7
+        with:
+          path: '${{ env.SIGN_FILE }}'
+          archive: 'false'
+          if-no-files-found: 'error'
+
+      - name: submit signing request
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '477669b3-7c92-4586-b163-5de7dbcc35cf'
+          project-slug: 'bt'
+          signing-policy-slug: 'test-signing'
+          artifact-configuration-slug: '${{ matrix.signing_config }}'
+          github-artifact-id: '${{ steps.upload-unsigned.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: 'signed'
+          skip-decompress: 'true'
+
+      - name: 🔍 view artifacts to be used
+        run: ls -R
+        working-directory: .
+
+      - uses: actions/upload-artifact@v7
+        name: collect binaries
+        with:
+          name: bin${{ matrix.artifact_suffix }}-signed
+          path: signed/*
+          if-no-files-found: error
+          compression-level: 9
+
+  join-artifacts:
+    runs-on: ubuntu-latest
+    name: '🧑‍🤝‍🧑 Join Artifacts'
     needs: [build]
     steps:
       - name: ⬇️ Download all artifacts
@@ -183,13 +259,34 @@ jobs:
           if-no-files-found: error
           compression-level: 9
 
+  join-signed-artifacts:
+    runs-on: ubuntu-latest
+    if: inputs.create_release == true
+    name: '🧑‍🤝‍🧑 Join Signed Artifacts'
+    needs: [ sign-artifacts ]
+    steps:
+      - name: ⬇️ Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: '*-signed'
+          merge-multiple: true  # overwrites duplicate files
+
+      - name: debug
+        run: ls -R
+
+      - uses: actions/upload-artifact@v7
+        name: ⬆️ Upload as a single artifact
+        with:
+          name: bin-all-signed
+          path: '*'
+          if-no-files-found: error
+          compression-level: 9
+
   github-release:
     runs-on: ubuntu-latest
     name: '🚀 GitHub Release'
-    needs: [release-artifacts]
-    if: |
-      startsWith(github.ref, 'refs/tags/v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
+    needs: [join-artifacts, join-signed-artifacts]
+    if: inputs.create_release == true
     permissions:
       contents: write
     environment:
@@ -201,6 +298,12 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: bin-all
+
+      # Only Windows binaries will be signed, overwrite unsigned with signed
+      - name: ⬇️ Overwrite with signed binaries
+        uses: actions/download-artifact@v8
+        with:
+          name: bin-all-signed
 
       - name: 🔍 view artifacts to be used
         run: ls -R
@@ -219,17 +322,19 @@ jobs:
         run: ls -R
         working-directory: .
 
-      # https://github.com/softprops/action-gh-release
-      - name: 📦 create release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ env.VERSION }}
-          # this token is required for the release action to work because it also triggers another workflow
-          # permissions: "contents: read and write"
-          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
-          name: ${{ env.VERSION }}
-          files: |
-            *.msi
-            *.deb
-          # not yet, but close: *.dmg
-          body_path: final_notes.md
+      # Uncomment below before merge
+
+#      # https://github.com/softprops/action-gh-release
+#      - name: 📦 create release
+#        uses: softprops/action-gh-release@v3
+#        with:
+#          tag_name: ${{ env.VERSION }}
+#          # this token is required for the release action to work because it also triggers another workflow
+#          # permissions: "contents: read and write"
+#          token: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+#          name: ${{ env.VERSION }}
+#          files: |
+#            *.msi
+#            *.deb
+#          # not yet, but close: *.dmg
+#          body_path: final_notes.md
