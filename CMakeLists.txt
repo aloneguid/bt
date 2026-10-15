@@ -21,6 +21,10 @@ if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
 endif()
 
+string(TIMESTAMP CURRENT_YEAR "%Y")
+configure_file(globals.h.in ${CMAKE_CURRENT_BINARY_DIR}/globals.h @ONLY)
+configure_file(bt.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/bt.rc" @ONLY)
+
 # statically link MSVC runtime in thrift to being fully self-contained.
 # this increases .exe size but guarantees working on all windows versions
 # see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_RUNTIME_LIBRARY.html
@@ -106,8 +110,6 @@ file(GLOB core_src
         "${grey_SOURCE_DIR}/grey/common/datetime.cpp"
         "${grey_SOURCE_DIR}/grey/common/process.cpp")
 
-string(TIMESTAMP CURRENT_YEAR "%Y")
-configure_file(bt.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/bt.rc" @ONLY)
 if(WIN32)
     file(GLOB core_src
             ${core_src}
@@ -194,7 +196,6 @@ if(WIN32)
     #target_sources(${PROJECT_SLUG} PRIVATE dpi-aware.manifest)
 endif()
 
-configure_file(globals.h.in ${CMAKE_CURRENT_BINARY_DIR}/globals.h @ONLY)
 target_include_directories(${PROJECT_SLUG} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # "Install" target
