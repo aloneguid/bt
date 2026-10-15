@@ -1,5 +1,5 @@
 #include "script.h"
-#include "../../globals.h"
+#include "globals.h"
 
 namespace bt::pipeline {
 

@@ -2,7 +2,7 @@
 #include "pipeline/unshortener.h"
 #include "pipeline/o365.h"
 #include "pipeline/script.h"
-#include "../globals.h"
+#include "globals.h"
 #include "magic_enum/magic_enum.hpp"
 #include "pipeline/clearurls.h"
 

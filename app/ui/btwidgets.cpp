@@ -1,5 +1,5 @@
 #include "btwidgets.h"
-#include "../../globals.h"
+#include "globals.h"
 #include "../../res.h"
 #include "common/fss.h"
 #include "../strings.h"
