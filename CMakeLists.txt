@@ -164,7 +164,8 @@ if(NOT WIN32)
 endif()
 
 set(COMMON_INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${P_RANAV_CSV2_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIR})
 
@@ -195,8 +196,6 @@ target_include_directories(test1 PRIVATE ${COMMON_INCLUDES})
 if(WIN32)
     #target_sources(${PROJECT_SLUG} PRIVATE dpi-aware.manifest)
 endif()
-
-target_include_directories(${PROJECT_SLUG} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # "Install" target
 set(CPACK_PACKAGE_NAME "BrowserTamer")
