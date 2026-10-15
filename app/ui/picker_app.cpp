@@ -1,6 +1,6 @@
 ﻿#include "picker_app.h"
 #include <memory>
-#include "../../globals.h"
+#include "globals.h"
 #include <format>
 #include "btwidgets.h"
 #include "common/clipboard.h"

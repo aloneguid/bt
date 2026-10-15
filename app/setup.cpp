@@ -1,6 +1,6 @@
 #include "setup.h"
 #include <string>
-#include "../globals.h"
+#include "globals.h"
 #include <format>
 #include "discovery.h"
 

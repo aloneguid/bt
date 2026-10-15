@@ -2,13 +2,13 @@ cmake_minimum_required (VERSION 3.31)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
-set(APP_NAME bt)
-set(APP_LONG_NAME "Browser Tamer")
-set(APP_URL "https://www.aloneguid.uk/projects/bt/")
-set(APP_GITHUB_URL "https://github.com/aloneguid/bt")
-set(APP_GITHUB_RELEASES_URL "https://github.com/aloneguid/bt/releases")
 
-project ("BrowserTamer" VERSION 6.3.0 LANGUAGES CXX)
+set(PROJECT_SLUG "bt")
+
+project ("Browser Tamer"
+        VERSION 6.3.2
+        HOMEPAGE_URL "https://www.aloneguid.uk/projects/bt/"
+        LANGUAGES CXX)
 
 if(APPLE)
     enable_language(OBJCXX)
@@ -20,6 +20,10 @@ add_compile_definitions(UNICODE _UNICODE)
 if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
 endif()
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
+configure_file(globals.h.in ${CMAKE_CURRENT_BINARY_DIR}/globals.h @ONLY)
+configure_file(bt.rc.in "${CMAKE_CURRENT_SOURCE_DIR}/bt.rc" @ONLY)
 
 # statically link MSVC runtime in thrift to being fully self-contained.
 # this increases .exe size but guarantees working on all windows versions
@@ -55,93 +59,11 @@ FetchContent_Declare(grey
     #GIT_REPOSITORY git@github.com:aloneguid/grey.git
     GIT_REPOSITORY https://github.com/aloneguid/grey.git
     GIT_TAG        202610
+    GIT_SHALLOW    TRUE
     SOURCE_SUBDIR  grey
 )
 
 FetchContent_MakeAvailable(grey)
-
-function (pre_build)
-    set(RELEASE_NOTES_FILE "${PROJECT_SOURCE_DIR}/docs/release-notes.md")
-    message(STATUS "reading from ${RELEASE_NOTES_FILE}")
-
-    # version
-    file(STRINGS "${RELEASE_NOTES_FILE}" _first_line LIMIT_COUNT 1)
-    string(REGEX REPLACE "[ #]" "" RELEASE_VERSION "${_first_line}")
-    message(STATUS "version: ${RELEASE_VERSION}")
-
-    # version variants
-    set(RELEASE_VERSION_FULL "${RELEASE_VERSION}.0")
-    string(REPLACE "." "," RELEASE_VERSION_COMMAS "${RELEASE_VERSION_FULL}")
-    message(STATUS "versions: [${RELEASE_VERSION}], [${RELEASE_VERSION_FULL}], [${RELEASE_VERSION_COMMAS}]")
-
-    # .rc file
-    file(GLOB _rc_files "${PROJECT_SOURCE_DIR}/*.rc")
-    foreach(_rc IN LISTS _rc_files)
-        file(READ "${_rc}" _content)
-        set(_original "${_content}")
-        # \d,\s*\d+,\s*\d+,\s*\d+   ->  v1
-        string(REGEX REPLACE
-                "[0-9]+,[ \t]*[0-9]+,[ \t]*[0-9]+,[ \t]*[0-9]+"
-                "${RELEASE_VERSION_COMMAS}" _content "${_content}")
-
-        # \d\.\d+\.\d+\.\d+         ->  v2
-        string(REGEX REPLACE
-                "[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+"
-                "${RELEASE_VERSION_FULL}" _content "${_content}")
-
-        # only write if something changed (avoids needless rebuilds)
-        if(NOT _content STREQUAL _original)
-            file(WRITE "${_rc}" "${_content}")
-            message(STATUS "Updated version in ${_rc}")
-        endif()
-    endforeach()
-
-    # globals.h
-    set(_globals "${PROJECT_SOURCE_DIR}/globals.h")
-    if(EXISTS "${_globals}")
-        message(STATUS "Updating version in: ${_globals}")
-
-        file(READ "${_globals}" _content)
-        set(_original "${_content}")
-
-        # #define APP_VERSION ".*"  ->  #define APP_VERSION "<version>"
-        string(REGEX REPLACE
-                "#define APP_VERSION \"[^\"\n]*\""
-                "#define APP_VERSION \"${RELEASE_VERSION}\""
-                _content "${_content}")
-
-        if(NOT _content STREQUAL _original)
-            file(WRITE "${_globals}" "${_content}")
-            message(STATUS "Updated: ${_globals}")
-        endif()
-    endif()
-
-    # this file
-    set(_cmakelists "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
-
-    if(EXISTS "${_cmakelists}")
-        message(STATUS "Updating version in: ${_cmakelists}")
-
-        file(READ "${_cmakelists}" _content)
-        set(_original "${_content}")
-
-        # set(APP_VERSION "...")  ->  set(APP_VERSION "<version>")
-        set(VAR_NAME "${project}_APP_VERSION")
-        string(TOUPPER "${VAR_NAME}" VAR_NAME)
-        string(REGEX REPLACE
-                "set\\(${VAR_NAME} \"[^\"]*\"\\)"
-                "set(${VAR_NAME} \"${RELEASE_VERSION}\")"
-                _content "${_content}")
-
-        if(NOT _content STREQUAL _original)
-            file(WRITE "${_cmakelists}" "${_content}")
-            message(STATUS "Updated: ${_cmakelists}")
-        endif()
-    endif()
-
-endfunction()
-
-pre_build()
 
 if(WIN32)
     add_compile_definitions(NOMINMAX)   # Windows SDK overrides those
@@ -197,22 +119,22 @@ if(WIN32)
             "${grey_SOURCE_DIR}/grey/common/win32/reg.cpp"
             "${grey_SOURCE_DIR}/grey/common/win32/user.cpp")
 
-    add_executable (${APP_NAME} WIN32 ${core_src} "bt.cpp" bt.rc)
+    add_executable (${PROJECT_SLUG} WIN32 ${core_src} "bt.cpp" bt.rc)
 else()
-    add_executable (${APP_NAME} ${core_src} "bt.cpp")
+    add_executable (${PROJECT_SLUG} ${core_src} "bt.cpp")
 endif()
 
 if(APPLE)
     set(MACOSX_ICON "${CMAKE_SOURCE_DIR}/resources/macos/BrowserTamer.icns")
     set_source_files_properties(${MACOSX_ICON}
             PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    target_sources(${APP_NAME} PRIVATE ${MACOSX_ICON})
+    target_sources(${PROJECT_SLUG} PRIVATE ${MACOSX_ICON})
 
-    set_target_properties(${APP_NAME} PROPERTIES
+    set_target_properties(${PROJECT_SLUG} PROPERTIES
             MACOSX_BUNDLE TRUE
-            MACOSX_BUNDLE_BUNDLE_NAME "${APP_LONG_NAME}"
+            MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}"
             MACOSX_BUNDLE_GUI_IDENTIFIER "uk.co.aloneguid.browsertamer"
-            MACOSX_BUNDLE_INFO_STRING "${APP_LONG_NAME}"
+            MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME}"
             MACOSX_BUNDLE_ICON_FILE "BrowserTamer.icns"
             MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
@@ -242,7 +164,8 @@ if(NOT WIN32)
 endif()
 
 set(COMMON_INCLUDES
-    "${CMAKE_CURRENT_SOURCE_DIR}"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${P_RANAV_CSV2_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIR})
 
@@ -254,34 +177,34 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     file(DOWNLOAD "${RULES_URL}" "${RULES_JSON_PATH}" SHOW_PROGRESS)
 endif()
 
-add_custom_command(TARGET ${APP_NAME} POST_BUILD
+add_custom_command(TARGET ${PROJECT_SLUG} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${RULES_JSON_PATH}"
-        "$<TARGET_FILE_DIR:${APP_NAME}>/clearurls_rules.json")
+        "$<TARGET_FILE_DIR:${PROJECT_SLUG}>/clearurls_rules.json")
 
 add_custom_command(TARGET test1 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${RULES_JSON_PATH}"
         "$<TARGET_FILE_DIR:test1>/clearurls_rules.json")
 
-target_link_libraries(${APP_NAME} PRIVATE ${COMMON_LIBS})
+target_link_libraries(${PROJECT_SLUG} PRIVATE ${COMMON_LIBS})
 target_link_libraries(test1 PRIVATE ${COMMON_LIBS} GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
 
-target_include_directories(${APP_NAME} PRIVATE ${COMMON_INCLUDES})
+target_include_directories(${PROJECT_SLUG} PRIVATE ${COMMON_INCLUDES})
 target_include_directories(test1 PRIVATE ${COMMON_INCLUDES})
 
 if(WIN32)
-    #target_sources(${APP_NAME} PRIVATE dpi-aware.manifest)
+    #target_sources(${PROJECT_SLUG} PRIVATE dpi-aware.manifest)
 endif()
 
 # "Install" target
 set(CPACK_PACKAGE_NAME "BrowserTamer")
 set(CPACK_PACKAGE_VENDOR "@aloneguid")
 set(CPACK_PACKAGE_CONTACT "@aloneguid")
-set(CPACK_PACKAGE_DISPLAY_NAME ${APP_LONG_NAME})
+set(CPACK_PACKAGE_DISPLAY_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "BrowserTamer")
 if(WIN32)
-    install(TARGETS ${APP_NAME} RUNTIME DESTINATION ".")
+    install(TARGETS ${PROJECT_SLUG} RUNTIME DESTINATION ".")
     install(FILES "${RULES_JSON_PATH}" DESTINATION ".")
 
     # to use WIX generator (for producing .msi files) you can install wix toolset with .net sdk:
@@ -315,14 +238,14 @@ if(WIN32)
     set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/resources/wix/wix_banner.png")
     set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/resources/wix/wix_dialog.png")
     set(CPACK_WIX_PROGRAM_MENU_FOLDER "Browser Tamer")
-    set(CPACK_WIX_PROPERTY_APPHELPLINK "${APP_URL}")
+    set(CPACK_WIX_PROPERTY_APPHELPLINK "${PROJECT_HOMEPAGE_URL}")
     set(CPACK_WIX_PATCH_FILE "${CMAKE_SOURCE_DIR}/resources/wix/patch.xml")
 
     set_property(INSTALL "$<TARGET_FILE_NAME:bt>"
-            PROPERTY CPACK_START_MENU_SHORTCUTS "${APP_LONG_NAME}"
+            PROPERTY CPACK_START_MENU_SHORTCUTS "${PROJECT_NAME}"
     )
 elseif(UNIX AND NOT APPLE)
-    install(TARGETS ${APP_NAME} RUNTIME DESTINATION "bin")
+    install(TARGETS ${PROJECT_SLUG} RUNTIME DESTINATION "bin")
     install(FILES "${RULES_JSON_PATH}" DESTINATION "bin")
     set(CPACK_GENERATOR DEB)
 
@@ -339,10 +262,10 @@ elseif(UNIX AND NOT APPLE)
             "${CMAKE_SOURCE_DIR}/resources/xdg/postinst.sh;${CMAKE_SOURCE_DIR}/resources/xdg/postrm.sh")
 
 elseif(APPLE)
-    install(TARGETS ${APP_NAME} BUNDLE DESTINATION ".")
+    install(TARGETS ${PROJECT_SLUG} BUNDLE DESTINATION ".")
     set(CPACK_GENERATOR DragNDrop)
     set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${PROJECT_VERSION}-mac-${CMAKE_SYSTEM_PROCESSOR}")
-    set(CPACK_DMG_VOLUME_NAME "${APP_LONG_NAME}")
+    set(CPACK_DMG_VOLUME_NAME "${PROJECT_NAME}")
     set(CPACK_DMG_FORMAT UDZO)
     set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK OFF)
 

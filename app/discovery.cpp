@@ -5,7 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <format>
-#include "../globals.h"
+#include "globals.h"
 #include <SimpleIni.h> // https://github.com/brofield/simpleini
 #include <tinyxml2.h>
 #include <sqlite3.h>

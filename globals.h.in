@@ -21,17 +21,17 @@
 
 #define PortableMarkerName ".portable"
 
-#define APP_SHORT_NAME "bt"
+#define APP_SHORT_NAME "@PROJECT_SLUG@"
 
 #if _DEBUG
-#define APP_LONG_NAME "Browser Tamer Dev"
+#define APP_LONG_NAME "@PROJECT_NAME@ Dev"
 #else
-#define APP_LONG_NAME "Browser Tamer"
+#define APP_LONG_NAME "@PROJECT_NAME@"
 #endif
 
-#define CONFIG_NAME "Browser Tamer"
+#define CONFIG_NAME "@PROJECT_NAME@"
 
-#define APP_URL "https://www.aloneguid.uk/projects/bt/"
+#define APP_URL "@PROJECT_HOMEPAGE_URL@"
 
 #define APP_TEST_URL "https://www.aloneguid.uk/other/bt-test-page/"
 
@@ -47,7 +47,7 @@
 
 #define APP_REG_DESCRIPTION "Redirects open URLs to a browser of your choice."
 
-#define APP_VERSION "6.3.2"
+#define APP_VERSION "@PROJECT_VERSION@"
 
 extern bt::url_pipeline g_pipeline;
 

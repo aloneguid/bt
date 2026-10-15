@@ -1,5 +1,5 @@
 #include "toast_app.h"
-#include "../../globals.h"
+#include "globals.h"
 #include "../../res.h"
 #include "btwidgets.h"
 #include "common/platform.h"

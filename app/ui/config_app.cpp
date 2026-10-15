@@ -10,7 +10,7 @@
 #include "../url_opener.h"
 #include "../discovery.h"
 #include "../pipeline/replacer.h"
-#include "../../globals.h"
+#include "globals.h"
 #include "../../res.h"
 #include "../strings.h"
 #include "extra_widgets.hpp"
