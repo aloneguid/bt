@@ -1,3 +1,8 @@
+## 6.3.4
+
+### New features
+- "Black Hole" browser (#77) finally added.
+
 ## 6.3.2
 
 ### Improvements

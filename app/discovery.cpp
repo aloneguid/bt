@@ -490,6 +490,14 @@ namespace bt {
 
         discover_managed_profiles(browsers);
 
+        browser black_hole{"Black Hole", browser::ACTION_PREFIX + browser::ACTION_BLACK_HOLE};
+        black_hole.engine = browser_engine::generic;
+        black_hole.management = management_extent::none;
+        black_hole.is_hidden = true;
+        black_hole.icon_path = "res:black_hole";
+        discover_other_profiles(black_hole);
+        browsers.push_back(black_hole);
+
         return browsers;
     }
 
