@@ -106,6 +106,8 @@ namespace bt {
 
         [[nodiscard]] bool is_default() const;
 
+        [[nodiscard]] bool is_internal() const;
+
         void set_management(browser_engine target_engine) {
             management = target_engine == browser_engine::generic
                 ? management_extent::none

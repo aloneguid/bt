@@ -109,6 +109,11 @@ namespace bt {
         return false;
     }
 
+    bool browser::is_internal() const {
+        // for now, we assume that if the open command starts with ACTION_PREFIX, it's readonly
+        return open_cmd.starts_with(ACTION_PREFIX);
+    }
+
     std::vector<browser_match_result> browser::match(
         const std::vector<browser>& browsers,
         const click_payload& up,

@@ -121,6 +121,7 @@ namespace bt {
         icon_overlay_mode icon_overlay{icon_overlay_mode::profile_on_browser};
         int highlight_width{4};
         bool rediscover_on_config_startup{true};
+        bool discover_black_hole_browser{false};
         toast_state toast;
         picker_state picker;
         transforms_state transforms;
