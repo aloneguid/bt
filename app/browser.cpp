@@ -30,8 +30,19 @@ namespace bt {
         str::trim(this->name);
     }
 
-    void browser::launch(click_payload up, const browser_profile& profile) const {
-        string url = up.url;
+    void browser::launch(const click_payload& cp, const browser_profile& profile) const {
+        // Check for actions first. We only support black hole for now.
+        if(open_cmd.starts_with(ACTION_PREFIX)) {
+            const string action_name = open_cmd.substr(ACTION_PREFIX.size());
+
+            // this will be more complicated when/if we support more actions
+            if (action_name == ACTION_BLACK_HOLE) {
+                return;
+            }
+        }
+
+
+        const string url = cp.url;
         string arg = profile.launch_arg;
 
         if(arg.empty()) {
@@ -43,7 +54,7 @@ namespace bt {
             }
         }
 
-        if(supports_frameless_windows() && up.app_mode) {
+        if(supports_frameless_windows() && cp.app_mode) {
             if(engine == browser_engine::chromium) {
                 arg = format("--app={}", arg);
             } else if(engine == browser_engine::gecko) {
@@ -96,6 +107,11 @@ namespace bt {
             if(i.is_default) return true;
         }
         return false;
+    }
+
+    bool browser::is_internal() const {
+        // for now, we assume that if the open command starts with ACTION_PREFIX, it's readonly
+        return open_cmd.starts_with(ACTION_PREFIX);
     }
 
     std::vector<browser_match_result> browser::match(

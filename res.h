@@ -7,3 +7,5 @@ extern const unsigned char chromium_icon_png[];
 extern const unsigned int chromium_icon_png_len;
 extern const unsigned char gecko64_icon_png[];
 extern const unsigned int gecko64_icon_png_len;
+extern const unsigned char black_hole_png[];
+extern const unsigned int black_hole_png_len;
