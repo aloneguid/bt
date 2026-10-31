@@ -64,3 +64,13 @@ TEST(O365Test, OutlookSafeLinkCaseInsensitive) {
 
     EXPECT_EQ(cp.url, "https://example.com");
 }
+
+TEST(O365Test, OutlookSafeLinkDataBeforeUrl) {
+    click_payload cp;
+    cp.url = "https://test.safelinks.protection.outlook.com/?data=04%7C01%7Cuser%40example.com&url=https%3A%2F%2Fexample.com";
+
+    o365 step;
+    step.process(cp);
+
+    EXPECT_EQ(cp.url, "https://example.com");
+}
