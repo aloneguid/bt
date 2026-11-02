@@ -73,6 +73,11 @@ void open(click_payload cp, bool force_picker = false) {
         }
     } else {
         auto matches = browser::match(g_state.browsers, cp, g_script);
+        if(matches.empty()) {
+            url_opener::open(cp);
+            return;
+        }
+
         browser_match_result& first_match = matches[0];
         first_match.rule.apply_to(cp);
         url_opener::open(first_match.profile, cp);

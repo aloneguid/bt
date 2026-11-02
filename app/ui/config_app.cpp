@@ -184,6 +184,7 @@ namespace bt::ui {
                 if(w::mi("Rediscover", true, ICON_MD_REFRESH)) {
                     exec_rediscover = true;
                 }
+                w::small_checkbox("Discover Black Hole browser", g_state.discover_black_hole_browser);
                 //w::small_checkbox("Discover classic Firefox profiles", g_state.discover_classic_gecko_profiles);
                 //w::small_checkbox("Discover Firefox containers", g_state.discover_gecko_containers);
             }
@@ -880,7 +881,7 @@ namespace bt::ui {
                         render_browser_toolbar(g_state.browsers[selected_browser_idx]);
                     }
 
-                    if(!g_state.browsers.empty()) {
+                    if(!g_state.browsers.empty() && selected_browser_idx < g_state.browsers.size()) {
                         if(w::div r_div_detail{"r_div_detail"}; r_div_detail) {
                             render_detail(g_state.browsers[selected_browser_idx]);
                         }
@@ -1061,18 +1062,11 @@ namespace bt::ui {
         w::slh();
 
         if(w::button(ICON_MD_DELETE, emphasis::error)) {
-            size_t idx = browser::index_of(g_state.browsers, b);
+            const size_t idx = browser::index_of(g_state.browsers, b);
 
             // erase and save
-            std::erase_if(g_state.browsers, [b](auto i) { return i == b; });
-
-            // if possible, select previous browser
-            if(idx != string::npos) {
-                idx -= 1;
-                if(idx >= 0 && idx < g_state.browsers.size()) {
-                    selected_browser_idx = idx;
-                }
-            }
+            std::erase_if(g_state.browsers, [b](const auto& i) { return i == b; });
+            selected_browser_idx = std::clamp<size_t>(idx, 0, g_state.browsers.size() - 1);
         }
         w::tt("Completely deletes this browser, no questions asked");
     }
@@ -1084,22 +1078,24 @@ namespace bt::ui {
             w::input(b.name, "name");
         }
 
-        w::input(b.open_cmd, "cmd", true, 0, b.management == management_extent::full);
-        w::tt("Location of the executable");
-        w::sl();
-        if(w::button(ICON_MD_LAUNCH "##open_install", emphasis::none, true, true, "open")) {
-            std::filesystem::path p{b.open_cmd};
-            string path = p.parent_path().string();
-            desktop_shell::open(path);
-        }
-
-        if(!b.data_path.empty()) {
-            w::input(b.data_path, "data", true, 0, b.management == management_extent::full);
-            w::tt("Location of the data directory");
-
+        if (!b.is_internal()) {
+            w::input(b.open_cmd, "cmd", true, 0, b.management == management_extent::full);
+            w::tt("Browser executable or command");
             w::sl();
-            if(w::button(ICON_MD_LAUNCH "##open_data", emphasis::none, true, true, "open")) {
-                desktop_shell::open(b.data_path);
+            if(w::button(ICON_MD_LAUNCH "##open_install", emphasis::none, true, true, "open")) {
+                const std::filesystem::path p{b.open_cmd};
+                const string path = p.parent_path().string();
+                desktop_shell::open(path);
+            }
+
+            if(!b.data_path.empty()) {
+                w::input(b.data_path, "data", true, 0, b.management == management_extent::full);
+                w::tt("Location of the data directory");
+
+                w::sl();
+                if(w::button(ICON_MD_LAUNCH "##open_data", emphasis::none, true, true, "open")) {
+                    desktop_shell::open(b.data_path);
+                }
             }
         }
 
@@ -1222,23 +1218,24 @@ namespace bt::ui {
 
         // end of mini toolbar
 
-        render_icon(b, bi);
+        if (!b.is_internal()) {
+            render_icon(b, bi);
+            w::sl();
+            {
+                w::group g;
 
-        w::sl();
-        {
-            w::group g;
+                if(b.management == bt::management_extent::none) {
+                    w::input(bi.launch_arg, "arg");
+                    w::tt("Arguments to pass");
 
-            if(b.management == bt::management_extent::none) {
-                w::input(bi.launch_arg, "arg");
-                w::tt("Arguments to pass");
+                    w::checkbox("hide user interface", bi.no_window);
+                } else {
+                    w::input(bi.launch_arg, "arg", true, 0, true);
+                    w::tt("Discovered arguments (read-only)");
 
-                w::checkbox("hide user interface", bi.no_window);
-            } else {
-                w::input(bi.launch_arg, "arg", true, 0, true);
-                w::tt("Discovered arguments (read-only)");
-
-                w::input(bi.user_arg, "extra arg");
-                w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                    w::input(bi.user_arg, "extra arg");
+                    w::tt("Any extra arguments to pass.\nIf you break it, you fix it ;)");
+                }
             }
         }
 

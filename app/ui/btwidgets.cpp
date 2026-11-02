@@ -22,6 +22,7 @@ std::vector<std::pair<std::string, std::string>> url_scopes{
 namespace bt::ui {
     void btw_on_app_initialised(grey::app& app) {
         app.preload_texture("incognito", incognito_icon_png, incognito_icon_png_len);
+        app.preload_texture("res:black_hole", black_hole_png, black_hole_png_len);
 
         // preload browser icons
         for(auto& b : g_state.browsers) {

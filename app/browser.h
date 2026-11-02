@@ -40,6 +40,8 @@ namespace bt {
     class browser {
     public:
         inline static const std::string URL_ARG_NAME{"%url%"};
+        inline static const std::string ACTION_PREFIX{"action:"};
+        inline static const std::string ACTION_BLACK_HOLE{"black_hole"};
 
         browser(
             const std::string& name,
@@ -84,7 +86,12 @@ namespace bt {
         float ui_icon_size_anim{0.0f};
         std::string ui_validation_error;
 
-        void launch(click_payload up, const browser_profile& profile) const;
+        /**
+         * Launches click payload via a specific browser profile.
+         * @param cp click payload
+         * @param profile profile to use
+         */
+        void launch(const click_payload& cp, const browser_profile& profile) const;
 
         [[nodiscard]] size_t get_total_rule_count() const;
 
@@ -99,8 +106,12 @@ namespace bt {
 
         [[nodiscard]] bool is_default() const;
 
-        void set_management(browser_engine engine) {
-            management = engine == browser_engine::generic ? management_extent::none : management_extent::profiles;
+        [[nodiscard]] bool is_internal() const;
+
+        void set_management(browser_engine target_engine) {
+            management = target_engine == browser_engine::generic
+                ? management_extent::none
+                : management_extent::profiles;
         }
 
         // ---- static members
@@ -248,8 +259,8 @@ namespace bt {
 
     class browser_match_result {
     public:
-        browser_match_result(const profile_selection& selection, const match_rule& rule)
-            : profile{selection}, rule(rule) {
+        browser_match_result(const profile_selection& selection, match_rule rule)
+            : profile{selection}, rule{rule} {
         }
 
         browser_match_result(const browser_match_result& other) = default;
