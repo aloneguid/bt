@@ -1,12 +1,14 @@
 ## 6.3.4
 
 ### New features
-- "Black Hole" browser (#77) finally added.
+- ["Black Hole" browser](https://www.aloneguid.uk/projects/bt/#black-hole) (#77) finally added.
+
+Browser Tamer is not going to have signed binaries any time soon. I have tried to get a certificate from SignPath Foundation, but at the end [decided to withdraw](https://www.aloneguid.uk/posts/2026/11/withdrawing-from-signpath-foundation/) my application.
 
 ## 6.3.2
 
 ### Improvements
-- Replacer: Catch std::regex_error in replacer::process so a malformed user regex pattern fails gracefully rather than crashing the app, by @oocsng.
+- Replacer: Catch std::regex_error in re placer::process so a malformed user regex pattern fails gracefully rather than crashing the app, by @oocsng.
 - Un-shortener: Support standard 3xx redirect status codes (301, 302, 303, 307, 308) and perform case-insensitive matching for the Location header (pretty useful with HTTP/2 and diverse server implementations). Also normalized hostnames to lowercase for domain lookups and add a few popular shorteners (t.co, is.gd, v.gd, cutt.ly, etc...), by @oocsng.
 - O365: Support root `safelinks.protection.outlook.com` alongside existing subdomain matching, with a case-insensitive host and query parameter comparison, by @oocsng.
 - Tests: Fix unused mr3 variable in Rules.ToString test, and add unit tests for the un-shortener, replacer regex safety, and O365 safe links, by @oocsng.
