@@ -90,6 +90,14 @@ namespace bt::ui {
     bool picker_app::run_frame() {
         app->opacity = g_state.picker.opacity;
 
+        // The window is shown at the end of the first frame with ShowWindow only. Windows does not
+        // activate it that way while the user still holds a key (e.g. Ctrl+click on a link), so the
+        // picker opens behind the current app. Ask for the foreground explicitly once it is visible.
+        if(!foreground_requested && ++frames_rendered > 1) {
+            app->foreground();
+            foreground_requested = true;
+        }
+
         {
             if(choices.empty()) {
                 w::lbl("no browsers", {.emp = emphasis::error, .center_x = true, .center_y = true});

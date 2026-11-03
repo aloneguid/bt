@@ -55,6 +55,8 @@ namespace bt::ui {
         std::unique_ptr<grey::app> app;
         bool is_open{true};
         bool is_settings_open{false};
+        int frames_rendered{0};
+        bool foreground_requested{false};
 
         std::vector<action_menu_item> action_menu_items{
             action_menu_item{"rule", ICON_MD_RULE, "Toggle rule creator (R)"},
